@@ -24,9 +24,18 @@
                     </dl>
                 </li>
                 <li data-name="Storage" class="layui-nav-item">
+                    <a layui-href="javascript:;" lay-tips="订单" lay-direction="2">
+                        <i class="layui-icon iconfont icon-chanpin"></i>
+                        <cite>订单</cite>
+                    </a>
+                    <dl class="layui-nav-child">
+                        <dd><a layui-href="{:url('Order/index')}">订单列表</a></dd>
+                    </dl>
+                </li>
+                <li data-name="Storage" class="layui-nav-item">
                     <a layui-href="javascript:;" lay-tips="仓库" lay-direction="2">
                         <i class="layui-icon iconfont icon-chanpin"></i>
-                        <cite>仓库相关</cite>
+                        <cite>仓库</cite>
                     </a>
                     <dl class="layui-nav-child">
                         <dd><a layui-href="{:url('Storage/index')}">仓库列表</a></dd>

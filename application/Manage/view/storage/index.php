@@ -44,7 +44,7 @@
                     </td>
                     <td class="tc">
                         <a href="{:url('deliver/index', ['id' => $v.id])}" class="layui-btn layui-btn-sm">运送</a>
-                        <a href="{:url('pick/index', ['id' => $v.id])}" class="layui-btn layui-btn-sm">拣货</a>
+                        <a href="{:url('pick/index', ['id' => $v.id])}" class="layui-btn layui-btn-sm">出库</a>
                         <a href="{:url('edit', ['id' => $v.id])}" class="layui-btn layui-btn-normal layui-btn-sm">编辑</a>
                         <button data-id="{$v.id}" class="layui-btn layui-btn-sm layui-btn-danger ml0" lay-submit lay-filter="Detele">删除</button>
                     </td>

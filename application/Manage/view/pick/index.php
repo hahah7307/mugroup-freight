@@ -5,7 +5,7 @@
 <div class="layui-body" id="LAY_app_body">
     <div class="right">
         <a href="{:url('Storage/index')}" class="layui-btn layui-btn-danger layui-btn-sm fr"><i class="layui-icon">&#xe603;</i>返回上一页</a>
-        <div class="title">拣货&打包费列表</div>
+        <div class="title">出入库费用列表</div>
 
         <div class="layui-form">
             <a class="layui-btn" href="{:url('add', ['storage_id' => $storage_id])}">添加</a>
@@ -16,16 +16,20 @@
                     <col>
                     <col>
                     <col>
+                    <col>
+                    <col width="80">
                     <col width="80">
                     <col width="180">
                 </colgroup>
                 <thead>
                 <tr>
                     <th>名称</th>
+                    <th>平台名称</th>
                     <th>费用($)</th>
                     <th>描述</th>
                     <th>最小重量</th>
                     <th>最大重量</th>
+                    <th>优先级</th>
                     <th class="tc">状态</th>
                     <th class="tc">操作</th>
                 </tr>
@@ -34,10 +38,12 @@
                 {foreach name="list" item="v"}
                 <tr>
                     <td>{$v.name}</td>
+                    <td>{$v.platform_tag}</td>
                     <td>{$v.value}</td>
                     <td>{$v.description}</td>
                     <td>{:json_decode($v['condition'], true)['min']}</td>
                     <td>{:json_decode($v['condition'], true)['max']}</td>
+                    <td><input type="text" name="level" class="layui-input w50" value="{$v.level}"></td>
                     <td class="tc">
                         <input type="checkbox" class="h30" name="look" value="{$v.id}" lay-skin="switch" lay-text="是|否" lay-filter="formLock" {if condition="$v.state eq 1"}checked{/if}>
                     </td>
