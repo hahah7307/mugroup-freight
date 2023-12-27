@@ -1,11 +1,8 @@
 @font-face {
-  font-family: 'iconfont';  /* project id 2076922 */
-  src: url('//at.alicdn.com/t/font_2076922_xhx405gtao.eot');
-  src: url('//at.alicdn.com/t/font_2076922_xhx405gtao.eot?#iefix') format('embedded-opentype'),
-  url('//at.alicdn.com/t/font_2076922_xhx405gtao.woff2') format('woff2'),
-  url('//at.alicdn.com/t/font_2076922_xhx405gtao.woff') format('woff'),
-  url('//at.alicdn.com/t/font_2076922_xhx405gtao.ttf') format('truetype'),
-  url('//at.alicdn.com/t/font_2076922_xhx405gtao.svg#iconfont') format('svg');
+  font-family: 'iconfont';  /* Project id 2076922 */
+  src: url('//at.alicdn.com/t/c/font_2076922_urcvhhtb32p.woff2?t=1703581904232') format('woff2'),
+  url('//at.alicdn.com/t/c/font_2076922_urcvhhtb32p.woff?t=1703581904232') format('woff'),
+  url('//at.alicdn.com/t/c/font_2076922_urcvhhtb32p.ttf?t=1703581904232') format('truetype');
 }
 
 .iconfont {
@@ -102,4 +99,12 @@
 
 .icon-tongji:before {
   content: "\e68c";
+}
+
+.icon-dingdan:before {
+  content: "\e645";
+}
+
+.icon-dingdan1:before {
+  content: "\e63a";
 }

@@ -5,9 +5,10 @@ use app\Manage\model\OrderAddressModel;
 use app\Manage\model\OrderDetailModel;
 use app\Manage\model\OrderModel;
 use app\Manage\model\ProductModel;
-use app\Manage\validate\StorageRuleValidate;
 use SoapClient;
 use think\Db;
+use think\db\exception\DataNotFoundException;
+use think\db\exception\ModelNotFoundException;
 use think\Exception;
 use think\exception\DbException;
 use think\Session;
@@ -22,115 +23,11 @@ class OrderController extends BaseController
     {
         // 订单列表
         $order = new OrderModel();
-        $list = $order->order('id asc')->paginate(Config::get('PAGE_NUM'));
+        $list = $order->with(['details.product','address'])->order('id asc')->paginate(Config::get('PAGE_NUM'));
         $this->assign('list', $list);
 
         Session::set(Config::get('BACK_URL'), $this->request->url(), 'manage');
         return view();
-    }
-
-    // 添加
-    public function add()
-    {
-        if ($this->request->isPost()) {
-            $post = $this->request->post();
-            $post['state'] = OrderModel::STATE_ACTIVE;
-            $post['storage_id'] = input('storage_id');
-            $post['condition'] = json_encode(['min' => $post['min'], 'max' => $post['max']]);
-            $dataValidate = new StorageRuleValidate();
-            if ($dataValidate->scene('add')->check($post)) {
-                $model = new OrderModel();
-                if ($model->allowField(true)->save($post)) {
-                    echo json_encode(['code' => 1, 'msg' => '添加成功']);
-                    exit;
-                } else {
-                    echo json_encode(['code' => 0, 'msg' => '添加失败，请重试']);
-                    exit;
-                }
-            } else {
-                echo json_encode(['code' => 0, 'msg' => $dataValidate->getError()]);
-                exit;
-            }
-        } else {
-            $this->assign('storage_id', input('storage_id'));
-
-            return view();
-        }
-    }
-
-    // 编辑
-
-    /**
-     * @throws DbException
-     */
-    public function edit($id)
-    {
-        if ($this->request->isPost()) {
-            $post = $this->request->post();
-            $post['condition'] = json_encode(['min' => $post['min'], 'max' => $post['max']]);
-            $dataValidate = new StorageRuleValidate();
-            if ($dataValidate->scene('edit')->check($post)) {
-                $model = new OrderModel();
-                if ($model->allowField(true)->save($post, ['id' => $id])) {
-                    echo json_encode(['code' => 1, 'msg' => '修改成功']);
-                    exit;
-                } else {
-                    echo json_encode(['code' => 0, 'msg' => '修改失败，请重试']);
-                    exit;
-                }
-            } else {
-                echo json_encode(['code' => 0, 'msg' => $dataValidate->getError()]);
-                exit;
-            }
-        } else {
-            $info = OrderModel::get(['id' => $id,]);
-            $this->assign('info', $info);
-
-            return view();
-        }
-    }
-
-    // 删除
-
-    /**
-     * @throws DbException
-     */
-    public function delete()
-    {
-        if ($this->request->isPost()) {
-            $post = $this->request->post();
-            $block = OrderModel::get($post['id']);
-            if ($block->delete()) {
-                echo json_encode(['code' => 1, 'msg' => '操作成功']);
-                exit;
-            } else {
-                echo json_encode(['code' => 0, 'msg' => '操作失败，请重试']);
-                exit;
-            }
-        } else {
-            echo json_encode(['code' => 0, 'msg' => '异常操作']);
-            exit;
-        }
-    }
-
-    // 状态切换
-
-    /**
-     * @throws DbException
-     */
-    public function status()
-    {
-        if ($this->request->isPost()) {
-            $post = $this->request->post();
-            $user = OrderModel::get($post['id']);
-            $user['state'] = $user['state'] == OrderModel::STATE_ACTIVE ? 0 : OrderModel::STATE_ACTIVE;
-            $user->save();
-            echo json_encode(['code' => 1, 'msg' => '操作成功']);
-            exit;
-        } else {
-            echo json_encode(['code' => 0, 'msg' => '异常操作']);
-            exit;
-        }
     }
 
     /**
@@ -263,6 +160,50 @@ class OrderController extends BaseController
         } catch (\Exception $e) {
             Db::rollback();
             dump('Exception:'.$e);
+        }
+    }
+
+    /**
+     * @throws DbException
+     * @throws ModelNotFoundException
+     * @throws DataNotFoundException
+     */
+    public function calculate()
+    {
+        if ($this->request->isPost()) {
+            $post = $this->request->post();
+
+            foreach ($post['id'] as $item) {
+                $order = new OrderModel();
+                $order = $order->with(['details.product', 'address', 'area'])->where(['id'=>$item])->find();
+//                $order = OrderModel::with(['details.product','address'])->where(['id'=>$item])->select();
+//                dump($order->toArray());
+                $storage_id = $order['area']['storage_id'];
+                $storage_type = $order['area']['type'];
+                $zip_code = $order['address']['postalCode'];
+                $product = array();
+                foreach ($order['details'] as $detail) {
+                    $product[] = [
+                        'productWeight' =>  $detail['product']['productWeight'],
+                        'productLength' =>  $detail['product']['productLength'],
+                        'productWidth' =>  $detail['product']['productWidth'],
+                        'productHeight' =>  $detail['product']['productHeight'],
+                        'productQty' =>  $detail['qty']
+                    ];
+                }
+                dump($storage_id);
+                dump($storage_type);
+                dump($zip_code);
+                dump($product);
+
+                // 计算体积重
+                $fee = OrderModel::calculateDeliver($storage_id, $storage_type, $zip_code, $product);
+
+                unset($product);
+            }
+        } else {
+            echo json_encode(['code' => 0, 'msg' => '异常操作']);
+            exit;
         }
     }
 }

@@ -33,9 +33,9 @@ class ParamController extends BaseController
         }
     }
 
-    public function price()
+    public function storage()
     {
-        $filename = APP_PATH . 'price.php';
+        $filename = APP_PATH . 'storage.php';
         if ($this->request->isPost()) {
             $post = $this->request->post();
             if ($post) {

@@ -5,15 +5,15 @@ namespace app\Manage\model;
 use think\exception\DbException;
 use think\Model;
 
-class OrderDetailModel extends Model
+class StorageAhsModel extends Model
 {
-    protected $name = 'ecang_order_detail';
+    protected $name = 'storage_ahs';
 
     protected $resultSetType = 'collection';
 
-//    protected $insert = ['created_at', 'updated_at'];
+    protected $insert = ['created_at', 'updated_at'];
 
-//    protected $update = ['updated_at'];
+    protected $update = ['updated_at'];
 
     protected function setCreatedAtAttr()
     {
@@ -25,8 +25,8 @@ class OrderDetailModel extends Model
         return date('Y-m-d H:i:s');
     }
 
-    public function product(): \think\model\relation\HasOne
+    public function rule()
     {
-        return $this->hasOne('ProductModel', 'productSku', 'warehouseSku');
+        return self::hasMany('StorageAhsRuleModel', 'ahs_id', 'id');
     }
 }

@@ -2,6 +2,7 @@
 
 namespace app\Manage\model;
 
+use think\exception\DbException;
 use think\Model;
 use think\Session;
 
@@ -11,49 +12,72 @@ class AHS extends Model
 
     const LBS = 50;
 
-    static public function AHSDimension($a, $b, $c)
-    {
-        $arr = [$a, $b, $c];
-        sort($arr);
-        $length = array_reverse($arr);
-        return $length[0] > floor(48 * self::CM2INCHES) || $length[1] > floor(30 * self::CM2INCHES) || ($length[0] + ($length[1] + $length[2]) * 2) > floor(105 * self::CM2INCHES);
-    }
+    const KG2LBS = 2.204;
 
-    static public function AHSWeight($w)
+    static public function AHSWeight($w): bool
     {
         return $w >= self::LBS;
     }
 
-    static public function AHSFeeLiang($w, $a, $b, $c)
+    static public function AHSDimension($a, $b, $c): bool
     {
-        if (self::AHSWeight($w)) {
-            $basicFee = 1.83;
-            $additionalFee = 3.66;
-        } elseif (self::AHSDimension($a, $b, $c)) {
-            $basicFee = 1.83;
-            $additionalFee = 2.55;
-        } else {
-            $basicFee = 0.9;
-            $additionalFee = 0;
-        }
-        return ['basicFee' => $basicFee, 'additionalFee' => $additionalFee];
+        $arr = [$a, $b, $c];
+        sort($arr);
+        $length = array_reverse($arr);
+        return $length[0] > 48 * self::CM2INCHES || $length[1] > 30 * self::CM2INCHES || ($length[0] + ($length[1] + $length[2]) * 2) > 105 * self::CM2INCHES;
     }
 
-    static public function AHSFeeLoctek($w, $a, $b, $c)
+    /**
+     * @throws DbException
+     */
+    static public function getAHSFee($storage, $zone, $product)
     {
-        if (self::AHSWeight($w) && $w > 70) {
-            $basicFee = 2.78;
-            $additionalFee = 11.5;
-        } elseif (self::AHSDimension($a, $b, $c)) {
-            $basicFee = 2.78;
-            $additionalFee = 8.5;
-        } elseif (self::AHSWeight($w)) {
-            $basicFee = 2.78;
-            $additionalFee = 1.5;
+        $ahsFee = 0;
+        if ($storage == StorageModel::LIANGCANGID) {
+            foreach ($product as $item) {
+                $ahsFee += self::AHSFeeLiang($item['productWeight'], $zone, $item['productLength'], $item['productWidth'], $item['productHeight']);
+                unset($item);
+            }
+        } elseif ($storage == StorageModel::LECANGID) {
+            foreach ($product as $item) {
+                $ahsFee += self::AHSFeeLoctek($item['productWeight'], $zone, $item['productLength'], $item['productWidth'], $item['productHeight']);
+                unset($item);
+            }
         } else {
-            $basicFee = 1.5;
-            $additionalFee = 0;
+            $ahsFee += 0;
         }
-        return ['basicFee' => $basicFee, 'additionalFee' => $additionalFee];
+        return $ahsFee;
+    }
+
+    /**
+     * @throws DbException
+     */
+    static public function AHSFeeLiang($w, $zone, $a, $b, $c)
+    {
+        $storage = StorageModel::LIANGCANGID;
+        $w *= self::KG2LBS;
+        $weightFee = self::AHSWeight($w) ? StorageAhsRuleModel::get(['storage_id' => $storage, 'ahs_id' => 1, 'state' => 1, 'zone' => $zone])->getData('value') : 0;
+        $dimensionFee = self::AHSDimension($a, $b, $c) ? StorageAhsRuleModel::get(['storage_id' => $storage, 'ahs_id' => 2, 'state' => 1, 'zone' => $zone])->getData('value') : 0;
+
+        return max($weightFee, $dimensionFee);
+    }
+
+    /**
+     * @throws DbException
+     */
+    static public function AHSFeeLoctek($w, $zone, $a, $b, $c)
+    {
+        $storage = StorageModel::LECANGID;
+        $w *= self::KG2LBS;
+        if ($w > 70) {
+            $weightFee = StorageAhsRuleModel::get(['storage_id' => $storage, 'ahs_id' => 4, 'state' => 1, 'zone' => $zone])->getData('value');
+        } elseif (self::AHSWeight($w)) {
+            $weightFee = StorageAhsRuleModel::get(['storage_id' => $storage, 'ahs_id' => 3, 'state' => 1, 'zone' => $zone])->getData('value');
+        } else {
+            $weightFee = 0;
+        }
+        $dimensionFee = self::AHSDimension($a, $b, $c) ? StorageAhsRuleModel::get(['storage_id' => $storage, 'ahs_id' => 5, 'state' => 1, 'zone' => $zone])->getData('value') : 0;
+
+        return max($weightFee, $dimensionFee);
     }
 }

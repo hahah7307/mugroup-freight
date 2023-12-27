@@ -5,13 +5,9 @@ namespace app\Manage\model;
 use think\exception\DbException;
 use think\Model;
 
-class StorageModel extends Model
+class StorageAreaModel extends Model
 {
-    const STATE_ACTIVE = 1;
-    const LIANGCANGID = 1;
-    const LECANGID = 2;
-
-    protected $name = 'storage';
+    protected $name = 'storage_area';
 
     protected $resultSetType = 'collection';
 

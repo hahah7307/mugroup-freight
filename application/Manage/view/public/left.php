@@ -13,23 +13,14 @@
                         <cite>控制台</cite>
                     </a>
                 </li>
-                <li data-name="Member" class="layui-nav-item">
-                    <a layui-href="javascript:;" lay-tips="核价" lay-direction="2">
-                        <i class="layui-icon iconfont icon-xunpan"></i>
-                        <cite>模板</cite>
-                    </a>
-                    <dl class="layui-nav-child">
-                        <dd><a layui-href="{:url('Price/index')}">核价模板</a></dd>
-                        <dd><a layui-href="{:url('Param/price')}">参数配置</a></dd>
-                    </dl>
-                </li>
                 <li data-name="Storage" class="layui-nav-item">
                     <a layui-href="javascript:;" lay-tips="订单" lay-direction="2">
-                        <i class="layui-icon iconfont icon-chanpin"></i>
+                        <i class="layui-icon iconfont icon-dingdan1"></i>
                         <cite>订单</cite>
                     </a>
                     <dl class="layui-nav-child">
                         <dd><a layui-href="{:url('Order/index')}">订单列表</a></dd>
+                        <dd><a layui-href="{:url('Param/storage')}">参数配置</a></dd>
                     </dl>
                 </li>
                 <li data-name="Storage" class="layui-nav-item">

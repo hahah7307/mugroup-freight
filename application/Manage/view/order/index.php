@@ -19,17 +19,34 @@
 
         <div class="layui-form">
             <a class="layui-btn" href="{:url('add')}">添加</a>
+            <a class="layui-btn layui-btn-normal" lay-submit lay-filter="Calculate">测算</a>
             <table class="layui-table">
                 <colgroup>
+                    <col width="50">
                     <col>
                     <col>
                     <col>
+                    <col>
+                    <col>
+                    <col>
+                    <col>
+                    <col>
+                    <col width="80">
                     <col width="250">
                 </colgroup>
                 <thead>
                 <tr>
-                    <th>名称</th>
-                    <th>短描述</th>
+                    <th class="tc">
+                        <input type="checkbox" lay-skin="primary" id="YanNanQiu_checkall" lay-filter="YanNanQiu_checkall">
+                    </th>
+                    <th>参考单号</th>
+                    <th>销售单号</th>
+                    <th>系统单号</th>
+                    <th>平台代码</th>
+                    <th>订单类型</th>
+                    <th>总金额</th>
+                    <th>跟踪号</th>
+                    <th>创建时间</th>
                     <th class="tc">状态</th>
                     <th class="tc">操作</th>
                 </tr>
@@ -37,9 +54,40 @@
                 <tbody>
                 {foreach name="list" item="v"}
                 <tr>
-                    <td>{$v.order_id}</td>
+                    <td class="tc">
+                        <div class="YanNanQiu_Checkbox">
+                            <input type="checkbox" name="id[]" lay-skin="primary" lay-filter="imgbox" class="YanNanQiu_imgId" value="{$v.id}">
+                        </div>
+                    </td>
+                    <td>{$v.refNo}</td>
+                    <td>{$v.saleOrderCode}</td>
+                    <td>{$v.sysOrderCode}</td>
                     <td>{$v.platform}</td>
-                    <td class="tc">{$v.refNo}</td>
+                    <td>{$v.orderType}</td>
+                    <td>{$v.amountpaid}</td>
+                    <td>{$v.shippingMethodNo}</td>
+                    <td>{$v.createdDate}</td>
+                    <td class="tc">
+                        {if condition="$v.status eq 0"}
+                            <p>已废弃</p>
+                        {elseif condition="$v.status eq 1" /}
+                            <p>未付款</p>
+                        {elseif condition="$v.status eq 2" /}
+                            <p>待审核</p>
+                        {elseif condition="$v.status eq 3" /}
+                            <p>待发货</p>
+                        {elseif condition="$v.status eq 4" /}
+                            <p>已发货</p>
+                        {elseif condition="$v.status eq 5" /}
+                            <p>冻结中</p>
+                        {elseif condition="$v.status eq 6" /}
+                            <p>缺货</p>
+                        {elseif condition="$v.status eq 7" /}
+                            <p>问题件</p>
+                        {elseif condition="$v.status eq 8" /}
+                            <p>未付款</p>
+                        {/if}
+                    </td>
                     <td class="tc">
                         <a href="{:url('deliver/index', ['id' => $v.id])}" class="layui-btn layui-btn-sm">运送</a>
                         <a href="{:url('pick/index', ['id' => $v.id])}" class="layui-btn layui-btn-sm">出库</a>
@@ -87,6 +135,35 @@
                 $('button').attr('disabled',true);
                 button.text('请稍候...');
                 axios.post("{:url('delete')}", {id:id})
+                    .then(function (response) {
+                        var res = response.data;
+                        if (res.code === 1) {
+                            layer.alert(res.msg,{icon:1,closeBtn:0,title:false,btnAlign:'c',},function(){
+                                location.reload();
+                            });
+                        } else {
+                            layer.alert(res.msg,{icon:2,closeBtn:0,title:false,btnAlign:'c'},function(){
+                                layer.closeAll();
+                                $('button').attr('disabled',false);
+                                button.text(text);
+                            });
+                        }
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    });
+                return false;
+            });
+        });
+
+        // 测算
+        form.on('submit(Calculate)', function(data){
+            var text = $(this).text(),
+                button = $(this);
+            layer.confirm('确定测算吗？',{icon:3,closeBtn:0,title:false,btnAlign:'c'},function(){
+                $('button').attr('disabled',true);
+                button.text('请稍候...');
+                axios.post("{:url('calculate')}", {id:data.field})
                     .then(function (response) {
                         var res = response.data;
                         if (res.code === 1) {
