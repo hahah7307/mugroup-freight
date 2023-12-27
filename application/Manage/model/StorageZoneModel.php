@@ -40,10 +40,12 @@ class StorageZoneModel extends Model
     {
         if ($storage == StorageModel::LIANGCANGID) {
             $zip_code = substr($postalCode, 0, 3) . "00";
-            $zone = StorageZoneModel::get(['storage_id' => $storage, 'type' => $type, 'zip_code' => $zip_code])->find();
+            $storageZone = new StorageZoneModel();
+            $zone = $storageZone->where(['storage_id' => $storage, 'type' => $type])->where('zip_code', '<=', $zip_code)->order('id desc')->find();
+            // TODO:邮编不在范围内无法得到分区
             return intval($postalCode) >= $zone['zip_code'] && intval($postalCode) <= $zone['zip_code_bak'] ? $zone['zone'] : 0;
         } elseif ($storage == StorageModel::LECANGID) {
-            $zone = StorageZoneModel::get(['storage_id' => $storage, 'type' => $type, 'zip_code' => $postalCode])->find();
+            $zone = StorageZoneModel::get(['storage_id' => $storage, 'type' => $type, 'zip_code' => $postalCode]);
             return $zone ? $zone['zone'] : 0;
         } else {
             return 0;

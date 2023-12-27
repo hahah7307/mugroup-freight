@@ -40,7 +40,7 @@ class BaseController extends Controller
 		session('module', $this->request->module());
 
         // 加载自定义配置
-        Config::load(APP_PATH . 'price.php');
+        Config::load(APP_PATH . 'storage.php');
 
 		// 编辑器插件、模块
 		$this->assign('tinymce', ['plugins' => Config::get('TINYMCE_PLUGINS'), 'toolbar' => Config::get('TINYMCE_TOOLBAR')]);

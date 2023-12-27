@@ -1,13 +1,19 @@
 
 {include file="public/header" /}
 
+<style>
+    .calcuRes {cursor: pointer;}
+</style>
 <!-- 主体内容 -->
 <div class="layui-body" id="LAY_app_body">
     <div class="right">
-        <div class="title">仓库列表</div>
+        <div class="title">订单列表</div>
         <form class="layui-form search-form" method="get">
             <div class="layui-inline w200">
-                <input type="text" class="layui-input" name="keyword" value="{$keyword}" placeholder="仓库名称">
+                <input type="text" class="layui-input" name="keyword" value="{$keyword}" placeholder="参考/销售/系统单号">
+            </div>
+            <div class="layui-inline w100">
+                <input type="text" class="layui-input" name="page_num" value="{$page_num}" placeholder="每页条数">
             </div>
             <div class="layui-inline">
                 <button class="layui-btn" lay-submit lay-filter="Search"><i class="layui-icon">&#xe615;</i> 查询</button>
@@ -18,11 +24,13 @@
         </form>
 
         <div class="layui-form">
-            <a class="layui-btn" href="{:url('add')}">添加</a>
+<!--            <a class="layui-btn" href="{:url('add')}">添加</a>-->
             <a class="layui-btn layui-btn-normal" lay-submit lay-filter="Calculate">测算</a>
             <table class="layui-table">
                 <colgroup>
                     <col width="50">
+                    <col>
+                    <col>
                     <col>
                     <col>
                     <col>
@@ -39,6 +47,7 @@
                     <th class="tc">
                         <input type="checkbox" lay-skin="primary" id="YanNanQiu_checkall" lay-filter="YanNanQiu_checkall">
                     </th>
+                    <th>ID</th>
                     <th>参考单号</th>
                     <th>销售单号</th>
                     <th>系统单号</th>
@@ -47,6 +56,7 @@
                     <th>总金额</th>
                     <th>跟踪号</th>
                     <th>创建时间</th>
+                    <th>运费</th>
                     <th class="tc">状态</th>
                     <th class="tc">操作</th>
                 </tr>
@@ -59,6 +69,7 @@
                             <input type="checkbox" name="id[]" lay-skin="primary" lay-filter="imgbox" class="YanNanQiu_imgId" value="{$v.id}">
                         </div>
                     </td>
+                    <td>{$v.id}</td>
                     <td>{$v.refNo}</td>
                     <td>{$v.saleOrderCode}</td>
                     <td>{$v.sysOrderCode}</td>
@@ -67,6 +78,7 @@
                     <td>{$v.amountpaid}</td>
                     <td>{$v.shippingMethodNo}</td>
                     <td>{$v.createdDate}</td>
+                    <td class="calcuRes" data-info="{$v.calcuInfo}">{$v.calcuRes}</td>
                     <td class="tc">
                         {if condition="$v.status eq 0"}
                             <p>已废弃</p>
@@ -89,10 +101,10 @@
                         {/if}
                     </td>
                     <td class="tc">
-                        <a href="{:url('deliver/index', ['id' => $v.id])}" class="layui-btn layui-btn-sm">运送</a>
-                        <a href="{:url('pick/index', ['id' => $v.id])}" class="layui-btn layui-btn-sm">出库</a>
-                        <a href="{:url('edit', ['id' => $v.id])}" class="layui-btn layui-btn-normal layui-btn-sm">编辑</a>
-                        <button data-id="{$v.id}" class="layui-btn layui-btn-sm layui-btn-danger ml0" lay-submit lay-filter="Detele">删除</button>
+<!--                        <a href="{:url('deliver/index', ['id' => $v.id])}" class="layui-btn layui-btn-sm">运送</a>-->
+<!--                        <a href="{:url('pick/index', ['id' => $v.id])}" class="layui-btn layui-btn-sm">出库</a>-->
+<!--                        <a href="{:url('edit', ['id' => $v.id])}" class="layui-btn layui-btn-normal layui-btn-sm">编辑</a>-->
+<!--                        <button data-id="{$v.id}" class="layui-btn layui-btn-sm layui-btn-danger ml0" lay-submit lay-filter="Detele">删除</button>-->
                     </td>
                 </tr>
                 {/foreach}
@@ -182,6 +194,17 @@
                         console.log(error);
                     });
                 return false;
+            });
+        });
+
+        $(".calcuRes").click(function(){
+            let info = $(this).data('info');
+            layer.alert(info,{
+                title: "费用详情",
+                icon: 7,
+                area: ['500px', '180px'],
+                btn: ['关闭'],
+                btnAlign: 'c'
             });
         });
     });

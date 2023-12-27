@@ -2,6 +2,7 @@
 
 namespace app\Manage\model;
 
+use think\Config;
 use think\exception\DbException;
 use think\Model;
 use think\Session;
@@ -69,6 +70,7 @@ class AHS extends Model
     {
         $storage = StorageModel::LECANGID;
         $w *= self::KG2LBS;
+
         if ($w > 70) {
             $weightFee = StorageAhsRuleModel::get(['storage_id' => $storage, 'ahs_id' => 4, 'state' => 1, 'zone' => $zone])->getData('value');
         } elseif (self::AHSWeight($w)) {
@@ -79,5 +81,26 @@ class AHS extends Model
         $dimensionFee = self::AHSDimension($a, $b, $c) ? StorageAhsRuleModel::get(['storage_id' => $storage, 'ahs_id' => 5, 'state' => 1, 'zone' => $zone])->getData('value') : 0;
 
         return max($weightFee, $dimensionFee);
+    }
+
+    static public function demandSurcharges($storage, $createdDate)
+    {
+        if ($storage == StorageModel::LIANGCANGID) {
+            if (strtotime($createdDate) >= strtotime(Config::get('ahs_additional_time'))
+                && strtotime($createdDate) <= strtotime(Config::get('ahs_additional_time2'))) {
+                return Config::get('liang_additional_fee');
+            } else {
+                return 0;
+            }
+        } elseif ($storage == StorageModel::LECANGID) {
+            if (strtotime($createdDate) >= strtotime(Config::get('ahs_additional_time3'))
+                && strtotime($createdDate) <= strtotime(Config::get('ahs_additional_time4'))) {
+                return Config::get('loctek_additional_fee');
+            } else {
+                return 0;
+            }
+        } else {
+            return 0;
+        }
     }
 }

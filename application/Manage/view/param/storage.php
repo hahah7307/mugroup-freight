@@ -11,29 +11,9 @@
         <div>
             <div class="layui-form-item">
                 <div class="layui-inline layui-col-md3">
-                    <label class="layui-form-label">偏远附加费</label>
+                    <label class="layui-form-label">燃油费(%)</label>
                     <div class="layui-input-inline">
-                        <input type="text" class="layui-input w300" name="das_fee" value="{$config['das_fee']}">
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div>
-            <div class="layui-form-item">
-                <div class="layui-inline layui-col-md3">
-                    <label class="layui-form-label">超偏远附加费</label>
-                    <div class="layui-input-inline">
-                        <input type="text" class="layui-input w300" name="dase_fee" value="{$config['dase_fee']}">
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div>
-            <div class="layui-form-item">
-                <div class="layui-inline layui-col-md3">
-                    <label class="layui-form-label">超级偏远附加费</label>
-                    <div class="layui-input-inline">
-                        <input type="text" class="layui-input w300" name="dasr_fee" value="{$config['dasr_fee']}">
+                        <input type="text" class="layui-input w300" name="fuel_cost" value="{$config['fuel_cost']}">
                     </div>
                 </div>
             </div>
@@ -41,7 +21,7 @@
 		<div>
             <div class="layui-form-item">
                 <div class="layui-inline layui-col-md3">
-                    <label class="layui-form-label">AHS旺季附加费时间</label>
+                    <label class="layui-form-label">AHS旺季时间（乐仓）</label>
                     <div class="layui-input-inline">
                         <input type="text" class="layui-input w300" id="ahs_additional_time" name="ahs_additional_time" value="{$config['ahs_additional_time']}" placeholder="开始时间">
                     </div>
@@ -61,9 +41,19 @@
         <div>
             <div class="layui-form-item">
                 <div class="layui-inline layui-col-md3">
-                    <label class="layui-form-label">住宅旺季附加费时间</label>
+                    <label class="layui-form-label">附加费金额（乐仓）</label>
                     <div class="layui-input-inline">
-                        <input type="text" class="layui-input w300" id="home_additional_time" name="home_additional_time" value="{$config['home_additional_time']}" placeholder="开始时间">
+                        <input type="text" class="layui-input w300" name="liang_additional_fee" value="{$config['liang_additional_fee']}">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div>
+            <div class="layui-form-item">
+                <div class="layui-inline layui-col-md3">
+                    <label class="layui-form-label">AHS旺季时间（乐歌）</label>
+                    <div class="layui-input-inline">
+                        <input type="text" class="layui-input w300" id="ahs_additional_time3" name="ahs_additional_time3" value="{$config['ahs_additional_time3']}" placeholder="开始时间">
                     </div>
                 </div>
             </div>
@@ -73,7 +63,17 @@
                 <div class="layui-inline layui-col-md3">
                     <label class="layui-form-label"></label>
                     <div class="layui-input-inline">
-                        <input type="text" class="layui-input w300" id="home_additional_time2" name="home_additional_time2" value="{$config['home_additional_time2']}" placeholder="结束时间">
+                        <input type="text" class="layui-input w300" id="ahs_additional_time4" name="ahs_additional_time4" value="{$config['ahs_additional_time4']}" placeholder="结束时间">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div>
+            <div class="layui-form-item">
+                <div class="layui-inline layui-col-md3">
+                    <label class="layui-form-label">附加费金额（乐歌）</label>
+                    <div class="layui-input-inline">
+                        <input type="text" class="layui-input w300" name="loctek_additional_fee" value="{$config['loctek_additional_fee']}">
                     </div>
                 </div>
             </div>
@@ -102,11 +102,11 @@ layui.use(['form', 'jquery', 'laydate'], function(){
     });
 
     laydate.render({
-        elem: '#home_additional_time',
+        elem: '#ahs_additional_time3',
         type: 'datetime'
     });
     laydate.render({
-        elem: '#home_additional_time2',
+        elem: '#ahs_additional_time4',
         type: 'datetime'
     });
 

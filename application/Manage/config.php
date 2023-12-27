@@ -23,7 +23,7 @@ return [
     'BACK_URL'			=>	'back_url',
 
     // 后台分页设置
-   	'PAGE_NUM'			=>	15,
+   	'PAGE_NUM'			=>	20,
 
     // 后台文件上传配置
     'IMAGE_EXT'         =>  ['jpg', 'gif', 'jpeg', 'png'],          // 图片限制后缀
