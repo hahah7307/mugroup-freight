@@ -19,7 +19,6 @@
             </div>
         </div>
         <div>
-        <div>
             <div class="layui-form-item">
                 <div class="layui-inline layui-col-md3">
                     <label class="layui-form-label">燃油费(%)</label>
@@ -85,6 +84,103 @@
                     <label class="layui-form-label">附加费金额（乐歌）</label>
                     <div class="layui-input-inline">
                         <input type="text" class="layui-input w300" name="loctek_additional_fee" value="{$config['loctek_additional_fee']}">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="title">导入中心</div>
+        <div>
+            <div class="layui-form-item">
+                <div class="layui-inline layui-col-md3">
+                    <label class="layui-form-label">良仓总列数</label>
+                    <div class="layui-input-inline">
+                        <input type="text" class="layui-input w300" name="excel_col_liang" value="{$config['excel_col_liang']}">
+                    </div>
+                </div>
+                <div class="layui-inline layui-col-md3">
+                    <label class="layui-form-label">乐仓总列数</label>
+                    <div class="layui-input-inline">
+                        <input type="text" class="layui-input w300" name="excel_col_loctek" value="{$config['excel_col_loctek']}">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div>
+            <div class="layui-form-item">
+                <div class="layui-inline layui-col-md3">
+                    <label class="layui-form-label">订单号列</label>
+                    <div class="layui-input-inline">
+                        <input type="text" class="layui-input w300" name="excel_ordercode_liang" value="{$config['excel_ordercode_liang']}">
+                    </div>
+                </div>
+                <div class="layui-inline layui-col-md3">
+                    <label class="layui-form-label"></label>
+                    <div class="layui-input-inline">
+                        <input type="text" class="layui-input w300" name="excel_ordercode_loctek" value="{$config['excel_ordercode_loctek']}">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div>
+            <div class="layui-form-item">
+                <div class="layui-inline layui-col-md3">
+                    <label class="layui-form-label">邮编列</label>
+                    <div class="layui-input-inline">
+                        <input type="text" class="layui-input w300" name="excel_postal_liang" value="{$config['excel_postal_liang']}">
+                    </div>
+                </div>
+                <div class="layui-inline layui-col-md3">
+                    <label class="layui-form-label"></label>
+                    <div class="layui-input-inline">
+                        <input type="text" class="layui-input w300" name="excel_postal_loctek" value="{$config['excel_postal_loctek']}">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div>
+            <div class="layui-form-item">
+                <div class="layui-inline layui-col-md3">
+                    <label class="layui-form-label">计费重列</label>
+                    <div class="layui-input-inline">
+                        <input type="text" class="layui-input w300" name="excel_weight_liang" value="{$config['excel_weight_liang']}">
+                    </div>
+                </div>
+                <div class="layui-inline layui-col-md3">
+                    <label class="layui-form-label"></label>
+                    <div class="layui-input-inline">
+                        <input type="text" class="layui-input w300" name="excel_weight_loctek" value="{$config['excel_weight_loctek']}">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div>
+            <div class="layui-form-item">
+                <div class="layui-inline layui-col-md3">
+                    <label class="layui-form-label">住宅地址附加费列</label>
+                    <div class="layui-input-inline">
+                        <input type="text" class="layui-input w300" name="excel_rdc_liang" value="{$config['excel_rdc_liang']}">
+                    </div>
+                </div>
+                <div class="layui-inline layui-col-md3">
+                    <label class="layui-form-label"></label>
+                    <div class="layui-input-inline">
+                        <input type="text" class="layui-input w300" name="excel_rdc_loctek" value="{$config['excel_rdc_loctek']}">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div>
+            <div class="layui-form-item">
+                <div class="layui-inline layui-col-md3">
+                    <label class="layui-form-label">住宅地址旺季附加费列</label>
+                    <div class="layui-input-inline">
+                        <input type="text" class="layui-input w300" name="excel_drdc_liang" value="{$config['excel_drdc_liang']}">
+                    </div>
+                </div>
+                <div class="layui-inline layui-col-md3">
+                    <label class="layui-form-label"></label>
+                    <div class="layui-input-inline">
+                        <input type="text" class="layui-input w300" name="excel_drdc_loctek" value="{$config['excel_drdc_loctek']}">
                     </div>
                 </div>
             </div>

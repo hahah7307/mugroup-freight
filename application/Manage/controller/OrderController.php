@@ -5,6 +5,8 @@ use app\Manage\model\OrderAddressModel;
 use app\Manage\model\OrderDetailModel;
 use app\Manage\model\OrderModel;
 use app\Manage\model\ProductModel;
+use PHPExcel_IOFactory;
+use PHPExcel_Reader_Exception;
 use SoapClient;
 use think\Db;
 use think\db\exception\DataNotFoundException;
@@ -49,17 +51,18 @@ class OrderController extends BaseController
         header("content-type:text/html;charset=utf-8");
         Db::startTrans();
         try {
-//            $code = ',"saleOrderCodes":["WAL-0015-108830554985272","WAL-0015-108830555497775","WAL-0015-108830556126577","WAL-0015-108830556150466","WAL-0015-108830556197902","WAL-0015-108830556235667","WAL-0015-108830556447654","111-4993938-8145837","114-6650471-9181851","WAL-0015-108830656606570","WEC0202311010027","WEC0732311010026","112-1331038-7953855","111-8253014-9120241","113-6172109-7762643","112-8199898-0941002","112-8199898-0941002","113-0107617-8006662","WAL-0015-108830656762419","112-3752166-1517843","111-9353603-9485812","111-6369802-4590660","111-2690812-0133010","112-1828116-3325002-1","113-4924029-6045839","112-3417797-4629833","113-9391384-5302622","111-0457987-6445826","112-6713942-5516220","114-8264835-6565064","113-2705013-6769026","111-4856047-1358654","113-1670085-6347456","113-1302402-7188241","111-8797285-4989815","112-6949115-2413034","113-4347451-3694649","111-5764226-6632248","111-1107882-2973852","112-0880236-6521032","111-4630657-7587411","114-8692453-7600266","111-3743330-5502662","WAL-0015-108830143238986","WAL-0015-108830143479768","112-4020661-0603410","112-5144909-5204201","114-7744917-2294662","114-2361526-0073045","WEC0822310280049","WEC0962310280048","WEC0492310280046","WEC0342310280045","WEC0862310280047","114-6552881-7855421","114-4108375-1805014","112-5361955-7671445","111-1260460-3122628","113-0362936-2428262","113-5090614-4454653","113-2530577-9504239"]';
-            $code = '';
+            $code = '"saleOrderCodes":["WEC0322310310056","wf-CS493446402","wf-CA490256588-1","WAL-0015-108830554985272","WAL-0015-108830555497775","WAL-0015-108830556126577","WAL-0015-108830556150466","WAL-0015-108830556197902","WAL-0015-108830556235667","WAL-0015-108830556447654","111-4993938-8145837","114-6650471-9181851","WAL-0015-108830656606570","WEC0202311010027","WEC0732311010026","112-1331038-7953855","111-8253014-9120241","113-6172109-7762643","112-8199898-0941002","112-8199898-0941002","113-0107617-8006662","WAL-0015-108830656762419","112-3752166-1517843","111-9353603-9485812","111-6369802-4590660","111-2690812-0133010","112-1828116-3325002-1","113-4924029-6045839","112-3417797-4629833","113-9391384-5302622","111-0457987-6445826","112-6713942-5516220","114-8264835-6565064","112-9195884-7063415","114-5410802-3461027","114-0377074-3146661","111-3105334-4455460","WEC0292311010016","111-1575017-9381868","112-2813454-9702619","WEC0242311010024","WEC0102311010025","112-4976561-7603451","114-0437864-5940213","112-4112901-2143468","112-5614476-8523448","112-5272070-7811446","wf-CS493579312","wf-CS493576996","wf-CS493573998"]';
+//            $code = '';
             $url = "http://nt5e7hf-eb.eccang.com/default/svc-open/web-service-v2";
             $soapClient = new SoapClient($url);
             $params = [
-                'paramsJson'    =>  '{"page":1,"pageSize":50,"getDetail":1,"getAddress":1,"getCustomOrderType":1,"condition":{"idDesc":1'. $code . '}}',
+                'paramsJson'    =>  '{"getDetail":1,"getAddress":1,"getCustomOrderType":1,"condition":{'. $code . '}}',
                 'userName'      =>  "NJJ",
                 'userPass'      =>  "alex02081888",
                 'service'       =>  "getOrderList"
             ];
             $ret = $soapClient->callService($params);
+            file_put_contents( APP_PATH . '/../runtime/log/test.log', PHP_EOL . "[" . date('Y-m-d H:i:s') . "] : " . var_export($ret,TRUE), FILE_APPEND);
             $retArr = get_object_vars($ret);
             $retJson = $retArr['response'];
             $result = json_decode($retJson, true);
@@ -161,5 +164,90 @@ class OrderController extends BaseController
             echo json_encode(['code' => 0, 'msg' => '异常操作']);
         }
         exit;
+    }
+
+    // 导入excel计算计费重差和最终费用
+    /**
+     * @throws DataNotFoundException
+     * @throws PHPExcel_Reader_Exception
+     * @throws ModelNotFoundException
+     * @throws DbException
+     * @throws Exception
+     */
+    public function import()
+    {
+        // phpexcel
+        require_once './static/classes/PHPExcel/Classes/PHPExcel.php';
+
+        $filename = input('filename');
+        $file= "./upload/excel/" . $filename;
+        $excelReader = PHPExcel_IOFactory::createReaderForFile($file);
+        $excelObj = $excelReader->load($file);
+        $worksheet = $excelObj->getSheet(0);
+        $data = $worksheet->toArray();
+
+        if (count($data[0]) == Config::get('excel_col_liang')) {
+            $this->importPostalCode($data, Config::get('excel_ordercode_liang'), Config::get('excel_postal_liang'));
+            $this->setUnsetFee($data, Config::get('excel_ordercode_liang'), Config::get('excel_weight_liang'), Config::get('excel_rdc_liang'), Config::get('excel_drdc_liang'));
+        } elseif (count($data[0]) == Config::get('excel_col_loctek')) {
+            $this->importPostalCode($data, Config::get('excel_ordercode_loctek'), Config::get('excel_postal_loctek'));
+            $this->setUnsetFee($data, Config::get('excel_ordercode_loctek'), Config::get('excel_weight_loctek'), Config::get('excel_rdc_loctek'), Config::get('excel_drdc_loctek'));
+        } else {
+            $this->error("请上传正确的表格", Session::get(Config::get('BACK_URL')));
+        }
+
+        $this->redirect(Session::get(Config::get('BACK_URL'), 'manage'));
+    }
+
+    // 某些无邮编的订单导入邮编
+    public function importPostalCode($data, $orderCodeCol, $postalCodeCol): bool
+    {
+        $orderObject = new OrderModel();
+        foreach ($data as $item) {
+            $orderItem = $orderObject->with('address')->where(['saleOrderCode' => $item[$orderCodeCol]])->find();
+            if (!empty($orderItem) && empty($orderItem['address']['postalCode'])) {
+                $addressObj = new OrderAddressModel();
+                $addressObj->save(['postalCode' => $this->postalCodeFormat($item[$postalCodeCol])], ['order_id' => $orderItem['id']]);
+            }
+        }
+        return true;
+    }
+
+    // 客户订单邮编格式化
+    public function postalCodeFormat($postalCode): string
+    {
+        $postalCode = strval($postalCode);
+        if (strlen($postalCode) == 4) {
+            return "0" . $postalCode;
+        } elseif (strlen($postalCode) == 3) {
+            return "00" . $postalCode;
+        } else {
+            return $postalCode;
+        }
+    }
+
+    // 导入后更新以下字段
+    // 是否导入（isImport） 住宅地址附加费（rdcFee） 住宅地址旺季附加费（drdcFee） 实际计费重与理论差值（diff_weight）
+    /**
+     * @throws DataNotFoundException
+     * @throws DbException
+     * @throws ModelNotFoundException
+     * @throws Exception
+     */
+    public function setUnsetFee($data, $orderCodeCol, $weightCol, $rdfCol, $drdcCol): bool
+    {
+        $orderObject = new OrderModel();
+        foreach ($data as $item) {
+            $orderItem = $orderObject->where(['saleOrderCode' => $item[$orderCodeCol]])->find();
+            if ($orderItem) {
+                $order = new OrderModel();
+                $diffWeight = intval($item[$weightCol] - $orderItem['charged_weight']);
+                $drdcFee = !empty($item[$drdcCol]) ? $item[$drdcCol] : 0;
+                $order->save(['rdcFee' => $item[$rdfCol], 'drdcFee' => $drdcFee, 'diff_weight' => $diffWeight, 'isImport' => 1], ['id' => $orderItem['id']]);
+
+                OrderModel::orderId2DeliverParams($orderItem['id']);
+            }
+        }
+        return true;
     }
 }

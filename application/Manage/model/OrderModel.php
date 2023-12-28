@@ -80,6 +80,15 @@ class OrderModel extends Model
         }
         $orderInfo['calcuInfo'] = $deliverInfo['label'];
         $orderInfo['calcuRes'] = $deliverInfo['fee'];
+        $orderInfo['postalFormat'] = $deliverInfo['postalCode'];
+        $orderInfo['zoneFormat'] = $deliverInfo['zone'];
+        $orderInfo['charged_weight'] = $deliverInfo['charged_weight'];
+        $orderInfo['base'] = $deliverInfo['base'];
+        $orderInfo['ahs'] = $deliverInfo['ahs'];
+        $orderInfo['ahsds'] = $deliverInfo['ahsds'];
+        $orderInfo['das'] = $deliverInfo['das'];
+        $orderInfo['outbound'] = $deliverInfo['outbound'];
+        $orderInfo['fuelCost'] = $deliverInfo['fuelCost'];
 
         // 更新数据
         unset($orderInfo['details']);
@@ -130,9 +139,21 @@ class OrderModel extends Model
 
         // 运费总计
         $label = $outbound . "(出库) + " . $base . "(基础) + " . $ahs . "(AHS) + " . $dasFee . "(偏远) + " . $rdcFee . "(住宅) + " . $ahsDemandSurcharges . "(AHS旺季) + " . $drdcFee . "(住宅旺季) + "  .$fuel_cost . "(燃油)";
-        $price = $outbound + $base + $ahs + $dasFee + $rdcFee + $ahsDemandSurcharges + $drdcFee + $fuel_cost;
+        $price = round($outbound + $base + $ahs + $dasFee + $rdcFee + $ahsDemandSurcharges + $drdcFee + $fuel_cost, 2);
 
-        return ['fee' => $price, 'label' => $label];
+        return [
+            'label'             =>  $label,
+            'fee'               =>  $price,
+            'charged_weight'    =>  $lbs,
+            'postalCode'        =>  $postalCode,
+            'zone'              =>  $customerZone,
+            'base'              =>  $base,
+            'ahs'               =>  $ahs,
+            'ahsds'             =>  $ahsDemandSurcharges,
+            'das'               =>  $dasFee,
+            'outbound'          =>  $outbound,
+            'fuelCost'          =>  $fuel_cost
+        ];
     }
 
     /**

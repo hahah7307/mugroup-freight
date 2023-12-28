@@ -26,6 +26,7 @@
         <div class="layui-form">
 <!--            <a class="layui-btn" href="{:url('add')}">添加</a>-->
             <a class="layui-btn layui-btn-normal" lay-submit lay-filter="Calculate">测算</a>
+            <button type="button" class="layui-btn  layui-btn-normal" id="excel">导入</button>
             <table class="layui-table">
                 <colgroup>
                     <col width="50">
@@ -39,8 +40,13 @@
                     <col>
                     <col>
                     <col>
+                    <col>
+                    <col>
+                    <col>
+                    <col>
+                    <col>
                     <col width="80">
-                    <col width="250">
+<!--                    <col width="80">-->
                 </colgroup>
                 <thead>
                 <tr>
@@ -48,17 +54,22 @@
                         <input type="checkbox" lay-skin="primary" id="YanNanQiu_checkall" lay-filter="YanNanQiu_checkall">
                     </th>
                     <th>ID</th>
-                    <th>参考单号</th>
                     <th>销售单号</th>
-                    <th>系统单号</th>
+                    <th>仓库代码</th>
                     <th>平台代码</th>
-                    <th>订单类型</th>
-                    <th>总金额</th>
-                    <th>跟踪号</th>
+                    <th>计费重</th>
+                    <th>邮编</th>
+                    <th>出库费</th>
+                    <th>基础运费</th>
+                    <th>AHS</th>
+                    <th>偏远费</th>
+                    <th>住宅</th>
+                    <th>旺季附加费</th>
+                    <th>燃油费</th>
+                    <th>总运费</th>
                     <th>创建时间</th>
-                    <th>运费</th>
                     <th class="tc">状态</th>
-                    <th class="tc">操作</th>
+<!--                    <th class="tc">操作</th>-->
                 </tr>
                 </thead>
                 <tbody>
@@ -70,15 +81,20 @@
                         </div>
                     </td>
                     <td>{$v.id}</td>
-                    <td>{$v.refNo}</td>
                     <td>{$v.saleOrderCode}</td>
-                    <td>{$v.sysOrderCode}</td>
+                    <td>{$v.warehouseCode}</td>
                     <td>{$v.platform}</td>
-                    <td>{$v.orderType}</td>
-                    <td>{$v.amountpaid}</td>
-                    <td>{$v.shippingMethodNo}</td>
-                    <td>{$v.createdDate}</td>
+                    <td>{$v.charged_weight}</td>
+                    <td>{$v.postalFormat}</td>
+                    <td>{$v.outbound}</td>
+                    <td>{$v.base}</td>
+                    <td>{$v.ahs}</td>
+                    <td>{$v.das}</td>
+                    <td>{$v.rdcFee}</td>
+                    <td>{$v.ahsds}+{$v.drdcFee}</td>
+                    <td>{$v.fuelCost}</td>
                     <td class="calcuRes" data-info="{$v.calcuInfo}">{$v.calcuRes}</td>
+                    <td>{$v.createdDate}</td>
                     <td class="tc">
                         {if condition="$v.status eq 0"}
                             <p>已废弃</p>
@@ -100,12 +116,12 @@
                             <p>未付款</p>
                         {/if}
                     </td>
-                    <td class="tc">
+<!--                    <td class="tc">-->
 <!--                        <a href="{:url('deliver/index', ['id' => $v.id])}" class="layui-btn layui-btn-sm">运送</a>-->
 <!--                        <a href="{:url('pick/index', ['id' => $v.id])}" class="layui-btn layui-btn-sm">出库</a>-->
 <!--                        <a href="{:url('edit', ['id' => $v.id])}" class="layui-btn layui-btn-normal layui-btn-sm">编辑</a>-->
 <!--                        <button data-id="{$v.id}" class="layui-btn layui-btn-sm layui-btn-danger ml0" lay-submit lay-filter="Detele">删除</button>-->
-                    </td>
+<!--                    </td>-->
                 </tr>
                 {/foreach}
                 </tbody>
@@ -116,9 +132,25 @@
     </div>
 </div>
 <script>
-    layui.use(['form', 'jquery'], function(){
-        var $ = layui.jquery,
-            form = layui.form;
+    layui.use(['form', 'jquery', 'upload'], function(){
+        let $ = layui.jquery,
+            form = layui.form,
+            upload = layui.upload;
+
+        // 上传
+        let uploadInst = upload.render({
+            elem: '#excel' //绑定元素
+            ,url: '/manage/upload/file_upload' //上传接口
+            ,exts: 'xls|xlsx'
+            ,done: function(res){
+                //上传完毕回调
+                console.log(res.data);
+                location.href = "/Manage/Order/import/filename/" + res.data;
+            }
+            ,error: function(){
+                //请求异常回调
+            }
+        });
 
         // 状态
         form.on('switch(formLock)', function(data){
