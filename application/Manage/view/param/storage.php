@@ -11,6 +11,17 @@
         <div>
             <div class="layui-form-item">
                 <div class="layui-inline layui-col-md3">
+                    <label class="layui-form-label">抓取订单每页条数</label>
+                    <div class="layui-input-inline">
+                        <input type="text" class="layui-input w300" name="order_page_num" value="{$config['order_page_num']}">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div>
+        <div>
+            <div class="layui-form-item">
+                <div class="layui-inline layui-col-md3">
                     <label class="layui-form-label">燃油费(%)</label>
                     <div class="layui-input-inline">
                         <input type="text" class="layui-input w300" name="fuel_cost" value="{$config['fuel_cost']}">

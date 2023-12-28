@@ -16,10 +16,6 @@ class OrderModel extends Model
 
     protected $resultSetType = 'collection';
 
-//    protected $insert = ['created_at', 'updated_at'];
-
-//    protected $update = ['updated_at'];
-
     protected function setCreatedAtAttr()
     {
         return date('Y-m-d H:i:s');
@@ -76,10 +72,6 @@ class OrderModel extends Model
                 'productQty' =>  $detail['qty']
             ];
         }
-//                dump($storage_id);
-//                dump($storage_type);
-//                dump($zip_code);
-//                dump($product);
 
         // 计算运费和公式
         $deliverInfo = self::calculateDeliver($storage_id, $storage_type, $zip_code, $product, $orderInfo);
@@ -109,30 +101,20 @@ class OrderModel extends Model
         // 基础费运算
         $postalCode = self::postalFormat($postalCode);
         $customerZone = StorageZoneModel::getCustomZone($storage, $type, $postalCode);
-//        dump($customerZone);
         if ($customerZone == 0) {
             return false;
         }
         $lbs = StorageBaseModel::getProductLbs($storage, $product);
-//        dump("storage:" . $storage);
-//        dump("lbs:" . $lbs);
-//        dump("postalCode:" .$postalCode);
-//        dump("customerZone:". $customerZone);
         $baseInfo = StorageBaseModel::get(['storage_id' => $storage, 'state' => 1, 'lbs_weight' => $lbs, 'zone' => $customerZone]);
         $base = $baseInfo ? $baseInfo['value'] : 0;
-//        dump("base:" .$base);
 
         // AHS运算 & AHS旺季附加费
         $ahs = AHS::getAHSFee($storage, $customerZone, $product);
         $ahsDemandSurcharges = $ahs ? AHS::demandSurcharges($storage, $order['createdDate']) : 0;
-//        dump("ahs:" .$ahs);
-//        dump("ahsDemandSurcharges:" .$ahsDemandSurcharges);
 
         // 偏远地址附加费
         $das = StorageDasModel::get(['storage_id' => $storage, 'state' => 1, 'zip_code' => $postalCode]);
-//        dump("dasType:" . $das['type']);
         $dasFee = !empty($das) ? StorageDasFeeModel::get(['storage_id' => $storage, 'type' => $das['type']])->getData('value') : 0;
-//        dump("dasFee:" .$dasFee);
 
         // 住宅地址附加费
         $rdcFee = $order['rdcFee'];
@@ -142,13 +124,13 @@ class OrderModel extends Model
 
         // 出库费运算
         $outbound = StorageOutboundModel::getOutbound($storage, $product, $order['platform']);
-//        dump("outbound:" . $outbound);
+
+        // 燃油费运算
+        $fuel_cost = round(($base + $ahs + $dasFee + $rdcFee + $ahsDemandSurcharges + $drdcFee) * Config::get('fuel_cost') * 0.01, 2);
 
         // 运费总计
-        $label = $outbound . " + (" . $base . " + " . $ahs . " + " . $dasFee . " + " . $rdcFee . " + " . $ahsDemandSurcharges . " + " . $drdcFee . ") * 1." . Config::get('fuel_cost');
-//        dump($label);
-        $price = $outbound + ($base + $ahs + $dasFee + $rdcFee + $ahsDemandSurcharges + $drdcFee) * (1 + Config::get('fuel_cost') * 0.01);
-//        dump($price);
+        $label = $outbound . "(出库) + " . $base . "(基础) + " . $ahs . "(AHS) + " . $dasFee . "(偏远) + " . $rdcFee . "(住宅) + " . $ahsDemandSurcharges . "(AHS旺季) + " . $drdcFee . "(住宅旺季) + "  .$fuel_cost . "(燃油)";
+        $price = $outbound + $base + $ahs + $dasFee + $rdcFee + $ahsDemandSurcharges + $drdcFee + $fuel_cost;
 
         return ['fee' => $price, 'label' => $label];
     }
@@ -159,8 +141,18 @@ class OrderModel extends Model
      * @throws ModelNotFoundException
      * @throws Exception
      */
-    static public function orderSave($item): bool
+    static public function orderSave($isLast, $isPageUp, $item): bool
     {
+        $orderPage = new OrderPageModel();
+        $orderPageData = $orderPage->where('id', 1)->find();
+        $page = $orderPageData['page'] + 1;
+
+        if ($isPageUp) {
+            $orderPage->save(['page' => $page, 'index' => 0], ['id' => $orderPageData['id']]);
+        } elseif ($isLast) {
+            $orderPage->save(['index' => $isLast - 1], ['id' => $orderPageData['id']]);
+        }
+
         $order = $item;
         unset($order['orderDetails']);
         unset($order['orderAddress']);

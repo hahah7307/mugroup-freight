@@ -68,8 +68,12 @@ class OrderController extends BaseController
             }
 
             $data = $result['data'];
-            foreach ($data as $item) {
-                OrderModel::orderSave($item);
+            $count = 0;
+            foreach ($data as $key => $item) {
+                $count++;
+                $isLast = $count == count($data) ? $key + 1 : 0;
+                $isPageUp = $count == Config::get('order_page_num');
+                OrderModel::orderSave($isLast, $isPageUp, $item);
             }
             Db::commit();
             echo "success";
