@@ -16,10 +16,10 @@
                 <li data-name="Storage" class="layui-nav-item">
                     <a layui-href="javascript:;" lay-tips="订单" lay-direction="2">
                         <i class="layui-icon iconfont icon-dingdan1"></i>
-                        <cite>订单</cite>
+                        <cite>尾程</cite>
                     </a>
                     <dl class="layui-nav-child">
-                        <dd><a layui-href="{:url('Order/index')}">订单列表</a></dd>
+                        <dd><a layui-href="{:url('Order/index')}">尾程费用</a></dd>
                         <dd><a layui-href="{:url('Param/storage')}">参数配置</a></dd>
                     </dl>
                 </li>

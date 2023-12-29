@@ -7,7 +7,7 @@
 <!-- 主体内容 -->
 <div class="layui-body" id="LAY_app_body">
     <div class="right">
-        <div class="title">订单列表</div>
+        <div class="title">尾程列表</div>
         <form class="layui-form search-form" method="get">
             <div class="layui-inline w200">
                 <input type="text" class="layui-input" name="keyword" value="{$keyword}" placeholder="参考/销售/系统单号">
@@ -18,8 +18,17 @@
             <div class="layui-inline">
                 <button class="layui-btn" lay-submit lay-filter="Search"><i class="layui-icon">&#xe615;</i> 查询</button>
             </div>
+<!--            <div class="layui-inline">-->
+<!--                <a class="layui-btn layui-btn-normal" href="{:url('index')}"><i class="layui-icon">&#xe621;</i> 重置</a>-->
+<!--            </div>-->
+            <div class="layui-input-inline">
+                <input type="text" class="layui-input" id="export_start_time" name="start_time" value="" placeholder="开始时间">
+            </div>
+            <div class="layui-input-inline">
+                <input type="text" class="layui-input" id="export_end_time" name="end_time" value="" placeholder="结束时间">
+            </div>
             <div class="layui-inline">
-                <a class="layui-btn layui-btn-normal" href="{:url('index')}"><i class="layui-icon">&#xe621;</i> 重置</a>
+                <a class="layui-btn layui-btn-normal" lay-submit lay-filter="Export"><i class="layui-icon">&#xe621;</i> 导出</a>
             </div>
         </form>
 
@@ -132,10 +141,11 @@
     </div>
 </div>
 <script>
-    layui.use(['form', 'jquery', 'upload'], function(){
+    layui.use(['form', 'jquery', 'upload', 'laydate'], function(){
         let $ = layui.jquery,
             form = layui.form,
-            upload = layui.upload;
+            upload = layui.upload,
+            laydate = layui.laydate;
 
         // 上传
         let uploadInst = upload.render({
@@ -150,6 +160,25 @@
             ,error: function(){
                 //请求异常回调
             }
+        });
+
+        // 显示日期选择器
+        laydate.render({
+            elem: '#export_start_time',
+            type: 'datetime'
+        });
+        laydate.render({
+            elem: '#export_end_time',
+            type: 'datetime'
+        });
+
+        // 导出
+        form.on('submit(Export)', function(data){
+            let start_time = data.field.start_time,
+                end_time = data.field.end_time;
+
+            location.href = "{:url('Order/export')}" + "?start_time=" + start_time + "&end_time=" + end_time;
+            return false;
         });
 
         // 状态

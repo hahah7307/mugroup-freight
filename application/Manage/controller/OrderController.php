@@ -5,8 +5,10 @@ use app\Manage\model\OrderAddressModel;
 use app\Manage\model\OrderDetailModel;
 use app\Manage\model\OrderModel;
 use app\Manage\model\ProductModel;
+use PHPExcel;
 use PHPExcel_IOFactory;
 use PHPExcel_Reader_Exception;
+use PHPExcel_Style_Fill;
 use SoapClient;
 use think\Db;
 use think\db\exception\DataNotFoundException;
@@ -249,5 +251,97 @@ class OrderController extends BaseController
             }
         }
         return true;
+    }
+
+    /**
+     * @throws DataNotFoundException
+     * @throws \PHPExcel_Writer_Exception
+     * @throws \PHPExcel_Exception
+     * @throws DbException
+     * @throws PHPExcel_Reader_Exception
+     * @throws ModelNotFoundException
+     */
+    public function export()
+    {
+        $start_time = input('start_time');
+        $end_time = input('end_time', date('Y-m-d'));
+
+        if (empty($start_time)) {
+            $this->error('缺少开始时间');
+        }
+        $orderObj = new OrderModel();
+        $orderList = $orderObj->whereBetween('createdDate', [$start_time, $end_time])->select();
+
+        // phpexcel
+        require_once './static/classes/PHPExcel/Classes/PHPExcel.php';
+        // Create new PHPExcel object
+        $objPHPExcel = new PHPExcel();
+
+        // Set background color
+        // A1 - Z1
+        for ($s = 65; $s <= 90; $s ++) {
+            $objPHPExcel->getActiveSheet()->getStyle(chr($s) . '1')->getFill()->setFillType(PHPExcel_Style_Fill::FILL_SOLID)->getStartColor()->setRGB('BDD7EE');
+        }
+
+        // Add some data
+        $objPHPExcel->setActiveSheetIndex(0)
+            ->setCellValue('A1', '参考单号')
+            ->setCellValue('B1', '销售单号')
+            ->setCellValue('C1', '系统单号')
+            ->setCellValue('D1', '仓库单号')
+            ->setCellValue('E1', '仓库代码')
+            ->setCellValue('F1', '计费重')
+            ->setCellValue('G1', '邮编')
+            ->setCellValue('H1', 'Zone')
+            ->setCellValue('I1', '出库费')
+            ->setCellValue('J1', '基础运费')
+            ->setCellValue('K1', 'AHS附加费')
+            ->setCellValue('L1', '偏远附加费')
+            ->setCellValue('M1', '住宅地址附加费')
+            ->setCellValue('N1', 'AHS旺季附加费')
+            ->setCellValue('O1', '住宅旺季附加费')
+            ->setCellValue('P1', '燃油费')
+            ->setCellValue('Q1', '总费用')
+            ->setCellValue('R1', '订单创建时间')
+        ;
+
+        foreach ($orderList as $k => $item) {
+            $objPHPExcel->setActiveSheetIndex(0)
+                ->setCellValue('A' . ($k + 2), $item['refNo'])
+                ->setCellValue('B' . ($k + 2), $item['saleOrderCode'])
+                ->setCellValue('C' . ($k + 2), $item['sysOrderCode'])
+                ->setCellValue('D' . ($k + 2), $item['warehouseOrderCode'])
+                ->setCellValue('E' . ($k + 2), $item['warehouseCode'])
+                ->setCellValue('F' . ($k + 2), $item['charged_weight'])
+                ->setCellValue('G' . ($k + 2), $item['postalFormat'])
+                ->setCellValue('H' . ($k + 2), $item['zoneFormat'])
+                ->setCellValue('I' . ($k + 2), $item['outbound'])
+                ->setCellValue('J' . ($k + 2), $item['base'])
+                ->setCellValue('K' . ($k + 2), $item['ahs'])
+                ->setCellValue('L' . ($k + 2), $item['das'])
+                ->setCellValue('M' . ($k + 2), $item['rdcFee'])
+                ->setCellValue('N' . ($k + 2), $item['ahsds'])
+                ->setCellValue('O' . ($k + 2), $item['drdcFee'])
+                ->setCellValue('P' . ($k + 2), $item['fuelCost'])
+                ->setCellValue('Q' . ($k + 2), $item['calcuRes'])
+                ->setCellValue('R' . ($k + 2), $item['createdDate'])
+            ;
+        }
+
+        // Rename sheet
+        $objPHPExcel->getActiveSheet()->setTitle('尾程费用');
+
+        // Set active sheet index to the first sheet, so Excel opens this as the first sheet
+        $objPHPExcel->setActiveSheetIndex(0);
+
+        // Redirect output to a client’s web browser (Excel5)
+        header('Content-Type: application/vnd.ms-excel');
+        $filename = date("YmdHis") . time() . mt_rand(100000, 999999);
+        ob_end_clean();
+        header('Content-Disposition:attachment;filename="'.$filename.'.xls"');
+        header('Cache-Control: max-age=0');
+
+        $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+        $objWriter->save('php://output');
     }
 }
