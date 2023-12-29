@@ -36,10 +36,17 @@
 <!--            <a class="layui-btn" href="{:url('add')}">添加</a>-->
             <a class="layui-btn layui-btn-normal" lay-submit lay-filter="Calculate">测算</a>
             <button type="button" class="layui-btn  layui-btn-normal" id="excel">导入</button>
-            <table class="layui-table">
+            <table class="layui-table" lay-size="sm">
                 <colgroup>
                     <col width="50">
                     <col>
+                    <col width="150">
+                    <col width="150">
+                    <col width="150">
+                    <col width="120">
+                    <col width="100">
+                    <col>
+                    <col width="60">
                     <col>
                     <col>
                     <col>
@@ -50,10 +57,7 @@
                     <col>
                     <col>
                     <col>
-                    <col>
-                    <col>
-                    <col>
-                    <col>
+                    <col width="140">
                     <col width="80">
 <!--                    <col width="80">-->
                 </colgroup>
@@ -63,19 +67,23 @@
                         <input type="checkbox" lay-skin="primary" id="YanNanQiu_checkall" lay-filter="YanNanQiu_checkall">
                     </th>
                     <th>ID</th>
+                    <th>参考单号</th>
                     <th>销售单号</th>
+                    <th>系统单号</th>
+                    <th>仓库单号</th>
                     <th>仓库代码</th>
-                    <th>平台代码</th>
+                    <th>平台</th>
                     <th>计费重</th>
                     <th>邮编</th>
-                    <th>出库费</th>
-                    <th>基础运费</th>
+                    <th>Zone</th>
+                    <th>出库</th>
+                    <th>基础</th>
                     <th>AHS</th>
-                    <th>偏远费</th>
+                    <th>偏远</th>
                     <th>住宅</th>
-                    <th>旺季附加费</th>
-                    <th>燃油费</th>
-                    <th>总运费</th>
+                    <th>旺季</th>
+                    <th>燃油</th>
+                    <th>总计</th>
                     <th>创建时间</th>
                     <th class="tc">状态</th>
 <!--                    <th class="tc">操作</th>-->
@@ -90,11 +98,15 @@
                         </div>
                     </td>
                     <td>{$v.id}</td>
+                    <td>{$v.refNo}</td>
                     <td>{$v.saleOrderCode}</td>
+                    <td>{$v.sysOrderCode}</td>
+                    <td>{$v.warehouseOrderCode}</td>
                     <td>{$v.warehouseCode}</td>
                     <td>{$v.platform}</td>
                     <td>{$v.charged_weight}</td>
                     <td>{$v.postalFormat}</td>
+                    <td>{$v.zoneFormat}</td>
                     <td>{$v.outbound}</td>
                     <td>{$v.base}</td>
                     <td>{$v.ahs}</td>

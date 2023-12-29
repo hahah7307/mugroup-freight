@@ -62,7 +62,7 @@ class OrderCapture extends Command
             'service'       =>  "getOrderList"
         ];
         $ret = $soapClient->callService($params);
-        file_put_contents( APP_PATH . '/../runtime/log/test.log', PHP_EOL . "[" . date('Y-m-d H:i:s') . "] : " . var_export($ret,TRUE), FILE_APPEND);
+        file_put_contents( APP_PATH . '/../runtime/log/OrderCapture-' . date('Y-m-d') . '.log', PHP_EOL . "[" . date('Y-m-d H:i:s') . "] : " . var_export($ret,TRUE), FILE_APPEND);
         $retArr = get_object_vars($ret);
         $retJson = $retArr['response'];
         $result = json_decode($retJson, true);

@@ -208,7 +208,7 @@ class OrderModel extends Model
                 throw new Exception("订单插入失败！");
             }
 
-            file_put_contents( APP_PATH . '/../runtime/log/test.log', PHP_EOL . "[" . date('Y-m-d H:i:s') . "] : " . var_export($order['order_id'] . '-' . $order['saleOrderCode'] . " : Calculate Success",TRUE), FILE_APPEND);
+            file_put_contents( APP_PATH . '/../runtime/log/OrderCapture-' . date('Y-m-d') . '.log', PHP_EOL . "[" . date('Y-m-d H:i:s') . "] : " . var_export($order['order_id'] . '-' . $order['saleOrderCode'] . " : Calculate Success",TRUE), FILE_APPEND);
             Db::commit();
             return true;
         } catch (\Exception $e) {
