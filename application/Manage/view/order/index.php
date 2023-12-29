@@ -18,9 +18,9 @@
             <div class="layui-inline">
                 <button class="layui-btn" lay-submit lay-filter="Search"><i class="layui-icon">&#xe615;</i> 查询</button>
             </div>
-<!--            <div class="layui-inline">-->
-<!--                <a class="layui-btn layui-btn-normal" href="{:url('index')}"><i class="layui-icon">&#xe621;</i> 重置</a>-->
-<!--            </div>-->
+            <div class="layui-inline">
+                <a class="layui-btn layui-btn-normal" href="{:url('index')}"><i class="layui-icon">&#xe669;</i> 重置</a>
+            </div>
             <div class="layui-input-inline">
                 <input type="text" class="layui-input" id="export_start_time" name="start_time" value="" placeholder="开始时间">
             </div>
@@ -36,6 +36,7 @@
 <!--            <a class="layui-btn" href="{:url('add')}">添加</a>-->
             <a class="layui-btn layui-btn-normal" lay-submit lay-filter="Calculate">测算</a>
             <button type="button" class="layui-btn  layui-btn-normal" id="excel">导入</button>
+            <a class="layui-btn layui-btn-normal" lay-submit lay-filter="Audit">批量审核</a>
             <table class="layui-table" lay-size="sm">
                 <colgroup>
                     <col width="50">
@@ -85,7 +86,7 @@
                     <th>燃油</th>
                     <th>总计</th>
                     <th>创建时间</th>
-                    <th class="tc">状态</th>
+                    <th class="tc">审核状态</th>
 <!--                    <th class="tc">操作</th>-->
                 </tr>
                 </thead>
@@ -117,24 +118,12 @@
                     <td class="calcuRes" data-info="{$v.calcuInfo}">{$v.calcuRes}</td>
                     <td>{$v.createdDate}</td>
                     <td class="tc">
-                        {if condition="$v.status eq 0"}
-                            <p>已废弃</p>
-                        {elseif condition="$v.status eq 1" /}
-                            <p>未付款</p>
-                        {elseif condition="$v.status eq 2" /}
-                            <p>待审核</p>
-                        {elseif condition="$v.status eq 3" /}
-                            <p>待发货</p>
-                        {elseif condition="$v.status eq 4" /}
-                            <p>已发货</p>
-                        {elseif condition="$v.status eq 5" /}
-                            <p>冻结中</p>
-                        {elseif condition="$v.status eq 6" /}
-                            <p>缺货</p>
-                        {elseif condition="$v.status eq 7" /}
-                            <p>问题件</p>
-                        {elseif condition="$v.status eq 8" /}
-                            <p>未付款</p>
+                        {if condition="$v.calcu_state eq 1"}
+                            <p class="blue">待审核</p>
+                        {elseif condition="$v.calcu_state eq 2" /}
+                            <p class="green">通过</p>
+                        {elseif condition="$v.calcu_state eq 3" /}
+                            <p class="red">未通过</p>
                         {/if}
                     </td>
 <!--                    <td class="tc">-->
@@ -198,7 +187,7 @@
             $('button').attr('disabled',true);
             axios.post("{:url('status')}", {id:data.value,type:'look'})
                 .then(function (response) {
-                    var res = response.data;
+                    let res = response.data;
                     if (res.code === 0) {
                         layer.alert(data.msg,{icon:2,closeBtn:0,title:false,btnAlign:'c'},function(){
                             location.reload();
@@ -211,46 +200,16 @@
             return false;
         });
 
-        // 删除
-        form.on('submit(Detele)', function(data){
-            var text = $(this).text(),
-                button = $(this),
-                id = $(this).data('id');
-            layer.confirm('确定删除吗？',{icon:3,closeBtn:0,title:false,btnAlign:'c'},function(){
-                $('button').attr('disabled',true);
-                button.text('请稍候...');
-                axios.post("{:url('delete')}", {id:id})
-                    .then(function (response) {
-                        var res = response.data;
-                        if (res.code === 1) {
-                            layer.alert(res.msg,{icon:1,closeBtn:0,title:false,btnAlign:'c',},function(){
-                                location.reload();
-                            });
-                        } else {
-                            layer.alert(res.msg,{icon:2,closeBtn:0,title:false,btnAlign:'c'},function(){
-                                layer.closeAll();
-                                $('button').attr('disabled',false);
-                                button.text(text);
-                            });
-                        }
-                    })
-                    .catch(function (error) {
-                        console.log(error);
-                    });
-                return false;
-            });
-        });
-
         // 测算
         form.on('submit(Calculate)', function(data){
-            var text = $(this).text(),
+            let text = $(this).text(),
                 button = $(this);
             layer.confirm('确定测算吗？',{icon:3,closeBtn:0,title:false,btnAlign:'c'},function(){
                 $('button').attr('disabled',true);
                 button.text('请稍候...');
                 axios.post("{:url('calculate')}", {id:data.field})
                     .then(function (response) {
-                        var res = response.data;
+                        let res = response.data;
                         if (res.code === 1) {
                             layer.alert(res.msg,{icon:1,closeBtn:0,title:false,btnAlign:'c',},function(){
                                 location.reload();
@@ -270,6 +229,67 @@
             });
         });
 
+        // 批量审核
+        form.on('submit(Audit)', function(data){
+            let text = $(this).text(),
+                button = $(this);
+            $('button').attr('disabled',true);
+            button.text('请稍候...');
+            layer.open({
+                content: '请选择审核结果？',
+                icon: 3,
+                btnAlign : 'c',
+                btn: ['通过', '未通过'],
+                title: false,
+                yes: function(index) {
+                    axios.post("{:url('auditYes')}", {id:data.field})
+                        .then(function (response) {
+                            let res = response.data;
+                            if (res.code === 1) {
+                                layer.alert(res.msg,{icon:1,closeBtn:0,title:false,btnAlign:'c',},function(){
+                                    location.reload();
+                                });
+                            } else {
+                                layer.alert(res.msg,{icon:2,closeBtn:0,title:false,btnAlign:'c'},function(){
+                                    layer.closeAll();
+                                    $('button').attr('disabled',false);
+                                    button.text(text);
+                                });
+                            }
+                        })
+                        .catch(function (error) {
+                            console.log(error);
+                        });
+                },
+                btn2: function (index) {
+                    axios.post("{:url('auditNo')}", {id:data.field})
+                        .then(function (response) {
+                            let res = response.data;
+                            if (res.code === 1) {
+                                layer.alert(res.msg,{icon:1,closeBtn:0,title:false,btnAlign:'c',},function(){
+                                    location.reload();
+                                });
+                            } else {
+                                layer.alert(res.msg,{icon:2,closeBtn:0,title:false,btnAlign:'c'},function(){
+                                    layer.closeAll();
+                                    $('button').attr('disabled',false);
+                                    button.text(text);
+                                });
+                            }
+                        })
+                        .catch(function (error) {
+                            console.log(error);
+                        });
+                },
+                cancel: function(index) {
+                    $('button').attr('disabled',false);
+                    button.text('批量审核');
+                }
+            });
+            return false;
+        });
+
+        // 显示费用详情特效
         $(".calcuRes").click(function(){
             let info = $(this).data('info');
             layer.alert(info,{

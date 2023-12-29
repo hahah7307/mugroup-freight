@@ -2,7 +2,6 @@
 namespace app\Manage\controller;
 
 use app\Manage\model\OrderAddressModel;
-use app\Manage\model\OrderDetailModel;
 use app\Manage\model\OrderModel;
 use app\Manage\model\ProductModel;
 use PHPExcel;
@@ -343,5 +342,47 @@ class OrderController extends BaseController
 
         $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
         $objWriter->save('php://output');
+    }
+
+    /**
+     * @throws DbException
+     */
+    public function auditYes()
+    {
+        if ($this->request->isPost()) {
+            $post = $this->request->post();
+            foreach ($post['id'] as $item) {
+                if (OrderModel::get($item)) {
+                    $orderObj = new OrderModel();
+                    $orderObj->update(['calcu_state' => 2], ['id' => $item]);
+                }
+            }
+            echo json_encode(['code' => 1, 'msg' => '审核完成']);
+        } else {
+            echo json_encode(['code' => 0, 'msg' => '审核失败']);
+        }
+        exit;
+
+    }
+
+    /**
+     * @throws DbException
+     */
+    public function auditNo()
+    {
+        if ($this->request->isPost()) {
+            $post = $this->request->post();
+            foreach ($post['id'] as $item) {
+                if (OrderModel::get($item)) {
+                    $orderObj = new OrderModel();
+                    $orderObj->update(['calcu_state' => 3], ['id' => $item]);
+                }
+            }
+            echo json_encode(['code' => 1, 'msg' => '审核完成']);
+        } else {
+            echo json_encode(['code' => 0, 'msg' => '审核失败']);
+        }
+        exit;
+
     }
 }
