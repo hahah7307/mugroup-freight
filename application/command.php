@@ -11,4 +11,5 @@
 
 return [
     'app\Manage\command\OrderCapture',
+    'app\Manage\command\OrderUpdate',
     ];

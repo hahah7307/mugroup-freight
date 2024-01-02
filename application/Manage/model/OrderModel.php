@@ -120,7 +120,7 @@ class OrderModel extends Model
 
         // AHS运算 & AHS旺季附加费
         $ahs = AHS::getAHSFee($storage, $customerZone, $product);
-        $ahsDemandSurcharges = $ahs ? AHS::demandSurcharges($storage, $order['createdDate']) : 0;
+        $ahsDemandSurcharges = $ahs ? AHS::demandSurcharges($storage, $order['datePaidPlatform']) : 0;
 
         // 偏远地址附加费
         $das = StorageDasModel::get(['storage_id' => $storage, 'state' => 1, 'zip_code' => $postalCode]);
