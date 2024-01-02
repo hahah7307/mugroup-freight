@@ -36,6 +36,7 @@
 <!--            <a class="layui-btn" href="{:url('add')}">添加</a>-->
             <a class="layui-btn layui-btn-normal" lay-submit lay-filter="Calculate">测算</a>
             <button type="button" class="layui-btn  layui-btn-normal" id="excel">导入</button>
+            <a class="layui-btn layui-btn-normal" lay-submit lay-filter="Update">批量更新</a>
             <a class="layui-btn layui-btn-normal" lay-submit lay-filter="Audit">批量审核</a>
             <table class="layui-table" lay-size="sm">
                 <colgroup>
@@ -212,6 +213,37 @@
                         let res = response.data;
                         if (res.code === 1) {
                             layer.alert(res.msg,{icon:1,closeBtn:0,title:false,btnAlign:'c',},function(){
+                                location.reload();
+                            });
+                        } else {
+                            layer.alert(res.msg,{icon:2,closeBtn:0,title:false,btnAlign:'c'},function(){
+                                layer.closeAll();
+                                $('button').attr('disabled',false);
+                                button.text(text);
+                            });
+                        }
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    });
+                return false;
+            });
+        });
+
+        // 批量更新
+        form.on('submit(Update)', function(data){
+            let text = $(this).text(),
+                button = $(this);
+            layer.confirm('确定更新吗？',{icon:3,closeBtn:0,title:false,btnAlign:'c'},function(){
+                $('button').attr('disabled',true);
+                button.text('请稍候...');
+                layer.load(2);
+                axios.post("{:url('update')}", {id:data.field})
+                    .then(function (response) {
+                        let res = response.data;
+                        if (res.code === 1) {
+                            layer.alert(res.msg,{icon:1,closeBtn:0,title:false,btnAlign:'c',},function(){
+                                layer.closeAll();
                                 location.reload();
                             });
                         } else {

@@ -2,6 +2,7 @@
 
 namespace app\Manage\model;
 
+use SoapClient;
 use think\Config;
 use think\Db;
 use think\db\exception\DataNotFoundException;
@@ -217,8 +218,71 @@ class OrderModel extends Model
         }
     }
 
+    /**
+     * @throws DbException
+     * @throws Exception
+     */
+    static public function orderUpdate($item): bool
+    {
+        $order = $item;
+        unset($order['orderDetails']);
+        unset($order['orderAddress']);
+        $orderItem = OrderModel::get(['saleOrderCode' => $item['saleOrderCode']]);
+        if (empty($orderItem)) {
+            return false;
+        }
+
+        Db::startTrans();
+        try {
+            // update detail
+            $orderDetail = $item['orderDetails'];
+            $detailItem = OrderDetailModel::all(['order_id' => $orderItem['id']]);
+            foreach ($orderDetail as $key => $detail) {
+                $detail['warehouseSkuList'] = json_encode($detail['warehouseSkuList']);
+                $detail['promotionIdList'] = json_encode($detail['promotionIdList']);
+                $detail['id'] = $detailItem[$key]['id'];
+                OrderDetailModel::update($detail);
+            }
+
+            // update address
+            $address = $item['orderAddress'];
+            $addressItem = OrderAddressModel::get(['order_id' => $orderItem['id']]);
+            $address['id'] = $addressItem['id'];
+            OrderAddressModel::update($address);
+
+            $order['id'] = $orderItem['id'];
+            OrderModel::update($order);
+            OrderModel::orderId2DeliverParams($orderItem['id']);
+
+            file_put_contents( APP_PATH . '/../runtime/log/OrderUpdate-' . date('Y-m-d') . '.log', PHP_EOL . "[" . date('Y-m-d H:i:s') . "] : " . var_export($order['order_id'] . '-' . $order['saleOrderCode'] . " : Update Success",TRUE), FILE_APPEND);
+            Db::commit();
+            return true;
+        } catch (\Exception $e) {
+            Db::rollback();
+            return false;
+        }
+    }
+
     static protected function postalFormat($postalCode)
     {
         return substr(trim($postalCode), 0, 5);
+    }
+
+    static public function saleOrderCodes2Order($code)
+    {
+        $url = "http://nt5e7hf-eb.eccang.com/default/svc-open/web-service-v2";
+        $soapClient = new SoapClient($url);
+        $params = [
+            'paramsJson'    =>  '{"getDetail":1,"getAddress":1,"getCustomOrderType":1,"condition":{"saleOrderCodes":["' . $code . '"]}}',
+            'userName'      =>  "NJJ",
+            'userPass'      =>  "alex02081888",
+            'service'       =>  "getOrderList"
+        ];
+        $ret = $soapClient->callService($params);
+        file_put_contents( APP_PATH . '/../runtime/log/OrderCapture-' . date('Y-m-d') . '.log', PHP_EOL . "[" . date('Y-m-d H:i:s') . "] : " . var_export($ret,TRUE), FILE_APPEND);
+        $retArr = get_object_vars($ret);
+        $retJson = $retArr['response'];
+        $result = json_decode($retJson, true);
+        return $result['data'];
     }
 }

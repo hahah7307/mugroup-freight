@@ -253,6 +253,30 @@ class OrderController extends BaseController
     }
 
     /**
+     * @throws DbException
+     * @throws Exception
+     */
+    public function update()
+    {
+        if ($this->request->isPost()) {
+            $post = $this->request->post();
+            foreach ($post['id'] as $item) {
+                if ($orderItem = OrderModel::get($item)) {
+                    $orderNew = OrderModel::saleOrderCodes2Order($orderItem['saleOrderCode']);
+                    OrderModel::orderUpdate($orderNew[0]);
+                } else {
+                    continue;
+                }
+            }
+            echo json_encode(['code' => 1, 'msg' => '更新完成']);
+            exit;
+        } else {
+            echo json_encode(['code' => 0, 'msg' => '更新失败']);
+            exit;
+        }
+    }
+
+    /**
      * @throws DataNotFoundException
      * @throws \PHPExcel_Writer_Exception
      * @throws \PHPExcel_Exception
@@ -362,7 +386,6 @@ class OrderController extends BaseController
             echo json_encode(['code' => 0, 'msg' => '审核失败']);
         }
         exit;
-
     }
 
     /**
@@ -383,6 +406,5 @@ class OrderController extends BaseController
             echo json_encode(['code' => 0, 'msg' => '审核失败']);
         }
         exit;
-
     }
 }
