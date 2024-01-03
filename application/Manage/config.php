@@ -28,7 +28,7 @@ return [
     // 后台文件上传配置
     'IMAGE_EXT'         =>  ['jpg', 'gif', 'jpeg', 'png'],          // 图片限制后缀
     'VIDEO_EXT'         =>  ['mp4', 'avi'],                         // 媒体限制后缀
-    'FILES_EXT'         =>  ['zip', 'rar' ,'7z', 'jpg', 'gif', 'jpeg', 'png', 'mp4', 'avi', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'ico', 'pdf'],                                // 文件限制后缀
+    'FILES_EXT'         =>  ['zip', 'rar' ,'7z', 'jpg', 'gif', 'jpeg', 'png', 'mp4', 'avi', 'doc', 'docx', 'xls', 'xlsx', 'csv', 'ppt', 'pptx', 'ico', 'pdf'],                                // 文件限制后缀
     'IMAGE_SAVE_SQL'    =>  true,                                   // 默认把图片保存到库
     'VIDEO_SAVE_SQL'    =>  false,                                  // 默认不把视频保存到库
 

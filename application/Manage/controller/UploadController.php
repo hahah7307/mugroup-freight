@@ -175,7 +175,7 @@ class UploadController extends Controller
         $new_filename = $default_title.'.'.$ext_suffix;
         //将文件从临时路径移动到磁盘
         if (move_uploaded_file($temp_name, 'upload/excel/' . $new_filename)){
-            echo json_encode(['code' => 1, 'msg' => '文件上传成功', 'data' => $new_filename]);
+            echo json_encode(['code' => 1, 'msg' => '文件上传成功', 'data' => $new_filename, 'origin' => $arr['filename']]);
             exit;
         }else{
             echo json_encode(['code' => 0, 'msg' => '文件上传失败']);
