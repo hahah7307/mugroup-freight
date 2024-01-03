@@ -2,6 +2,7 @@
 
 namespace app\Manage\model;
 
+use think\Config;
 use think\exception\DbException;
 use think\Model;
 
@@ -50,5 +51,12 @@ class StorageOutboundModel extends Model
             unset($rule);
         }
         return $price;
+    }
+
+    static public function outboundPlatform()
+    {
+        $outboundJson = Config::get('outbound_platform');
+        $outboundArr = json_decode($outboundJson, true);
+        return empty($outboundArr) || !is_array($outboundArr) ? [] : $outboundArr['platform'];
     }
 }

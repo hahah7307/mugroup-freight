@@ -88,6 +88,16 @@
                 </div>
             </div>
         </div>
+        <div>
+            <div class="layui-form-item">
+                <div class="layui-inline layui-col-md3">
+                    <label class="layui-form-label">仅出库费平台（Json）</label>
+                    <div class="layui-input-inline">
+                        <textarea name="outbound_platform" class="layui-textarea w300">{$config['outbound_platform']}</textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="title">导入中心</div>
         <div>
             <div class="layui-form-item">

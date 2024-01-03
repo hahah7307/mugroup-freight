@@ -108,13 +108,35 @@ class OrderModel extends Model
      */
     static public function calculateDeliver($storage, $type, $postalCode, $product, $order)
     {
-        // 基础费运算
+        Config::load(APP_PATH . 'storage.php');
+
         $postalCode = self::postalFormat($postalCode);
+        $lbs = StorageBaseModel::getProductLbs($storage, $product);
+
+        // 出库费运算
+        $outbound = StorageOutboundModel::getOutbound($storage, $product, $order['platform']);
+        $platform = StorageOutboundModel::outboundPlatform();
+        if (in_array($order['platform'], $platform)) {
+            return [
+                'label'             =>  "",
+                'fee'               =>  $outbound,
+                'charged_weight'    =>  $lbs,
+                'postalCode'        =>  $postalCode,
+                'zone'              =>  0,
+                'base'              =>  0,
+                'ahs'               =>  0,
+                'ahsds'             =>  0,
+                'das'               =>  0,
+                'outbound'          =>  $outbound,
+                'fuelCost'          =>  0
+            ];
+        }
+
+        // 基础费运算
         $customerZone = StorageZoneModel::getCustomZone($storage, $type, $postalCode);
         if ($customerZone == 0) {
             return false;
         }
-        $lbs = StorageBaseModel::getProductLbs($storage, $product);
         $baseInfo = StorageBaseModel::get(['storage_id' => $storage, 'state' => 1, 'lbs_weight' => $lbs, 'zone' => $customerZone]);
         $base = $baseInfo ? $baseInfo['value'] : 0;
 
@@ -131,9 +153,6 @@ class OrderModel extends Model
 
         // 住宅旺季附加费
         $drdcFee = $order['drdcFee'];
-
-        // 出库费运算
-        $outbound = StorageOutboundModel::getOutbound($storage, $product, $order['platform']);
 
         // 燃油费运算
         $fuel_cost = round(($base + $ahs + $dasFee + $rdcFee + $ahsDemandSurcharges + $drdcFee) * Config::get('fuel_cost') * 0.01, 2);
