@@ -2,6 +2,7 @@
 namespace app\Manage\controller;
 
 use app\Manage\model\FinanceOrderModel;
+use app\Manage\model\FinanceOrderOutboundModel;
 use app\Manage\model\OrderAddressModel;
 use app\Manage\model\OrderModel;
 use app\Manage\model\ProductModel;
@@ -213,5 +214,30 @@ class FinanceController extends BaseController
 
         $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
         $objWriter->save('php://output');
+    }
+
+    /**
+     * @throws DbException
+     */
+    public function outbound(): \think\response\View
+    {
+        $keyword = $this->request->get('keyword', '', 'htmlspecialchars');
+        $this->assign('keyword', $keyword);
+        if ($keyword) {
+            $where['payment_id|saleOrderCode'] = ['like', '%' . $keyword . '%'];
+        } else {
+            $where = [];
+        }
+
+        $page_num = $this->request->get('page_num', Config::get('PAGE_NUM'));
+        $this->assign('page_num', $page_num);
+
+        // 订单列表
+        $order = new FinanceOrderOutboundModel();
+        $list = $order->with(['order_details.details.product', 'order_address.address'])->where($where)->order('id asc')->paginate($page_num, false, ['query' => ['keyword' => $keyword, 'page_num' => $page_num]]);
+        $this->assign('list', $list);
+
+        Session::set(Config::get('BACK_URL'), $this->request->url(), 'manage');
+        return view();
     }
 }
