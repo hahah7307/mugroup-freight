@@ -91,61 +91,6 @@ class OrderController extends BaseController
         }
     }
 
-    public function productSave()
-    {
-        header("content-type:text/html;charset=utf-8");
-        Db::startTrans();
-        try {
-            for ($i = 1; $i < 30; $i ++) {
-                $url = "https://nt5e7hf.eccang.com/default/svc-open/web-service-v2";
-                $soapClient = new SoapClient($url);
-                $params = [
-                    'paramsJson'    =>  '{"page":' . $i . '}',
-                    'userName'      =>  "NJJ",
-                    'userPass'      =>  "alex02081888",
-                    'service'       =>  "getProductList"
-                ];
-                $ret = $soapClient->callService($params);
-                $retArr = get_object_vars($ret);
-                $retJson = $retArr['response'];
-                $result = json_decode($retJson, true);
-                if ($result['code'] != "200") {
-                    throw new Exception("error code: " . $result['code'] . "(" . $result['message'] . ")");
-                }
-
-                $data = $result['data'];
-                if (count($data) <= 0) {
-                    break;
-                }
-
-                foreach ($data as $item) {
-                    $productInfo = ProductModel::get(['productSku' => $item['productSku']]);
-                    if (!empty($productInfo)) {
-                        continue;
-                    }
-                    $productDetail = $item;
-                    unset($productDetail['productPackage']);
-                    unset($productDetail['productCost']);
-                    $productDetail['productPackage'] = $item['productPackage'];
-                    $productDetail['productCost'] = $item['productCost'];
-                    $newId = ProductModel::create($productDetail)->getLastInsID();
-                    if (empty($newId)) {
-                        throw new Exception("产品插入失败！");
-                    }
-                }
-            }
-            Db::commit();
-
-            echo "success";
-        } catch (\SoapFault $e) {
-            Db::rollback();
-            dump('SoapFault:'.$e);
-        } catch (\Exception $e) {
-            Db::rollback();
-            dump('Exception:'.$e);
-        }
-    }
-
     /**
      * @throws DbException
      * @throws ModelNotFoundException
