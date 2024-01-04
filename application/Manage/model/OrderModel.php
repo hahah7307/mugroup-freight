@@ -263,11 +263,12 @@ class OrderModel extends Model
                 OrderDetailModel::update($detail);
             }
 
+            // 保留地址数据保留邮编，用于就算尾程
             // update address
-            $address = $item['orderAddress'];
-            $addressItem = OrderAddressModel::get(['order_id' => $orderItem['id']]);
-            $address['id'] = $addressItem['id'];
-            OrderAddressModel::update($address);
+//            $address = $item['orderAddress'];
+//            $addressItem = OrderAddressModel::get(['order_id' => $orderItem['id']]);
+//            $address['id'] = $addressItem['id'];
+//            OrderAddressModel::update($address);
 
             $order['id'] = $orderItem['id'];
             OrderModel::update($order);
