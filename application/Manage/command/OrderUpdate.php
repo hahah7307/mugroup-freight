@@ -42,7 +42,7 @@ class OrderUpdate extends Command
             $orderNew = OrderModel::saleOrderCodes2Order($item['saleOrderCode']);
             OrderModel::orderUpdate($orderNew[0]);
         }
-        $data['offset'] = $data['offset'] + $data['page_num'];
+        $data['offset'] = $data['offset'] + count($orders);
         OrderUpdateModel::update($data);
 
         $output->writeln("success");
