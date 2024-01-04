@@ -152,7 +152,7 @@
         // 上传
         let uploadInst = upload.render({
             elem: '#excel' //绑定元素
-            ,url: '/manage/upload/file_upload' //上传接口
+            ,url: '/Manage/Upload/file_upload' //上传接口
             ,exts: 'xls|xlsx'
             ,done: function(res){
                 //上传完毕回调

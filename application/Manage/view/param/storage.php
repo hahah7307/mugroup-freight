@@ -98,6 +98,27 @@
                 </div>
             </div>
         </div>
+        <div class="title">自动任务中心</div>
+        <div>
+            <div class="layui-form-item">
+                <div class="layui-inline layui-col-md3">
+                    <label class="layui-form-label">订单关联尾程数/分钟</label>
+                    <div class="layui-input-inline">
+                        <input type="text" class="layui-input w300" name="finance_notify_num" value="{$config['finance_notify_num']}">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div>
+            <div class="layui-form-item">
+                <div class="layui-inline layui-col-md3">
+                    <label class="layui-form-label">邮编更新数/分钟</label>
+                    <div class="layui-input-inline">
+                        <input type="text" class="layui-input w300" name="postal_update_num" value="{$config['postal_update_num']}">
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="title">导入中心</div>
         <div>
             <div class="layui-form-item">

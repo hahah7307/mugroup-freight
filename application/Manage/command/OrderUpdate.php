@@ -2,9 +2,7 @@
 namespace app\Manage\command;
 
 use app\Manage\model\OrderModel;
-use app\Manage\model\OrderPageModel;
 use app\Manage\model\OrderUpdateModel;
-use SoapClient;
 use SoapFault;
 use think\Config;
 use think\console\Command;

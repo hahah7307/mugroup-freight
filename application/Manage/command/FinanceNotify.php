@@ -5,13 +5,11 @@ use app\Manage\model\FinanceOrderModel;
 use app\Manage\model\FinanceOrderOutboundModel;
 use app\Manage\model\OrderModel;
 use Exception;
+use think\Config;
 use think\console\Command;
 use think\console\Input;
 use think\console\Output;
 use think\Db;
-use think\db\exception\DataNotFoundException;
-use think\db\exception\ModelNotFoundException;
-use think\exception\DbException;
 
 class FinanceNotify extends Command
 {
@@ -21,17 +19,17 @@ class FinanceNotify extends Command
     }
 
     /**
-     * @throws DbException
-     * @throws ModelNotFoundException
-     * @throws DataNotFoundException
      * @throws Exception
      */
     protected function execute(Input $input, Output $output)
     {
+        // 加载自定义配置
+        Config::load(APP_PATH . 'storage.php');
+
         Db::startTrans();
         try {
             $financeObj = new FinanceOrderModel();
-            $list = $financeObj->where(['is_notify' => 0])->order('id asc')->limit(1000)->select();
+            $list = $financeObj->where(['is_notify' => 0])->order('id asc')->limit(Config::get('finance_notify_num'))->select();
             $newData = [];
             foreach ($list as $item) {
                 $finance = OrderModel::all(['refNo' => $item['payment_id'], 'status' => 4]);
