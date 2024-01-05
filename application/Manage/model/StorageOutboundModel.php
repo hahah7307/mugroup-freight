@@ -10,6 +10,8 @@ class StorageOutboundModel extends Model
 {
     const KG2LB = 2.204;
 
+    const STATE_ACTIVE = 1;
+
     protected $name = 'storage_outbound';
 
     protected $resultSetType = 'collection';

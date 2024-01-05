@@ -4,7 +4,7 @@
 <!-- 主体内容 -->
 <div class="layui-body" id="LAY_app_body">
     <div class="right">
-        <div class="title">仓库列表</div>
+        <div class="title">出库费</div>
         <form class="layui-form search-form" method="get">
             <div class="layui-inline w200">
                 <input type="text" class="layui-input" name="keyword" value="{$keyword}" placeholder="仓库名称">
@@ -23,13 +23,19 @@
                 <colgroup>
                     <col>
                     <col>
+                    <col>
+                    <col>
+                    <col width="80">
                     <col width="80">
                     <col width="250">
                 </colgroup>
                 <thead>
                 <tr>
-                    <th>名称</th>
-                    <th>短描述</th>
+                    <th class="tc">平台</th>
+                    <th class="tc">名称</th>
+                    <th class="tc">描述</th>
+                    <th class="tc">金额</th>
+                    <th class="tc">Level</th>
                     <th class="tc">状态</th>
                     <th class="tc">操作</th>
                 </tr>
@@ -37,8 +43,11 @@
                 <tbody>
                 {foreach name="list" item="v"}
                 <tr>
-                    <td>{$v.name}</td>
-                    <td>{$v.short}</td>
+                    <td class="tc">{$v.platform_tag}</td>
+                    <td class="tc">{$v.name}</td>
+                    <td class="tc">{$v.description}</td>
+                    <td class="tc">{$v.value}</td>
+                    <td class="tc"><input type="text" name="level" lay-verify="required" class="layui-input w50" value="{$v.level}"></td>
                     <td class="tc">
                         <input type="checkbox" class="h30" name="look" value="{$v.id}" lay-skin="switch" lay-text="是|否" lay-filter="formLock" {if condition="$v.state eq 1"}checked{/if}>
                     </td>

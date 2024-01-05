@@ -39,7 +39,14 @@
                         <cite>基础</cite>
                     </a>
                     <dl class="layui-nav-child">
-                        <dd><a layui-href="{:url('Storage/index')}">仓库列表</a></dd>
+                        <dd><a layui-href="{:url('Storage/index')}">仓库</a></dd>
+                        <dd><a layui-href="{:url('StorageArea/index')}">子仓库</a></dd>
+                        <dd><a layui-href="{:url('StorageZone/index')}">邮编区块</a></dd>
+                        <dd><a layui-href="{:url('StorageOutbound/index')}">出库费</a></dd>
+                        <dd><a layui-href="{:url('StorageBase/index')}">基础费</a></dd>
+                        <dd><a layui-href="{:url('StorageAhs/index')}">AHS</a></dd>
+                        <dd><a layui-href="{:url('StorageDas/index')}">DAS</a></dd>
+                        <dd><a layui-href="{:url('Product/index')}">产品</a></dd>
                     </dl>
                 </li>
                 <li data-name="Site" class="layui-nav-item">

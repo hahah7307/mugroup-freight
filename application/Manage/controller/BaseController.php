@@ -32,7 +32,7 @@ class BaseController extends Controller
 		$access = Session::get('access', 'access');
 		$controller = strtolower($this->request->controller());
 		$action = strtolower($this->request->action());
-		if (AccountModel::action_access($controller, $action, $access, $user) == false) {
+		if (!AccountModel::action_access($controller, $action, $access, $user)) {
 			$this->error('您没有操作权限！');
 		}
 
