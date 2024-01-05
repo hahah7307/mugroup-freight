@@ -52,9 +52,7 @@ class PostalUpdate extends Command
                 // 更新数据
                 if (empty($orderData['address']['postalCode'])) {
                     $addressObj = new OrderAddressModel();
-                    if (!$addressObj->save(['postalCode' => $this->postalCodeFormat($item['postalCode'])], ['order_id' => $orderData['id']])) {
-                        throw new Exception("易仓订单地址详情更新失败！");
-                    }
+                    $addressObj->save(['postalCode' => $this->postalCodeFormat($item['postalCode'])], ['order_id' => $orderData['id']]);
                 }
 
                 $diffWeight = intval($item['charged_weight'] - $orderData['charged_weight']);
