@@ -254,7 +254,7 @@ class OrderController extends BaseController
             $this->error('缺少开始时间');
         }
         $orderObj = new OrderModel();
-        $orderList = $orderObj->whereBetween('datePaidPlatform', [$start_time, $end_time])->select();
+        $orderList = $orderObj->with('details.product')->whereBetween('datePaidPlatform', [$start_time, $end_time])->select();
 
         // phpexcel
         require_once './static/classes/PHPExcel/Classes/PHPExcel.php';
@@ -288,6 +288,7 @@ class OrderController extends BaseController
             ->setCellValue('Q1', '总费用')
             ->setCellValue('R1', '订单支付时间')
             ->setCellValue('S1', '平台代码')
+            ->setCellValue('T1', '实重')
         ;
 
         foreach ($orderList as $k => $item) {
@@ -311,6 +312,7 @@ class OrderController extends BaseController
                 ->setCellValue('Q' . ($k + 2), $item['calcuRes'])
                 ->setCellValue('R' . ($k + 2), $item['datePaidPlatform'])
                 ->setCellValue('S' . ($k + 2), $item['platform'])
+                ->setCellValue('T' . ($k + 2), $item['details'][0]['product']['productWeight'] * 2.204)
             ;
         }
 
