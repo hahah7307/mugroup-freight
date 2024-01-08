@@ -155,18 +155,6 @@ class OrderController extends BaseController
         $addressPostal->insertAll($newData);
         unset($newData);
 
-//        dump($data);exit();
-
-//        if (count($data[0]) == Config::get('excel_col_liang')) {
-//            $this->importPostalCode($data, Config::get('excel_ordercode_liang'), Config::get('excel_postal_liang'));
-//            $this->setUnsetFee($data, Config::get('excel_ordercode_liang'), Config::get('excel_weight_liang'), Config::get('excel_rdc_liang'), Config::get('excel_drdc_liang'));
-//        } elseif (count($data[0]) == Config::get('excel_col_loctek')) {
-//            $this->importPostalCode($data, Config::get('excel_ordercode_loctek'), Config::get('excel_postal_loctek'));
-//            $this->setUnsetFee($data, Config::get('excel_ordercode_loctek'), Config::get('excel_weight_loctek'), Config::get('excel_rdc_loctek'), Config::get('excel_drdc_loctek'));
-//        } else {
-//            $this->error("请上传正确的表格", Session::get(Config::get('BACK_URL')));
-//        }
-
         $this->redirect(Session::get(Config::get('BACK_URL'), 'manage'));
     }
 
