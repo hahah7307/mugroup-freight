@@ -4,7 +4,6 @@ namespace app\Manage\controller;
 use app\Manage\model\OrderAddressModel;
 use app\Manage\model\OrderAddressPostalModel;
 use app\Manage\model\OrderModel;
-use app\Manage\model\ProductModel;
 use PHPExcel;
 use PHPExcel_IOFactory;
 use PHPExcel_Reader_Exception;
@@ -32,6 +31,13 @@ class OrderController extends BaseController
         } else {
             $where = [];
         }
+
+        $platform = $this->request->get('platform');
+        $this->assign('platform', $platform);
+        if ($platform) {
+            $where['platform'] = $platform;
+        }
+
 
         $page_num = $this->request->get('page_num', Config::get('PAGE_NUM'));
         $this->assign('page_num', $page_num);
@@ -257,7 +263,7 @@ class OrderController extends BaseController
             $this->error('缺少开始时间');
         }
         $orderObj = new OrderModel();
-        $orderList = $orderObj->whereBetween('createdDate', [$start_time, $end_time])->select();
+        $orderList = $orderObj->whereBetween('datePaidPlatform', [$start_time, $end_time])->select();
 
         // phpexcel
         require_once './static/classes/PHPExcel/Classes/PHPExcel.php';
@@ -289,7 +295,8 @@ class OrderController extends BaseController
             ->setCellValue('O1', '住宅旺季附加费')
             ->setCellValue('P1', '燃油费')
             ->setCellValue('Q1', '总费用')
-            ->setCellValue('R1', '订单创建时间')
+            ->setCellValue('R1', '订单支付时间')
+            ->setCellValue('S1', '平台代码')
         ;
 
         foreach ($orderList as $k => $item) {
@@ -311,7 +318,8 @@ class OrderController extends BaseController
                 ->setCellValue('O' . ($k + 2), $item['drdcFee'])
                 ->setCellValue('P' . ($k + 2), $item['fuelCost'])
                 ->setCellValue('Q' . ($k + 2), $item['calcuRes'])
-                ->setCellValue('R' . ($k + 2), $item['createdDate'])
+                ->setCellValue('R' . ($k + 2), $item['datePaidPlatform'])
+                ->setCellValue('S' . ($k + 2), $item['platform'])
             ;
         }
 

@@ -12,6 +12,17 @@
             <div class="layui-inline w200">
                 <input type="text" class="layui-input" name="keyword" value="{$keyword}" placeholder="参考/销售/系统单号">
             </div>
+            <div class="layui-inline w120">
+                <select name="platform" lay-verify="">
+                    <option value="">平台类型</option>
+                    <option value="amazon" {if condition="$platform eq 'amazon'"}selected{/if}>amazon</option>
+                    <option value="wayfairnew" {if condition="$platform eq 'wayfairnew'"}selected{/if}>wayfairnew</option>
+                    <option value="walmart" {if condition="$platform eq 'walmart'"}selected{/if}>walmart</option>
+                    <option value="shoplazza" {if condition="$platform eq 'shoplazza'"}selected{/if}>shoplazza</option>
+                    <option value="shein" {if condition="$platform eq 'shein'"}selected{/if}>shein</option>
+                    <option value="ebay" {if condition="$platform eq 'ebay'"}selected{/if}>ebay</option>
+                </select>
+            </div>
             <div class="layui-inline w100">
                 <input type="text" class="layui-input" name="page_num" value="{$page_num}" placeholder="每页条数">
             </div>
