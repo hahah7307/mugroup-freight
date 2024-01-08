@@ -15,4 +15,5 @@ return [
     'app\Manage\command\OrderUpdate',
     'app\Manage\command\FinanceNotify',
     'app\Manage\command\PostalUpdate', // 自动更新易仓订单邮箱和地址附加费、旺季地址附加费、计费重
+    'app\Manage\command\InventoryBatch', // 订单自动抓取易仓批次库存
     ];
