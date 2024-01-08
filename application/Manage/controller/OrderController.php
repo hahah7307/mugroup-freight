@@ -142,6 +142,9 @@ class OrderController extends BaseController
 
         $newData = [];
         foreach ($data as $item) {
+            if (empty($item[0])) {
+                continue;
+            }
             $newData[] = [
                 'saleOrderCode'     =>  $item[0],
                 'postalCode'        =>  $item[1],
