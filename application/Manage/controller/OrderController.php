@@ -38,13 +38,19 @@ class OrderController extends BaseController
             $where['platform'] = $platform;
         }
 
+        $status = $this->request->get('status');
+        $this->assign('status', $status);
+        if ($status != "") {
+            $where['status'] = $status;
+        }
+
 
         $page_num = $this->request->get('page_num', Config::get('PAGE_NUM'));
         $this->assign('page_num', $page_num);
 
         // 订单列表
         $order = new OrderModel();
-        $list = $order->with(['details.product','address'])->where($where)->order('id asc')->paginate($page_num, false, ['query' => ['keyword' => $keyword, 'page_num' => $page_num]]);
+        $list = $order->with(['details.product','address'])->where($where)->order('id asc')->paginate($page_num, false, ['query' => ['keyword' => $keyword, 'platform' => $platform, 'status' => $status, 'page_num' => $page_num]]);
         $this->assign('list', $list);
 
         Session::set(Config::get('BACK_URL'), $this->request->url(), 'manage');

@@ -23,6 +23,23 @@
                     <option value="ebay" {if condition="$platform eq 'ebay'"}selected{/if}>ebay</option>
                 </select>
             </div>
+            <div class="layui-inline w120">
+                <select name="status" lay-verify="">
+                    <option value="">状态</option>
+                    <option value="0" {if condition="$status eq '0'"}selected{/if}>已废弃</option>
+                    <option value="1" {if condition="$status eq 1"}selected{/if}>未付款</option>
+                    <option value="2" {if condition="$status eq 2"}selected{/if}>待审核</option>
+                    <option value="3" {if condition="$status eq 3"}selected{/if}>待发货</option>
+                    <option value="4" {if condition="$status eq 4"}selected{/if}>已发货</option>
+                    <option value="5" {if condition="$status eq 5"}selected{/if}>冻结中</option>
+                    <option value="6" {if condition="$status eq 6"}selected{/if}>缺货</option>
+                    <option value="7" {if condition="$status eq 7"}selected{/if}>问题件</option>
+                    <option value="8" {if condition="$status eq 8"}selected{/if}>线下单</option>
+                    <option value="100" {if condition="$status eq 100"}selected{/if}>未审核</option>
+                    <option value="101" {if condition="$status eq 101"}selected{/if}>审不过</option>
+                    <option value="102" {if condition="$status eq 102"}selected{/if}>废弃订单</option>
+                </select>
+            </div>
             <div class="layui-inline w100">
                 <input type="text" class="layui-input" name="page_num" value="{$page_num}" placeholder="每页条数">
             </div>
@@ -56,7 +73,6 @@
                     <col width="150">
                     <col width="150">
                     <col width="120">
-                    <col width="120">
                     <col width="100">
                     <col>
                     <col width="60">
@@ -72,7 +88,6 @@
                     <col>
                     <col width="140">
                     <col width="80">
-<!--                    <col width="80">-->
                 </colgroup>
                 <thead>
                 <tr>
@@ -82,7 +97,6 @@
                     <th>ID</th>
                     <th>Payment单号</th>
                     <th>易仓单号</th>
-                    <th>仓库单号</th>
                     <th>仓库代码</th>
                     <th>跟踪号</th>
                     <th>平台</th>
@@ -98,8 +112,7 @@
                     <th>燃油</th>
                     <th>总计</th>
                     <th>创建时间</th>
-                    <th class="tc">审核状态</th>
-<!--                    <th class="tc">操作</th>-->
+                    <th class="tc">状态</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -113,7 +126,6 @@
                     <td>{$v.id}</td>
                     <td>{$v.refNo}</td>
                     <td>{$v.saleOrderCode}</td>
-                    <td>{$v.warehouseOrderCode}</td>
                     <td>{$v.warehouseCode}</td>
                     <td>{$v.shippingMethodNo}</td>
                     <td>{$v.platform}</td>
@@ -130,20 +142,32 @@
                     <td class="calcuRes" data-info="{$v.calcuInfo}">{$v.calcuRes}</td>
                     <td>{$v.createdDate}</td>
                     <td class="tc">
-                        {if condition="$v.calcu_state eq 1"}
+                        {if condition="$v.status eq 0"}
+                            <p class="grey">已废弃</p>
+                        {elseif condition="$v.status eq 1"/}
+                            <p class="orange">未付款</p>
+                        {elseif condition="$v.status eq 2" /}
                             <p class="blue">待审核</p>
-                        {elseif condition="$v.calcu_state eq 2" /}
-                            <p class="green">通过</p>
-                        {elseif condition="$v.calcu_state eq 3" /}
-                            <p class="red">未通过</p>
+                        {elseif condition="$v.status eq 3" /}
+                            <p class="blue">待发货</p>
+                        {elseif condition="$v.status eq 4" /}
+                            <p class="green">已发货</p>
+                        {elseif condition="$v.status eq 5" /}
+                            <p class="orange">冻结中</p>
+                        {elseif condition="$v.status eq 6" /}
+                            <p class="red">缺货</p>
+                        {elseif condition="$v.status eq 7" /}
+                            <p class="red">问题件</p>
+                        {elseif condition="$v.status eq 8" /}
+                            <p class="red">未付款</p>
+                        {elseif condition="$v.status eq 100" /}
+                            <p class="grey">线下单</p>
+                        {elseif condition="$v.status eq 101" /}
+                            <p class="red">审核不通过</p>
+                        {elseif condition="$v.status eq 102" /}
+                            <p class="grey">废弃订单</p>
                         {/if}
                     </td>
-<!--                    <td class="tc">-->
-<!--                        <a href="{:url('deliver/index', ['id' => $v.id])}" class="layui-btn layui-btn-sm">运送</a>-->
-<!--                        <a href="{:url('pick/index', ['id' => $v.id])}" class="layui-btn layui-btn-sm">出库</a>-->
-<!--                        <a href="{:url('edit', ['id' => $v.id])}" class="layui-btn layui-btn-normal layui-btn-sm">编辑</a>-->
-<!--                        <button data-id="{$v.id}" class="layui-btn layui-btn-sm layui-btn-danger ml0" lay-submit lay-filter="Detele">删除</button>-->
-<!--                    </td>-->
                 </tr>
                 {/foreach}
                 </tbody>
