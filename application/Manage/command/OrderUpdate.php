@@ -35,12 +35,12 @@ class OrderUpdate extends Command
         $data = OrderUpdateModel::find()->toArray();
 
         $orderObj = new OrderModel();
-        $orders = $orderObj->limit($data['offset'], $data['page_num'])->select();
+        $orders = $orderObj->where(['status' => ['neq', 4]])->order('id asc')->limit($data['offset'], $data['page_num'])->select();
         foreach ($orders as $item) {
             $orderNew = OrderModel::saleOrderCodes2Order($item['saleOrderCode']);
             OrderModel::orderUpdate($orderNew[0]);
         }
-        $data['offset'] = $data['offset'] + count($orders);
+        $data['offset'] = count($orders) < $data['page_num'] ? 0 : $data['offset'] + count($orders);
         OrderUpdateModel::update($data);
 
         $output->writeln("success");
