@@ -17,4 +17,5 @@ return [
     'app\Manage\command\PostalUpdate', // 自动更新易仓订单邮箱和地址附加费、旺季地址附加费、计费重 * * * * *
     'app\Manage\command\InventoryBatch', // 自动抓取易仓批次库存 * * * * *
     'app\Manage\command\InventoryAdjustment', // 自动抓取批次库存调整记录 * * * * *
+    'app\Manage\command\InventorySettlement', // 自动结算批次库龄对应费用 * * * * *
     ];

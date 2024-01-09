@@ -10,4 +10,5 @@
     'outbound_platform'  =>  '{"platform":["wayfairnew"]}',
     'finance_notify_num'  =>  '1000',
     'postal_update_num'  =>  '100',
+    'inventory_batch_num'  =>  '100',
 ]; ?>

@@ -119,6 +119,16 @@
                 </div>
             </div>
         </div>
+        <div>
+            <div class="layui-form-item">
+                <div class="layui-inline layui-col-md3">
+                    <label class="layui-form-label">仓储费运算数/分钟</label>
+                    <div class="layui-input-inline">
+                        <input type="text" class="layui-input w300" name="inventory_batch_num" value="{$config['inventory_batch_num']}">
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="layui-form-item">
             <div class="layui-input-block">
                 <button class="layui-btn w200" lay-submit lay-filter="formCoding">提交保存</button>
