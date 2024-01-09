@@ -35,6 +35,7 @@ class StorageBaseModel extends Model
         return date('Y-m-d H:i:s');
     }
 
+    //获取计费重
     static public function getProductLbs($storage, $product)
     {
         $lbs = 0;

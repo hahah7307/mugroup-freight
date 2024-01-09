@@ -111,6 +111,7 @@ class OrderModel extends Model
         Config::load(APP_PATH . 'storage.php');
 
         $postalCode = self::postalFormat($postalCode);
+        // 获取计费重（不同仓库在同一值上会使用不同的重量）
         $lbs = StorageBaseModel::getProductLbs($storage, $product);
 
         // 出库费运算

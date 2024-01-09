@@ -41,13 +41,21 @@ class StorageOutboundModel extends Model
         foreach ($outboundList as $rule) {
             $ruleCondition = json_decode($rule['condition'], true);
             foreach ($product as $item) {
-                if ($ruleCondition['max'] == 0 && $item['productWeight'] * self::KG2LB > $ruleCondition['min']) {
+                $lbs = 0;
+                // 出库费良仓取计费重，乐歌取实重
+                if ($storage == StorageModel::LIANGCANGID) {
+                    $lbs = StorageBaseModel::getProductLbs($storage, [$item]);
+                } elseif ($storage == StorageModel::LECANGID) {
+                    $lbs = $item['productWeight'] * self::KG2LB;
+                }
+                if ($ruleCondition['max'] == 0 && $lbs > $ruleCondition['min']) {
                     $price += $rule['value'];
                     break;
-                } elseif ($item['productWeight'] * self::KG2LB > $ruleCondition['min'] && $item['productWeight'] * self::KG2LB <= $ruleCondition['max']) {
+                } elseif ($lbs > $ruleCondition['min'] && $lbs <= $ruleCondition['max']) {
                     $price += $rule['value'];
                     break;
                 }
+                unset($lbs);
                 unset($item);
             }
             unset($rule);
