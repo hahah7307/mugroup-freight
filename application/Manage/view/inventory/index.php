@@ -7,20 +7,21 @@
 <!-- 主体内容 -->
 <div class="layui-body" id="LAY_app_body">
     <div class="right">
-        <div class="title">尾程列表</div>
+        <div class="title">批次库存</div>
         <form class="layui-form search-form" method="get">
             <div class="layui-inline w200">
-                <input type="text" class="layui-input" name="keyword" value="{$keyword}" placeholder="参考/销售/系统单号">
+                <input type="text" class="layui-input" name="keyword" value="{$keyword}" placeholder="SKU/各种单号">
             </div>
             <div class="layui-inline w120">
-                <select name="platform" lay-verify="">
-                    <option value="">平台类型</option>
-                    <option value="amazon" {if condition="$platform eq 'amazon'"}selected{/if}>amazon</option>
-                    <option value="wayfairnew" {if condition="$platform eq 'wayfairnew'"}selected{/if}>wayfairnew</option>
-                    <option value="walmart" {if condition="$platform eq 'walmart'"}selected{/if}>walmart</option>
-                    <option value="shoplazza" {if condition="$platform eq 'shoplazza'"}selected{/if}>shoplazza</option>
-                    <option value="shein" {if condition="$platform eq 'shein'"}selected{/if}>shein</option>
-                    <option value="ebay" {if condition="$platform eq 'ebay'"}selected{/if}>ebay</option>
+                <select name="lc_code" lay-verify="">
+                    <option value="">仓库代码</option>
+                    <option value="LC-USLAX08" {if condition="$lc_code eq 'LC-USLAX08'"}selected{/if}>LC-USLAX08</option>
+                    <option value="USLAX09" {if condition="$lc_code eq 'USLAX09'"}selected{/if}>USLAX09</option>
+                    <option value="LC-USLAX05" {if condition="$lc_code eq 'LC-USLAX05'"}selected{/if}>LC-USLAX05</option>
+                    <option value="LC-USNJ06" {if condition="$lc_code eq 'LC-USNJ06'"}selected{/if}>LC-USNJ06</option>
+                    <option value="LC-USATL06" {if condition="$lc_code eq 'LC-USATL06'"}selected{/if}>LC-USATL06</option>
+                    <option value="CAP2" {if condition="$lc_code eq 'CAP2'"}selected{/if}>CAP2</option>
+                    <option value="LG-USA-PA01" {if condition="$lc_code eq 'LG-USA-PA01'"}selected{/if}>LG-USA-PA01</option>
                 </select>
             </div>
             <div class="layui-inline w100">
@@ -32,36 +33,15 @@
             <div class="layui-inline">
                 <a class="layui-btn layui-btn-normal" href="{:url('index')}"><i class="layui-icon">&#xe669;</i> 重置</a>
             </div>
-            <div class="layui-input-inline">
-                <input type="text" class="layui-input" id="export_start_time" name="start_time" value="" placeholder="开始时间">
-            </div>
-            <div class="layui-input-inline">
-                <input type="text" class="layui-input" id="export_end_time" name="end_time" value="" placeholder="结束时间">
-            </div>
-            <div class="layui-inline">
-                <a class="layui-btn layui-btn-normal" lay-submit lay-filter="Export"><i class="layui-icon">&#xe621;</i> 导出</a>
-            </div>
         </form>
 
         <div class="layui-form">
-<!--            <a class="layui-btn" href="{:url('add')}">添加</a>-->
-            <a class="layui-btn layui-btn-normal" lay-submit lay-filter="Calculate">测算</a>
-            <button type="button" class="layui-btn  layui-btn-normal" id="excel">导入</button>
-            <a class="layui-btn layui-btn-normal" lay-submit lay-filter="Update">批量更新</a>
-            <a class="layui-btn layui-btn-normal" lay-submit lay-filter="Audit">批量审核</a>
             <table class="layui-table" lay-size="sm">
                 <colgroup>
                     <col width="50">
                     <col>
-                    <col width="150">
-                    <col width="150">
-                    <col width="120">
-                    <col width="120">
-                    <col width="100">
                     <col>
-                    <col width="60">
-                    <col>
-                    <col>
+                    <col width="300">
                     <col>
                     <col>
                     <col>
@@ -71,8 +51,8 @@
                     <col>
                     <col>
                     <col width="140">
-                    <col width="80">
-<!--                    <col width="80">-->
+                    <col width="140">
+                    <col width="100">
                 </colgroup>
                 <thead>
                 <tr>
@@ -80,26 +60,19 @@
                         <input type="checkbox" lay-skin="primary" id="YanNanQiu_checkall" lay-filter="YanNanQiu_checkall">
                     </th>
                     <th>ID</th>
-                    <th>Payment单号</th>
-                    <th>易仓单号</th>
-                    <th>仓库单号</th>
+                    <th>批次ID</th>
+                    <th>SKU</th>
+                    <th class="tc">仓库ID</th>
                     <th>仓库代码</th>
-                    <th>跟踪号</th>
-                    <th>平台</th>
-                    <th>计费重</th>
-                    <th>邮编</th>
-                    <th>Zone</th>
-                    <th>出库</th>
-                    <th>基础</th>
-                    <th>AHS</th>
-                    <th>偏远</th>
-                    <th>住宅</th>
-                    <th>旺季</th>
-                    <th>燃油</th>
-                    <th>总计</th>
-                    <th>创建时间</th>
-                    <th class="tc">审核状态</th>
-<!--                    <th class="tc">操作</th>-->
+                    <th class="tc">可用数量</th>
+                    <th class="tc">待出数量</th>
+                    <th>参考单号</th>
+                    <th>入库单号</th>
+                    <th>采购单号</th>
+                    <th class="red tc">库龄</th>
+                    <th>上架时间</th>
+                    <th>更新时间</th>
+                    <th>抓取日期</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -111,39 +84,19 @@
                         </div>
                     </td>
                     <td>{$v.id}</td>
-                    <td>{$v.refNo}</td>
-                    <td>{$v.saleOrderCode}</td>
-                    <td>{$v.warehouseOrderCode}</td>
-                    <td>{$v.warehouseCode}</td>
-                    <td>{$v.shippingMethodNo}</td>
-                    <td>{$v.platform}</td>
-                    <td>{$v.charged_weight}</td>
-                    <td>{$v.postalFormat}</td>
-                    <td>{$v.zoneFormat}</td>
-                    <td>{$v.outbound}</td>
-                    <td>{$v.base}</td>
-                    <td>{$v.ahs}</td>
-                    <td>{$v.das}</td>
-                    <td>{$v.rdcFee}</td>
-                    <td>{$v.ahsds}+{$v.drdcFee}</td>
-                    <td>{$v.fuelCost}</td>
-                    <td class="calcuRes" data-info="{$v.calcuInfo}">{$v.calcuRes}</td>
-                    <td>{$v.createdDate}</td>
-                    <td class="tc">
-                        {if condition="$v.calcu_state eq 1"}
-                            <p class="blue">待审核</p>
-                        {elseif condition="$v.calcu_state eq 2" /}
-                            <p class="green">通过</p>
-                        {elseif condition="$v.calcu_state eq 3" /}
-                            <p class="red">未通过</p>
-                        {/if}
-                    </td>
-<!--                    <td class="tc">-->
-<!--                        <a href="{:url('deliver/index', ['id' => $v.id])}" class="layui-btn layui-btn-sm">运送</a>-->
-<!--                        <a href="{:url('pick/index', ['id' => $v.id])}" class="layui-btn layui-btn-sm">出库</a>-->
-<!--                        <a href="{:url('edit', ['id' => $v.id])}" class="layui-btn layui-btn-normal layui-btn-sm">编辑</a>-->
-<!--                        <button data-id="{$v.id}" class="layui-btn layui-btn-sm layui-btn-danger ml0" lay-submit lay-filter="Detele">删除</button>-->
-<!--                    </td>-->
+                    <td>{$v.ib_id}</td>
+                    <td>{$v.productSku}</td>
+                    <td class="tc">{$v.warehouseId}</td>
+                    <td>{$v.lcCode}</td>
+                    <td class="tc">{$v.ibQuantity}</td>
+                    <td class="tc">{$v.outQuantity}</td>
+                    <td>{$v.referenceNo}</td>
+                    <td>{$v.roCode}</td>
+                    <td>{$v.poCode}</td>
+                    <td class="red tc">{$v.age}</td>
+                    <td>{$v.fifoTime}</td>
+                    <td>{$v.updateTime}</td>
+                    <td>{$v.createdDate|strtotime|date="Y-m-d",###}</td>
                 </tr>
                 {/foreach}
                 </tbody>

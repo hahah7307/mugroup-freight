@@ -34,8 +34,17 @@
                     </dl>
                 </li>
                 <li data-name="Storage" class="layui-nav-item">
+                    <a layui-href="javascript:;" lay-tips="仓储" lay-direction="2">
+                        <i class="layui-icon iconfont icon-kucunchaxun"></i>
+                        <cite>仓储</cite>
+                    </a>
+                    <dl class="layui-nav-child">
+                        <dd><a layui-href="{:url('Inventory/index')}">批次库存库龄</a></dd>
+                    </dl>
+                </li>
+                <li data-name="Storage" class="layui-nav-item">
                     <a layui-href="javascript:;" lay-tips="仓库" lay-direction="2">
-                        <i class="layui-icon iconfont icon-chanpin"></i>
+                        <i class="layui-icon iconfont icon-jichugongneng"></i>
                         <cite>基础</cite>
                     </a>
                     <dl class="layui-nav-child">

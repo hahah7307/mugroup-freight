@@ -5,6 +5,7 @@ use app\Manage\model\InventoryBatchCreateModel;
 use app\Manage\model\InventoryBatchModel;
 use Exception;
 use SoapClient;
+use think\Config;
 use think\console\Command;
 use think\console\Input;
 use think\console\Output;
@@ -23,11 +24,6 @@ class InventoryBatch extends Command
     protected function execute(Input $input, Output $output)
     {
         header("content-type:text/html;charset=utf-8");
-        // 校验开始时间
-        if (intval(date('i')) < 2) {
-            echo "not time";
-            return;
-        }
 
         // 校验今日是否完成
         $createData = InventoryBatchCreateModel::find();
@@ -37,6 +33,7 @@ class InventoryBatch extends Command
         if ($createData['date'] < date('Ymd') && $createData['is_finish'] == 1) {
             $createData = [
                 'page'      =>  1,
+                'num'       =>  100,
                 'date'      =>  date('Ymd'),
                 'is_finish' =>  0
             ];
@@ -70,6 +67,14 @@ class InventoryBatch extends Command
                 if ($inventoryBatchItem) {
                     continue;
                 }
+
+                // 校验开始时间
+                Config::load(APP_PATH . 'Manage/config.php');
+                $inventory_batch_time = Config::get('INVENTORY_BATCH_TIME');
+                if (!array_key_exists($item['lcCode'], $inventory_batch_time) || intval(date('H')) < $inventory_batch_time[$item['lcCode']]) {
+                    continue;
+                }
+
                 $batchData[] = [
                     'ib_id'                 =>  $item['ib_id'],
                     'productSku'            =>  $item['productSku'],
@@ -101,11 +106,15 @@ class InventoryBatch extends Command
             }
 
             if ($inventoryBatchObj->saveAll($batchData)) {
-                $is_finish = count($data) < $createData['num'] ? 1 : 0;
-                $newCreateData = [
-                    'page'      =>  $createData['page'] + 1,
-                    'is_finish' =>  $is_finish
-                ];
+                if (count($data) < $createData['num']) {
+                    $newCreateData = [
+                        'page'      =>  1,
+                    ];
+                } else {
+                    $newCreateData = [
+                        'page'      =>  $createData['page'] + 1,
+                    ];
+                }
                 InventoryBatchCreateModel::update($newCreateData, ['id' => 1]);
 
                 Db::commit();
