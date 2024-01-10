@@ -88,6 +88,8 @@ class OrderModel extends Model
         $orderInfo['ahs'] = $deliverInfo['ahs'];
         $orderInfo['ahsds'] = $deliverInfo['ahsds'];
         $orderInfo['das'] = $deliverInfo['das'];
+        $orderInfo['rdcFee'] = $deliverInfo['rdcFee'];
+        $orderInfo['drdcFee'] = $deliverInfo['drdcFee'];
         $orderInfo['outbound'] = $deliverInfo['outbound'];
         $orderInfo['fuelCost'] = $deliverInfo['fuelCost'];
 
@@ -128,6 +130,8 @@ class OrderModel extends Model
                 'ahs'               =>  0,
                 'ahsds'             =>  0,
                 'das'               =>  0,
+                'rdcFee'            =>  0,
+                'drdcFee'           =>  0,
                 'outbound'          =>  $outbound,
                 'fuelCost'          =>  0
             ];
@@ -150,10 +154,10 @@ class OrderModel extends Model
         $dasFee = !empty($das) ? StorageDasFeeModel::get(['storage_id' => $storage, 'type' => $das['type']])->getData('value') : 0;
 
         // 住宅地址附加费
-        $rdcFee = $order['rdcFee'];
+        $rdcFee = StorageModel::getResidential($storage);
 
         // 住宅旺季附加费
-        $drdcFee = $order['drdcFee'];
+        $drdcFee = $rdcFee ? StorageModel::getDemandResidential($storage, $order['datePaidPlatform']) : 0;
 
         // 燃油费运算
         $fuel_cost = round(($base + $ahs + $dasFee + $rdcFee + $ahsDemandSurcharges + $drdcFee) * Config::get('fuel_cost') * 0.01, 2);
@@ -172,6 +176,8 @@ class OrderModel extends Model
             'ahs'               =>  $ahs,
             'ahsds'             =>  $ahsDemandSurcharges,
             'das'               =>  $dasFee,
+            'rdcFee'            =>  $rdcFee,
+            'drdcFee'           =>  $drdcFee,
             'outbound'          =>  $outbound,
             'fuelCost'          =>  $fuel_cost
         ];
