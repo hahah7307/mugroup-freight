@@ -33,7 +33,6 @@ class InventoryAdjustment extends Command
                 'userPass'      =>  "alex02081888",
                 'service'       =>  "getAdjustmentInventoryList"
             ];
-            dump($params);
             $ret = $soapClient->callService($params);
             file_put_contents( APP_PATH . '/../runtime/log/test.log', PHP_EOL . "[" . date('Y-m-d H:i:s') . "] : " . var_export($ret,TRUE), FILE_APPEND);
             $retArr = get_object_vars($ret);

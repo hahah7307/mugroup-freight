@@ -4,7 +4,7 @@
 <!-- 主体内容 -->
 <div class="layui-body" id="LAY_app_body">
     <div class="right">
-        <div class="title">批次库存</div>
+        <div class="title">批次库存调整记录</div>
         <form class="layui-form search-form" method="get">
             <div class="layui-inline w200">
                 <input type="text" class="layui-input" name="keyword" value="{$keyword}" placeholder="SKU/各种单号">
@@ -19,6 +19,17 @@
                     <option value="LC-USATL06" {if condition="$lc_code eq 'LC-USATL06'"}selected{/if}>LC-USATL06</option>
                     <option value="CAP2" {if condition="$lc_code eq 'CAP2'"}selected{/if}>CAP2</option>
                     <option value="LG-USA-PA01" {if condition="$lc_code eq 'LG-USA-PA01'"}selected{/if}>LG-USA-PA01</option>
+                </select>
+            </div>
+            <div class="layui-inline w120">
+                <select name="applicationCode" lay-verify="">
+                    <option value="">操作</option>
+                    <option value="SO" {if condition="$applicationCode eq 'SO'"}selected{/if}>SO</option>
+                    <option value="SSPI" {if condition="$applicationCode eq 'SSPI'"}selected{/if}>SSPI</option>
+                    <option value="EO" {if condition="$applicationCode eq 'EO'"}selected{/if}>EO</option>
+                    <option value="OSAPI" {if condition="$applicationCode eq 'OSAPI'"}selected{/if}>OSAPI</option>
+                    <option value="Putaway" {if condition="$applicationCode eq 'Putaway'"}selected{/if}>Putaway</option>
+                    <option value="TSO" {if condition="$applicationCode eq 'TSO'"}selected{/if}>TSO</option>
                 </select>
             </div>
             <div class="layui-inline w100">
@@ -37,7 +48,6 @@
                 <colgroup>
                     <col width="50">
                     <col>
-                    <col>
                     <col width="200">
                     <col>
                     <col>
@@ -45,13 +55,8 @@
                     <col>
                     <col>
                     <col>
-                    <col>
-                    <col width="60">
+                    <co>
                     <col width="140">
-                    <col width="140">
-                    <col width="100">
-                    <col>
-                    <col width="60">
                 </colgroup>
                 <thead>
                 <tr>
@@ -59,21 +64,15 @@
                         <input type="checkbox" lay-skin="primary" id="YanNanQiu_checkall" lay-filter="YanNanQiu_checkall">
                     </th>
                     <th>ID</th>
-                    <th>批次ID</th>
                     <th>SKU</th>
                     <th class="tc">仓库ID</th>
                     <th>仓库代码</th>
-                    <th class="tc">可用数量</th>
-                    <th class="tc">待出数量</th>
-                    <th>参考单号</th>
+                    <th class="tc">操作代码</th>
+                    <th>操作单号</th>
                     <th>入库单号</th>
-                    <th>采购单号</th>
-                    <th class="red tc">库龄</th>
-                    <th>上架时间</th>
-                    <th>更新时间</th>
-                    <th>抓取日期</th>
-                    <th>合计</th>
-                    <th>状态</th>
+                    <th>数量（前）</th>
+                    <th>数量（后）</th>
+                    <th>操作日期</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -85,27 +84,15 @@
                         </div>
                     </td>
                     <td>{$v.id}</td>
-                    <td>{$v.ib_id}</td>
                     <td>{$v.productSku}</td>
                     <td class="tc">{$v.warehouseId}</td>
                     <td>{$v.lcCode}</td>
-                    <td class="tc">{$v.ibQuantity}</td>
-                    <td class="tc">{$v.outQuantity}</td>
-                    <td>{$v.referenceNo}</td>
+                    <td>{$v.applicationCode}</td>
+                    <td>{$v.refNo}</td>
                     <td>{$v.roCode}</td>
-                    <td>{$v.poCode}</td>
-                    <td class="red tc">{$v.age}</td>
-                    <td>{$v.fifoTime}</td>
-                    <td>{$v.updateTime}</td>
-                    <td>{$v.createdDate|strtotime|date="Y-m-d",###}</td>
-                    <td>{$v.storageFee}</td>
-                    <td>
-                        {if condition="$v.is_settlement eq 0"}
-                            <p class="red">未核算</p>
-                        {elseif condition="$v.is_settlement eq 1"/}
-                            <p class="grey">已核算</p>
-                        {/if}
-                    </td>
+                    <td>{$v.quantityBefore}</td>
+                    <td>{$v.quantityAfter}</td>
+                    <td>{$v.time}</td>
                 </tr>
                 {/foreach}
                 </tbody>
