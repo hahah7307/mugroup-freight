@@ -41,7 +41,7 @@
                     <col width="50">
                     <col>
                     <col>
-                    <col width="300">
+                    <col width="200">
                     <col>
                     <col>
                     <col>
@@ -49,10 +49,12 @@
                     <col>
                     <col>
                     <col>
-                    <col>
+                    <col width="60">
                     <col width="140">
                     <col width="140">
                     <col width="100">
+                    <col>
+                    <col width="60">
                 </colgroup>
                 <thead>
                 <tr>
@@ -73,6 +75,8 @@
                     <th>上架时间</th>
                     <th>更新时间</th>
                     <th>抓取日期</th>
+                    <th>合计</th>
+                    <th>状态</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -97,6 +101,14 @@
                     <td>{$v.fifoTime}</td>
                     <td>{$v.updateTime}</td>
                     <td>{$v.createdDate|strtotime|date="Y-m-d",###}</td>
+                    <td>{$v.storageFee}</td>
+                    <td>
+                        {if condition="$v.is_settlement eq 0"}
+                            <p class="red">未核算</p>
+                        {elseif condition="$v.is_settlement eq 1"/}
+                            <p class="grey">已核算</p>
+                        {/if}
+                    </td>
                 </tr>
                 {/foreach}
                 </tbody>
