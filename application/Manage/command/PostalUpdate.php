@@ -10,9 +10,6 @@ use think\console\Command;
 use think\console\Input;
 use think\console\Output;
 use think\Db;
-use think\db\exception\DataNotFoundException;
-use think\db\exception\ModelNotFoundException;
-use think\exception\DbException;
 
 class PostalUpdate extends Command
 {
@@ -22,9 +19,6 @@ class PostalUpdate extends Command
     }
 
     /**
-     * @throws DbException
-     * @throws ModelNotFoundException
-     * @throws DataNotFoundException
      * @throws Exception
      */
     protected function execute(Input $input, Output $output)
@@ -55,9 +49,7 @@ class PostalUpdate extends Command
                     $addressObj->save(['postalCode' => $this->postalCodeFormat($item['postalCode'])], ['order_id' => $orderData['id']]);
                 }
 
-                $diffWeight = intval($item['charged_weight'] - $orderData['charged_weight']);
-                $drdcFee = !empty($item['drdcFee']) ? $item['drdcFee'] : 0;
-                if (!$orderObj->update(['rdcFee' => $item['rdcFee'], 'drdcFee' => $drdcFee, 'diff_weight' => $diffWeight, 'isImport' => 1, 'id' => $orderData['id']])) {
+                if (!$orderObj->update(['isImport' => 1, 'id' => $orderData['id']])) {
                     throw new Exception("易仓订单数据更新失败！");
                 }
 

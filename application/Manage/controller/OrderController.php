@@ -2,7 +2,6 @@
 namespace app\Manage\controller;
 
 use app\Manage\model\ApiClient;
-use app\Manage\model\OrderAddressModel;
 use app\Manage\model\OrderAddressPostalModel;
 use app\Manage\model\OrderModel;
 use PHPExcel;
@@ -58,7 +57,6 @@ class OrderController extends BaseController
     }
 
     /**
-     * @throws Exception
      */
     public function orderSearch()
     {
@@ -156,61 +154,10 @@ class OrderController extends BaseController
         $this->redirect(Session::get(Config::get('BACK_URL'), 'manage'));
     }
 
-    // 某些无邮编的订单导入邮编
-    public function importPostalCode($data, $orderCodeCol, $postalCodeCol): bool
-    {
-        $orderObject = new OrderModel();
-        foreach ($data as $item) {
-            $orderItem = $orderObject->with('address')->where(['saleOrderCode' => $item[$orderCodeCol]])->find();
-            if (!empty($orderItem) && empty($orderItem['address']['postalCode'])) {
-                $addressObj = new OrderAddressModel();
-                $addressObj->save(['postalCode' => $this->postalCodeFormat($item[$postalCodeCol])], ['order_id' => $orderItem['id']]);
-            }
-        }
-        return true;
-    }
-
-    // 客户订单邮编格式化
-    public function postalCodeFormat($postalCode): string
-    {
-        $postalCode = strval($postalCode);
-        if (strlen($postalCode) == 4) {
-            return "0" . $postalCode;
-        } elseif (strlen($postalCode) == 3) {
-            return "00" . $postalCode;
-        } else {
-            return $postalCode;
-        }
-    }
-
-    // 导入后更新以下字段
-    // 是否导入（isImport） 住宅地址附加费（rdcFee） 住宅地址旺季附加费（drdcFee） 实际计费重与理论差值（diff_weight）
-    /**
-     * @throws DataNotFoundException
-     * @throws DbException
-     * @throws ModelNotFoundException
-     * @throws Exception
-     */
-    public function setUnsetFee($data, $orderCodeCol, $weightCol, $rdfCol, $drdcCol): bool
-    {
-        $orderObject = new OrderModel();
-        foreach ($data as $item) {
-            $orderItem = $orderObject->where(['saleOrderCode' => $item[$orderCodeCol]])->find();
-            if ($orderItem) {
-                $order = new OrderModel();
-                $diffWeight = intval($item[$weightCol] - $orderItem['charged_weight']);
-                $drdcFee = !empty($item[$drdcCol]) ? $item[$drdcCol] : 0;
-                $order->save(['rdcFee' => $item[$rdfCol], 'drdcFee' => $drdcFee, 'diff_weight' => $diffWeight, 'isImport' => 1], ['id' => $orderItem['id']]);
-
-                OrderModel::orderId2DeliverParams($orderItem['id']);
-            }
-        }
-        return true;
-    }
-
     /**
      * @throws DbException
      * @throws Exception
+     * @throws \SoapFault
      */
     public function update()
     {
@@ -225,11 +172,10 @@ class OrderController extends BaseController
                 }
             }
             echo json_encode(['code' => 1, 'msg' => '更新完成']);
-            exit;
         } else {
             echo json_encode(['code' => 0, 'msg' => '更新失败']);
-            exit;
         }
+        exit;
     }
 
     /**
