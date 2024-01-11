@@ -25,6 +25,6 @@
     'ec_warehouse_userpass'  =>  'alex02081888',
     'lc_warehouse_username'  =>  '',
     'lc_warehouse_userpass'  =>  '',
-    'le_warehouse_username'  =>  '',
-    'le_warehouse_userpass'  =>  '',
+    'le_access_key'  =>  'OFSyPMYI',
+    'le_secret_key'  =>  'KsX/OjpsiJIdAJuHvf3eXg==',
 ]; ?>

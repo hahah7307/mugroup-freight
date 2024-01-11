@@ -40,13 +40,68 @@ class ApiClient extends Model
         return ['code' => 1, 'data' => $result['data']];
     }
 
-    static public function LeWarehouseApi()
+    static public function LeWarehouseApi($url, $method = 'POST', $params = []): array
     {
+        $params = array_merge(['accessKey' => Config::get('le_access_key'), 'timestamp' => self::getMillisecond()], $params);
+        $data = self::httpCurl($url, $method, $params);
+        $result = json_decode($data, true);
+        if ($result['code'] != 200) {
+            return ['code' => 0, 'msg' => $result['message']];
+        }
 
+        return ['code' => 1, 'data' => $result['data']];
     }
 
     static public function LcWarehouseApi()
     {
 
+    }
+
+    static public function httpCurl($url, $method = 'POST', $params = false){
+        $ch = curl_init();
+        // 关闭SSL验证
+        curl_setopt( $ch, CURLOPT_SSL_VERIFYHOST, false);
+        curl_setopt( $ch, CURLOPT_SSL_VERIFYPEER, false);
+
+        $header = [
+            'Content-Type: application/json',
+            'accessKey: ' . $params['accessKey'],
+            'timestamp: ' . $params['timestamp'],
+            'sign: ' . self::params2sign($params, Config::get('le_secret_key'))
+        ];
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
+
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
+        unset($params['accessKey']);
+        unset($params['timestamp']);
+        if( $method == 'POST' ) {
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($params));
+        }
+
+        $response = curl_exec( $ch );
+        if ($response === FALSE) {
+            return false;
+        }
+        curl_close( $ch );
+        return $response;
+    }
+
+    static public function params2sign($data, $secretKey): string
+    {
+        ksort($data);
+        $longString = "";
+        foreach ($data as $key => $value) {
+            $longString .= "&" . $key . "=" . $value;
+        }
+        $longString = substr($longString, 1, strlen($longString));
+        return hash('sha256', $longString . $secretKey);
+    }
+
+    static public function getMillisecond(){
+        list($mse, $sec) = explode(' ', microtime());
+        $onetime =  (float)sprintf('%.0f', (floatval($mse) + floatval($sec)) * 1000);
+        return substr($onetime,0,13);
     }
 }

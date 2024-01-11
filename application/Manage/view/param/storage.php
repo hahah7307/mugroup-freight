@@ -245,9 +245,9 @@
         <div>
             <div class="layui-form-item">
                 <div class="layui-inline layui-col-md3">
-                    <label class="layui-form-label">乐仓账户</label>
+                    <label class="layui-form-label">乐仓AccessKey</label>
                     <div class="layui-input-inline">
-                        <input type="text" class="layui-input w300" name="le_warehouse_username" value="{$config['le_warehouse_username']}">
+                        <input type="text" class="layui-input w300" name="le_access_key" value="{$config['le_access_key']}">
                     </div>
                 </div>
             </div>
@@ -255,9 +255,9 @@
         <div>
             <div class="layui-form-item">
                 <div class="layui-inline layui-col-md3">
-                    <label class="layui-form-label">乐仓密码</label>
+                    <label class="layui-form-label">乐仓SecretKey</label>
                     <div class="layui-input-inline">
-                        <input type="text" class="layui-input w300" name="le_warehouse_userpass" value="{$config['le_warehouse_userpass']}">
+                        <input type="text" class="layui-input w300" name="le_secret_key" value="{$config['le_secret_key']}">
                     </div>
                 </div>
             </div>

@@ -19,7 +19,8 @@
         "php": ">=7.0",
         "topthink/framework": "5.0.*",
       "ext-json": "*",
-      "ext-soap": "*"
+      "ext-soap": "*",
+      "ext-curl": "*"
     },
     "autoload": {
         "psr-4": {
