@@ -1,9 +1,9 @@
 <?php
 namespace app\Manage\command;
 
+use app\Manage\model\ApiClient;
 use app\Manage\model\OrderModel;
 use app\Manage\model\OrderPageModel;
-use SoapClient;
 use SoapFault;
 use think\Config;
 use think\console\Command;
@@ -53,19 +53,13 @@ class OrderCapture extends Command
      */
     protected function getOrderList($page = 1, $num = 50): array
     {
-        $url = "http://nt5e7hf-eb.eccang.com/default/svc-open/web-service-v2";
-        $soapClient = new SoapClient($url);
-        $params = [
-            'paramsJson'    =>  '{"page":' . intval($page) . ',"pageSize":' . intval($num) . ',"getDetail":1,"getAddress":1,"getCustomOrderType":1}',
-            'userName'      =>  "NJJ",
-            'userPass'      =>  "alex02081888",
-            'service'       =>  "getOrderList"
-        ];
-        $ret = $soapClient->callService($params);
-        file_put_contents( APP_PATH . '/../runtime/log/OrderCapture-' . date('Y-m-d') . '.log', PHP_EOL . "[" . date('Y-m-d H:i:s') . "] : " . var_export($ret,TRUE), FILE_APPEND);
-        $retArr = get_object_vars($ret);
-        $retJson = $retArr['response'];
-        $result = json_decode($retJson, true);
-        return $result['data'];
+        // 加载自定义配置
+        Config::load(APP_PATH . 'storage.php');
+
+        $apiRes = ApiClient::EcWarehouseApi(Config::get("ec_eb_uri"), "getOrderList", '{"page":' . intval($page) . ',"pageSize":' . intval($num) . ',"getDetail":1,"getAddress":1,"getCustomOrderType":1}');
+        if ($apiRes['code'] == 0) {
+            return [];
+        }
+        return $apiRes['data'];
     }
 }

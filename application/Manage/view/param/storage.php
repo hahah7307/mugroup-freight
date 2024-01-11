@@ -181,6 +181,87 @@
                 </div>
             </div>
         </div>
+        <div class="title">账号中心</div>
+        <div>
+            <div class="layui-form-item">
+                <div class="layui-inline layui-col-md3">
+                    <label class="layui-form-label">易仓WMS地址</label>
+                    <div class="layui-input-inline">
+                        <input type="text" class="layui-input w300" name="ec_wms_uri" value="{$config['ec_wms_uri']}">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div>
+            <div class="layui-form-item">
+                <div class="layui-inline layui-col-md3">
+                    <label class="layui-form-label">易仓EB地址</label>
+                    <div class="layui-input-inline">
+                        <input type="text" class="layui-input w300" name="ec_eb_uri" value="{$config['ec_eb_uri']}">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div>
+            <div class="layui-form-item">
+                <div class="layui-inline layui-col-md3">
+                    <label class="layui-form-label">易仓账户</label>
+                    <div class="layui-input-inline">
+                        <input type="text" class="layui-input w300" name="ec_warehouse_username" value="{$config['ec_warehouse_username']}">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div>
+            <div class="layui-form-item">
+                <div class="layui-inline layui-col-md3">
+                    <label class="layui-form-label">易仓密码</label>
+                    <div class="layui-input-inline">
+                        <input type="text" class="layui-input w300" name="ec_warehouse_userpass" value="{$config['ec_warehouse_userpass']}">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div>
+            <div class="layui-form-item">
+                <div class="layui-inline layui-col-md3">
+                    <label class="layui-form-label">良仓账户</label>
+                    <div class="layui-input-inline">
+                        <input type="text" class="layui-input w300" name="lc_warehouse_username" value="{$config['lc_warehouse_username']}">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div>
+            <div class="layui-form-item">
+                <div class="layui-inline layui-col-md3">
+                    <label class="layui-form-label">良仓密码</label>
+                    <div class="layui-input-inline">
+                        <input type="text" class="layui-input w300" name="lc_warehouse_userpass" value="{$config['lc_warehouse_userpass']}">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div>
+            <div class="layui-form-item">
+                <div class="layui-inline layui-col-md3">
+                    <label class="layui-form-label">乐仓账户</label>
+                    <div class="layui-input-inline">
+                        <input type="text" class="layui-input w300" name="le_warehouse_username" value="{$config['le_warehouse_username']}">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div>
+            <div class="layui-form-item">
+                <div class="layui-inline layui-col-md3">
+                    <label class="layui-form-label">乐仓密码</label>
+                    <div class="layui-input-inline">
+                        <input type="text" class="layui-input w300" name="le_warehouse_userpass" value="{$config['le_warehouse_userpass']}">
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="layui-form-item">
             <div class="layui-input-block">
                 <button class="layui-btn w200" lay-submit lay-filter="formCoding">提交保存</button>

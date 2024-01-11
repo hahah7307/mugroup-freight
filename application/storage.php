@@ -19,4 +19,12 @@
     'finance_notify_num'  =>  '1000',
     'postal_update_num'  =>  '100',
     'inventory_batch_num'  =>  '100',
+    'ec_wms_uri'  =>  'https://nt5e7hf.eccang.com/default/svc-open/web-service-v2',
+    'ec_eb_uri'  =>  'http://nt5e7hf-eb.eccang.com/default/svc-open/web-service-v2',
+    'ec_warehouse_username'  =>  'NJJ',
+    'ec_warehouse_userpass'  =>  'alex02081888',
+    'lc_warehouse_username'  =>  '',
+    'lc_warehouse_userpass'  =>  '',
+    'le_warehouse_username'  =>  '',
+    'le_warehouse_userpass'  =>  '',
 ]; ?>

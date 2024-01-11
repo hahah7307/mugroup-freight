@@ -1,6 +1,7 @@
 <?php
 namespace app\Manage\controller;
 
+use app\Manage\model\ApiClient;
 use app\Manage\model\OrderAddressModel;
 use app\Manage\model\OrderAddressPostalModel;
 use app\Manage\model\OrderModel;
@@ -8,7 +9,6 @@ use PHPExcel;
 use PHPExcel_IOFactory;
 use PHPExcel_Reader_Exception;
 use PHPExcel_Style_Fill;
-use SoapClient;
 use think\Db;
 use think\db\exception\DataNotFoundException;
 use think\db\exception\ModelNotFoundException;
@@ -62,29 +62,18 @@ class OrderController extends BaseController
      */
     public function orderSearch()
     {
-        header("content-type:text/html;charset=utf-8");
+        // 加载自定义配置
+        Config::load(APP_PATH . 'storage.php');
+
         Db::startTrans();
         try {
             $code = '"saleOrderCodes":["WEC0322310310056","wf-CS493446402","wf-CA490256588-1","WAL-0015-108830554985272","WAL-0015-108830555497775","WAL-0015-108830556126577","WAL-0015-108830556150466","WAL-0015-108830556197902","WAL-0015-108830556235667","WAL-0015-108830556447654","111-4993938-8145837","114-6650471-9181851","WAL-0015-108830656606570","WEC0202311010027","WEC0732311010026","112-1331038-7953855","111-8253014-9120241","113-6172109-7762643","112-8199898-0941002","112-8199898-0941002","113-0107617-8006662","WAL-0015-108830656762419","112-3752166-1517843","111-9353603-9485812","111-6369802-4590660","111-2690812-0133010","112-1828116-3325002-1","113-4924029-6045839","112-3417797-4629833","113-9391384-5302622","111-0457987-6445826","112-6713942-5516220","114-8264835-6565064","112-9195884-7063415","114-5410802-3461027","114-0377074-3146661","111-3105334-4455460","WEC0292311010016","111-1575017-9381868","112-2813454-9702619","WEC0242311010024","WEC0102311010025","112-4976561-7603451","114-0437864-5940213","112-4112901-2143468","112-5614476-8523448","112-5272070-7811446","wf-CS493579312","wf-CS493576996","wf-CS493573998"]';
-//            $code = '';
-            $url = "http://nt5e7hf-eb.eccang.com/default/svc-open/web-service-v2";
-            $soapClient = new SoapClient($url);
-            $params = [
-                'paramsJson'    =>  '{"getDetail":1,"getAddress":1,"getCustomOrderType":1,"condition":{'. $code . '}}',
-                'userName'      =>  "NJJ",
-                'userPass'      =>  "alex02081888",
-                'service'       =>  "getOrderList"
-            ];
-            $ret = $soapClient->callService($params);
-            file_put_contents( APP_PATH . '/../runtime/log/test.log', PHP_EOL . "[" . date('Y-m-d H:i:s') . "] : " . var_export($ret,TRUE), FILE_APPEND);
-            $retArr = get_object_vars($ret);
-            $retJson = $retArr['response'];
-            $result = json_decode($retJson, true);
-            if ($result['code'] != "200") {
-                throw new Exception("error code: " . $result['code'] . "(" . $result['message'] . ")");
+            $apiRes = ApiClient::EcWarehouseApi(Config::get("ec_eb_uri"), "getOrderList", '{"getDetail":1,"getAddress":1,"getCustomOrderType":1,"condition":{'. $code . '}}');
+            if ($apiRes['code'] == 0) {
+                throw new \think\Exception($apiRes['msg']);
             }
+            $data = $apiRes['data'];
 
-            $data = $result['data'];
             $count = 0;
             foreach ($data as $key => $item) {
                 $count++;

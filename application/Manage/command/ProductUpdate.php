@@ -1,13 +1,10 @@
 <?php
 namespace app\Manage\command;
 
-use app\Manage\model\FinanceOrderModel;
-use app\Manage\model\FinanceOrderOutboundModel;
-use app\Manage\model\OrderModel;
+use app\Manage\model\ApiClient;
 use app\Manage\model\ProductModel;
 use app\Manage\model\ProductUpdateModel;
 use Exception;
-use SoapClient;
 use think\Config;
 use think\console\Command;
 use think\console\Input;
@@ -26,7 +23,9 @@ class ProductUpdate extends Command
      */
     protected function execute(Input $input, Output $output)
     {
-        header("content-type:text/html;charset=utf-8");
+        // 加载自定义配置
+        Config::load(APP_PATH . 'storage.php');
+
         $update = ProductUpdateModel::find()->toArray();
         if (date('Ymd') == $update['date'] && $update['is_finished'] == 1) {
             echo "success";exit();
@@ -40,23 +39,12 @@ class ProductUpdate extends Command
 
         Db::startTrans();
         try {
-            $url = "https://nt5e7hf.eccang.com/default/svc-open/web-service-v2";
-            $soapClient = new SoapClient($url);
-            $params = [
-                'paramsJson'    =>  '{"page":' . $update['page'] . '}',
-                'userName'      =>  "NJJ",
-                'userPass'      =>  "alex02081888",
-                'service'       =>  "getProductList"
-            ];
-            $ret = $soapClient->callService($params);
-            $retArr = get_object_vars($ret);
-            $retJson = $retArr['response'];
-            $result = json_decode($retJson, true);
-            if ($result['code'] != "200") {
-                throw new \think\Exception("error code: " . $result['code'] . "(" . $result['message'] . ")");
+            $apiRes = ApiClient::EcWarehouseApi(Config::get("ec_wms_uri"), "getProductList", '{"page":' . $update['page'] . '}');
+            if ($apiRes['code'] == 0) {
+                throw new \think\Exception($apiRes['msg']);
             }
+            $data = $apiRes['data'];
 
-            $data = $result['data'];
             if (count($data) <= 0) {
                 ProductUpdateModel::update(['id' => $update['id'], 'page' => $update['page'] + 1, 'is_finished' => 1]);
                 echo "success";exit();

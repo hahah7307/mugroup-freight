@@ -2,7 +2,6 @@
 
 namespace app\Manage\model;
 
-use SoapClient;
 use think\Config;
 use think\Db;
 use think\db\exception\DataNotFoundException;
@@ -295,21 +294,18 @@ class OrderModel extends Model
         return substr(trim($postalCode), 0, 5);
     }
 
+    /**
+     * @throws \SoapFault
+     */
     static public function saleOrderCodes2Order($code)
     {
-        $url = "http://nt5e7hf-eb.eccang.com/default/svc-open/web-service-v2";
-        $soapClient = new SoapClient($url);
-        $params = [
-            'paramsJson'    =>  '{"getDetail":1,"getAddress":1,"getCustomOrderType":1,"condition":{"saleOrderCodes":["' . $code . '"]}}',
-            'userName'      =>  "NJJ",
-            'userPass'      =>  "alex02081888",
-            'service'       =>  "getOrderList"
-        ];
-        $ret = $soapClient->callService($params);
-        file_put_contents( APP_PATH . '/../runtime/log/OrderCapture-' . date('Y-m-d') . '.log', PHP_EOL . "[" . date('Y-m-d H:i:s') . "] : " . var_export($ret,TRUE), FILE_APPEND);
-        $retArr = get_object_vars($ret);
-        $retJson = $retArr['response'];
-        $result = json_decode($retJson, true);
-        return $result['data'];
+        // 加载自定义配置
+        Config::load(APP_PATH . 'storage.php');
+
+        $apiRes = ApiClient::EcWarehouseApi(Config::get("ec_eb_uri"), "getOrderList", '{"getDetail":1,"getAddress":1,"getCustomOrderType":1,"condition":{"saleOrderCodes":["' . $code . '"]}}');
+        if ($apiRes['code'] == 0) {
+            return [];
+        }
+        return $apiRes['data'];
     }
 }
