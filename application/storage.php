@@ -23,8 +23,9 @@
     'ec_eb_uri'  =>  'http://nt5e7hf-eb.eccang.com/default/svc-open/web-service-v2',
     'ec_warehouse_username'  =>  'NJJ',
     'ec_warehouse_userpass'  =>  'alex02081888',
-    'lc_warehouse_username'  =>  '',
-    'lc_warehouse_userpass'  =>  '',
+    'lc_api_uri'  =>  'http://www.lc-oms.com/default/svc/wsdl',
+    'lc_app_token'  =>  '2faf8ce1aa7cbea643221b64c0ae19c2',
+    'lc_app_key'  =>  'ed4727de433bcca513d3d57b99d524a7',
     'le_access_key'  =>  'OFSyPMYI',
     'le_secret_key'  =>  'KsX/OjpsiJIdAJuHvf3eXg==',
 ]; ?>

@@ -225,9 +225,9 @@
         <div>
             <div class="layui-form-item">
                 <div class="layui-inline layui-col-md3">
-                    <label class="layui-form-label">良仓账户</label>
+                    <label class="layui-form-label">良仓Api地址</label>
                     <div class="layui-input-inline">
-                        <input type="text" class="layui-input w300" name="lc_warehouse_username" value="{$config['lc_warehouse_username']}">
+                        <input type="text" class="layui-input w300" name="lc_api_uri" value="{$config['lc_api_uri']}">
                     </div>
                 </div>
             </div>
@@ -235,9 +235,19 @@
         <div>
             <div class="layui-form-item">
                 <div class="layui-inline layui-col-md3">
-                    <label class="layui-form-label">良仓密码</label>
+                    <label class="layui-form-label">良仓AppToken</label>
                     <div class="layui-input-inline">
-                        <input type="text" class="layui-input w300" name="lc_warehouse_userpass" value="{$config['lc_warehouse_userpass']}">
+                        <input type="text" class="layui-input w300" name="lc_app_token" value="{$config['lc_app_token']}">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div>
+            <div class="layui-form-item">
+                <div class="layui-inline layui-col-md3">
+                    <label class="layui-form-label">良仓AppKey</label>
+                    <div class="layui-input-inline">
+                        <input type="text" class="layui-input w300" name="lc_app_key" value="{$config['lc_app_key']}">
                     </div>
                 </div>
             </div>
