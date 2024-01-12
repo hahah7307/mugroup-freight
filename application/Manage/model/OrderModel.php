@@ -116,7 +116,6 @@ class OrderModel extends Model
         $lbs = StorageBaseModel::getProductLbs($storage, $product);
 
         // 出库费运算
-        $outbound = StorageOutboundModel::getOutbound($storage, $product, $order['platform']);
         $platform = StorageOutboundModel::outboundPlatform();
         if (in_array($order['platform'], $platform)) {
             return [
@@ -135,6 +134,7 @@ class OrderModel extends Model
                 'fuelCost'          =>  0
             ];
         }
+        $outbound = StorageOutboundModel::getOutbound($storage, $product, $order['platform']);
 
         // 基础费运算
         $customerZone = StorageZoneModel::getCustomZone($storage, $type, $postalCode);
@@ -280,7 +280,7 @@ class OrderModel extends Model
             OrderModel::update($order);
             OrderModel::orderId2DeliverParams($orderItem['id']);
 
-            file_put_contents( APP_PATH . '/../runtime/log/OrderUpdate-' . date('Y-m-d') . '.log', PHP_EOL . "[" . date('Y-m-d H:i:s') . "] : " . var_export($order['order_id'] . '-' . $order['saleOrderCode'] . " : Update Success",TRUE), FILE_APPEND);
+            file_put_contents( APP_PATH . '/../runtime/log/OrderUpdate-' . date('Y-m-d') . '.log', PHP_EOL . "[" . date('Y-m-d H:i:s') . "] : " . var_export($order['id'] . '-' . $order['order_id'] . '-' . $order['saleOrderCode'] . " : Update Success",TRUE), FILE_APPEND);
             Db::commit();
             return true;
         } catch (\Exception $e) {
