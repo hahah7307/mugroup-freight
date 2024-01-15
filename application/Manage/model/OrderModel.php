@@ -117,6 +117,7 @@ class OrderModel extends Model
 
         // 出库费运算
         $platform = StorageOutboundModel::outboundPlatform();
+        $outbound = StorageOutboundModel::getOutbound($storage, $product, $order['platform']);
         if (in_array($order['platform'], $platform)) {
             return [
                 'label'             =>  "",
@@ -134,7 +135,6 @@ class OrderModel extends Model
                 'fuelCost'          =>  0
             ];
         }
-        $outbound = StorageOutboundModel::getOutbound($storage, $product, $order['platform']);
 
         // 基础费运算
         $customerZone = StorageZoneModel::getCustomZone($storage, $type, $postalCode);
