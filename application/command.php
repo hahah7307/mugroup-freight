@@ -11,6 +11,7 @@
 
 return [
     'app\Manage\command\ProductUpdate', // * * * * *
+    'app\Manage\command\OrderCalculate', // 自动计算易仓订单尾程 * * * * *
     'app\Manage\command\OrderCapture', // * * * * *
     'app\Manage\command\OrderUpdate', // * * * * *
     'app\Manage\command\FinanceNotify', // * * * * *
