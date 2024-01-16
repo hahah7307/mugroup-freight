@@ -7,7 +7,7 @@ use think\Model;
 
 class ProductUpdateModel extends Model
 {
-    protected $name = 'ecang_product_update';
+    protected $name = 'product_update';
 
     protected $resultSetType = 'collection';
 }
