@@ -19,4 +19,5 @@ return [
     'app\Manage\command\InventoryBatch', // 自动抓取易仓批次库存 * * * * *
     'app\Manage\command\InventoryAdjustment', // 自动抓取批次库存调整记录 * * * * *
     'app\Manage\command\InventorySettlement', // 自动结算批次库龄对应费用 * * * * *
+    'app\Manage\command\LcReceivingCapture', // 自动抓取最新良仓入库单记录 * * * * *
     ];
