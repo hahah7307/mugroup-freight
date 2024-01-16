@@ -36,7 +36,7 @@ class OrderUpdate extends Command
 
         $orderObj = new OrderModel();
         $orders = $orderObj
-//            ->where(['status' => ['neq', 4]])
+            ->where(['status' => ['neq', 4]])
             ->order('id asc')
             ->limit($data['offset'], $data['page_num'])
             ->select();
