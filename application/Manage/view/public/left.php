@@ -41,6 +41,7 @@
                         <dd><a layui-href="{:url('Inventory/index')}">批次库存库龄</a></dd>
                         <dd><a layui-href="{:url('Inventory/adjustment')}">库存调整记录</a></dd>
                         <dd><a layui-href="{:url('LcInventory/index')}">良仓库存库龄</a></dd>
+                        <dd><a layui-href="{:url('LeInventory/index')}">乐歌库存库龄</a></dd>
                     </dl>
                 </li>
                 <li data-name="Storage" class="layui-nav-item">

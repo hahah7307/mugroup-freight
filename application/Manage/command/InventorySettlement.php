@@ -4,6 +4,7 @@ namespace app\Manage\command;
 use app\Manage\model\InventoryBatchModel;
 use app\Manage\model\LcInventoryBatchModel;
 use app\Manage\model\LcProductModel;
+use app\Manage\model\LeInventoryBatchModel;
 use app\Manage\model\ProductModel;
 use app\Manage\model\StorageAreaModel;
 use app\Manage\model\StorageFeeModel;
@@ -31,6 +32,7 @@ class InventorySettlement extends Command
 
         Db::startTrans();
         try {
+            // 易仓仓储费计算
             $inventorySettlementObj = new InventoryBatchModel();
             $data = $inventorySettlementObj->where('is_settlement', 0)->order('id asc')->limit(Config::get('inventory_batch_num'))->select();
             foreach ($data as $item) {
@@ -59,6 +61,7 @@ class InventorySettlement extends Command
             }
             unset($data);
 
+            // 良仓仓储费计算
             $lcInventoryBatchObj = new LcInventoryBatchModel();
             $data = $lcInventoryBatchObj->with('receiving')->where('is_finished', 0)->order('id asc')->limit(Config::get('inventory_batch_num'))->select();
             foreach ($data as $item) {
@@ -95,6 +98,35 @@ class InventorySettlement extends Command
 
                 $lcInventoryBatchObj->update($newData);
             }
+            unset($data);
+
+            // 乐歌仓储费计算
+            $leInventoryBatchObj = new LeInventoryBatchModel();
+            $data = $leInventoryBatchObj->where('is_finished', 0)->order('id asc')->limit(Config::get('inventory_batch_num'))->select();
+            foreach ($data as $item) {
+                $volume = round($item['product_length'] * $item['product_width'] * $item['product_height'], 6);
+
+                $storage_id = 2;
+                $storageFeeObj = new StorageFeeModel();
+                $fees = $storageFeeObj->where(['state' => StorageFeeModel::STATE_ACTIVE, 'storage_id' => $storage_id])->order('level asc')->select();
+                $storageFeeUnit = 0;
+                foreach ($fees as $value) {
+                    if ($item['stock_age'] > $value['condition']) {
+                        $storageFeeUnit = $value['value'];
+                        break;
+                    }
+                }
+                $storageFee = $storageFeeUnit * $volume * $item['ib_quantity'];
+                $newData = [
+                    'id'                    =>  $item['id'],
+                    'volume'                =>  $volume,
+                    'price'                 =>  round($storageFee, 6),
+                    'is_finished'           =>  1,
+                ];
+
+                $leInventoryBatchObj->update($newData);
+            }
+            unset($data);
 
             Db::commit();
             echo "success";

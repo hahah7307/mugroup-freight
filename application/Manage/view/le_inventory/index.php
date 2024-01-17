@@ -4,7 +4,7 @@
 <!-- 主体内容 -->
 <div class="layui-body" id="LAY_app_body">
     <div class="right">
-        <div class="title">良仓库存</div>
+        <div class="title">乐歌库存</div>
         <form class="layui-form search-form" method="get">
             <div class="layui-inline w200">
                 <input type="text" class="layui-input" name="keyword" value="{$keyword}" placeholder="SKU/各种单号">
@@ -12,9 +12,8 @@
             <div class="layui-inline w120">
                 <select name="warehouse_code" lay-verify="">
                     <option value="">仓库代码</option>
-                    <option value="USNJ06" {if condition="$warehouse_code eq 'USNJ06'"}selected{/if}>USNJ06</option>
-                    <option value="USLAX08" {if condition="$warehouse_code eq 'USLAX08'"}selected{/if}>USLAX08</option>
-                    <option value="USLAX09" {if condition="$warehouse_code eq 'USLAX09'"}selected{/if}>USLAX09</option>
+                    <option value="PAW" {if condition="$warehouse_code eq 'PAW'"}selected{/if}>PAW</option>
+                    <option value="CAP" {if condition="$warehouse_code eq 'CAP'"}selected{/if}>CAP</option>
                 </select>
             </div>
             <div class="layui-inline w100">
@@ -29,6 +28,7 @@
         </form>
 
         <div class="layui-form">
+            <button type="button" class="layui-btn  layui-btn-normal" id="excel">导入</button>
             <table class="layui-table" lay-size="sm">
                 <colgroup>
                     <col width="50">
@@ -53,13 +53,15 @@
                     </th>
                     <th>ID</th>
                     <th>SKU</th>
-                    <th>入库单号</th>
+                    <th>日结单号</th>
                     <th>仓库代码</th>
-                    <th>入库时间</th>
+                    <th>类型</th>
+                    <th class="tc">长(米)</th>
+                    <th class="tc">宽(米)</th>
+                    <th class="tc">高(米)</th>
                     <th class="tc">可用数量</th>
-                    <th class="tc">待出数量</th>
                     <th class="red tc">库龄</th>
-                    <th>抓取日期</th>
+                    <th>计费日期</th>
                     <th>体积</th>
                     <th>合计</th>
                     <th>状态</th>
@@ -75,11 +77,13 @@
                     </td>
                     <td>{$v.id}</td>
                     <td>{$v.product_sku}</td>
-                    <td>{$v.receiving_code}</td>
+                    <td>{$v.date_no}</td>
                     <td>{$v.warehouse_code}</td>
-                    <td>{$v.receiving.receiving_add_time}</td>
-                    <td class="tc">{$v.sellable_quantity}</td>
-                    <td class="tc">{$v.reserved_quantity}</td>
+                    <td>{$v.type}</td>
+                    <td class="tc">{$v.product_length}</td>
+                    <td class="tc">{$v.product_width}</td>
+                    <td class="tc">{$v.product_height}</td>
+                    <td class="tc">{$v.ib_quantity}</td>
                     <td class="red tc">{$v.stock_age}</td>
                     <td>{$v.created_date}</td>
                     <td>{$v.volume}</td>
@@ -101,9 +105,25 @@
     </div>
 </div>
 <script>
-    layui.use(['form', 'jquery'], function(){
+    layui.use(['form', 'jquery', 'upload'], function(){
         let $ = layui.jquery,
-            form = layui.form;
+            form = layui.form,
+            upload = layui.upload;
+
+        // 上传
+        let uploadInst = upload.render({
+            elem: '#excel' //绑定元素
+            ,url: '/Manage/Upload/file_upload' //上传接口
+            ,exts: 'xls|xlsx'
+            ,done: function(res){
+                //上传完毕回调
+                console.log(res.data);
+                location.href = "/Manage/LeInventory/import/filename/" + res.data;
+            }
+            ,error: function(){
+                //请求异常回调
+            }
+        });
 
     });
 </script>
