@@ -51,11 +51,7 @@ return [
 
     // 不同仓库抓取订单时间
     'INVENTORY_BATCH_TIME'  => [
-        'LC-USLAX08'    =>  2,
-        'USLAX09'       =>  2,
-        'LC-USLAX05'    =>  2,
-        'LC-USNJ06'     =>  2,
-        'LC-USATL06'    =>  2,
+        'LC-CANG'       =>  2,
         'CAP2'          =>  16,
         'LG-USA-PA01'   =>  13,
     ],

@@ -31,6 +31,7 @@ class LcInventoryBatch extends Command
     {
         // 加载自定义配置
         Config::load(APP_PATH . 'storage.php');
+        Config::load(APP_PATH . 'Manage/config.php');
 
         // 订单查询当前页数
         $data = LcInventoryBatchCreateModel::find()->toArray();
@@ -47,6 +48,9 @@ class LcInventoryBatch extends Command
             ];
             LcInventoryBatchCreateModel::update($data);
         }
+        if (date('H') < Config::get('INVENTORY_BATCH_TIME')['LC-CANG']) {
+            return;
+        }
 
         $apiRes = ApiClient::LcWarehouseApi("getProductInventory", '{"pageSize":' . $data['pageSize'] . ',"page":' . $data['page'] . '}');
         if ($apiRes['code'] == 1 && $data['is_finished'] == 0) {
@@ -58,10 +62,11 @@ class LcInventoryBatch extends Command
                 $lcInventoryBatch = $item['batch_info'];
                 $batchData = [];
                 foreach ($lcInventoryBatch as $batchItem) {
-                    if (LcInventoryBatchModel::get(['receiving_code' => $batchItem['receiving_code']])) {
+                    if (LcInventoryBatchModel::get(['receiving_code' => $batchItem['receiving_code'], 'date' => date('Ymd')])) {
                         continue;
                     }
                     $batchData[] = [
+                        'product_sku'           =>  $item['product_sku'],
                         'receiving_code'        =>  $batchItem['receiving_code'],
                         'ib_quantity'           =>  $batchItem['ib_quantity'],
                         'ib_type'               =>  $batchItem['ib_type'],
