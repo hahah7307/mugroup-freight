@@ -21,4 +21,5 @@ return [
     'app\Manage\command\InventorySettlement', // 自动结算批次库龄对应费用 * * * * *
     'app\Manage\command\LcReceivingCapture', // 自动抓取最新良仓入库单记录 * * * * *
     'app\Manage\command\LcInventoryBatch', // 自动抓取良仓当日批次库存 * * * * *
+    'app\Manage\command\ReceivingCapture', // 自动抓取最新易仓入库单记录 * * * * *
     ];
