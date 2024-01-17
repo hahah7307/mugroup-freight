@@ -115,6 +115,14 @@ class OrderModel extends Model
         // 获取计费重（不同仓库在同一值上会使用不同的重量）
         $lbs = StorageBaseModel::getProductLbs($storage, $product);
 
+        // 基础费运算
+        $customerZone = StorageZoneModel::getCustomZone($storage, $type, $postalCode);
+        if ($customerZone == 0) {
+            return false;
+        }
+        $baseInfo = StorageBaseModel::get(['storage_id' => $storage, 'state' => 1, 'lbs_weight' => $lbs, 'zone' => $customerZone]);
+        $base = $baseInfo ? $baseInfo['value'] : 0;
+
         // 出库费运算
         $platform = StorageOutboundModel::outboundPlatform();
         $outbound = StorageOutboundModel::getOutbound($storage, $product, $order['platform']);
@@ -124,7 +132,7 @@ class OrderModel extends Model
                 'fee'               =>  $outbound,
                 'charged_weight'    =>  $lbs,
                 'postalCode'        =>  $postalCode,
-                'zone'              =>  0,
+                'zone'              =>  $customerZone,
                 'base'              =>  0,
                 'ahs'               =>  0,
                 'ahsds'             =>  0,
@@ -135,14 +143,6 @@ class OrderModel extends Model
                 'fuelCost'          =>  0
             ];
         }
-
-        // 基础费运算
-        $customerZone = StorageZoneModel::getCustomZone($storage, $type, $postalCode);
-        if ($customerZone == 0) {
-            return false;
-        }
-        $baseInfo = StorageBaseModel::get(['storage_id' => $storage, 'state' => 1, 'lbs_weight' => $lbs, 'zone' => $customerZone]);
-        $base = $baseInfo ? $baseInfo['value'] : 0;
 
         // AHS运算 & AHS旺季附加费
         $ahs = AHS::getAHSFee($storage, $customerZone, $product);
