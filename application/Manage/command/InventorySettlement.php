@@ -2,6 +2,8 @@
 namespace app\Manage\command;
 
 use app\Manage\model\InventoryBatchModel;
+use app\Manage\model\LcInventoryBatchModel;
+use app\Manage\model\LcProductModel;
 use app\Manage\model\ProductModel;
 use app\Manage\model\StorageAreaModel;
 use app\Manage\model\StorageFeeModel;
@@ -54,6 +56,44 @@ class InventorySettlement extends Command
                 ];
 
                 $inventorySettlementObj->update($newData);
+            }
+            unset($data);
+
+            $lcInventoryBatchObj = new LcInventoryBatchModel();
+            $data = $lcInventoryBatchObj->with('receiving')->where('is_finished', 0)->order('id asc')->limit(Config::get('inventory_batch_num'))->select();
+            foreach ($data as $item) {
+                $warehouseCode = $item['receiving']['warehouse_code'];
+                $productItem = LcProductModel::get(['product_sku' => $item['product_sku']]);
+                $productItemWarehouseAttr = json_decode($productItem['warehouse_attribute'], true);
+                $volume = 0;
+                foreach ($productItemWarehouseAttr as $warehouseAttr) {
+                    if ($warehouseAttr['warehouse_code'] == $warehouseCode) {
+                        $volume = round($warehouseAttr['product_length'] * $warehouseAttr['product_width'] * $warehouseAttr['product_height'] / 1000000, 3);
+                    }
+                }
+                $volume = $volume == 0 ? round($productItem['product_length'] * $productItem['product_width'] * $productItem['product_height'] / 1000000, 3) : $volume;
+
+                $storageArea = new StorageAreaModel();
+                $storageAreaItem = $storageArea->where('storage_code', 'like', '%' . $warehouseCode)->find();
+                $storage_id = $storageAreaItem['storage_id'];
+                $storageFeeObj = new StorageFeeModel();
+                $fees = $storageFeeObj->where(['state' => StorageFeeModel::STATE_ACTIVE, 'storage_id' => $storage_id])->order('level asc')->select();
+                $storageFeeUnit = 0;
+                foreach ($fees as $value) {
+                    if ($item['stock_age'] > $value['condition']) {
+                        $storageFeeUnit = $value['value'];
+                        break;
+                    }
+                }
+                $storageFee = $storageFeeUnit * $volume * $item['ib_quantity'];
+                $newData = [
+                    'id'                    =>  $item['id'],
+                    'volume'                =>  $volume,
+                    'price'                 =>  $storageFee,
+                    'is_finished'           =>  1,
+                ];
+
+                $lcInventoryBatchObj->update($newData);
             }
 
             Db::commit();

@@ -62,11 +62,12 @@ class LcInventoryBatch extends Command
                 $lcInventoryBatch = $item['batch_info'];
                 $batchData = [];
                 foreach ($lcInventoryBatch as $batchItem) {
-                    if (LcInventoryBatchModel::get(['receiving_code' => $batchItem['receiving_code'], 'date' => date('Ymd')])) {
+                    if (LcInventoryBatchModel::get(['receiving_code' => $batchItem['receiving_code'], 'created_date' => date('Ymd')])) {
                         continue;
                     }
                     $batchData[] = [
                         'product_sku'           =>  $item['product_sku'],
+                        'warehouse_code'        =>  $item['warehouse_code'],
                         'receiving_code'        =>  $batchItem['receiving_code'],
                         'ib_quantity'           =>  $batchItem['ib_quantity'],
                         'ib_type'               =>  $batchItem['ib_type'],
@@ -76,7 +77,10 @@ class LcInventoryBatch extends Command
                         'reserved_quantity'     =>  $batchItem['reserved_quantity'],
                         'sellable_quantity'     =>  $batchItem['sellable_quantity'],
                         'stock_age'             =>  $batchItem['stock_age'],
-                        'date'                  =>  date('Ymd')
+                        'created_year'          =>  date('Y'),
+                        'created_month'         =>  date('Ym'),
+                        'created_date'          =>  date('Ymd'),
+                        'created_time'          =>  date('Y-m-d H:i:s')
                     ];
                     unset($batchItem);
                 }
