@@ -72,8 +72,9 @@
                     <col>
                     <col width="150">
                     <col width="150">
-                    <col width="120">
+                    <col width="150">
                     <col width="100">
+                    <col width="120">
                     <col>
                     <col width="60">
                     <col>
@@ -97,8 +98,9 @@
                     <th>ID</th>
                     <th>Payment单号</th>
                     <th>易仓单号</th>
-                    <th>仓库代码</th>
+                    <th>海外仓单号</th>
                     <th>跟踪号</th>
+                    <th>仓库代码</th>
                     <th>平台</th>
                     <th>计费重</th>
                     <th>邮编</th>
@@ -126,8 +128,9 @@
                     <td>{$v.id}</td>
                     <td>{$v.refNo}</td>
                     <td>{$v.saleOrderCode}</td>
-                    <td>{$v.warehouseCode}</td>
+                    <td>{$v.shippingOrderCode}</td>
                     <td>{$v.shippingMethodNo}</td>
+                    <td>{$v.warehouseCode}</td>
                     <td>{$v.platform}</td>
                     <td>{$v.charged_weight}</td>
                     <td>{$v.postalFormat}</td>
