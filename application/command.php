@@ -22,4 +22,6 @@ return [
     'app\Manage\command\LcReceivingCapture', // 自动抓取最新良仓入库单记录 * * * * *
     'app\Manage\command\LcInventoryBatch', // 自动抓取良仓当日批次库存 * * * * *
     'app\Manage\command\ReceivingCapture', // 自动抓取最新易仓入库单记录 * * * * *
+    'app\Manage\command\DateStockUpdate', // 自动抓取产品入库和消耗库存 * * * * *
+    'app\Manage\command\DateStockCalculate', // 自动抓取产品入库和消耗库存 * * * * *
     ];

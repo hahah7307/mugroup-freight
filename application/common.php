@@ -250,3 +250,9 @@ function decimal2percentage($number) {
     return $number * 100 . '%';
 }
 
+// 获取正在使用中的仓库id号
+function getWarehouseID(): array
+{
+    $warehouseArr = \think\Config::get('WAREHOUSE_ID');
+    return array_keys($warehouseArr);
+}

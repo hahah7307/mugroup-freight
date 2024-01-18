@@ -55,4 +55,16 @@ return [
         'CAP2'          =>  16,
         'LG-USA-PA01'   =>  13,
     ],
+
+    'WAREHOUSE_ID' => [
+        24  =>  'CAP2',
+        26  =>  'CAP4',
+        28  =>  'LC-USATL06',
+        29  =>  'LC-USLAX08',
+        32  =>  'USLAX09',
+        33  =>  'LG-TN',
+        34  =>  'LC-USLAX05',
+        36  =>  'LC-USNJ06',
+        37  =>  'LG-USA-PA01'
+    ],
 ];
