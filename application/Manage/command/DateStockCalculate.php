@@ -5,6 +5,7 @@ use app\Manage\model\DateStockConsumeModel;
 use app\Manage\model\DateStockReceivingModel;
 use app\Manage\model\DateStockUpdateModel;
 use app\Manage\model\ReceivingItemModel;
+use app\Manage\model\StockOpeningModel;
 use think\Config;
 use think\console\Command;
 use think\console\Input;
@@ -29,6 +30,8 @@ class DateStockCalculate extends Command
      */
     protected function execute(Input $input, Output $output)
     {
+        Config::load(APP_PATH . 'storage.php');
+
         if (date('H') < 2) {
             return;
         }
@@ -37,20 +40,29 @@ class DateStockCalculate extends Command
         $list = $dateStockReceiving->where(['is_finished' => 0])->order('id asc')->limit(100)->select();
         foreach ($list as $item) {
             $dateStockConsume = new DateStockConsumeModel();
-            $where = [
+            $consumeWhere = [
                 'product_sku'   =>  $item['product_sku'],
                 'warehouse_id'  =>  $item['warehouse_id'],
                 'date'          =>  $item['date']
             ];
-            $consume = $dateStockConsume->where($where)->find();
-            if (empty($consume)) {
+            $consume = $dateStockConsume->where($consumeWhere)->find();
+
+            $stockOpeningObj = new StockOpeningModel();
+            $stockWhere = [
+                'product_sku'   =>  $item['product_sku'],
+                'warehouse_id'  =>  $item['warehouse_id'],
+                'created_date'  =>  Config::get('stock_date')
+            ];
+            $stockOpening = $stockOpeningObj->where($stockWhere)->find();
+            $stock = empty($stockOpening) ? 0 : intval($stockOpening['stock']);
+            if (empty($consume) && $stock == 0) {
                 $updateData = [
                     'is_finished'           =>  1
                 ];
             } else {
                 $updateData = [
                     'date_stock_consume_id' =>  $consume['id'],
-                    'stock'                 =>  $item['quantity_sum'] - $consume['quantity_sum'],
+                    'stock'                 =>  $item['quantity_sum'] - $consume['quantity_sum'] + $stock,
                     'is_finished'           =>  1
                 ];
             }

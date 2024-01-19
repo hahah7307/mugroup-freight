@@ -15,6 +15,7 @@
     'loctek_drdc_fee'  =>  '1.5',
     'fuel_cost'  =>  '16.25',
     'outbound_platform'  =>  '{"platform":["wayfairnew"]}',
+    'stock_date'  =>  '2024-01-19 14:40:00',
     'order_page_num'  =>  '100',
     'finance_notify_num'  =>  '1000',
     'postal_update_num'  =>  '100',

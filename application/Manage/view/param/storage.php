@@ -140,6 +140,16 @@
                 </div>
             </div>
         </div>
+        <div>
+            <div class="layui-form-item">
+                <div class="layui-inline layui-col-md3">
+                    <label class="layui-form-label">库存期初日期</label>
+                    <div class="layui-input-inline">
+                        <input type="text" class="layui-input w300" name="stock_date" value="{$config['stock_date']}">
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="title">自动任务中心</div>
         <div>
             <div class="layui-form-item">
