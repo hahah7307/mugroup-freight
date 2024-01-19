@@ -38,7 +38,7 @@ class DateStockController extends BaseController
 
         // 库存数据列表
         $inventory = new DateStockReceivingModel();
-        $where['date_stock_consume_id'] = ['gt', 0];
+        $where['stock|storage_stock'] = ['gt', 0];
         $list = $inventory->with(['consume'])->where($where)->order('id asc')->paginate($page_num, false, ['query' => ['keyword' => $keyword, 'date' => $date,  'warehouse_id' => $warehouse_id, 'page_num' => $page_num]]);
         $this->assign('list', $list);
 

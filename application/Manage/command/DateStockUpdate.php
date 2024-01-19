@@ -5,6 +5,7 @@ use app\Manage\model\DateStockConsumeModel;
 use app\Manage\model\DateStockReceivingModel;
 use app\Manage\model\DateStockUpdateModel;
 use app\Manage\model\ReceivingItemModel;
+use app\Manage\model\StockOpeningModel;
 use think\Config;
 use think\console\Command;
 use think\console\Input;
@@ -26,6 +27,7 @@ class DateStockUpdate extends Command
      * @throws DbException
      * @throws ModelNotFoundException
      * @throws Exception
+     * @throws \Exception
      */
     protected function execute(Input $input, Output $output)
     {
@@ -42,6 +44,26 @@ class DateStockUpdate extends Command
             $resData = $receivingItemObj->query($sql);
             $receivingDate = new DateStockReceivingModel();
             $receivingDate->insertAll($resData);
+            $stockOpening = StockOpeningModel::all();
+            $updateData = [];
+            $insertData = [];
+            foreach ($stockOpening as $item) {
+                $receivingItem = $receivingDate->where(['product_sku' => $item['product_sku'], 'warehouse_id' => $item['warehouse_id']])->find();
+                if ($receivingItem) {
+                    $receivingItem['quantity_sum'] = $receivingItem['quantity_sum'] + $item['stock'];
+                    $updateData[] = $receivingItem->toArray();
+                } else {
+                    $receivingItem = [
+                        'quantity_sum'  =>  $item['stock'],
+                        'product_sku'   =>  $item['product_sku'],
+                        'warehouse_id'  =>  $item['warehouse_id'],
+                        'date'          =>  $ymd
+                    ];
+                    $insertData[] = $receivingItem;
+                }
+            }
+            $receivingDate->saveAll($updateData);
+            $receivingDate->insertAll($insertData);
 
             DateStockUpdateModel::update(['date' => $ymd], ['id' => 1]);
         }

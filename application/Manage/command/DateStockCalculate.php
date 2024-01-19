@@ -1,6 +1,7 @@
 <?php
 namespace app\Manage\command;
 
+use app\Manage\model\ApiClient;
 use app\Manage\model\DateStockConsumeModel;
 use app\Manage\model\DateStockReceivingModel;
 use app\Manage\model\DateStockUpdateModel;
@@ -27,6 +28,7 @@ class DateStockCalculate extends Command
      * @throws DbException
      * @throws ModelNotFoundException
      * @throws Exception
+     * @throws \SoapFault
      */
     protected function execute(Input $input, Output $output)
     {
@@ -37,7 +39,7 @@ class DateStockCalculate extends Command
         }
 
         $dateStockReceiving = new DateStockReceivingModel();
-        $list = $dateStockReceiving->where(['is_finished' => 0])->order('id asc')->limit(100)->select();
+        $list = $dateStockReceiving->where(['is_finished' => 0])->order('id asc')->limit(20)->select();
         foreach ($list as $item) {
             $dateStockConsume = new DateStockConsumeModel();
             $consumeWhere = [
@@ -47,22 +49,46 @@ class DateStockCalculate extends Command
             ];
             $consume = $dateStockConsume->where($consumeWhere)->find();
 
-            $stockOpeningObj = new StockOpeningModel();
-            $stockWhere = [
-                'product_sku'   =>  $item['product_sku'],
-                'warehouse_id'  =>  $item['warehouse_id'],
-                'created_date'  =>  Config::get('stock_date')
-            ];
-            $stockOpening = $stockOpeningObj->where($stockWhere)->find();
-            $stock = empty($stockOpening) ? 0 : intval($stockOpening['stock']);
-            if (empty($consume) && $stock == 0) {
+            // 当前海外仓真是库存
+            if (in_array($item['warehouse_id'], [28, 29, 32, 34, 36])) {
+                $arr = [
+                    28  =>  'USATL06',
+                    34  =>  'USLAX05',
+                    29  =>  'USLAX08',
+                    32  =>  'USLAX09',
+                    36  =>  'USNJ06'
+                ];
+                $apiRes = ApiClient::LcWarehouseApi("getProductInventory", '{"pageSize":10,"page":1,"product_sku":"' . $item['product_sku'] . '","warehouse_code":"' . $arr[$item['warehouse_id']] . '"}');
+                $stockNow = empty($apiRes['data']) ? 0 : intval($apiRes['data'][0]['sellable']);
+            } elseif (in_array($item['warehouse_id'], [24, 26, 33, 37])) {
+                $arr = [
+                    24  =>  'CAP',
+                    26  =>  'CAP',
+                    33  =>  'MEM',
+                    37  =>  'PAW'
+                ];
+                $requestParam = [
+                    'pageNum'       =>  1,
+                    'pageSize'      =>  10,
+                    'goodsCode'     =>  $item['product_sku'],
+                    'warehouseCode' =>  $arr[$item['warehouse_id']]
+                ];
+                $apiRes = ApiClient::LeWarehouseApi("https://app.lecangs.com/api/oms/inventoryOverview/apiPage", "POST", $requestParam);
+                $stockNow = empty($apiRes['data']) ? 0 : intval($apiRes['data']['list'][0]['uesNum']);
+            } else {
+                $stockNow = 0;
+            }
+            if (empty($consume)) {
                 $updateData = [
+                    'storage_stock'         =>  0,
+                    'stock'                 =>  $item['quantity_sum'],
                     'is_finished'           =>  1
                 ];
             } else {
                 $updateData = [
                     'date_stock_consume_id' =>  $consume['id'],
-                    'stock'                 =>  $item['quantity_sum'] - $consume['quantity_sum'] + $stock,
+                    'stock'                 =>  $item['quantity_sum'] - $consume['quantity_sum'],
+                    'storage_stock'         =>  $stockNow,
                     'is_finished'           =>  1
                 ];
             }

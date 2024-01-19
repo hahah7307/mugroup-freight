@@ -48,6 +48,7 @@
                     <col>
                     <col>
                     <col>
+                    <col>
                     <col width="60">
                 </colgroup>
                 <thead>
@@ -60,7 +61,8 @@
                     <th>仓库代码</th>
                     <th class="tc">总入库数量</th>
                     <th class="tc">总销售数量</th>
-                    <th class="red tc">库存</th>
+                    <th class="tc">理论库存</th>
+                    <th class="tc">海外仓库存</th>
                     <th>抓取日期</th>
                     <th>状态</th>
                 </tr>
@@ -98,7 +100,8 @@
                     </td>
                     <td class="tc">{$v.quantity_sum}</td>
                     <td class="tc">{$v.consume.quantity_sum}</td>
-                    <td class="red tc">{$v.stock}</td>
+                    <td class="tc">{$v.stock}</td>
+                    <td class="tc">{$v.storage_stock}</td>
                     <td>{$v.date}</td>
                     <td>
                         {if condition="$v.is_finished eq 0"}
