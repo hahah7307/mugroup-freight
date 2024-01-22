@@ -7,6 +7,8 @@ use think\Model;
 
 class StorageAhsModel extends Model
 {
+    const STATE_ACTIVE = 1;
+
     protected $name = 'storage_ahs';
 
     protected $resultSetType = 'collection';

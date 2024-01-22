@@ -27,54 +27,8 @@ function encPass($pass, $salt)
 	}
 }
 
-// 图片路径转换成网站相对路径
-function imageurl_to_path($url)
-{
-	return "/upload" . $url;
-}
-
-// 标识转文字
-function index_to_title($index)
-{
-	$arr = [
-		'index'				=>	'首页',
-		'product'			=>	'产品',
-		'ProductCategory'	=>	'产品',
-		'cases'				=>	'案例',
-		'news'				=>	'新闻',
-		'article'			=>	'文章',
-		'ArticleCategory'	=>	'文章',
-		'inquiry'			=>	'询盘',
-		'page'				=>	'单页',
-        'download'          =>  '下载',
-        'member'            =>  '会员'
-	];
-	if ($arr[$index]) {
-		return $arr[$index];
-	} else {
-		return false;
-	}
-}
-
-// 获取文件后缀
-function get_file_ext($filename)
-{
-	return end(explode('.', $filename));
-}
-
-// 判断文件名是否视频
-function is_file_video($filename)
-{
-    $file_ext = get_file_ext($filename);
-    if (in_array($file_ext, ['mp4', 'avi'])) {
-        return true;
-    } else {
-        return false;
-    }
-}
-
 // 生成置顶长度的随机字符串
-function createNoncestr($length = 32) 
+function createNoncestr($length = 32): string
 {
     $chars = "abcdefghijklmnopqrstuvwxyz0123456789";  
     $str   = "";
@@ -248,7 +202,8 @@ function get_real_ip()
 }
 
 // 小数转百分数
-function decimal2percentage($number) {
+function decimal2percentage($number): string
+{
     return $number * 100 . '%';
 }
 
@@ -275,4 +230,13 @@ function getStorage()
 function getStorageArea()
 {
     return \app\Manage\model\StorageAreaModel::all(['state' => \app\Manage\model\StorageAreaModel::STATE_ACTIVE]);
+}
+
+// 获取AHS规则
+/**
+ * @throws DbException
+ */
+function getAhs()
+{
+    return \app\Manage\model\StorageAhsModel::all();
 }
