@@ -4,29 +4,45 @@ namespace app\Manage\controller;
 use app\Manage\model\StorageOutboundModel;
 use app\Manage\validate\StorageOutboundValidate;
 use app\Manage\validate\StorageValidate;
+use think\exception\DbException;
 use think\Session;
 use think\Config;
 
 class StorageOutboundController extends BaseController
 {
-    public function index()
+    /**
+     * @throws DbException
+     */
+    public function index(): \think\response\View
     {
-        $keyword = $this->request->get('keyword', '', 'htmlspecialchars');
-        $this->assign('keyword', $keyword);
-        if ($keyword) {
-            $where['username|nickname|phone|email'] = ['like', '%' . $keyword . '%'];
+        $where = [];
+        $storage_id = $this->request->get('storage_id', '', 'htmlspecialchars');
+        if ($storage_id) {
+            $where['storage_id'] = $storage_id;
+            $this->assign('storage_id', $storage_id);
+        }
+
+        $platform_tag = $this->request->get('platform_tag', '', 'htmlspecialchars');
+        if ($platform_tag) {
+            $where['platform_tag'] = $platform_tag;
+            $this->assign('platform_tag', $platform_tag);
         }
 
         // 出库费用列表
         $storage = new StorageOutboundModel();
-        $list = $storage->where($where)->order('id asc')->paginate(Config::get('PAGE_NUM'));
+        $list = $storage->where($where)->order('id asc')->paginate(Config::get('PAGE_NUM'), false, ['query' => ['storage_id' => $storage_id, 'platform_tag' => $platform_tag]]);
         $this->assign('list', $list);
+        $this->assign('storage', getStorage());
 
         Session::set(Config::get('BACK_URL'), $this->request->url(), 'manage');
         return view();
     }
 
     // 添加
+
+    /**
+     * @throws DbException
+     */
     public function add()
     {
         if ($this->request->isPost()) {
@@ -47,12 +63,17 @@ class StorageOutboundController extends BaseController
                 exit;
             }
         } else {
+            $this->assign('storage', getStorage());
 
             return view();
         }
     }
 
     // 编辑
+
+    /**
+     * @throws DbException
+     */
     public function edit($id)
     {
         if ($this->request->isPost()) {
@@ -74,6 +95,7 @@ class StorageOutboundController extends BaseController
         } else {
             $info = StorageOutboundModel::get(['id' => $id,]);
             $this->assign('info', $info);
+            $this->assign('storage', getStorage());
 
             return view();
         }

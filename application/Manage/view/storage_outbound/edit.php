@@ -4,13 +4,17 @@
 <!-- 主体内容 -->
 <div class="layui-body" id="LAY_app_body">
     <div class="right">
-		<a href="{:url('StorageOutbound/index')}" class="layui-btn layui-btn-danger layui-btn-sm fr"><i class="layui-icon">&#xe603;</i>返回上一页</a>
+		<a href="{:url('index')}" class="layui-btn layui-btn-danger layui-btn-sm fr"><i class="layui-icon">&#xe603;</i>返回上一页</a>
         <div class="title">修改出库费</div>
         <div class="layui-form">
             <div class="layui-form-item">
-                <label class="layui-form-label">仓库ID</label>
+                <label class="layui-form-label">所属仓库</label>
                 <div class="layui-input-inline w300">
-                    <input type="text" class="layui-input" name="storage_id" value="{$info.storage_id}">
+                    <select name="storage_id" lay-verify="">
+                        {foreach name="storage" item="v"}
+                        <option value="{$v.id}" {if condition="$info.storage_id eq $v.id"}selected{/if}>{$v.name}</option>
+                        {/foreach}
+                    </select>
                 </div>
             </div>
             <div class="layui-form-item">
@@ -67,18 +71,18 @@
 <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 <script>
 layui.use(['form', 'jquery'], function(){
-	var $ = layui.jquery,
+	let $ = layui.jquery,
 		form = layui.form;
 
 	//监听提交
 	form.on('submit(formCoding)', function(data){
-		var text = $(this).text(),
+		let text = $(this).text(),
 			button = $(this);
 		$('button').attr('disabled',true);
 		button.text('请稍候...');
         axios.post("{:url('edit', ['id' => $info['id']])}", data.field)
             .then(function (response) {
-                var res = response.data;
+                let res = response.data;
                 if (res.code === 1) {
                     layer.alert(res.msg,{icon:1,closeBtn:0,title:false,btnAlign:'c',},function(){
                         location.reload();

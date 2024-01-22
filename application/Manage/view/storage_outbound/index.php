@@ -7,7 +7,20 @@
         <div class="title">出库费</div>
         <form class="layui-form search-form" method="get">
             <div class="layui-inline w200">
-                <input type="text" class="layui-input" name="keyword" value="{$keyword}" placeholder="仓库名称">
+                <select name="storage_id" lay-verify="">
+                    <option value=""></option>
+                    {foreach name="storage" item="va"}
+                    <option value="{$va.id}" {if condition="$storage_id eq $va.id"}selected{/if}>{$va.name}</option>
+                    {/foreach}
+                </select>
+            </div>
+            <div class="layui-inline w200">
+                <select name="platform_tag" lay-verify="">
+                    <option value=""></option>
+                    <option value="amazon" {if condition="$platform_tag eq 'amazon'"}selected{/if}>amazon</option>
+                    <option value="wayfairnew" {if condition="$platform_tag eq 'wayfairnew'"}selected{/if}>wayfair</option>
+                    <option value="walmart" {if condition="$platform_tag eq 'walmart'"}selected{/if}>walmart</option>
+                </select>
             </div>
             <div class="layui-inline">
                 <button class="layui-btn" lay-submit lay-filter="Search"><i class="layui-icon">&#xe615;</i> 查询</button>
@@ -19,7 +32,7 @@
 
         <div class="layui-form">
             <a class="layui-btn" href="{:url('add')}">添加</a>
-            <table class="layui-table">
+            <table class="layui-table" lay-size="sm">
                 <colgroup>
                     <col>
                     <col>
@@ -53,7 +66,7 @@
                     </td>
                     <td class="tc">
                         <a href="{:url('edit', ['id' => $v.id])}" class="layui-btn layui-btn-normal layui-btn-sm">编辑</a>
-                        <button data-id="{$v.id}" class="layui-btn layui-btn-sm layui-btn-danger ml0" lay-submit lay-filter="Detele">删除</button>
+                        <button data-id="{$v.id}" class="layui-btn layui-btn-sm layui-btn-danger ml0" lay-submit lay-filter="Delete">删除</button>
                     </td>
                 </tr>
                 {/foreach}
@@ -66,7 +79,7 @@
 </div>
 <script>
     layui.use(['form', 'jquery'], function(){
-        var $ = layui.jquery,
+        let $ = layui.jquery,
             form = layui.form;
 
         // 状态
@@ -74,7 +87,7 @@
             $('button').attr('disabled',true);
             axios.post("{:url('status')}", {id:data.value,type:'look'})
                 .then(function (response) {
-                    var res = response.data;
+                    let res = response.data;
                     if (res.code === 0) {
                         layer.alert(data.msg,{icon:2,closeBtn:0,title:false,btnAlign:'c'},function(){
                             location.reload();
@@ -88,8 +101,8 @@
         });
 
         // 删除
-        form.on('submit(Detele)', function(data){
-            var text = $(this).text(),
+        form.on('submit(Delete)', function(data){
+            let text = $(this).text(),
                 button = $(this),
                 id = $(this).data('id');
             layer.confirm('确定删除吗？',{icon:3,closeBtn:0,title:false,btnAlign:'c'},function(){
@@ -97,7 +110,7 @@
                 button.text('请稍候...');
                 axios.post("{:url('delete')}", {id:id})
                     .then(function (response) {
-                        var res = response.data;
+                        let res = response.data;
                         if (res.code === 1) {
                             layer.alert(res.msg,{icon:1,closeBtn:0,title:false,btnAlign:'c',},function(){
                                 location.reload();

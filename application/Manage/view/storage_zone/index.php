@@ -59,7 +59,7 @@
                     </td>
                     <td class="tc">
                         <a href="{:url('edit', ['id' => $v.id])}" class="layui-btn layui-btn-normal layui-btn-sm">编辑</a>
-                        <button data-id="{$v.id}" class="layui-btn layui-btn-sm layui-btn-danger ml0" lay-submit lay-filter="Detele">删除</button>
+                        <button data-id="{$v.id}" class="layui-btn layui-btn-sm layui-btn-danger ml0" lay-submit lay-filter="Delete">删除</button>
                     </td>
                 </tr>
                 {/foreach}
@@ -94,7 +94,7 @@
         });
 
         // 删除
-        form.on('submit(Detele)', function(data){
+        form.on('submit(Delete)', function(data){
             let text = $(this).text(),
                 button = $(this),
                 id = $(this).data('id');
