@@ -80,7 +80,7 @@ class DateStockCalculate extends Command
             }
             if (empty($consume)) {
                 $updateData = [
-                    'storage_stock'         =>  0,
+                    'storage_stock'         =>  $stockNow,
                     'stock'                 =>  $item['quantity_sum'],
                     'is_finished'           =>  1
                 ];
