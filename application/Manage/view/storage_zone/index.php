@@ -4,10 +4,10 @@
 <!-- 主体内容 -->
 <div class="layui-body" id="LAY_app_body">
     <div class="right">
-        <div class="title">子仓库列表</div>
+        <div class="title">邮编对应Zone列表</div>
         <form class="layui-form search-form" method="get">
             <div class="layui-inline w200">
-                <input type="text" class="layui-input" name="keyword" value="{$keyword}" placeholder="名称/代码">
+                <input type="text" class="layui-input" name="keyword" value="{$keyword}" placeholder="邮编">
             </div>
             <div class="layui-inline">
                 <button class="layui-btn" lay-submit lay-filter="Search"><i class="layui-icon">&#xe615;</i> 查询</button>
@@ -19,7 +19,7 @@
 
         <div class="layui-form">
             <a class="layui-btn" href="{:url('add')}">添加</a>
-            <table class="layui-table">
+            <table class="layui-table" lay-size="sm">
                 <colgroup>
                     <col>
                     <col>
@@ -31,11 +31,11 @@
                 </colgroup>
                 <thead>
                 <tr>
-                    <th>子仓库名称</th>
-                    <th>易仓仓库代码</th>
-                    <th>子仓库ID</th>
                     <th>仓库名称</th>
                     <th>仓库位置</th>
+                    <th>子仓库名称</th>
+                    <th>开始邮编</th>
+                    <th>结束邮编</th>
                     <th class="tc">状态</th>
                     <th class="tc">操作</th>
                 </tr>
@@ -43,9 +43,6 @@
                 <tbody>
                 {foreach name="list" item="v"}
                 <tr>
-                    <td>{$v.name}</td>
-                    <td>{$v.storage_code}</td>
-                    <td>{$v.warehouseId}</td>
                     <td>{$v.storage.name}</td>
                     <td>
                         {if condition="$v.type eq 1"}
@@ -54,6 +51,9 @@
                         美东
                         {/if}
                     </td>
+                    <td>{$v.area.name}</td>
+                    <td>{$v.zip_code}</td>
+                    <td>{$v.zip_code_bak}</td>
                     <td class="tc">
                         <input type="checkbox" class="h30" name="look" value="{$v.id}" lay-skin="switch" lay-text="是|否" lay-filter="formLock" {if condition="$v.state eq 1"}checked{/if}>
                     </td>

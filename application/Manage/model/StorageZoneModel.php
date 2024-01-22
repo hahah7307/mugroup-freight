@@ -9,6 +9,8 @@ use think\Model;
 
 class StorageZoneModel extends Model
 {
+    const STATE_ACTIVE = 1;
+
     protected $name = 'storage_zone';
 
     protected $resultSetType = 'collection';
@@ -25,6 +27,16 @@ class StorageZoneModel extends Model
     protected function setUpdatedAtAttr()
     {
         return date('Y-m-d H:i:s');
+    }
+
+    public function storage(): \think\model\relation\HasOne
+    {
+        return $this->hasOne("StorageModel", "id", "storage_id");
+    }
+
+    public function area(): \think\model\relation\HasOne
+    {
+        return $this->hasOne("StorageAreaModel", "id", "area_id");
     }
 
     /**

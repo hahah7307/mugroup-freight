@@ -267,3 +267,12 @@ function getStorage()
 {
     return \app\Manage\model\StorageModel::all(['state' => \app\Manage\model\StorageModel::STATE_ACTIVE]);
 }
+
+// 获取所有子仓库数据
+/**
+ * @throws DbException
+ */
+function getStorageArea()
+{
+    return \app\Manage\model\StorageAreaModel::all(['state' => \app\Manage\model\StorageAreaModel::STATE_ACTIVE]);
+}

@@ -1,13 +1,13 @@
 <?php
 namespace app\Manage\controller;
 
-use app\Manage\model\StorageAreaModel;
-use app\Manage\validate\StorageAreaValidate;
+use app\Manage\model\StorageZoneModel;
+use app\Manage\validate\StorageZoneValidate;
 use think\exception\DbException;
 use think\Session;
 use think\Config;
 
-class StorageAreaController extends BaseController
+class StorageZoneController extends BaseController
 {
     /**
      * @throws DbException
@@ -18,12 +18,12 @@ class StorageAreaController extends BaseController
         $keyword = $this->request->get('keyword', '', 'htmlspecialchars');
         $this->assign('keyword', $keyword);
         if ($keyword) {
-            $where['warehouseId|storage_code|name'] = ['like', '%' . $keyword . '%'];
+            $where['zip_code|zip_code_bak'] = ['like', '%' . $keyword . '%'];
         }
 
         // 仓库列表
-        $storage = new StorageAreaModel();
-        $list = $storage->with("storage")->where($where)->order('id asc')->paginate(Config::get('PAGE_NUM'));
+        $storage = new StorageZoneModel();
+        $list = $storage->with(["storage","area"])->where($where)->order('id asc')->paginate(Config::get('PAGE_NUM'));
         $this->assign('list', $list);
 
         Session::set(Config::get('BACK_URL'), $this->request->url(), 'manage');
@@ -38,10 +38,10 @@ class StorageAreaController extends BaseController
     {
         if ($this->request->isPost()) {
             $post = $this->request->post();
-            $post['state'] = StorageAreaModel::STATE_ACTIVE;
-            $dataValidate = new StorageAreaValidate();
+            $post['state'] = StorageZoneModel::STATE_ACTIVE;
+            $dataValidate = new StorageZoneValidate();
             if ($dataValidate->scene('add')->check($post)) {
-                $model = new StorageAreaModel();
+                $model = new StorageZoneModel();
                 if ($model->allowField(true)->save($post)) {
                     echo json_encode(['code' => 1, 'msg' => '添加成功']);
                 } else {
@@ -53,6 +53,7 @@ class StorageAreaController extends BaseController
             exit;
         } else {
             $this->assign('storage', getStorage());
+            $this->assign('storageArea', getStorageArea());
 
             return view();
         }
@@ -66,22 +67,25 @@ class StorageAreaController extends BaseController
     {
         if ($this->request->isPost()) {
             $post = $this->request->post();
-            $dataValidate = new StorageAreaValidate();
+            $dataValidate = new StorageZoneValidate();
             if ($dataValidate->scene('edit')->check($post)) {
-                $model = new StorageAreaModel();
+                $model = new StorageZoneModel();
                 if ($model->allowField(true)->save($post, ['id' => $id])) {
                     echo json_encode(['code' => 1, 'msg' => '修改成功']);
+                    exit;
                 } else {
                     echo json_encode(['code' => 0, 'msg' => '修改失败，请重试']);
+                    exit;
                 }
             } else {
                 echo json_encode(['code' => 0, 'msg' => $dataValidate->getError()]);
+                exit;
             }
-            exit;
         } else {
-            $info = StorageAreaModel::get(['id' => $id,]);
+            $info = StorageZoneModel::get(['id' => $id,]);
             $this->assign('info', $info);
             $this->assign('storage', getStorage());
+            $this->assign('storageArea', getStorageArea());
 
             return view();
         }
@@ -95,7 +99,7 @@ class StorageAreaController extends BaseController
     {
         if ($this->request->isPost()) {
             $post = $this->request->post();
-            $block = StorageAreaModel::get($post['id']);
+            $block = StorageZoneModel::get($post['id']);
             if ($block->delete()) {
                 echo json_encode(['code' => 1, 'msg' => '操作成功']);
             } else {
@@ -115,8 +119,8 @@ class StorageAreaController extends BaseController
     {
         if ($this->request->isPost()) {
             $post = $this->request->post();
-            $user = StorageAreaModel::get($post['id']);
-            $user['state'] = $user['state'] == StorageAreaModel::STATE_ACTIVE ? 0 : StorageAreaModel::STATE_ACTIVE;
+            $user = StorageZoneModel::get($post['id']);
+            $user['state'] = $user['state'] == StorageZoneModel::STATE_ACTIVE ? 0 : StorageZoneModel::STATE_ACTIVE;
             $user->save();
             echo json_encode(['code' => 1, 'msg' => '操作成功']);
         } else {
