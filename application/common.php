@@ -10,6 +10,8 @@
 // +----------------------------------------------------------------------
 
 // 异常错误报错级别,
+use think\exception\DbException;
+
 error_reporting(E_ERROR | E_PARSE );
 
 // 应用公共文件
@@ -255,4 +257,13 @@ function getWarehouseID(): array
 {
     $warehouseArr = \think\Config::get('WAREHOUSE_ID');
     return array_keys($warehouseArr);
+}
+
+// 获取一级仓库id和名称
+/**
+ * @throws DbException
+ */
+function getStorage()
+{
+    return \app\Manage\model\StorageModel::all(['state' => \app\Manage\model\StorageModel::STATE_ACTIVE]);
 }
