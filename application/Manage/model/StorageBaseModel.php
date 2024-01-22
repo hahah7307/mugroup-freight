@@ -17,6 +17,8 @@ class StorageBaseModel extends Model
 
     const KG2CM3 = 9000;
 
+    const STATE_ACTIVE = 1;
+
     protected $name = 'storage_base';
 
     protected $resultSetType = 'collection';
@@ -33,6 +35,11 @@ class StorageBaseModel extends Model
     protected function setUpdatedAtAttr()
     {
         return date('Y-m-d H:i:s');
+    }
+
+    public function storage(): \think\model\relation\HasOne
+    {
+        return $this->hasOne("StorageModel", "id", "storage_id");
     }
 
     //获取计费重
