@@ -48,7 +48,7 @@ class DateStockUpdate extends Command
             $updateData = [];
             $insertData = [];
             foreach ($stockOpening as $item) {
-                $receivingItem = $receivingDate->where(['product_sku' => $item['product_sku'], 'warehouse_id' => $item['warehouse_id']])->find();
+                $receivingItem = $receivingDate->where(['product_sku' => $item['product_sku'], 'warehouse_id' => $item['warehouse_id'], 'date' => $ymd])->find();
                 if ($receivingItem) {
                     $receivingItem['quantity_sum'] = $receivingItem['quantity_sum'] + $item['stock'];
                     $updateData[] = $receivingItem->toArray();
