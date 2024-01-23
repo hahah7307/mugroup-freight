@@ -1,7 +1,7 @@
 <?php
 namespace app\Manage\controller;
 
-use app\Manage\model\LeInventoryBatchModel;
+use app\Manage\model\LeInventoryBatchImportModel;
 use app\Manage\model\OrderAddressPostalModel;
 use PHPExcel_IOFactory;
 use PHPExcel_Reader_Exception;
@@ -34,7 +34,7 @@ class LeInventoryController extends BaseController
         $this->assign('page_num', $page_num);
 
         // 库存数据列表
-        $inventory = new LeInventoryBatchModel();
+        $inventory = new LeInventoryBatchImportModel();
         $list = $inventory->where($where)->order('id asc')->paginate($page_num, false, ['query' => ['keyword' => $keyword, 'page_num' => $page_num, 'warehouse_code' => $warehouse_code]]);
         $this->assign('list', $list);
 
@@ -81,7 +81,7 @@ class LeInventoryController extends BaseController
             ];
         }
 
-        $addressPostal = new LeInventoryBatchModel();
+        $addressPostal = new LeInventoryBatchImportModel();
         $addressPostal->insertAll($newData);
         unset($newData);
 

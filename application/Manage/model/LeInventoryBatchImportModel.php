@@ -4,9 +4,9 @@ namespace app\Manage\model;
 
 use think\Model;
 
-class LeInventoryBatchModel extends Model
+class LeInventoryBatchImportModel extends Model
 {
-    protected $name = 'le_inventory_batch';
+    protected $name = 'le_inventory_batch_import';
 
     protected $resultSetType = 'collection';
 }

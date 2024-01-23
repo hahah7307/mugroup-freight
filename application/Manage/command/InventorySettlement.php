@@ -4,7 +4,7 @@ namespace app\Manage\command;
 use app\Manage\model\InventoryBatchModel;
 use app\Manage\model\LcInventoryBatchModel;
 use app\Manage\model\LcProductModel;
-use app\Manage\model\LeInventoryBatchModel;
+use app\Manage\model\LeInventoryBatchImportModel;
 use app\Manage\model\ProductModel;
 use app\Manage\model\StorageAreaModel;
 use app\Manage\model\StorageFeeModel;
@@ -101,7 +101,7 @@ class InventorySettlement extends Command
             unset($data);
 
             // 乐歌仓储费计算
-            $leInventoryBatchObj = new LeInventoryBatchModel();
+            $leInventoryBatchObj = new LeInventoryBatchImportModel();
             $data = $leInventoryBatchObj->where('is_finished', 0)->order('id asc')->limit(Config::get('inventory_batch_num'))->select();
             foreach ($data as $item) {
                 $volume = round($item['product_length'] * $item['product_width'] * $item['product_height'], 6);
