@@ -1,7 +1,7 @@
 <?php
 namespace app\Manage\controller;
 
-use app\Manage\model\DateStockReceivingModel;
+use app\Manage\model\DateStockCalculateModel;
 use think\exception\DbException;
 use think\Session;
 use think\Config;
@@ -37,9 +37,9 @@ class DateStockController extends BaseController
         $this->assign('page_num', $page_num);
 
         // 库存数据列表
-        $inventory = new DateStockReceivingModel();
+        $inventory = new DateStockCalculateModel();
         $where['stock|storage_stock'] = ['gt', 0];
-        $list = $inventory->with(['consume'])->where($where)->order('id asc')->paginate($page_num, false, ['query' => ['keyword' => $keyword, 'date' => $date,  'warehouse_id' => $warehouse_id, 'page_num' => $page_num]]);
+        $list = $inventory->with(['receiving', 'consume'])->where($where)->order('id asc')->paginate($page_num, false, ['query' => ['keyword' => $keyword, 'date' => $date,  'warehouse_id' => $warehouse_id, 'page_num' => $page_num]]);
         $this->assign('list', $list);
 
         Session::set(Config::get('BACK_URL'), $this->request->url(), 'manage');
