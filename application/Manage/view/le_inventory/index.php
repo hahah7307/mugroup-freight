@@ -4,7 +4,7 @@
 <!-- 主体内容 -->
 <div class="layui-body" id="LAY_app_body">
     <div class="right">
-        <div class="title">乐歌库存</div>
+        <div class="title">乐歌仓储费</div>
         <form class="layui-form search-form" method="get">
             <div class="layui-inline w200">
                 <input type="text" class="layui-input" name="keyword" value="{$keyword}" placeholder="SKU/各种单号">
