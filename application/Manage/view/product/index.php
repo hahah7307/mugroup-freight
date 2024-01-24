@@ -1,30 +1,13 @@
 
 {include file="public/header" /}
 
-<style>
-table td .layui-input {height: 30px}
-</style>
-
 <!-- 主体内容 -->
 <div class="layui-body" id="LAY_app_body">
     <div class="right">
-        <div class="title">出库费</div>
+        <div class="title">易仓产品列表</div>
         <form class="layui-form search-form" method="get">
             <div class="layui-inline w200">
-                <select name="storage_id" lay-verify="">
-                    <option value=""></option>
-                    {foreach name="storage" item="va"}
-                    <option value="{$va.id}" {if condition="$storage_id eq $va.id"}selected{/if}>{$va.name}</option>
-                    {/foreach}
-                </select>
-            </div>
-            <div class="layui-inline w200">
-                <select name="platform_tag" lay-verify="">
-                    <option value=""></option>
-                    <option value="amazon" {if condition="$platform_tag eq 'amazon'"}selected{/if}>amazon</option>
-                    <option value="wayfairnew" {if condition="$platform_tag eq 'wayfairnew'"}selected{/if}>wayfair</option>
-                    <option value="walmart" {if condition="$platform_tag eq 'walmart'"}selected{/if}>walmart</option>
-                </select>
+                <input type="text" class="layui-input" name="keyword" value="{$keyword}" placeholder="SKU">
             </div>
             <div class="layui-inline">
                 <button class="layui-btn" lay-submit lay-filter="Search"><i class="layui-icon">&#xe615;</i> 查询</button>
@@ -35,43 +18,40 @@ table td .layui-input {height: 30px}
         </form>
 
         <div class="layui-form">
-            <a class="layui-btn" href="{:url('add')}">添加</a>
             <table class="layui-table" lay-size="sm">
                 <colgroup>
                     <col>
                     <col>
                     <col>
                     <col>
-                    <col width="80">
-                    <col width="80">
-                    <col width="250">
+                    <col>
+                    <col>
+                    <col>
+                    <col>
                 </colgroup>
                 <thead>
                 <tr>
-                    <th class="tc">平台</th>
-                    <th class="tc">名称</th>
-                    <th class="tc">描述</th>
-                    <th class="tc">金额</th>
-                    <th class="tc">Level</th>
-                    <th class="tc">状态</th>
-                    <th class="tc">操作</th>
+                    <th>ID</th>
+                    <th>SKU</th>
+                    <th>名称</th>
+                    <th>名称EN</th>
+                    <th>重量(KG)</th>
+                    <th>长(CM)</th>
+                    <th>宽(CM)</th>
+                    <th>高(CM)</th>
                 </tr>
                 </thead>
                 <tbody>
                 {foreach name="list" item="v"}
                 <tr>
-                    <td class="tc">{$v.platform_tag}</td>
-                    <td class="tc">{$v.name}</td>
-                    <td class="tc">{$v.description}</td>
-                    <td class="tc">{$v.value}</td>
-                    <td class="tc"><input type="text" name="level" lay-verify="required" class="layui-input w50" value="{$v.level}"></td>
-                    <td class="tc">
-                        <input type="checkbox" class="h30" name="look" value="{$v.id}" lay-skin="switch" lay-text="是|否" lay-filter="formLock" {if condition="$v.state eq 1"}checked{/if}>
-                    </td>
-                    <td class="tc">
-                        <a href="{:url('edit', ['id' => $v.id])}" class="layui-btn layui-btn-normal layui-btn-sm">编辑</a>
-                        <button data-id="{$v.id}" class="layui-btn layui-btn-sm layui-btn-danger ml0" lay-submit lay-filter="Delete">删除</button>
-                    </td>
+                    <td>{$v.id}</td>
+                    <td>{$v.productSku}</td>
+                    <td>{$v.productTitle}</td>
+                    <td>{$v.productTitleEn}</td>
+                    <td>{$v.productWeight}</td>
+                    <td>{$v.productLength}</td>
+                    <td>{$v.productWidth}</td>
+                    <td>{$v.productHeight}</td>
                 </tr>
                 {/foreach}
                 </tbody>
