@@ -27,7 +27,7 @@ class StorageAhsModel extends Model
         return date('Y-m-d H:i:s');
     }
 
-    public function rule()
+    public function rule(): \think\model\relation\HasMany
     {
         return self::hasMany('StorageAhsRuleModel', 'ahs_id', 'id');
     }

@@ -23,16 +23,6 @@
                     </dl>
                 </li>
                 <li data-name="Storage" class="layui-nav-item">
-                    <a layui-href="javascript:;" lay-tips="订单" lay-direction="2">
-                        <i class="layui-icon iconfont icon-caiwu1"></i>
-                        <cite>财务</cite>
-                    </a>
-                    <dl class="layui-nav-child">
-                        <dd><a layui-href="{:url('Finance/index')}">原始订单列表</a></dd>
-                        <dd><a layui-href="{:url('Finance/outbound')}">出库明细列表</a></dd>
-                    </dl>
-                </li>
-                <li data-name="Storage" class="layui-nav-item">
                     <a layui-href="javascript:;" lay-tips="仓储" lay-direction="2">
                         <i class="layui-icon iconfont icon-kucunchaxun"></i>
                         <cite>仓储</cite>
@@ -46,20 +36,47 @@
                     </dl>
                 </li>
                 <li data-name="Storage" class="layui-nav-item">
+                    <a layui-href="javascript:;" lay-tips="库存" lay-direction="2">
+                        <i class="layui-icon iconfont icon-kucun"></i>
+                        <cite>库存</cite>
+                    </a>
+                    <dl class="layui-nav-child">
+                    </dl>
+                </li>
+                <li data-name="Storage" class="layui-nav-item">
+                    <a layui-href="javascript:;" lay-tips="财务" lay-direction="2">
+                        <i class="layui-icon iconfont icon-caiwu1"></i>
+                        <cite>财务</cite>
+                    </a>
+                    <dl class="layui-nav-child">
+                        <dd><a layui-href="{:url('Finance/index')}">原始订单列表</a></dd>
+                        <dd><a layui-href="{:url('Finance/outbound')}">出库明细列表</a></dd>
+                    </dl>
+                </li>
+                <li data-name="Storage" class="layui-nav-item">
+                    <a layui-href="javascript:;" lay-tips="产品" lay-direction="2">
+                        <i class="layui-icon iconfont icon-chanpin2"></i>
+                        <cite>产品</cite>
+                    </a>
+                    <dl class="layui-nav-child">
+                        <dd><a layui-href="{:url('Product/index')}">易仓产品列表</a></dd>
+                        <dd><a layui-href="{:url('Product/lc')}">良仓产品列表</a></dd>
+                        <dd><a layui-href="{:url('Product/le')}">乐歌产品列表</a></dd>
+                    </dl>
+                </li>
+                <li data-name="Storage" class="layui-nav-item">
                     <a layui-href="javascript:;" lay-tips="仓库" lay-direction="2">
                         <i class="layui-icon iconfont icon-jichugongneng"></i>
                         <cite>基础</cite>
                     </a>
                     <dl class="layui-nav-child">
-                        <dd><a layui-href="{:url('Storage/index')}">仓库</a></dd>
-                        <dd><a layui-href="{:url('StorageArea/index')}">子仓库</a></dd>
-                        <dd><a layui-href="{:url('StorageZone/index')}">邮编区块</a></dd>
-                        <dd><a layui-href="{:url('StorageOutbound/index')}">出库费</a></dd>
-                        <dd><a layui-href="{:url('StorageBase/index')}">基础费</a></dd>
-                        <dd><a layui-href="{:url('StorageAhs/index')}">AHS</a></dd>
-                        <dd><a layui-href="{:url('StorageDas/index')}">DAS</a></dd>
-                        <dd><a layui-href="{:url('Product/index')}">产品</a></dd>
-                        <dd><a layui-href="{:url('Param/storage')}">参数配置</a></dd>
+                        <dd><a layui-href="{:url('Storage/index')}">基础仓库</a></dd>
+                        <dd><a layui-href="{:url('StorageArea/index')}">常用仓库</a></dd>
+                        <dd><a layui-href="{:url('StorageZone/index')}">邮编Zone</a></dd>
+                        <dd><a layui-href="{:url('StorageOutbound/index')}">出库费用</a></dd>
+                        <dd><a layui-href="{:url('StorageBase/index')}">基础费用</a></dd>
+                        <dd><a layui-href="{:url('StorageAhs/index')}">AHS费用</a></dd>
+                        <dd><a layui-href="{:url('StorageDas/index')}">偏远地区</a></dd>
                     </dl>
                 </li>
                 <li data-name="Site" class="layui-nav-item">
@@ -68,7 +85,7 @@
                         <cite>设置</cite>
                     </a>
                     <dl class="layui-nav-child">
-                        <dd><a layui-href="{:url('Param/web')}">参数设置</a></dd>
+                        <dd><a layui-href="{:url('Param/storage')}">参数配置</a></dd>
                         <!-- <dd><a layui-href="{:url('Mail/index')}">邮件设置</a></dd> -->
                         {if condition="$user.super eq 1"}
                         <dd data-name="info">

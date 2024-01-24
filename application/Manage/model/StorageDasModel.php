@@ -2,13 +2,12 @@
 
 namespace app\Manage\model;
 
-use think\db\exception\DataNotFoundException;
-use think\db\exception\ModelNotFoundException;
-use think\exception\DbException;
 use think\Model;
 
 class StorageDasModel extends Model
 {
+    const STATE_ACTIVE = 1;
+
     protected $name = 'storage_das';
 
     protected $resultSetType = 'collection';
@@ -25,5 +24,10 @@ class StorageDasModel extends Model
     protected function setUpdatedAtAttr()
     {
         return date('Y-m-d H:i:s');
+    }
+
+    public function storage(): \think\model\relation\HasOne
+    {
+        return $this->hasOne("StorageModel", "id", "storage_id");
     }
 }
