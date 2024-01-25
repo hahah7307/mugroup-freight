@@ -37,7 +37,7 @@ class InventorySettlement extends Command
             $data = $inventorySettlementObj->where('is_settlement', 0)->order('id asc')->limit(Config::get('inventory_batch_num'))->select();
             foreach ($data as $item) {
                 $product = ProductModel::get(['productSku' => $item['productSku']]);
-                $volume = round($product['productLength'] * $product['productWidth'] * $product['productHeight'] / 1000000, 3);
+                $volume = $product['productLength'] * $product['productWidth'] * $product['productHeight'] / 1000000;
                 $storageArea = StorageAreaModel::get(['storage_code' => $item['lcCode']]);
                 $storage_id = $storageArea['storage_id'];
 
@@ -53,7 +53,7 @@ class InventorySettlement extends Command
                 $storageFee = $storageFeeUnit * $volume * $item['ibQuantity'];
                 $newData = [
                     'id'                    =>  $item['id'],
-                    'storageFee'            =>  $storageFee,
+                    'storageFee'            =>  round($storageFee, 7),
                     'is_settlement'         =>  1,
                 ];
 
@@ -71,10 +71,10 @@ class InventorySettlement extends Command
                 $volume = 0;
                 foreach ($productItemWarehouseAttr as $warehouseAttr) {
                     if ($warehouseAttr['warehouse_code'] == $warehouseCode) {
-                        $volume = round($warehouseAttr['product_length'] * $warehouseAttr['product_width'] * $warehouseAttr['product_height'] / 1000000, 3);
+                        $volume = $warehouseAttr['product_length'] * $warehouseAttr['product_width'] * $warehouseAttr['product_height'] / 1000000;
                     }
                 }
-                $volume = $volume == 0 ? round($productItem['product_length'] * $productItem['product_width'] * $productItem['product_height'] / 1000000, 3) : $volume;
+                $volume = $volume == 0 ? $productItem['product_length'] * $productItem['product_width'] * $productItem['product_height'] / 1000000 : $volume;
 
                 $storageArea = new StorageAreaModel();
                 $storageAreaItem = $storageArea->where('storage_code', 'like', '%' . $warehouseCode)->find();
@@ -91,7 +91,7 @@ class InventorySettlement extends Command
                 $storageFee = $storageFeeUnit * $volume * $item['ib_quantity'];
                 $newData = [
                     'id'                    =>  $item['id'],
-                    'volume'                =>  $volume,
+                    'volume'                =>  round($volume, 7),
                     'price'                 =>  $storageFee,
                     'is_finished'           =>  1,
                 ];
@@ -104,7 +104,7 @@ class InventorySettlement extends Command
             $leInventoryBatchObj = new LeInventoryBatchImportModel();
             $data = $leInventoryBatchObj->where('is_finished', 0)->order('id asc')->limit(Config::get('inventory_batch_num'))->select();
             foreach ($data as $item) {
-                $volume = round($item['product_length'] * $item['product_width'] * $item['product_height'], 6);
+                $volume = $item['product_length'] * $item['product_width'] * $item['product_height'];
 
                 $storage_id = 2;
                 $storageFeeObj = new StorageFeeModel();
@@ -119,7 +119,7 @@ class InventorySettlement extends Command
                 $storageFee = $storageFeeUnit * $volume * $item['ib_quantity'];
                 $newData = [
                     'id'                    =>  $item['id'],
-                    'volume'                =>  $volume,
+                    'volume'                =>  round($volume, 6),
                     'price'                 =>  round($storageFee, 6),
                     'is_finished'           =>  1,
                 ];
