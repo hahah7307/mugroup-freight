@@ -63,6 +63,7 @@
         <div class="layui-form">
 <!--            <a class="layui-btn" href="{:url('add')}">添加</a>-->
             <a class="layui-btn layui-btn-normal" lay-submit lay-filter="Calculate">测算</a>
+            <a class="layui-btn layui-btn-normal" lay-submit lay-filter="Add">新增</a>
             <button type="button" class="layui-btn  layui-btn-normal" id="excel">导入</button>
             <a class="layui-btn layui-btn-normal" lay-submit lay-filter="Update">批量更新</a>
             <a class="layui-btn layui-btn-normal" lay-submit lay-filter="Audit">批量审核</a>
@@ -247,6 +248,35 @@
                 $('button').attr('disabled',true);
                 button.text('请稍候...');
                 axios.post("{:url('calculate')}", {id:data.field})
+                    .then(function (response) {
+                        let res = response.data;
+                        if (res.code === 1) {
+                            layer.alert(res.msg,{icon:1,closeBtn:0,title:false,btnAlign:'c',},function(){
+                                location.reload();
+                            });
+                        } else {
+                            layer.alert(res.msg,{icon:2,closeBtn:0,title:false,btnAlign:'c'},function(){
+                                layer.closeAll();
+                                $('button').attr('disabled',false);
+                                button.text(text);
+                            });
+                        }
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    });
+                return false;
+            });
+        });
+
+        // 新增
+        form.on('submit(Add)', function(data){
+            let text = $(this).text(),
+                button = $(this);
+            layer.prompt({title: '请输入易仓单号'}, function(value){
+                $('button').attr('disabled',true);
+                button.text('请稍候...');
+                axios.post("{:url('add')}", {data:value})
                     .then(function (response) {
                         let res = response.data;
                         if (res.code === 1) {
