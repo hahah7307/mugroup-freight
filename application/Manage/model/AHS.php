@@ -35,17 +35,9 @@ class AHS extends Model
     {
         $ahsFee = 0;
         if ($storage == StorageModel::LIANGCANGID) {
-            foreach ($product as $item) {
-                $ahsFee += self::AHSFeeLiang($item['productWeight'], $zone, $item['productLength'], $item['productWidth'], $item['productHeight']);
-                unset($item);
-            }
+            $ahsFee = self::AHSFeeLiang($product['productWeight'], $zone, $product['productLength'], $product['productWidth'], $product['productHeight']);
         } elseif ($storage == StorageModel::LECANGID) {
-            foreach ($product as $item) {
-                $ahsFee += self::AHSFeeLoctek($item['productWeight'], $zone, $item['productLength'], $item['productWidth'], $item['productHeight']);
-                unset($item);
-            }
-        } else {
-            $ahsFee += 0;
+            $ahsFee = self::AHSFeeLoctek($product['productWeight'], $zone, $product['productLength'], $product['productWidth'], $product['productHeight']);
         }
         return $ahsFee;
     }

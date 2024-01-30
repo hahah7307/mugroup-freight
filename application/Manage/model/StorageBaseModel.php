@@ -46,19 +46,13 @@ class StorageBaseModel extends Model
     static public function getProductLbs($storage, $product)
     {
         $lbs = 0;
-        foreach ($product as $item) {
-            $lbs = 0;
-            if ($storage == StorageModel::LIANGCANGID) {
-                $volume_lbs = ceil(ceil($item['productLength'] / self::INCH2CM) * ceil($item['productWidth'] / self::INCH2CM) * ceil($item['productHeight'] / self::INCH2CM) / self::LB2INCH);
-                $weight_lbs = $item['productWeight'] * self::KG2LB;
-                $lbs += max($volume_lbs, $weight_lbs) * $item['productQty'];
-            } elseif ($storage = StorageModel::LECANGID) {
-                $volume_kg = $item['productLength'] * $item['productWidth'] * $item['productHeight'] / self::KG2CM3;
-                $lbs += max($volume_kg, $item['productWeight']) * self::KG2LB * $item['productQty'];
-            } else {
-                $lbs += 0;
-            }
-            unset($item);
+        if ($storage == StorageModel::LIANGCANGID) {
+            $volume_lbs = ceil(ceil($product['productLength'] / self::INCH2CM) * ceil($product['productWidth'] / self::INCH2CM) * ceil($product['productHeight'] / self::INCH2CM) / self::LB2INCH);
+            $weight_lbs = $product['productWeight'] * self::KG2LB;
+            $lbs = max($volume_lbs, $weight_lbs);
+        } elseif ($storage == StorageModel::LECANGID) {
+            $volume_kg = $product['productLength'] * $product['productWidth'] * $product['productHeight'] / self::KG2CM3;
+            $lbs = max($volume_kg, $product['productWeight']) * self::KG2LB;
         }
 
         return ceil($lbs);

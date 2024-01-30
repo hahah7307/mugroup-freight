@@ -62,16 +62,16 @@ class OrderModel extends Model
         if (empty($zip_code)) {
             return false; // 空邮编跳过
         }
-        $product = array();
-        foreach ($orderInfo['details'] as $detail) {
-            $product[] = [
-                'productWeight' =>  $detail['product']['productWeight'],
-                'productLength' =>  $detail['product']['productLength'],
-                'productWidth' =>  $detail['product']['productWidth'],
-                'productHeight' =>  $detail['product']['productHeight'],
-                'productQty' =>  $detail['qty']
-            ];
+        if (count($orderInfo['details']) > 1) {
+            return false; // 两条明细跳过
         }
+        $product = [
+            'productWeight'     =>  $orderInfo['details'][0]['product']['productWeight'],
+            'productLength'     =>  $orderInfo['details'][0]['product']['productLength'],
+            'productWidth'      =>  $orderInfo['details'][0]['product']['productWidth'],
+            'productHeight'     =>  $orderInfo['details'][0]['product']['productHeight'],
+            'productQty'        =>  $orderInfo['details'][0]['qty']
+        ];
 
         // 计算运费和公式
         $deliverInfo = self::calculateDeliver($storage_id, $storage_type, $zip_code, $product, $orderInfo);
@@ -79,7 +79,7 @@ class OrderModel extends Model
             return false; // 空zone跳过
         }
         $orderInfo['calcuInfo'] = $deliverInfo['label'];
-        $orderInfo['calcuRes'] = $deliverInfo['fee'];
+        $orderInfo['calcuRes'] = $deliverInfo['fee'] * $orderInfo['details'][0]['qty'];
         $orderInfo['postalFormat'] = $deliverInfo['postalCode'];
         $orderInfo['zoneFormat'] = $deliverInfo['zone'];
         $orderInfo['charged_weight'] = $deliverInfo['charged_weight'];
@@ -97,6 +97,7 @@ class OrderModel extends Model
         unset($orderInfo['address']);
         unset($orderInfo['area']);
         unset($product);
+
         return $order->update($orderInfo->toArray());
     }
 
