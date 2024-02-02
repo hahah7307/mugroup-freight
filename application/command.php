@@ -28,4 +28,5 @@ return [
     'app\Manage\command\LcReceivingUpdate', //
     'app\Manage\command\ReceivingUpdate', //
     'app\Manage\command\LeInventoryBatch', //
+    'app\Manage\command\ProductInventory', //
     ];
