@@ -91,6 +91,7 @@ class OrderModel extends Model
         $orderInfo['drdcFee'] = $deliverInfo['drdcFee'];
         $orderInfo['outbound'] = $deliverInfo['outbound'];
         $orderInfo['fuelCost'] = $deliverInfo['fuelCost'];
+        $orderInfo['commission'] = $deliverInfo['commission'];
 
         // 更新数据
         unset($orderInfo['details']);
@@ -141,7 +142,8 @@ class OrderModel extends Model
                 'rdcFee'            =>  0,
                 'drdcFee'           =>  0,
                 'outbound'          =>  $outbound,
-                'fuelCost'          =>  0
+                'fuelCost'          =>  0,
+                'commission'        =>  0
             ];
         }
 
@@ -151,7 +153,11 @@ class OrderModel extends Model
 
         // 偏远地址附加费
         $das = StorageDasModel::get(['storage_id' => $storage, 'state' => 1, 'zip_code' => $postalCode]);
-        $dasFee = !empty($das) ? StorageDasFeeModel::get(['storage_id' => $storage, 'type' => $das['type']])->getData('value') : 0;
+        $deliverType = self::order2deliverType($order, $das['type']);
+        if (!$deliverType) {
+            return false;
+        }
+        $dasFee = !empty($das) ? StorageDasFeeModel::get(['storage_id' => $storage, 'type' => $das['type'], 'deliver_type' => $deliverType])->getData('value') : 0;
 
         // 住宅地址附加费
         $rdcFee = StorageModel::getResidential($storage);
@@ -162,9 +168,19 @@ class OrderModel extends Model
         // 燃油费运算
         $fuel_cost = round(($base + $ahs + $dasFee + $rdcFee + $ahsDemandSurcharges + $drdcFee) * Config::get('fuel_cost') * 0.01, 2);
 
+        // 佣金（过路费）
+        if ($storage == StorageModel::LIANGCANGID) {
+            $commission_rate = Config::get('lc_commission');
+        } elseif ($storage == StorageModel::LECANGID) {
+            $commission_rate = Config::get('le_commission');
+        } else {
+            $commission_rate = 0;
+        }
+        $commission = round(($base + $ahs + $dasFee + $rdcFee + $ahsDemandSurcharges + $drdcFee + $fuel_cost) * $commission_rate * 0.01, 2);
+
         // 运费总计
-        $label = $outbound . "(出库) + " . $base . "(基础) + " . $ahs . "(AHS) + " . $dasFee . "(偏远) + " . $rdcFee . "(住宅) + " . $ahsDemandSurcharges . "(AHS旺季) + " . $drdcFee . "(住宅旺季) + "  .$fuel_cost . "(燃油)";
-        $price = round($outbound + $base + $ahs + $dasFee + $rdcFee + $ahsDemandSurcharges + $drdcFee + $fuel_cost, 2);
+        $label = $outbound . "(出库) + " . $base . "(基础) + " . $ahs . "(AHS) + " . $dasFee . "(偏远) + " . $rdcFee . "(住宅) + " . $ahsDemandSurcharges . "(AHS旺季) + " . $drdcFee . "(住宅旺季) + "  .$fuel_cost . "(燃油) + "  .$commission . "(过路费)";
+        $price = round($outbound + $base + $ahs + $dasFee + $rdcFee + $ahsDemandSurcharges + $drdcFee + $fuel_cost + $commission, 2);
 
         return [
             'label'             =>  $label,
@@ -179,7 +195,8 @@ class OrderModel extends Model
             'rdcFee'            =>  $rdcFee,
             'drdcFee'           =>  $drdcFee,
             'outbound'          =>  $outbound,
-            'fuelCost'          =>  $fuel_cost
+            'fuelCost'          =>  $fuel_cost,
+            'commission'        =>  $commission
         ];
     }
 
@@ -308,5 +325,31 @@ class OrderModel extends Model
             return [];
         }
         return $apiRes['data'];
+    }
+
+    static public function order2deliverType($order, $type)
+    {
+        if ($type == 3) {
+            return 'ALL';
+        } else {
+            $storage_id = $order['area']['storage_id'];
+            if ($storage_id == StorageModel::LIANGCANGID) {
+                if (stripos($order['shippingMethod'], 'GROUND')) {
+                    return 'GD';
+                } elseif (stripos($order['shippingMethod'], 'HOME_DELIVERY')) {
+                    return 'HD';
+                } elseif (stripos($order['shippingMethod'], 'HOMEDELIVERY')) {
+                    return 'HD';
+                } elseif (stripos($order['shippingMethod'], 'HOME-DELIVEY')) {
+                    return 'HD';
+                } else {
+                    return false;
+                }
+            } elseif ($storage_id == StorageModel::LECANGID) {
+                return 'ALL';
+            } else {
+                return false;
+            }
+        }
     }
 }

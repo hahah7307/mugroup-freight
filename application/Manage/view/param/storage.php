@@ -133,6 +133,22 @@
         <div>
             <div class="layui-form-item">
                 <div class="layui-inline layui-col-md3">
+                    <label class="layui-form-label">尾程佣金（良仓%）</label>
+                    <div class="layui-input-inline">
+                        <input type="text" class="layui-input w300" name="lc_commission" value="{$config['lc_commission']}">
+                    </div>
+                </div>
+                <div class="layui-inline layui-col-md3">
+                    <label class="layui-form-label">尾程佣金（乐歌%）</label>
+                    <div class="layui-input-inline">
+                        <input type="text" class="layui-input w300" name="le_commission" value="{$config['le_commission']}">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div>
+            <div class="layui-form-item">
+                <div class="layui-inline layui-col-md3">
                     <label class="layui-form-label">仅出库费平台（Json）</label>
                     <div class="layui-input-inline">
                         <textarea name="outbound_platform" class="layui-textarea w300">{$config['outbound_platform']}</textarea>

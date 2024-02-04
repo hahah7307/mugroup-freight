@@ -88,6 +88,7 @@
                     <col>
                     <col>
                     <col>
+                    <col>
                     <col width="140">
                     <col width="80">
                 </colgroup>
@@ -113,6 +114,7 @@
                     <th>住宅</th>
                     <th>旺季</th>
                     <th>燃油</th>
+                    <th>佣金</th>
                     <th>总计</th>
                     <th>创建时间</th>
                     <th class="tc">状态</th>
@@ -143,6 +145,7 @@
                     <td>{$v.rdcFee}</td>
                     <td>{$v.ahsds}+{$v.drdcFee}</td>
                     <td>{$v.fuelCost}</td>
+                    <td>{$v.commission}</td>
                     <td class="calcuRes" data-info="{$v.calcuInfo}">{$v.calcuRes}</td>
                     <td>{$v.createdDate}</td>
                     <td class="tc">
