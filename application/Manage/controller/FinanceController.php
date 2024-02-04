@@ -3,6 +3,7 @@ namespace app\Manage\controller;
 
 use app\Manage\model\FinanceOrderModel;
 use app\Manage\model\FinanceOrderOutboundModel;
+use app\Manage\model\FinanceTableModel;
 use app\Manage\model\OrderAddressModel;
 use app\Manage\model\OrderModel;
 use app\Manage\model\ProductModel;
@@ -34,24 +35,9 @@ class FinanceController extends BaseController
             $where = [];
         }
 
-        $order_type = $this->request->get('order_type');
-        if ($order_type) {
-            $where['order_type'] = $order_type;
-        }
-        $this->assign('order_type', $order_type);
-
-        $fulfillment = $this->request->get('fulfillment');
-        if ($fulfillment) {
-            $where['fulfillment'] = $fulfillment;
-        }
-        $this->assign('fulfillment', $fulfillment);
-
-        $page_num = $this->request->get('page_num', Config::get('PAGE_NUM'));
-        $this->assign('page_num', $page_num);
-
-        // 订单列表
-        $order = new FinanceOrderModel();
-        $list = $order->where($where)->order('id asc')->paginate($page_num, false, ['query' => ['keyword' => $keyword, 'order_type' => $order_type, 'fulfillment' => $fulfillment, 'page_num' => $page_num]]);
+        // 表格列表
+        $order = new FinanceTableModel();
+        $list = $order->where($where)->order('id asc')->paginate(Config::get('PAGE_NUM'), false, ['query' => ['keyword' => $keyword]]);
         $this->assign('list', $list);
 
         Session::set(Config::get('BACK_URL'), $this->request->url(), 'manage');
@@ -84,44 +70,106 @@ class FinanceController extends BaseController
             $this->error("请上传正确的表格", Session::get(Config::get('BACK_URL')));
         }
 
-        $new = [];
-        foreach ($data as $item) {
-            if (!is_numeric($item[29])) {
-                continue;
-            }
-            $new[] = [
-                "tag"                       =>  intval($filename),
-                "filename"                  =>  $origin,
-                "payment_id"                =>  $item[3],
-                "order_type"                =>  $item[2],
-                "sku"                       =>  $item[4],
-                "qty"                       =>  $item[6],
-                "account_type"              =>  $item[8],
-                "fulfillment"               =>  $item[9],
-                "postal"                    =>  $item[12],
-                "product_sales"             =>  sprintf('%.2f',abs($item[14])),
-                "product_sales_tax"         =>  sprintf('%.2f',abs($item[15])),
-                "shipping_credits"          =>  sprintf('%.2f',abs($item[16])),
-                "shipping_credits_tax"      =>  sprintf('%.2f',abs($item[17])),
-                "gift_wrap_credits"         =>  sprintf('%.2f',abs($item[18])),
-                "gift_wrap_credits_tax"     =>  sprintf('%.2f',abs($item[19])),
-                "regulatory_fee"            =>  sprintf('%.2f',abs($item[20])),
-                "regulatory_fee_tax"        =>  sprintf('%.2f',abs($item[21])),
-                "promotional_rebates"       =>  sprintf('%.2f',abs($item[22])),
-                "promotional_rebates_tax"   =>  sprintf('%.2f',abs($item[23])),
-                "marketplace_withheld_tax"  =>  sprintf('%.2f',abs($item[24])),
-                "selling_fees"              =>  sprintf('%.2f',abs($item[25])),
-                "fba_fees"                  =>  sprintf('%.2f',abs($item[26])),
-                "other_transaction_fees"    =>  sprintf('%.2f',abs($item[27])),
-                "other"                     =>  sprintf('%.2f',abs($item[28])),
-                "total"                     =>  sprintf('%.2f',abs($item[29])),
-                "created_date"              =>  date('Y-m-d H:i:s', strtotime($item[0]))
+        Db::startTrans();
+        try {
+            $tableData = [
+                'table_name'    =>  $origin,
+                'created_at'    =>  date('Y-m-d H:i:s')
             ];
+            $financeTableObj = new FinanceTableModel();
+            if ($tableId = $financeTableObj->insertGetId($tableData)) {
+                $new = [];
+                foreach ($data as $item) {
+                    if (!is_numeric($item[29])) {
+                        continue;
+                    }
+                    $new[] = [
+                        "table_id"                  =>  $tableId,
+                        "settlement_id"             =>  $item[1],
+                        "payment_id"                =>  $item[3],
+                        "order_time"                =>  date('Y-m-d H:i:s', strtotime($item[0])),
+                        "order_type"                =>  $item[2],
+                        "sku"                       =>  $item[4],
+                        "description"               =>  $item[5],
+                        "qty"                       =>  $item[6],
+                        "market_place"              =>  $item[7],
+                        "account_type"              =>  $item[8],
+                        "fulfillment"               =>  $item[9],
+                        "order_city"                =>  $item[10],
+                        "order_state"               =>  $item[11],
+                        "postal"                    =>  $item[12],
+                        "tax_collection_model"      =>  $item[13],
+                        "product_sales"             =>  sprintf('%.2f',abs($item[14])),
+                        "product_sales_tax"         =>  sprintf('%.2f',abs($item[15])),
+                        "shipping_credits"          =>  sprintf('%.2f',abs($item[16])),
+                        "shipping_credits_tax"      =>  sprintf('%.2f',abs($item[17])),
+                        "gift_wrap_credits"         =>  sprintf('%.2f',abs($item[18])),
+                        "gift_wrap_credits_tax"     =>  sprintf('%.2f',abs($item[19])),
+                        "regulatory_fee"            =>  sprintf('%.2f',abs($item[20])),
+                        "regulatory_fee_tax"        =>  sprintf('%.2f',abs($item[21])),
+                        "promotional_rebates"       =>  sprintf('%.2f',abs($item[22])),
+                        "promotional_rebates_tax"   =>  sprintf('%.2f',abs($item[23])),
+                        "marketplace_withheld_tax"  =>  sprintf('%.2f',abs($item[24])),
+                        "selling_fees"              =>  sprintf('%.2f',abs($item[25])),
+                        "fba_fees"                  =>  sprintf('%.2f',abs($item[26])),
+                        "other_transaction_fees"    =>  sprintf('%.2f',abs($item[27])),
+                        "other"                     =>  sprintf('%.2f',abs($item[28])),
+                        "total"                     =>  sprintf('%.2f',abs($item[29])),
+                    ];
+                }
+                $financeOrderObj = new FinanceOrderModel();
+                if (!$financeOrderObj->saveAll($new)) {
+                    throw new \think\Exception('Payment导入失败！');
+                }
+            } else {
+                throw new \think\Exception('表格导入失败！');
+            }
+            Db::commit();
+        } catch (Exception $e) {
+            Db::rollback();
+            $this->error($e->getMessage(), Session::get(Config::get('BACK_URL')));
         }
-        $financeOrderObj = new FinanceOrderModel();
-        $financeOrderObj->saveAll($new);
-
         $this->redirect(Session::get(Config::get('BACK_URL'), 'manage'));
+    }
+
+    /**
+     * @throws DbException
+     */
+    public function order(): \think\response\View
+    {
+        $keyword = $this->request->get('keyword', '', 'htmlspecialchars');
+        $this->assign('keyword', $keyword);
+        if ($keyword) {
+            $where['payment_id'] = ['like', '%' . $keyword . '%'];
+        } else {
+            $where = [];
+        }
+
+        $table_id = input('id');
+        $where['table_id'] = $table_id;
+
+        $order_type = $this->request->get('order_type');
+        if ($order_type) {
+            $where['order_type'] = $order_type;
+        }
+        $this->assign('order_type', $order_type);
+
+        $fulfillment = $this->request->get('fulfillment');
+        if ($fulfillment) {
+            $where['fulfillment'] = $fulfillment;
+        }
+        $this->assign('fulfillment', $fulfillment);
+
+        $page_num = $this->request->get('page_num', Config::get('PAGE_NUM'));
+        $this->assign('page_num', $page_num);
+
+        // 订单列表
+        $order = new FinanceOrderModel();
+        $list = $order->where($where)->order('id asc')->paginate($page_num, false, ['query' => ['keyword' => $keyword, 'order_type' => $order_type, 'fulfillment' => $fulfillment, 'page_num' => $page_num, 'id' => $table_id]]);
+        $this->assign('list', $list);
+
+        Session::set(Config::get('BACK_URL'), $this->request->url(), 'manage');
+        return view();
     }
 
     /**

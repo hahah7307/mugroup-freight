@@ -49,7 +49,7 @@
                         <cite>财务</cite>
                     </a>
                     <dl class="layui-nav-child">
-                        <dd><a layui-href="{:url('Finance/index')}">原始订单列表</a></dd>
+                        <dd><a layui-href="{:url('Finance/index')}">导入表格列表</a></dd>
                         <dd><a layui-href="{:url('Finance/outbound')}">出库明细列表</a></dd>
                     </dl>
                 </li>
