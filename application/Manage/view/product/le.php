@@ -39,6 +39,8 @@
                     <th>长(Inch)</th>
                     <th>宽(Inch)</th>
                     <th>高(Inch)</th>
+                    <th>仓库重量(lb)</th>
+                    <th>仓库尺寸(Inch)</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -52,6 +54,8 @@
                     <td>{$v.length}</td>
                     <td>{$v.width}</td>
                     <td>{$v.height}</td>
+                    <td>{$v.wmsWeight}</td>
+                    <td>{$v.wmsLength} * {$v.wmsWidth} * {$v.wmsHeight}</td>
                 </tr>
                 {/foreach}
                 </tbody>

@@ -26,6 +26,7 @@
                     <col>
                     <col>
                     <col>
+                    <col>
                     <col width="80">
                     <col width="250">
                 </colgroup>
@@ -36,6 +37,7 @@
                     <th>子仓库名称</th>
                     <th>开始邮编</th>
                     <th>结束邮编</th>
+                    <th>Zone</th>
                     <th class="tc">状态</th>
                     <th class="tc">操作</th>
                 </tr>
@@ -54,6 +56,7 @@
                     <td>{$v.area.name}</td>
                     <td>{$v.zip_code}</td>
                     <td>{$v.zip_code_bak}</td>
+                    <td>{$v.zone}</td>
                     <td class="tc">
                         <input type="checkbox" class="h30" name="look" value="{$v.id}" lay-skin="switch" lay-text="是|否" lay-filter="formLock" {if condition="$v.state eq 1"}checked{/if}>
                     </td>

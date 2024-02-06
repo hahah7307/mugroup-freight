@@ -62,9 +62,6 @@ class OrderModel extends Model
         if (empty($zip_code)) {
             return false; // 空邮编跳过
         }
-        if (count($orderInfo['details']) > 1) {
-            return false; // 两条明细跳过
-        }
         $product = [
             'productWeight'     =>  $orderInfo['details'][0]['product']['productWeight'],
             'productLength'     =>  $orderInfo['details'][0]['product']['productLength'],
