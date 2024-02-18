@@ -29,4 +29,5 @@ return [
     'app\Manage\command\ReceivingUpdate', //
     'app\Manage\command\LeInventoryBatch', //
     'app\Manage\command\ProductInventory', //
+    'app\Manage\command\UserUpdate', //
     ];
