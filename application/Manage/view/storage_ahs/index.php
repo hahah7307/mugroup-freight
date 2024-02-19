@@ -33,15 +33,19 @@
                     <col>
                     <col>
                     <col>
+                    <col>
+                    <col>
                     <col width="80">
                     <col width="250">
                 </colgroup>
                 <thead>
                 <tr>
-                    <th>仓库名称</th>
-                    <th>AHS规则</th>
-                    <th>Zone</th>
-                    <th>金额</th>
+                    <th class="tc">仓库名称</th>
+                    <th class="tc">AHS规则</th>
+                    <th class="tc">Zone</th>
+                    <th class="tc">金额</th>
+                    <th class="tc">开始时间</th>
+                    <th class="tc">结束时间</th>
                     <th class="tc">状态</th>
                     <th class="tc">操作</th>
                 </tr>
@@ -51,8 +55,10 @@
                 <tr>
                     <td>{$v.storage.name}</td>
                     <td>{$v.ahs.ahs_rule}</td>
-                    <td>{$v.zone}</td>
-                    <td>{$v.value.name}</td>
+                    <td class="tr">{$v.zone}</td>
+                    <td class="tr">{$v.value}</td>
+                    <td>{$v.start_at}</td>
+                    <td>{$v.end_at}</td>
                     <td class="tc">
                         <input type="checkbox" class="h30" name="look" value="{$v.id}" lay-skin="switch" lay-text="是|否" lay-filter="formLock" {if condition="$v.state eq 1"}checked{/if}>
                     </td>

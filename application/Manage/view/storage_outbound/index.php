@@ -42,6 +42,8 @@ table td .layui-input {height: 30px}
                     <col>
                     <col>
                     <col>
+                    <col>
+                    <col>
                     <col width="80">
                     <col width="80">
                     <col width="250">
@@ -52,6 +54,8 @@ table td .layui-input {height: 30px}
                     <th class="tc">名称</th>
                     <th class="tc">描述</th>
                     <th class="tc">金额</th>
+                    <th class="tc">开始时间</th>
+                    <th class="tc">结束时间</th>
                     <th class="tc">Level</th>
                     <th class="tc">状态</th>
                     <th class="tc">操作</th>
@@ -64,6 +68,8 @@ table td .layui-input {height: 30px}
                     <td class="tc">{$v.name}</td>
                     <td class="tc">{$v.description}</td>
                     <td class="tc">{$v.value}</td>
+                    <td class="tc">{$v.start_at}</td>
+                    <td class="tc">{$v.end_at}</td>
                     <td class="tc"><input type="text" name="level" lay-verify="required" class="layui-input w50" value="{$v.level}"></td>
                     <td class="tc">
                         <input type="checkbox" class="h30" name="look" value="{$v.id}" lay-skin="switch" lay-text="是|否" lay-filter="formLock" {if condition="$v.state eq 1"}checked{/if}>

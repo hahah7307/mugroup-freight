@@ -57,4 +57,20 @@ class StorageBaseModel extends Model
 
         return ceil($lbs);
     }
+
+    // 获取基础运费
+
+    /**
+     * @throws DbException
+     */
+    static public function getBase($storage, $lbs, $customerZone, $order)
+    {
+        $condition['storage_id'] = $storage;
+        $condition['lbs_weight'] = $lbs;
+        $condition['zone'] = $customerZone;
+        $condition['state'] = self::STATE_ACTIVE;
+        $condition['start_at'] = ['lt', $order['datePaidPlatform']];
+        $condition['end_at'] = ['egt', $order['datePaidPlatform']];
+        return self::get($condition);
+    }
 }

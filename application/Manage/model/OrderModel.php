@@ -119,12 +119,12 @@ class OrderModel extends Model
         if ($customerZone == 0) {
             return false;
         }
-        $baseInfo = StorageBaseModel::get(['storage_id' => $storage, 'state' => 1, 'lbs_weight' => $lbs, 'zone' => $customerZone]);
+        $baseInfo = StorageBaseModel::getBase($storage, $lbs, $customerZone, $order);
         $base = $baseInfo ? $baseInfo['value'] : 0;
 
         // 出库费运算
         $platform = StorageOutboundModel::outboundPlatform();
-        $outbound = StorageOutboundModel::getOutbound($storage, $product, $order['platform']);
+        $outbound = StorageOutboundModel::getOutbound($storage, $product, $order);
         if (in_array($order['platform'], $platform)) {
             return [
                 'label'             =>  "",
@@ -145,25 +145,19 @@ class OrderModel extends Model
         }
 
         // AHS运算 & AHS旺季附加费
-        $ahs = AHS::getAHSFee($storage, $customerZone, $product);
-        $ahsDemandSurcharges = $ahs ? AHS::demandSurcharges($storage, $order['datePaidPlatform']) : 0;
+        $ahs = AHS::getAHSFee($storage, $customerZone, $product, $order);
+        $AHSPeakSurcharge = $ahs ? AHS::AHSPeakSurcharge($storage, $order) : 0;
 
         // 偏远地址附加费
         $das = StorageDasModel::get(['storage_id' => $storage, 'state' => 1, 'zip_code' => $postalCode]);
-        $deliverType = self::order2deliverType($order, $das['type']);
-        if (!$deliverType) {
-            return false;
-        }
-        $dasFee = !empty($das) ? StorageDasFeeModel::get(['storage_id' => $storage, 'type' => $das['type'], 'deliver_type' => $deliverType])->getData('value') : 0;
+        $dasFee = !empty($das) ? StorageDasFeeModel::getDasFee($storage, $das, $order) : 0;
 
-        // 住宅地址附加费
-        $rdcFee = StorageModel::getResidential($storage);
-
-        // 住宅旺季附加费
-        $drdcFee = $rdcFee ? StorageModel::getDemandResidential($storage, $order['datePaidPlatform']) : 0;
+        // 住宅地址附加费 & 住宅旺季附加费
+        $ResidentialFee = StorageResidentialModel::getResidential($storage, $order);
+        $ResidentialPeakSurcharge = $ResidentialFee ? StorageResidentialModel::ResidentialPeakSurcharge($storage, $order) : 0;
 
         // 燃油费运算
-        $fuel_cost = round(($base + $ahs + $dasFee + $rdcFee + $ahsDemandSurcharges + $drdcFee) * Config::get('fuel_cost') * 0.01, 2);
+        $fuel_cost = round(($base + $ahs + $dasFee + $ResidentialFee + $AHSPeakSurcharge + $ResidentialPeakSurcharge) * Config::get('fuel_cost') * 0.01, 2);
 
         // 佣金（过路费）
         if ($storage == StorageModel::LIANGCANGID) {
@@ -173,11 +167,11 @@ class OrderModel extends Model
         } else {
             $commission_rate = 0;
         }
-        $commission = round(($base + $ahs + $dasFee + $rdcFee + $ahsDemandSurcharges + $drdcFee + $fuel_cost) * $commission_rate * 0.01, 2);
+        $commission = round(($base + $ahs + $dasFee + $ResidentialFee + $AHSPeakSurcharge + $ResidentialPeakSurcharge + $fuel_cost) * $commission_rate * 0.01, 2);
 
         // 运费总计
-        $label = $outbound . "(出库) + " . $base . "(基础) + " . $ahs . "(AHS) + " . $dasFee . "(偏远) + " . $rdcFee . "(住宅) + " . $ahsDemandSurcharges . "(AHS旺季) + " . $drdcFee . "(住宅旺季) + "  .$fuel_cost . "(燃油) + "  .$commission . "(过路费)";
-        $price = round($outbound + $base + $ahs + $dasFee + $rdcFee + $ahsDemandSurcharges + $drdcFee + $fuel_cost + $commission, 2);
+        $label = $outbound . "(出库) + " . $base . "(基础) + " . $ahs . "(AHS) + " . $dasFee . "(偏远) + " . $ResidentialFee . "(住宅) + " . $AHSPeakSurcharge . "(AHS旺季) + " . $ResidentialPeakSurcharge . "(住宅旺季) + "  .$fuel_cost . "(燃油) + "  .$commission . "(过路费)";
+        $price = round($outbound + $base + $ahs + $dasFee + $ResidentialFee + $AHSPeakSurcharge + $ResidentialPeakSurcharge + $fuel_cost + $commission, 2);
 
         return [
             'label'             =>  $label,
@@ -187,10 +181,10 @@ class OrderModel extends Model
             'zone'              =>  $customerZone,
             'base'              =>  $base,
             'ahs'               =>  $ahs,
-            'ahsds'             =>  $ahsDemandSurcharges,
+            'ahsds'             =>  $AHSPeakSurcharge,
             'das'               =>  $dasFee,
-            'rdcFee'            =>  $rdcFee,
-            'drdcFee'           =>  $drdcFee,
+            'rdcFee'            =>  $ResidentialFee,
+            'drdcFee'           =>  $ResidentialPeakSurcharge,
             'outbound'          =>  $outbound,
             'fuelCost'          =>  $fuel_cost,
             'commission'        =>  $commission
@@ -322,31 +316,5 @@ class OrderModel extends Model
             return [];
         }
         return $apiRes['data'];
-    }
-
-    static public function order2deliverType($order, $type)
-    {
-        if ($type == 3) {
-            return 'ALL';
-        } else {
-            $storage_id = $order['area']['storage_id'];
-            if ($storage_id == StorageModel::LIANGCANGID) {
-                if (stripos($order['shippingMethod'], 'GROUND')) {
-                    return 'GD';
-                } elseif (stripos($order['shippingMethod'], 'HOME_DELIVERY')) {
-                    return 'HD';
-                } elseif (stripos($order['shippingMethod'], 'HOMEDELIVERY')) {
-                    return 'HD';
-                } elseif (stripos($order['shippingMethod'], 'HOME-DELIVEY')) {
-                    return 'HD';
-                } else {
-                    return false;
-                }
-            } elseif ($storage_id == StorageModel::LECANGID) {
-                return 'ALL';
-            } else {
-                return false;
-            }
-        }
     }
 }

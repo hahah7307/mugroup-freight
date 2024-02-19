@@ -33,10 +33,17 @@ class StorageOutboundModel extends Model
     /**
      * @throws DbException
      */
-    static public function getOutbound($storage, $product, $platform)
+    static public function getOutbound($storage, $product, $order)
     {
+        $platform = $order['platform'];
         $storageOutbound = new StorageOutboundModel();
-        $outboundList = $storageOutbound->where(['state' => 1, 'storage_id' => $storage, 'platform_tag' => $platform])->order('level asc')->select();
+        $condition['state'] = 1;
+        $condition['storage_id'] = $storage;
+        $condition['platform_tag'] = $platform;
+        // 命中生效区间
+        $condition['start_at'] = ['lt', $order['datePaidPlatform']];
+        $condition['end_at'] = ['egt', $order['datePaidPlatform']];
+        $outboundList = $storageOutbound->where($condition)->order('level asc')->select();
         $price = 0;
         foreach ($outboundList as $rule) {
             $ruleCondition = json_decode($rule['condition'], true);

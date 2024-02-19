@@ -2,17 +2,14 @@
 
 namespace app\Manage\model;
 
-use think\Config;
 use think\exception\DbException;
 use think\Model;
 
-class StorageModel extends Model
+class StoragePeakSurchargeModel extends Model
 {
     const STATE_ACTIVE = 1;
-    const LIANGCANGID = 1;
-    const LECANGID = 2;
 
-    protected $name = 'storage';
+    protected $name = 'storage_peak_surcharge';
 
     protected $resultSetType = 'collection';
 

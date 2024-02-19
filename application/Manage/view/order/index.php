@@ -97,26 +97,26 @@
                     <th class="tc">
                         <input type="checkbox" lay-skin="primary" id="YanNanQiu_checkall" lay-filter="YanNanQiu_checkall">
                     </th>
-                    <th>ID</th>
-                    <th>Payment单号</th>
-                    <th>易仓单号</th>
-                    <th>海外仓单号</th>
-                    <th>跟踪号</th>
-                    <th>仓库代码</th>
-                    <th>平台</th>
-                    <th>计费重</th>
-                    <th>邮编</th>
-                    <th>Zone</th>
-                    <th>出库</th>
-                    <th>基础</th>
-                    <th>AHS</th>
-                    <th>偏远</th>
-                    <th>住宅</th>
-                    <th>旺季</th>
-                    <th>燃油</th>
-                    <th>佣金</th>
-                    <th>总计</th>
-                    <th>创建时间</th>
+                    <th class="tc">ID</th>
+                    <th class="tc">Payment单号</th>
+                    <th class="tc">易仓单号</th>
+                    <th class="tc">海外仓单号</th>
+                    <th class="tc">跟踪号</th>
+                    <th class="tc">仓库代码</th>
+                    <th class="tc">平台</th>
+                    <th class="tc">计费重</th>
+                    <th class="tc">邮编</th>
+                    <th class="tc">Zone</th>
+                    <th class="tc">出库</th>
+                    <th class="tc">基础</th>
+                    <th class="tc">AHS</th>
+                    <th class="tc">偏远</th>
+                    <th class="tc">住宅</th>
+                    <th class="tc">旺季</th>
+                    <th class="tc">燃油</th>
+                    <th class="tc">佣金</th>
+                    <th class="tc">总计</th>
+                    <th class="tc">创建时间</th>
                     <th class="tc">状态</th>
                 </tr>
                 </thead>
@@ -135,18 +135,18 @@
                     <td>{$v.shippingMethodNo}</td>
                     <td>{$v.warehouseCode}</td>
                     <td>{$v.platform}</td>
-                    <td>{$v.charged_weight}</td>
+                    <td class="tr">{$v.charged_weight}</td>
                     <td>{$v.postalFormat}</td>
-                    <td>{$v.zoneFormat}</td>
-                    <td>{$v.outbound}</td>
-                    <td>{$v.base}</td>
-                    <td>{$v.ahs}</td>
-                    <td>{$v.das}</td>
-                    <td>{$v.rdcFee}</td>
-                    <td>{$v.ahsds}+{$v.drdcFee}</td>
-                    <td>{$v.fuelCost}</td>
-                    <td>{$v.commission}</td>
-                    <td class="calcuRes" data-info="{$v.calcuInfo}">{$v.calcuRes}</td>
+                    <td class="tr">{$v.zoneFormat}</td>
+                    <td class="tr">{$v.outbound}</td>
+                    <td class="tr">{$v.base}</td>
+                    <td class="tr">{$v.ahs}</td>
+                    <td class="tr">{$v.das}</td>
+                    <td class="tr">{$v.rdcFee}</td>
+                    <td class="tr">{$v.ahsds}+{$v.drdcFee}</td>
+                    <td class="tr">{$v.fuelCost}</td>
+                    <td class="tr">{$v.commission}</td>
+                    <td class="tr calcuRes" data-info="{$v.calcuInfo}">{$v.calcuRes}</td>
                     <td>{$v.createdDate}</td>
                     <td class="tc">
                         {if condition="$v.status eq 0"}

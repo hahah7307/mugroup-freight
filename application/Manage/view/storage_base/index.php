@@ -22,8 +22,10 @@
             <table class="layui-table" lay-size="sm">
                 <colgroup>
                     <col>
-                    <col>
-                    <col>
+                    <col width="150">
+                    <col width="150">
+                    <col width="150">
+                    <col width="150">
                     <col>
                     <col>
                     <col width="80">
@@ -31,11 +33,13 @@
                 </colgroup>
                 <thead>
                 <tr>
-                    <th>仓库名称</th>
-                    <th>体积重（lbs）</th>
-                    <th>体积重（kg）</th>
-                    <th>Zone</th>
-                    <th>金额</th>
+                    <th class="tc">仓库名称</th>
+                    <th class="tc">体积重（lbs）</th>
+                    <th class="tc">体积重（kg）</th>
+                    <th class="tc">Zone</th>
+                    <th class="tc">金额</th>
+                    <th class="tc">开始时间</th>
+                    <th class="tc">结束时间</th>
                     <th class="tc">状态</th>
                     <th class="tc">操作</th>
                 </tr>
@@ -44,10 +48,12 @@
                 {foreach name="list" item="v"}
                 <tr>
                     <td>{$v.storage.name}</td>
-                    <td>{$v.lbs_weight}</td>
-                    <td>{$v.kg_weight}</td>
-                    <td>{$v.zone}</td>
-                    <td>{$v.value}</td>
+                    <td class="tr">{$v.lbs_weight}</td>
+                    <td class="tr">{$v.kg_weight}</td>
+                    <td class="tr">{$v.zone}</td>
+                    <td class="tr">{$v.value}</td>
+                    <td>{$v.start_at}</td>
+                    <td>{$v.end_at}</td>
                     <td class="tc">
                         <input type="checkbox" class="h30" name="look" value="{$v.id}" lay-skin="switch" lay-text="是|否" lay-filter="formLock" {if condition="$v.state eq 1"}checked{/if}>
                     </td>

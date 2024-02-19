@@ -36,4 +36,20 @@ class StorageAhsRuleModel extends Model
     {
         return $this->hasOne('StorageAhsModel', 'id', 'ahs_id');
     }
+
+    // 获取ahs费用
+
+    /**
+     * @throws DbException
+     */
+    static public function getAHSFee($storage, $ahs_id, $zone, $order)
+    {
+        $condition['storage_id'] = $storage;
+        $condition['ahs_id'] = $ahs_id;
+        $condition['state'] = 1;
+        $condition['zone'] = $zone;
+        $condition['start_at'] = ['lt', $order['datePaidPlatform']];
+        $condition['end_at'] = ['egt', $order['datePaidPlatform']];
+        return self::get($condition)->getData('value');
+    }
 }

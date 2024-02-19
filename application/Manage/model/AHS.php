@@ -31,13 +31,13 @@ class AHS extends Model
     /**
      * @throws DbException
      */
-    static public function getAHSFee($storage, $zone, $product)
+    static public function getAHSFee($storage, $zone, $product, $order)
     {
         $ahsFee = 0;
         if ($storage == StorageModel::LIANGCANGID) {
-            $ahsFee = self::AHSFeeLiang($product['productWeight'], $zone, $product['productLength'], $product['productWidth'], $product['productHeight']);
+            $ahsFee = self::AHSFeeLiang($product['productWeight'], $zone, $product['productLength'], $product['productWidth'], $product['productHeight'], $order);
         } elseif ($storage == StorageModel::LECANGID) {
-            $ahsFee = self::AHSFeeLoctek($product['productWeight'], $zone, $product['productLength'], $product['productWidth'], $product['productHeight']);
+            $ahsFee = self::AHSFeeLoctek($product['productWeight'], $zone, $product['productLength'], $product['productWidth'], $product['productHeight'], $order);
         }
         return $ahsFee;
     }
@@ -45,12 +45,12 @@ class AHS extends Model
     /**
      * @throws DbException
      */
-    static public function AHSFeeLiang($w, $zone, $a, $b, $c)
+    static public function AHSFeeLiang($w, $zone, $a, $b, $c, $order)
     {
         $storage = StorageModel::LIANGCANGID;
         $w *= self::KG2LBS;
-        $weightFee = self::AHSWeight($w) ? StorageAhsRuleModel::get(['storage_id' => $storage, 'ahs_id' => 1, 'state' => 1, 'zone' => $zone])->getData('value') : 0;
-        $dimensionFee = self::AHSDimension($a, $b, $c) ? StorageAhsRuleModel::get(['storage_id' => $storage, 'ahs_id' => 2, 'state' => 1, 'zone' => $zone])->getData('value') : 0;
+        $weightFee = self::AHSWeight($w) ? StorageAhsRuleModel::getAHSFee($storage, 1, $zone, $order) : 0;
+        $dimensionFee = self::AHSDimension($a, $b, $c) ? StorageAhsRuleModel::getAHSFee($storage, 2, $zone, $order) : 0;
 
         return max($weightFee, $dimensionFee);
     }
@@ -58,41 +58,33 @@ class AHS extends Model
     /**
      * @throws DbException
      */
-    static public function AHSFeeLoctek($w, $zone, $a, $b, $c)
+    static public function AHSFeeLoctek($w, $zone, $a, $b, $c, $order)
     {
         $storage = StorageModel::LECANGID;
         $w *= self::KG2LBS;
 
         if ($w > 70) {
-            $weightFee = StorageAhsRuleModel::get(['storage_id' => $storage, 'ahs_id' => 4, 'state' => 1, 'zone' => $zone])->getData('value');
+            $weightFee = StorageAhsRuleModel::getAHSFee($storage, 4, $zone, $order);
         } elseif (self::AHSWeight($w)) {
-            $weightFee = StorageAhsRuleModel::get(['storage_id' => $storage, 'ahs_id' => 3, 'state' => 1, 'zone' => $zone])->getData('value');
+            $weightFee = StorageAhsRuleModel::getAHSFee($storage, 3, $zone, $order);
         } else {
             $weightFee = 0;
         }
-        $dimensionFee = self::AHSDimension($a, $b, $c) ? StorageAhsRuleModel::get(['storage_id' => $storage, 'ahs_id' => 5, 'state' => 1, 'zone' => $zone])->getData('value') : 0;
+        $dimensionFee = self::AHSDimension($a, $b, $c) ? StorageAhsRuleModel::getAHSFee($storage, 5, $zone, $order) : 0;
 
         return max($weightFee, $dimensionFee);
     }
 
-    static public function demandSurcharges($storage, $createdDate)
+    /**
+     * @throws DbException
+     */
+    static public function AHSPeakSurcharge($storage, $order)
     {
-        if ($storage == StorageModel::LIANGCANGID) {
-            if (strtotime($createdDate) >= strtotime(Config::get('ahs_additional_time'))
-                && strtotime($createdDate) <= strtotime(Config::get('ahs_additional_time2'))) {
-                return Config::get('liang_additional_fee');
-            } else {
-                return 0;
-            }
-        } elseif ($storage == StorageModel::LECANGID) {
-            if (strtotime($createdDate) >= strtotime(Config::get('ahs_additional_time3'))
-                && strtotime($createdDate) <= strtotime(Config::get('ahs_additional_time4'))) {
-                return Config::get('loctek_additional_fee');
-            } else {
-                return 0;
-            }
-        } else {
-            return 0;
-        }
+        $condition['storage_id'] = $storage;
+        $condition['state'] = StoragePeakSurchargeModel::STATE_ACTIVE;
+        $condition['type'] = 1;
+        $condition['start_at'] = ['lt', $order['datePaidPlatform']];
+        $condition['end_at'] = ['egt', $order['datePaidPlatform']];
+        return StoragePeakSurchargeModel::get($condition)->getData('value');
     }
 }
