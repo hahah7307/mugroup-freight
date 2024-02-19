@@ -19,7 +19,7 @@ class InventorySettlement extends Command
 {
     protected function configure()
     {
-        $this->setName('inventorySettlement')->setDescription('Here is the inventorySettlement');
+        $this->setName('InventorySettlement')->setDescription('Here is the InventorySettlement');
     }
 
     /**

@@ -18,7 +18,7 @@ class OrderCapture extends Command
 {
     protected function configure()
     {
-        $this->setName('orderCapture')->setDescription('Here is the orderCapture');
+        $this->setName('OrderCapture')->setDescription('Here is the OrderCapture');
     }
 
     /**

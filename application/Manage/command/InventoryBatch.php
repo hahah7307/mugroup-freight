@@ -15,7 +15,7 @@ class InventoryBatch extends Command
 {
     protected function configure()
     {
-        $this->setName('inventoryBatch')->setDescription('Here is the inventoryBatch');
+        $this->setName('InventoryBatch')->setDescription('Here is the InventoryBatch');
     }
 
     /**

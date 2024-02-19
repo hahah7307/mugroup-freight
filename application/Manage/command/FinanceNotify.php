@@ -16,7 +16,7 @@ class FinanceNotify extends Command
 {
     protected function configure()
     {
-        $this->setName('financeNotify')->setDescription('Here is the financeNotify');
+        $this->setName('FinanceNotify')->setDescription('Here is the FinanceNotify');
     }
 
     /**

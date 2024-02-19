@@ -15,7 +15,7 @@ class PostalUpdate extends Command
 {
     protected function configure()
     {
-        $this->setName('postalUpdate')->setDescription('Here is the postalUpdate');
+        $this->setName('PostalUpdate')->setDescription('Here is the PostalUpdate');
     }
 
     /**

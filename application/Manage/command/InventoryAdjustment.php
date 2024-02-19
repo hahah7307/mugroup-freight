@@ -14,7 +14,7 @@ class InventoryAdjustment extends Command
 {
     protected function configure()
     {
-        $this->setName('inventoryAdjustment')->setDescription('Here is the inventoryAdjustment');
+        $this->setName('InventoryAdjustment')->setDescription('Here is the InventoryAdjustment');
     }
 
     /**

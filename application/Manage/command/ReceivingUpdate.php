@@ -20,7 +20,7 @@ class ReceivingUpdate extends Command
 {
     protected function configure()
     {
-        $this->setName('LcReceivingUpdate')->setDescription('Here is the LcReceivingUpdate');
+        $this->setName('ReceivingUpdate')->setDescription('Here is the ReceivingUpdate');
     }
 
     /**

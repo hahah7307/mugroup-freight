@@ -17,7 +17,7 @@ class ProductUpdate extends Command
 {
     protected function configure()
     {
-        $this->setName('productUpdate')->setDescription('Here is the productUpdate');
+        $this->setName('ProductUpdate')->setDescription('Here is the ProductUpdate');
     }
 
     /**

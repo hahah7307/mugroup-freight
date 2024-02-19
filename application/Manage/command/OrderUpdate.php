@@ -17,7 +17,7 @@ class OrderUpdate extends Command
 {
     protected function configure()
     {
-        $this->setName('orderUpdate')->setDescription('Here is the orderUpdate');
+        $this->setName('OrderUpdate')->setDescription('Here is the OrderUpdate');
     }
 
     /**

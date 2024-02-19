@@ -19,7 +19,7 @@ class OrderCalculate extends Command
 {
     protected function configure()
     {
-        $this->setName('orderCalculate')->setDescription('Here is the orderCalculate');
+        $this->setName('OrderCalculate')->setDescription('Here is the OrderCalculate');
     }
 
     /**
