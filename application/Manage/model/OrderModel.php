@@ -149,8 +149,8 @@ class OrderModel extends Model
         $AHSPeakSurcharge = $ahs ? AHS::AHSPeakSurcharge($storage, $order) : 0;
 
         // 偏远地址附加费
-        $das = StorageDasModel::get(['storage_id' => $storage, 'state' => 1, 'zip_code' => $postalCode]);
-        $dasFee = !empty($das) ? StorageDasFeeModel::getDasFee($storage, $das, $order) : 0;
+        $dasType = StorageDasModel::getDASType($storage, $postalCode, $order);
+        $dasFee = !empty($dasType) ? StorageDasFeeModel::getDasFee($storage, $dasType, $order) : 0;
 
         // 住宅地址附加费 & 住宅旺季附加费
         $ResidentialFee = StorageResidentialModel::getResidential($storage, $order);

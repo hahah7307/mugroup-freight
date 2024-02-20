@@ -2,6 +2,7 @@
 
 namespace app\Manage\model;
 
+use think\exception\DbException;
 use think\Model;
 
 class StorageDasModel extends Model
@@ -29,5 +30,18 @@ class StorageDasModel extends Model
     public function storage(): \think\model\relation\HasOne
     {
         return $this->hasOne("StorageModel", "id", "storage_id");
+    }
+
+    /**
+     * @throws DbException
+     */
+    static public function getDASType($storage, $postalCode, $order)
+    {
+        $condition['storage_id'] = $storage;
+        $condition['zip_code'] = $postalCode;
+        $condition['state'] = self::STATE_ACTIVE;
+        $condition['start_at'] = ['lt', $order['datePaidPlatform']];
+        $condition['end_at'] = ['egt', $order['datePaidPlatform']];
+        return self::get($condition);
     }
 }
