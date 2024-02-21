@@ -24,7 +24,8 @@
     },
     "autoload": {
         "psr-4": {
-            "app\\": "application"
+            "app\\": "application",
+            "Ak\\OpenAPI\\": "extend/AKApi"
         }
     },
     "extra": {

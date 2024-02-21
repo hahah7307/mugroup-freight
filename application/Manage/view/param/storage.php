@@ -186,6 +186,36 @@
                 </div>
             </div>
         </div>
+        <div>
+            <div class="layui-form-item">
+                <div class="layui-inline layui-col-md3">
+                    <label class="layui-form-label">领星API地址</label>
+                    <div class="layui-input-inline">
+                        <input type="text" class="layui-input w300" name="ak_openapi_uri" value="{$config['ak_openapi_uri']}">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div>
+            <div class="layui-form-item">
+                <div class="layui-inline layui-col-md3">
+                    <label class="layui-form-label">领星AppId</label>
+                    <div class="layui-input-inline">
+                        <input type="text" class="layui-input w300" name="ak_app_id" value="{$config['ak_app_id']}">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div>
+            <div class="layui-form-item">
+                <div class="layui-inline layui-col-md3">
+                    <label class="layui-form-label">领星AccessToken</label>
+                    <div class="layui-input-inline">
+                        <input type="text" class="layui-input w300" name="ak_access_token" value="{$config['ak_access_token']}">
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="layui-form-item">
             <div class="layui-input-block">
                 <button class="layui-btn w200" lay-submit lay-filter="formCoding">提交保存</button>

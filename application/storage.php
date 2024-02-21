@@ -17,4 +17,7 @@
     'lc_app_key'  =>  'ed4727de433bcca513d3d57b99d524a7',
     'le_access_key'  =>  'OFSyPMYI',
     'le_secret_key'  =>  'KsX/OjpsiJIdAJuHvf3eXg==',
+    'ak_openapi_uri'  =>  'https://openapi.lingxing.com',
+    'ak_app_id'  =>  'ak_UZUGiDBfkC65V',
+    'ak_access_token'  =>  'sBm7dkhym0QKqb2S6u9aDw==',
 ]; ?>
