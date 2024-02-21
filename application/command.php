@@ -31,4 +31,5 @@ return [
     'app\Manage\command\ProductInventory', //
     'app\Manage\command\UserUpdate', //
     'app\Manage\command\AkSeller', //
+    'app\Manage\command\SkuRelationUpdate', //
 ];

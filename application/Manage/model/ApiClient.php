@@ -32,9 +32,14 @@ class ApiClient extends Model
         $retArr = get_object_vars($ret);
         $retJson = $retArr['response'];
         $result = json_decode($retJson, true);
-        if ($result['code'] != "200" && $result['ask'] != "Success") {
+        if (!empty($result['code']) && $result['code'] != "200") {
             return ['code' => 0, 'msg' => "error code: " . $result['code'] . "(" . $result['message'] . ")"];
         }
+
+        if (!empty($result['ask']) && $result['ask'] != "Success") {
+            return ['code' => 0, 'msg' => "error code: " . $result['code'] . "(" . $result['message'] . ")"];
+        }
+
 
         return ['code' => 1, 'data' => $result['data']];
     }
