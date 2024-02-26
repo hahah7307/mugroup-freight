@@ -125,7 +125,7 @@ class OrderModel extends Model
         // 出库费运算
         $platform = StorageOutboundModel::outboundPlatform();
         $outbound = StorageOutboundModel::getOutbound($storage, $product, $order);
-        if (in_array($order['platform'], $platform)) {
+        if (in_array($order['platform'], $platform) || empty($order['dateWarehouseShipping']) || $order['dateWarehouseShipping'] == '0000-00-00 00:00:00') {
             return [
                 'label'             =>  "",
                 'fee'               =>  $outbound,
