@@ -41,8 +41,8 @@ class StorageOutboundModel extends Model
         $condition['storage_id'] = $storage;
         $condition['platform_tag'] = $platform;
         // 命中生效区间
-        $condition['start_at'] = ['lt', $order['datePaidPlatform']];
-        $condition['end_at'] = ['egt', $order['datePaidPlatform']];
+        $condition['start_at'] = ['lt', $order['dateWarehouseShipping']];
+        $condition['end_at'] = ['egt', $order['dateWarehouseShipping']];
         $outboundList = $storageOutbound->where($condition)->order('level asc')->select();
         $price = 0;
         foreach ($outboundList as $rule) {

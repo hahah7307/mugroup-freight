@@ -42,8 +42,8 @@ class StorageResidentialModel extends Model
         $condition['storage_id'] = $storage;
         $condition['state'] = self::STATE_ACTIVE;
         $condition['deliver_type'] = $deliver_type;
-        $condition['start_at'] = ['lt', $order['datePaidPlatform']];
-        $condition['end_at'] = ['egt', $order['datePaidPlatform']];
+        $condition['start_at'] = ['lt', $order['dateWarehouseShipping']];
+        $condition['end_at'] = ['egt', $order['dateWarehouseShipping']];
         return self::get($condition)->getData('value');
     }
 
@@ -57,8 +57,8 @@ class StorageResidentialModel extends Model
         $condition['storage_id'] = $storage;
         $condition['state'] = StoragePeakSurchargeModel::STATE_ACTIVE;
         $condition['type'] = 2;
-        $condition['start_at'] = ['lt', $order['datePaidPlatform']];
-        $condition['end_at'] = ['egt', $order['datePaidPlatform']];
+        $condition['start_at'] = ['lt', $order['dateWarehouseShipping']];
+        $condition['end_at'] = ['egt', $order['dateWarehouseShipping']];
         return StoragePeakSurchargeModel::get($condition)->getData('value');
     }
 

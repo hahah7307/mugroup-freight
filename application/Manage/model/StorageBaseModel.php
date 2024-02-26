@@ -69,8 +69,8 @@ class StorageBaseModel extends Model
         $condition['lbs_weight'] = $lbs;
         $condition['zone'] = $customerZone;
         $condition['state'] = self::STATE_ACTIVE;
-        $condition['start_at'] = ['lt', $order['datePaidPlatform']];
-        $condition['end_at'] = ['egt', $order['datePaidPlatform']];
+        $condition['start_at'] = ['lt', $order['dateWarehouseShipping']];
+        $condition['end_at'] = ['egt', $order['dateWarehouseShipping']];
         return self::get($condition);
     }
 }

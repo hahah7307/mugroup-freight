@@ -48,8 +48,8 @@ class StorageAhsRuleModel extends Model
         $condition['ahs_id'] = $ahs_id;
         $condition['state'] = 1;
         $condition['zone'] = $zone;
-        $condition['start_at'] = ['lt', $order['datePaidPlatform']];
-        $condition['end_at'] = ['egt', $order['datePaidPlatform']];
+        $condition['start_at'] = ['lt', $order['dateWarehouseShipping']];
+        $condition['end_at'] = ['egt', $order['dateWarehouseShipping']];
         return self::get($condition)->getData('value');
     }
 }

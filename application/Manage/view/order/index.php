@@ -118,7 +118,7 @@
                     <th class="tc">燃油</th>
                     <th class="tc">佣金</th>
                     <th class="tc">总计</th>
-                    <th class="tc">创建时间</th>
+                    <th class="tc">发货时间</th>
                     <th class="tc">状态</th>
                 </tr>
                 </thead>
@@ -150,7 +150,7 @@
                     <td class="tr">{$v.fuelCost}</td>
                     <td class="tr">{$v.commission}</td>
                     <td class="tr calcuRes" data-info="{$v.calcuInfo}">{$v.calcuRes}</td>
-                    <td>{$v.createdDate}</td>
+                    <td>{$v.dateWarehouseShipping}</td>
                     <td class="tc">
                         {if condition="$v.status eq 0"}
                             <p class="grey">已废弃</p>

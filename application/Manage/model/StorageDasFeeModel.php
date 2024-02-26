@@ -49,8 +49,8 @@ class StorageDasFeeModel extends Model
         $condition['type'] = $das['type'];
         $condition['deliver_type'] = $deliverType;
         $condition['state'] = self::ACTIVE_STATE;
-        $condition['start_at'] = ['lt', $order['datePaidPlatform']];
-        $condition['end_at'] = ['egt', $order['datePaidPlatform']];
+        $condition['start_at'] = ['lt', $order['dateWarehouseShipping']];
+        $condition['end_at'] = ['egt', $order['dateWarehouseShipping']];
         return self::get($condition)->getData('value');
     }
 
