@@ -3,10 +3,12 @@ namespace app\Manage\controller;
 
 use app\Manage\model\FinanceOrderModel;
 use app\Manage\model\FinanceOrderOutboundModel;
+use app\Manage\model\FinanceReportModel;
 use app\Manage\model\FinanceTableModel;
 use app\Manage\model\OrderAddressModel;
 use app\Manage\model\OrderModel;
 use app\Manage\model\ProductModel;
+use app\Manage\validate\FinanceReportValidate;
 use PHPExcel;
 use PHPExcel_IOFactory;
 use PHPExcel_Reader_Exception;
@@ -25,14 +27,94 @@ class FinanceController extends BaseController
     /**
      * @throws DbException
      */
-    public function index(): \think\response\View
+    public function report(): \think\response\View
     {
         $keyword = $this->request->get('keyword', '', 'htmlspecialchars');
         $this->assign('keyword', $keyword);
         if ($keyword) {
-            $where['payment_id'] = ['like', '%' . $keyword . '%'];
+            $where['name'] = ['like', '%' . $keyword . '%'];
         } else {
             $where = [];
+        }
+
+        // 列表
+        $order = new FinanceReportModel();
+        $list = $order->where($where)->order('id asc')->paginate(Config::get('PAGE_NUM'), false, ['query' => ['keyword' => $keyword]]);
+        $this->assign('list', $list);
+
+        Session::set(Config::get('BACK_URL'), $this->request->url(), 'manage');
+        return view();
+    }
+
+    // 添加
+    public function report_add()
+    {
+        if ($this->request->isPost()) {
+            $post = $this->request->post();
+            $post['state'] = FinanceReportModel::STATE_ACTIVE;
+            $dataValidate = new FinanceReportValidate();
+            if ($dataValidate->scene('add')->check($post)) {
+                $model = new FinanceReportModel();
+                if ($model->allowField(true)->save($post)) {
+                    echo json_encode(['code' => 1, 'msg' => '添加成功']);
+                    exit;
+                } else {
+                    echo json_encode(['code' => 0, 'msg' => '添加失败，请重试']);
+                    exit;
+                }
+            } else {
+                echo json_encode(['code' => 0, 'msg' => $dataValidate->getError()]);
+                exit;
+            }
+        } else {
+
+            return view();
+        }
+    }
+
+    // 编辑
+
+    /**
+     * @throws DbException
+     */
+    public function report_edit($id)
+    {
+        if ($this->request->isPost()) {
+            $post = $this->request->post();
+            $dataValidate = new FinanceReportValidate();
+            if ($dataValidate->scene('edit')->check($post)) {
+                $model = new FinanceReportModel();
+                if ($model->allowField(true)->save($post, ['id' => $id])) {
+                    echo json_encode(['code' => 1, 'msg' => '修改成功']);
+                    exit;
+                } else {
+                    echo json_encode(['code' => 0, 'msg' => '修改失败，请重试']);
+                    exit;
+                }
+            } else {
+                echo json_encode(['code' => 0, 'msg' => $dataValidate->getError()]);
+                exit;
+            }
+        } else {
+            $info = FinanceReportModel::get(['id' => $id,]);
+            $this->assign('info', $info);
+
+            return view();
+        }
+    }
+
+    /**
+     * @throws DbException
+     */
+    public function index($id): \think\response\View
+    {
+        $where['rid'] = $id;
+        $this->assign('rid', $id);
+
+        $keyword = $this->request->get('keyword', '', 'htmlspecialchars');
+        $this->assign('keyword', $keyword);
+        if ($keyword) {
+            $where['table_name'] = ['like', '%' . $keyword . '%'];
         }
 
         // 表格列表
@@ -60,6 +142,7 @@ class FinanceController extends BaseController
 
         $filename = input('filename');
         $origin = input('origin');
+        $rid = input('rid');
         $file= "./upload/excel/" . $filename;
         $excelReader = PHPExcel_IOFactory::createReaderForFile($file);
         $excelObj = $excelReader->load($file);
@@ -73,6 +156,7 @@ class FinanceController extends BaseController
         Db::startTrans();
         try {
             $tableData = [
+                'rid'           =>  $rid,
                 'table_name'    =>  $origin,
                 'created_at'    =>  date('Y-m-d H:i:s')
             ];
@@ -84,6 +168,7 @@ class FinanceController extends BaseController
                         continue;
                     }
                     $new[] = [
+                        "rid"                       =>  $rid,
                         "table_id"                  =>  $tableId,
                         "settlement_id"             =>  $item[1],
                         "payment_id"                =>  $item[3],
@@ -168,7 +253,6 @@ class FinanceController extends BaseController
         $list = $order->where($where)->order('id asc')->paginate($page_num, false, ['query' => ['keyword' => $keyword, 'order_type' => $order_type, 'fulfillment' => $fulfillment, 'page_num' => $page_num, 'id' => $table_id]]);
         $this->assign('list', $list);
 
-        Session::set(Config::get('BACK_URL'), $this->request->url(), 'manage');
         return view();
     }
 

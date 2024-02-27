@@ -4,6 +4,7 @@
 <!-- 主体内容 -->
 <div class="layui-body" id="LAY_app_body">
     <div class="right">
+        <a href="{:url('report')}" class="layui-btn layui-btn-danger layui-btn-sm fr"><i class="layui-icon">&#xe603;</i>返回上一页</a>
         <div class="title">导入表格列表</div>
         <form class="layui-form search-form" method="get">
             <div class="layui-inline w200">
@@ -26,6 +27,7 @@
                     <col>
                     <col width="140">
                     <col width="80">
+                    <col width="80">
                 </colgroup>
                 <thead>
                 <tr>
@@ -35,6 +37,7 @@
                     <th class="tc">ID</th>
                     <th>导入表格名</th>
                     <th>导入时间</th>
+                    <th class="tc">状态</th>
                     <th class="tc">操作</th>
                 </tr>
                 </thead>
@@ -49,6 +52,13 @@
                     <td class="tc">{$v.id}</td>
                     <td>{$v.table_name}</td>
                     <td>{$v.created_at}</td>
+                    <td class="tc">
+                        {if condition="$v.is_notify eq 1"}
+                        <span class="green">已同步</span>
+                        {else/}
+                        <span class="red">未同步</span>
+                        {/if}
+                    </td>
                     <td class="tc">
                         <a href="{:url('order', ['id' => $v.id])}" class="layui-btn layui-btn layui-btn-sm">查看</a>
                     </td>
@@ -72,10 +82,11 @@
             elem: '#excel' //绑定元素
             ,url: '/manage/upload/file_upload' //上传接口
             ,exts: 'xls|xlsx|csv'
+            ,multiple: true
             ,done: function(res){
                 //上传完毕回调
                 console.log(res.data);
-                location.href = "/Manage/Finance/import/filename/" + res.data + "/origin/" + res.origin;
+                location.href = "/Manage/Finance/import/rid/{$rid}/filename/" + res.data + "/origin/" + res.origin;
             }
             ,error: function(){
                 //请求异常回调

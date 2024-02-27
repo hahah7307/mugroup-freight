@@ -4,7 +4,7 @@
 <!-- 主体内容 -->
 <div class="layui-body" id="LAY_app_body">
     <div class="right">
-        <a href="{:url('Finance/index')}" class="layui-btn layui-btn-danger layui-btn-sm fr"><i class="layui-icon">&#xe603;</i>返回上一页</a>
+        <a href="{:session('back_url', '', 'manage')}" class="layui-btn layui-btn-danger layui-btn-sm fr"><i class="layui-icon">&#xe603;</i>返回上一页</a>
         <div class="title">Payment列表</div>
         <form class="layui-form search-form" method="get">
             <div class="layui-inline w200">
@@ -78,6 +78,7 @@
                     <col>
                     <col>
                     <col>
+                    <col>
                 </colgroup>
                 <thead>
                 <tr>
@@ -107,6 +108,7 @@
                     <th>其他交易费</th>
                     <th>其他</th>
                     <th>总计</th>
+                    <th>状态</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -140,6 +142,13 @@
                     <td class="tr">{$v.other_transaction_fees}</td>
                     <td class="tr">{$v.other}</td>
                     <td class="tr">{$v.total}</td>
+                    <td class="tc">
+                        {if condition="$v.is_notify eq 1"}
+                        <span class="green">已同步</span>
+                        {else/}
+                        <span class="red">未同步</span>
+                        {/if}
+                    </td>
                 </tr>
                 {/foreach}
                 </tbody>
