@@ -105,6 +105,195 @@ class FinanceController extends BaseController
 
     /**
      * @throws DbException
+     * @throws ModelNotFoundException
+     * @throws DataNotFoundException
+     * @throws \PHPExcel_Exception
+     */
+    public function report_export()
+    {
+        $report_id = input('id');
+        $month = input('month');
+
+        $financeReportObj = new FinanceReportModel();
+        $report = $financeReportObj->find($report_id);
+        if (empty($report) || $report['is_notify'] != 1) {
+            $this->error('异常操作！', url('report'));
+        }
+
+        $sqlReport = '
+SELECT
+	platform 平台,
+	userAccount 店铺,
+	SUM(count) 销量,
+	SUM(product_sales) product_sales,
+	SUM(shipping_credits) shipping_credits,
+	SUM(gift_wrap_credits) gift_wrap_credits,
+	SUM(regulatory_fee) regulatory_fee,
+	SUM(promotional_rebates) promotional_rebates,
+	SUM(selling_fees) selling_fees,
+	SUM(fba_fees) fba_fees,
+	SUM(tail_amount) 尾程,
+	description
+FROM
+(	
+SELECT
+	ec_o.platform platform,
+	ec_o.userAccount userAccount,
+	o.payment_id payment_id,
+	o.product_sales product_sales,
+	o.shipping_credits shipping_credits,
+	o.gift_wrap_credits gift_wrap_credits,
+	o.regulatory_fee regulatory_fee,
+	o.promotional_rebates promotional_rebates,
+	o.selling_fees selling_fees,
+	o.fba_fees fba_fees,
+	o.description description,
+	COUNT(ec_o.id) count,
+	SUM(d.tail_amount) tail_amount
+FROM
+	mu_finance_order o
+	LEFT JOIN mu_finance_order_outbound d ON o.id = d.finance_order_id
+	LEFT JOIN mu_ecang_order ec_o ON d.ecang_order_id = ec_o.id 
+WHERE
+	order_type = "Order" 
+    AND o.rid = ' . $report_id . '
+GROUP BY
+	platform,
+	userAccount,
+	payment_id,
+	product_sales,
+	shipping_credits,
+	gift_wrap_credits,
+	regulatory_fee,
+	promotional_rebates,
+	selling_fees,
+	fba_fees,
+	description
+) c
+GROUP BY
+	platform,
+	userAccount,
+	description;';
+        $reportRes = $financeReportObj->query($sqlReport);
+
+        $adCosetRes = '
+SELECT
+	b.name 店铺,
+	a.msku 店铺SKU,
+	a.localSku 系统SKU,
+	SUM(a.totalSalesQuantity) 销量,
+	SUM(a.totalAdsCost) 广告费,
+	a.reportDateMonth 月份,
+	a.principalRealname 运营人员,
+	a.productDeveloperRealname 开发人员
+FROM
+	mu_ak_ad_cost a
+	LEFT JOIN mu_ak_seller b ON a.sid = b.sid
+WHERE
+	a.reportDateMonth = "' . $report['month'] . '"
+GROUP BY
+	b.name,
+	a.reportDateMonth,
+	a.principalRealname,
+	a.productDeveloperRealname,
+	a.msku,
+	a.localSku
+ORDER BY
+	b.name,
+	a.localSku';
+        $adCostRes = $financeReportObj->query($adCosetRes);
+
+        // phpexcel
+        require_once './static/classes/PHPExcel/Classes/PHPExcel.php';
+        // Create new PHPExcel object
+        $objPHPExcel = new PHPExcel();
+
+        // Set name sheet
+        $objPHPExcel->setActiveSheetIndex(0)->setTitle('尾程报表');
+
+        // Add some data
+        $objPHPExcel->setActiveSheetIndex(0)
+            ->setCellValue('A1', '平台')
+            ->setCellValue('B1', '店铺')
+            ->setCellValue('C1', '销量')
+            ->setCellValue('D1', 'product_sales')
+            ->setCellValue('E1', 'shipping_credits')
+            ->setCellValue('F1', 'gift_wrap_credits')
+            ->setCellValue('G1', 'regulatory_fee')
+            ->setCellValue('H1', 'promotional_rebates')
+            ->setCellValue('I1', 'selling_fees')
+            ->setCellValue('J1', 'fba_fees')
+            ->setCellValue('K1', '尾程')
+            ->setCellValue('L1', 'description')
+        ;
+
+        $reportIndex = 1;
+        foreach ($reportRes as $item) {
+            $reportIndex ++;
+            $objPHPExcel->setActiveSheetIndex(0)
+                ->setCellValue('A' . $reportIndex, $item['平台'])
+                ->setCellValue('B' . $reportIndex, $item['店铺'])
+                ->setCellValue('C' . $reportIndex, $item['销量'])
+                ->setCellValue('D' . $reportIndex, $item['product_sales'])
+                ->setCellValue('E' . $reportIndex, $item['shipping_credits'])
+                ->setCellValue('F' . $reportIndex, $item['gift_wrap_credits'])
+                ->setCellValue('G' . $reportIndex, $item['regulatory_fee'])
+                ->setCellValue('H' . $reportIndex, $item['promotional_rebates'])
+                ->setCellValue('I' . $reportIndex, $item['selling_fees'])
+                ->setCellValue('J' . $reportIndex, $item['fba_fees'])
+                ->setCellValue('K' . $reportIndex, $item['尾程'])
+                ->setCellValue('L' . $reportIndex, $item['description'])
+            ;
+        }
+
+        // create new sheet
+        $objPHPExcel->createSheet();
+
+        // Set name sheet
+        $objPHPExcel->setActiveSheetIndex(1)->setTitle('广告费分摊');
+
+        // Add some data
+        $objPHPExcel->setActiveSheetIndex(1)
+            ->setCellValue('A1', '店铺号')
+            ->setCellValue('B1', '店铺SKU')
+            ->setCellValue('C1', '系统SKU')
+            ->setCellValue('D1', '销量')
+            ->setCellValue('E1', '广告费')
+            ->setCellValue('F1', '月份')
+            ->setCellValue('G1', '运营人员')
+            ->setCellValue('H1', '开发人员')
+        ;
+
+        $adIndex = 1;
+        foreach ($adCostRes as $item) {
+            $adIndex ++;
+            $objPHPExcel->setActiveSheetIndex(1)
+                ->setCellValue('A' . $adIndex, $item['店铺'])
+                ->setCellValue('B' . $adIndex, $item['店铺SKU'])
+                ->setCellValue('C' . $adIndex, $item['系统SKU'])
+                ->setCellValue('D' . $adIndex, $item['销量'])
+                ->setCellValue('E' . $adIndex, $item['广告费'])
+                ->setCellValue('F' . $adIndex, $item['月份'])
+                ->setCellValue('G' . $adIndex, $item['运营人员'])
+                ->setCellValue('H' . $adIndex, $item['开发人员'])
+            ;
+        }
+
+
+
+        // Redirect output to a client’s web browser (Excel5)
+        header('Content-Type: application/vnd.ms-excel');
+        $filename = date("YmdHis") . time() . mt_rand(100000, 999999);
+        ob_end_clean();
+        header('Content-Disposition:attachment;filename="'.$filename.'.xls"');
+        header('Cache-Control: max-age=0');
+
+        $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+        $objWriter->save('php://output');
+    }
+
+    /**
+     * @throws DbException
      */
     public function index($id): \think\response\View
     {

@@ -23,6 +23,7 @@
                 <colgroup>
                     <col width="50">
                     <col>
+                    <col width="100">
                     <col width="80">
                     <col width="180">
                 </colgroup>
@@ -30,6 +31,7 @@
                 <tr>
                     <th>ID</th>
                     <th>报表名称</th>
+                    <th>月份</th>
                     <th class="tc">状态</th>
                     <th class="tc">操作</th>
                 </tr>
@@ -39,6 +41,7 @@
                 <tr>
                     <td>{$v.id}</td>
                     <td>{$v.name}</td>
+                    <td>{$v.month}</td>
                     <td class="tc">
                         {if condition="$v.is_notify eq 1"}
                             <span class="green">已同步</span>
@@ -49,7 +52,7 @@
                     <td class="tc">
                         <a href="{:url('index', ['id' => $v.id])}" class="layui-btn layui-btn-sm">详情</a>
                         <a href="{:url('report_edit', ['id' => $v.id])}" class="layui-btn layui-btn-normal layui-btn-sm">编辑</a>
-                        <a href="{:url('report_edit', ['id' => $v.id])}" class="layui-btn layui-btn-normal layui-btn-sm">导出</a>
+                        <a href="{:url('report_export', ['id' => $v.id, 'month' => $v.month])}" class="layui-btn layui-btn-normal layui-btn-sm">导出</a>
                     </td>
                 </tr>
                 {/foreach}

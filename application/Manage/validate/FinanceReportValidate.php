@@ -3,12 +3,12 @@
 namespace app\Manage\validate;
 
 use think\Validate;
-use think\Db;
 
 class FinanceReportValidate extends Validate
 {
     protected $rule = [
         'name'              =>  'require',
+        'month'             =>  'require',
     ];
 
     protected $message = [
@@ -16,11 +16,12 @@ class FinanceReportValidate extends Validate
     ];
 
     protected $field = [
-        'name'              =>  '所属仓库',
+        'name'              =>  '报表名称',
+        'month'             =>  '月份',
     ];
 
     protected $scene = [
-        'add'           =>  ['name'],
-        'edit'          =>  ['name'],
+        'add'           =>  ['name', 'month'],
+        'edit'          =>  ['name', 'month'],
     ];
 }

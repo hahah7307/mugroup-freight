@@ -32,4 +32,5 @@ return [
     'app\Manage\command\UserUpdate', //
     'app\Manage\command\AkSeller', //
     'app\Manage\command\SkuRelationUpdate', //
+    'app\Manage\command\AkAdCost', //
 ];

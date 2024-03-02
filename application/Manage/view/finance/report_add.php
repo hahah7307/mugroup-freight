@@ -14,6 +14,12 @@
                 </div>
             </div>
             <div class="layui-form-item">
+                <label class="layui-form-label">月份</label>
+                <div class="layui-input-inline w300">
+                    <input type="text" class="layui-input" id="month" name="month" placeholder="请选择月份">
+                </div>
+            </div>
+            <div class="layui-form-item">
                 <div class="layui-input-block">
                     <button class="layui-btn w200" lay-submit lay-filter="formCoding">提交保存</button>
                 </div>
@@ -22,9 +28,16 @@
     </div>
 </div>
 <script>
-    layui.use(['form', 'jquery'], function(){
+    layui.use(['form', 'jquery', 'laydate'], function(){
         let $ = layui.jquery,
-            form = layui.form;
+            form = layui.form,
+            laydate = layui.laydate;
+
+        // 显示日期选择器
+        laydate.render({
+            elem: '#month',
+            type: 'month'
+        });
 
         //监听提交
         form.on('submit(formCoding)', function(data){
