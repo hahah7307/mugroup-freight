@@ -122,45 +122,82 @@ class FinanceController extends BaseController
 
         $sqlReport = '
 SELECT
-	platform 平台,
-	userAccount 店铺,
-	SUM(count) 销量,
-	SUM(product_sales) product_sales,
-	SUM(shipping_credits) shipping_credits,
-	SUM(gift_wrap_credits) gift_wrap_credits,
-	SUM(regulatory_fee) regulatory_fee,
-	SUM(promotional_rebates) promotional_rebates,
-	SUM(selling_fees) selling_fees,
-	SUM(fba_fees) fba_fees,
-	SUM(tail_amount) 尾程,
-	description
+	g.platform platform,
+	g.userAccount userAccount,
+	g.warehouseSku warehouseSku,
+	SUM(g.qty) qty,
+	SUM(g.unitTail) unitTail,
+	SUM(g.product_sales) product_sales,
+	SUM(g.shipping_credits) shipping_credits,
+	SUM(g.gift_wrap_credits) gift_wrap_credits,
+	SUM(g.regulatory_fee) regulatory_fee,
+	SUM(g.promotional_rebates) promotional_rebates,
+	SUM(g.selling_fees) selling_fees,
+	SUM(g.fba_fees) fba_fees
 FROM
-(	
+(
 SELECT
-	ec_o.platform platform,
-	ec_o.userAccount userAccount,
-	o.payment_id payment_id,
-	o.product_sales product_sales,
-	o.shipping_credits shipping_credits,
-	o.gift_wrap_credits gift_wrap_credits,
-	o.regulatory_fee regulatory_fee,
-	o.promotional_rebates promotional_rebates,
-	o.selling_fees selling_fees,
-	o.fba_fees fba_fees,
-	o.description description,
-	COUNT(ec_o.id) count,
-	SUM(d.tail_amount) tail_amount
+	f.platform platform,
+	f.userAccount userAccount,
+	f.payment_id payment_id,
+	f.warehouseSku warehouseSku,
+	SUM(f.qty) qty,
+	SUM(f.unitTail) unitTail,
+	f.product_sales product_sales,
+	f.shipping_credits shipping_credits,
+	f.gift_wrap_credits gift_wrap_credits,
+	f.regulatory_fee regulatory_fee,
+	f.promotional_rebates promotional_rebates,
+	f.selling_fees selling_fees,
+	f.fba_fees fba_fees
 FROM
-	mu_finance_order o
-	LEFT JOIN mu_finance_order_outbound d ON o.id = d.finance_order_id
-	LEFT JOIN mu_ecang_order ec_o ON d.ecang_order_id = ec_o.id 
+(
+SELECT
+	e.platform platform,
+	e.userAccount userAccount,
+	e.payment_id payment_id,
+	e.saleOrderCode saleOrderCode,
+	e.warehouseSku warehouseSku,
+	SUM(e.qty) qty,
+	SUM(e.unitTail) unitTail,
+	e.product_sales product_sales,
+	e.shipping_credits shipping_credits,
+	e.gift_wrap_credits gift_wrap_credits,
+	e.regulatory_fee regulatory_fee,
+	e.promotional_rebates promotional_rebates,
+	e.selling_fees selling_fees,
+	e.fba_fees fba_fees
+FROM
+(
+SELECT
+	c.platform platform,
+	c.userAccount userAccount,
+	a.payment_id payment_id,
+	c.saleOrderCode saleOrderCode,
+	d.warehouseSku warehouseSku,
+	a.product_sales product_sales,
+	a.shipping_credits shipping_credits,
+	a.gift_wrap_credits gift_wrap_credits,
+	a.regulatory_fee regulatory_fee,
+	a.promotional_rebates promotional_rebates,
+	a.selling_fees selling_fees,
+	a.fba_fees fba_fees,
+	d.qty qty,
+	ROUND(unitPrice * d.qty / (amountpaid - shipFee) * calcuRes, 2) unitTail
+FROM
+	mu_finance_order a
+	LEFT JOIN mu_finance_order_outbound b ON a.id = b.finance_order_id
+	LEFT JOIN mu_ecang_order c ON b.ecang_order_id = c.id 
+	LEFT JOIN mu_ecang_order_detail d ON d.order_id = c.id
 WHERE
 	order_type = "Order" 
-    AND o.rid = ' . $report_id . '
+	AND a.rid = ' . $report['id'] . '
 GROUP BY
 	platform,
 	userAccount,
 	payment_id,
+	saleOrderCode,
+	warehouseSku,
 	product_sales,
 	shipping_credits,
 	gift_wrap_credits,
@@ -168,12 +205,40 @@ GROUP BY
 	promotional_rebates,
 	selling_fees,
 	fba_fees,
-	description
-) c
+	d.qty,
+	unitTail
+) e
 GROUP BY
 	platform,
 	userAccount,
-	description;';
+	payment_id,
+	saleOrderCode,
+	warehouseSku,
+	product_sales,
+	shipping_credits,
+	gift_wrap_credits,
+	regulatory_fee,
+	promotional_rebates,
+	selling_fees,
+	fba_fees
+) f
+GROUP BY
+	platform,
+	userAccount,
+	payment_id,
+	warehouseSku,
+	product_sales,
+	shipping_credits,
+	gift_wrap_credits,
+	regulatory_fee,
+	promotional_rebates,
+	selling_fees,
+	fba_fees
+) g
+GROUP BY
+	platform,
+	userAccount,
+	warehouseSku';
         $reportRes = $financeReportObj->query($sqlReport);
 
         $adCosetRes = '
@@ -216,33 +281,33 @@ ORDER BY
             ->setCellValue('A1', '平台')
             ->setCellValue('B1', '店铺')
             ->setCellValue('C1', '销量')
-            ->setCellValue('D1', 'product_sales')
-            ->setCellValue('E1', 'shipping_credits')
-            ->setCellValue('F1', 'gift_wrap_credits')
-            ->setCellValue('G1', 'regulatory_fee')
-            ->setCellValue('H1', 'promotional_rebates')
-            ->setCellValue('I1', 'selling_fees')
-            ->setCellValue('J1', 'fba_fees')
-            ->setCellValue('K1', '尾程')
-            ->setCellValue('L1', 'description')
+            ->setCellValue('D1', 'SKU')
+            ->setCellValue('E1', '尾程')
+            ->setCellValue('F1', 'product_sales')
+            ->setCellValue('G1', 'shipping_credits')
+            ->setCellValue('H1', 'gift_wrap_credits')
+            ->setCellValue('I1', 'regulatory_fee')
+            ->setCellValue('J1', 'promotional_rebates')
+            ->setCellValue('K1', 'selling_fees')
+            ->setCellValue('L1', 'fba_fees')
         ;
 
         $reportIndex = 1;
         foreach ($reportRes as $item) {
             $reportIndex ++;
             $objPHPExcel->setActiveSheetIndex(0)
-                ->setCellValue('A' . $reportIndex, $item['平台'])
-                ->setCellValue('B' . $reportIndex, $item['店铺'])
-                ->setCellValue('C' . $reportIndex, $item['销量'])
-                ->setCellValue('D' . $reportIndex, $item['product_sales'])
-                ->setCellValue('E' . $reportIndex, $item['shipping_credits'])
-                ->setCellValue('F' . $reportIndex, $item['gift_wrap_credits'])
-                ->setCellValue('G' . $reportIndex, $item['regulatory_fee'])
-                ->setCellValue('H' . $reportIndex, $item['promotional_rebates'])
-                ->setCellValue('I' . $reportIndex, $item['selling_fees'])
-                ->setCellValue('J' . $reportIndex, $item['fba_fees'])
-                ->setCellValue('K' . $reportIndex, $item['尾程'])
-                ->setCellValue('L' . $reportIndex, $item['description'])
+                ->setCellValue('A' . $reportIndex, $item['platform'])
+                ->setCellValue('B' . $reportIndex, $item['userAccount'])
+                ->setCellValue('C' . $reportIndex, $item['qty'])
+                ->setCellValue('D' . $reportIndex, $item['warehouseSku'])
+                ->setCellValue('E' . $reportIndex, $item['unitTail'])
+                ->setCellValue('F' . $reportIndex, $item['product_sales'])
+                ->setCellValue('G' . $reportIndex, $item['shipping_credits'])
+                ->setCellValue('H' . $reportIndex, $item['gift_wrap_credits'])
+                ->setCellValue('I' . $reportIndex, $item['regulatory_fee'])
+                ->setCellValue('J' . $reportIndex, $item['promotional_rebates'])
+                ->setCellValue('K' . $reportIndex, $item['selling_fees'])
+                ->setCellValue('L' . $reportIndex, $item['fba_fees'])
             ;
         }
 
