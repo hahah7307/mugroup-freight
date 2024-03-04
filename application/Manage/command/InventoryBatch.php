@@ -27,11 +27,11 @@ class InventoryBatch extends Command
         Config::load(APP_PATH . 'storage.php');
 
         // 校验今日是否完成
-        $createData = InventoryBatchCreateModel::find();
+        $createData = InventoryBatchCreateModel::get(1);
         if ($createData['date'] == date('Ymd') && $createData['is_finish'] == 1) {
             return;
         }
-        if ($createData['date'] < date('Ymd') && $createData['is_finish'] == 1) {
+        if ($createData['date'] < date('Ymd')) {
             $createData = [
                 'page'      =>  1,
                 'num'       =>  100,
@@ -59,7 +59,7 @@ class InventoryBatch extends Command
 
                 // 校验开始时间
                 Config::load(APP_PATH . 'Manage/config.php');
-                $inventory_batch_time = Config::get('INVENTORY_BATCH_TIME');
+                $inventory_batch_time = Config::get('EC_WAREHOUSE_TIME');
                 if (!array_key_exists($item['lcCode'], $inventory_batch_time) || intval(date('H')) < $inventory_batch_time[$item['lcCode']]) {
                     continue;
                 }

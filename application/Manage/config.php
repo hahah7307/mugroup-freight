@@ -67,4 +67,13 @@ return [
         36  =>  'LC-USNJ06',
         37  =>  'LG-USA-PA01'
     ],
+
+    'EC_WAREHOUSE_TIME' => [
+        'LC-USLAX08'    =>  2,
+        'LC-USNJ06'     =>  2,
+        'USLAX09'       =>  2,
+        'LC-USATL06'    =>  2,
+        'CAP2'          =>  16,
+        'LG-USA-PA01'   =>  13,
+    ],
 ];
