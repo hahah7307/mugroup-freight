@@ -272,8 +272,8 @@ class OrderModel extends Model
             $orderDetail = $item['orderDetails'];
             $detailItem = OrderDetailModel::all(['order_id' => $orderItem['id']]);
             foreach ($orderDetail as $key => $detail) {
-                $detail['warehouseSkuList'] = json_encode($detail['warehouseSkuList']);
-                $detail['promotionIdList'] = json_encode($detail['promotionIdList']);
+                $detail['warehouseSkuList'] = isset($detail['warehouseSkuList']) ? json_encode($detail['warehouseSkuList']) : json_encode([]);
+                $detail['promotionIdList'] = isset($detail['promotionIdList']) ? json_encode($detail['promotionIdList']) : json_encode([]);
                 $detail['id'] = $detailItem[$key]['id'];
                 OrderDetailModel::update($detail);
             }

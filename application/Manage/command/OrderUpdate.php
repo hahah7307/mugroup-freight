@@ -32,20 +32,25 @@ class OrderUpdate extends Command
         Config::load(APP_PATH . 'storage.php');
 
         // 订单查询当前页数
-        $data = OrderUpdateModel::find()->toArray();
+        $data = OrderUpdateModel::get(1)->toArray();
 
         $orderObj = new OrderModel();
         $orders = $orderObj
-            ->where(['status' => ['neq', 4]])
+            ->where(['status' => ['neq', 4]]) // 已发货
+            ->where(['status' => ['neq', 0]]) // 已废弃
             ->order('id asc')
             ->limit($data['offset'], $data['page_num'])
             ->select();
         foreach ($orders as $item) {
             $orderNew = OrderModel::saleOrderCodes2Order($item['saleOrderCode']);
-            OrderModel::orderUpdate($orderNew[0]);
+            if (empty($orderNew)) {
+                continue;
+            } else {
+                OrderModel::orderUpdate($orderNew[0]);
+            }
         }
         $data['offset'] = count($orders) < $data['page_num'] ? 0 : $data['offset'] + count($orders);
-        OrderUpdateModel::update($data);
+        OrderUpdateModel::update($data, ['id' => 1]);
 
         $output->writeln("success");
     }
