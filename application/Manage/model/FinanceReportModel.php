@@ -38,9 +38,8 @@ class FinanceReportModel extends Model
             IFNULL( SUM( new.salesOrderAmount ), 0 ) 销售总额,
             IFNULL( SUM( new.salesRefundAmount ), 0 ) 退款总额,
             IFNULL( SUM( new.selling_fees ), 0 ) 佣金,
-            IFNULL( SUM( new.fba_fees ), 0 ) 亚马逊尾程,
-            IFNULL( ROUND( SUM( new.orderUnitTail ), 4 ), 0 ) 销售海外仓尾程,
-            IFNULL( ROUND( SUM( new.retundUnitTail ), 4 ), 0 ) 退款海外仓尾程 
+            IFNULL( SUM( new.fba_fees ) * -1, 0 ) 亚马逊尾程,
+            IFNULL( ROUND( SUM( new.orderUnitTail ), 4 ) * -1, 0 ) 海外仓尾程
         FROM
             (
             SELECT

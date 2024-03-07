@@ -28,68 +28,67 @@ class AkAdCost extends Command
 
         $akAdCostCreateObj = new AkAdCostCreateModel();
         $adCostCreate = $akAdCostCreateObj->find(1);
-        $lastMonth = date('Ym', strtotime('-1 month'));
-        if ($lastMonth == $adCostCreate['month']
-            && $adCostCreate['is_finished'] == 1
-        ) {
+        if ($adCostCreate['is_finished'] == 1) {
             echo "success";exit();
-        }
-
-        // 当日产品数据开始清表更新
-        if ($lastMonth > $adCostCreate['month']) {
-            AkAdCostCreateModel::update(['id' => $adCostCreate['id'], 'month' => $lastMonth, 'page' => 1, 'is_finished' => 0]);
-            $adCostCreate['page'] = 1;
         }
 
         Db::startTrans();
         try {
             $akAdCostObj = new AkAdCostModel();
-            $offset = $akAdCostObj->where(['reportDateMonth' => date('Y-m', strtotime('-1 month'))])->count();
+            $offset = $akAdCostObj->where(['reportDateMonth' => date('Y-m', strtotime('-2 month'))])->count();
 
             $params = [
                 'offset'        =>  $offset,
                 'length'        =>  $adCostCreate['pageSize'],
-                'startDate'     =>  date('Y-m', strtotime('-1 month')),
-                'endDate'       =>  date('Y-m', strtotime('-1 month')),
+                'startDate'     =>  date('Y-m', strtotime($adCostCreate['month'] . '01')),
+                'endDate'       =>  date('Y-m', strtotime($adCostCreate['month'] . '01')),
                 'monthlyQuery'  =>  true
             ];
-//            dump($params);exit();
             $akAdCostRes = AkOpenAPI::makeRequest("/bd/profit/report/open/report/msku/list", "POST", $params);
             $akAdCostData = $akAdCostRes['data'];
-            if (count($akAdCostData['records']) <= 0) {
+
+            $addData = [];
+            foreach ($akAdCostData['records'] as $item) {
+                $adCost = $akAdCostObj->where(['totalSalesQuantity' => $item['totalSalesQuantity'], 'totalSalesAmount' => $item['totalSalesAmount'] ,'totalAdsCost' => $item['totalAdsCost'], 'custom_id' => $item['id'], 'sid' => $item['sid'], 'postedDateLocale' => $item['postedDateLocale'], 'msku' => $item['msku']])->find();
+                if ($adCost) {
+                    continue;
+                }
+                $addData[] = [
+                    'totalSalesQuantity'        =>  $item['totalSalesQuantity'],
+                    'totalAdsSales'             =>  $item['totalAdsSales'],
+                    'totalAdsSalesQuantity'     =>  $item['totalAdsSalesQuantity'],
+                    'totalSalesAmount'          =>  $item['totalSalesAmount'],
+                    'totalSalesRefunds'         =>  $item['totalSalesRefunds'],
+                    'totalFeeRefunds'           =>  $item['totalFeeRefunds'],
+                    'totalAdsCost'              =>  $item['totalAdsCost'],
+                    'totalStorageFee'           =>  $item['totalStorageFee'],
+                    'totalSalesTax'             =>  $item['totalSalesTax'],
+                    'totalCost'                 =>  $item['totalCost'],
+                    'custom_id'                 =>  $item['id'],
+                    'sid'                       =>  $item['sid'],
+                    'reportDateMonth'           =>  $item['reportDateMonth'],
+                    'postedDateLocale'          =>  $item['postedDateLocale'],
+                    'msku'                      =>  $item['msku'],
+                    'localSku'                  =>  $item['localSku'],
+                    'principalRealname'         =>  $item['principalRealname'],
+                    'productDeveloperRealname'  =>  $item['productDeveloperRealname'],
+                    'currencyCode'              =>  $item['currencyCode'],
+                    'adsSpCost'                 =>  $item['adsSpCost'],
+                    'adsSbCost'                 =>  $item['adsSbCost'],
+                    'adsSbvCost'                =>  $item['adsSbvCost'],
+                    'adsSdCost'                 =>  $item['adsSdCost'],
+                ];
+                unset($item);
+            }
+            $akAdCostObj->saveAll($addData);
+            unset($addData);
+            if (count($akAdCostData['records']) < $adCostCreate['pageSize']) {
                 AkAdCostCreateModel::update(['id' => $adCostCreate['id'], 'page' => $adCostCreate['page'] + 1, 'is_finished' => 1]);
             } else {
-                $addData = [];
-                foreach ($akAdCostData['records'] as $item) {
-                    $addData[] = [
-                        'totalSalesQuantity'        =>  $item['totalSalesQuantity'],
-                        'totalAdsSales'             =>  $item['totalAdsSales'],
-                        'totalAdsSalesQuantity'     =>  $item['totalAdsSalesQuantity'],
-                        'totalSalesAmount'          =>  $item['totalSalesAmount'],
-                        'totalSalesRefunds'         =>  $item['totalSalesRefunds'],
-                        'totalFeeRefunds'           =>  $item['totalFeeRefunds'],
-                        'totalAdsCost'              =>  $item['totalAdsCost'],
-                        'totalStorageFee'           =>  $item['totalStorageFee'],
-                        'totalSalesTax'             =>  $item['totalSalesTax'],
-                        'totalCost'                 =>  $item['totalCost'],
-                        'custom_id'                 =>  $item['id'],
-                        'sid'                       =>  $item['sid'],
-                        'reportDateMonth'           =>  $item['reportDateMonth'],
-                        'postedDateLocale'          =>  $item['postedDateLocale'],
-                        'msku'                      =>  $item['msku'],
-                        'localSku'                  =>  $item['localSku'],
-                        'principalRealname'         =>  $item['principalRealname'],
-                        'productDeveloperRealname'  =>  $item['productDeveloperRealname'],
-                        'currencyCode'              =>  $item['currencyCode'],
-                    ];
-                    unset($item);
-                }
-                unset($akAdCostData);
-                $akAdCostObj->saveAll($addData);
                 AkAdCostCreateModel::update(['id' => $adCostCreate['id'], 'page' => $adCostCreate['page'] + 1]);
-                unset($addData);
             }
 
+            unset($akAdCostData);
             Db::commit();
             echo "success";
         } catch (\SoapFault $e) {

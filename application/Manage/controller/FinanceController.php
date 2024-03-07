@@ -1,6 +1,7 @@
 <?php
 namespace app\Manage\controller;
 
+use app\Manage\model\AkAdCostCreateModel;
 use app\Manage\model\FinanceOrderModel;
 use app\Manage\model\FinanceOrderOutboundModel;
 use app\Manage\model\FinanceReportModel;
@@ -56,6 +57,7 @@ class FinanceController extends BaseController
             if ($dataValidate->scene('add')->check($post)) {
                 $model = new FinanceReportModel();
                 if ($model->allowField(true)->save($post)) {
+                    AkAdCostCreateModel::newOne($post['month']);
                     echo json_encode(['code' => 1, 'msg' => '添加成功']);
                     exit;
                 } else {
@@ -85,6 +87,7 @@ class FinanceController extends BaseController
             if ($dataValidate->scene('edit')->check($post)) {
                 $model = new FinanceReportModel();
                 if ($model->allowField(true)->save($post, ['id' => $id])) {
+                    AkAdCostCreateModel::newOne($post['month']);
                     echo json_encode(['code' => 1, 'msg' => '修改成功']);
                     exit;
                 } else {
@@ -167,8 +170,7 @@ ORDER BY
             ->setCellValue('G1', '退款总额')
             ->setCellValue('H1', '佣金')
             ->setCellValue('I1', '亚马逊尾程')
-            ->setCellValue('J1', '销售海外仓尾程')
-            ->setCellValue('K1', '退款海外仓尾程')
+            ->setCellValue('J1', '海外仓尾程')
         ;
 
         $reportIndex = 1;
@@ -184,8 +186,7 @@ ORDER BY
                 ->setCellValue('G' . $reportIndex, $item['退款总额'])
                 ->setCellValue('H' . $reportIndex, $item['佣金'])
                 ->setCellValue('I' . $reportIndex, $item['亚马逊尾程'])
-                ->setCellValue('J' . $reportIndex, $item['销售海外仓尾程'])
-                ->setCellValue('K' . $reportIndex, $item['退款海外仓尾程'])
+                ->setCellValue('J' . $reportIndex, $item['海外仓尾程'])
             ;
         }
 
