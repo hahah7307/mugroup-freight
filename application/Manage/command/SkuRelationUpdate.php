@@ -44,7 +44,7 @@ class SkuRelationUpdate extends Command
         Db::startTrans();
         try {
             // 易仓sku关联映射
-            $skuRelationRes = ApiClient::EcWarehouseApi(Config::get("ec_eb_uri"), "getSkuRelation", '{"page":' . $ecUpdate['page'] . '}');
+            $skuRelationRes = ApiClient::EcWarehouseApi(Config::get("ec_eb_uri"), "getSkuRelation", '{"page":' . $ecUpdate['page'] . ',"pageSize":500,"condition":{"addTimeStart":"2021-09-01 00:00:00"}}');
             $skuRelation = $skuRelationRes['data'];
             if (count($skuRelation) <= 0) {
                 SkuRelationUpdateModel::update(['id' => $ecUpdate['id'], 'page' => $ecUpdate['page'] + 1, 'is_finished' => 1]);
