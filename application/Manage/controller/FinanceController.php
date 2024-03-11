@@ -125,30 +125,28 @@ class FinanceController extends BaseController
 
         $reportRes = $financeReportObj->query(FinanceReportModel::getReportSql($report_id));
         $adCostSql = '
-SELECT
+	SELECT
 	b.name 店铺,
-	a.msku 店铺SKU,
-	a.localSku 系统SKU,
-	SUM(a.totalSalesQuantity) 销量,
-	SUM(a.totalAdsCost) 广告费,
+	d.pcr_product_sku 仓库SKU,
+	SUM( a.totalSalesQuantity * d.pcr_quantity ) 销量,
+	SUM( ROUND( a.totalAdsCost * d.pcr_percent * d.pcr_quantity / 100, 8 ) ) 广告费,
 	a.reportDateMonth 月份,
-	a.principalRealname 运营人员,
-	a.productDeveloperRealname 开发人员
+	a.principalRealname 运营人员 
 FROM
 	mu_ak_ad_cost a
 	LEFT JOIN mu_ak_seller b ON a.sid = b.sid
+	LEFT JOIN mu_ecang_sku c ON a.msku = c.product_sku
+	LEFT JOIN mu_ecang_sku_relation d ON c.id = d.sku_id 
 WHERE
-	a.reportDateMonth = "' . $report['month'] . '"
+	a.reportDateMonth = "' . $report['month'] . '" 
 GROUP BY
-	b.name,
-	a.reportDateMonth,
-	a.principalRealname,
-	a.productDeveloperRealname,
-	a.msku,
-	a.localSku
+	name,
+	pcr_product_sku,
+	reportDateMonth,
+	principalRealname 
 ORDER BY
-	b.name,
-	a.localSku';
+	name,
+	pcr_product_sku';
         $adCostRes = $financeReportObj->query($adCostSql);
 
         // phpexcel
@@ -198,14 +196,12 @@ ORDER BY
 
         // Add some data
         $objPHPExcel->setActiveSheetIndex(1)
-            ->setCellValue('A1', '店铺号')
-            ->setCellValue('B1', '店铺SKU')
-            ->setCellValue('C1', '系统SKU')
-            ->setCellValue('D1', '销量')
-            ->setCellValue('E1', '广告费')
-            ->setCellValue('F1', '月份')
-            ->setCellValue('G1', '运营人员')
-            ->setCellValue('H1', '开发人员')
+            ->setCellValue('A1', '店铺')
+            ->setCellValue('B1', '仓库SKU')
+            ->setCellValue('C1', '销量')
+            ->setCellValue('D1', '广告费')
+            ->setCellValue('E1', '月份')
+            ->setCellValue('F1', '运营人员')
         ;
 
         $adIndex = 1;
@@ -213,13 +209,11 @@ ORDER BY
             $adIndex ++;
             $objPHPExcel->setActiveSheetIndex(1)
                 ->setCellValue('A' . $adIndex, $item['店铺'])
-                ->setCellValue('B' . $adIndex, $item['店铺SKU'])
-                ->setCellValue('C' . $adIndex, $item['系统SKU'])
-                ->setCellValue('D' . $adIndex, $item['销量'])
-                ->setCellValue('E' . $adIndex, $item['广告费'])
-                ->setCellValue('F' . $adIndex, $item['月份'])
-                ->setCellValue('G' . $adIndex, $item['运营人员'])
-                ->setCellValue('H' . $adIndex, $item['开发人员'])
+                ->setCellValue('B' . $adIndex, $item['仓库SKU'])
+                ->setCellValue('C' . $adIndex, $item['销量'])
+                ->setCellValue('D' . $adIndex, $item['广告费'])
+                ->setCellValue('E' . $adIndex, $item['月份'])
+                ->setCellValue('F' . $adIndex, $item['运营人员'])
             ;
         }
 
