@@ -35,7 +35,7 @@ class AkAdCost extends Command
         Db::startTrans();
         try {
             $akAdCostObj = new AkAdCostModel();
-            $offset = $akAdCostObj->where(['reportDateMonth' => date('Y-m', strtotime('-2 month'))])->count();
+            $offset = $akAdCostObj->where(['reportDateMonth' => date('Y-m', strtotime($adCostCreate['month'] . '01'))])->count();
 
             $params = [
                 'offset'        =>  $offset,
@@ -44,6 +44,7 @@ class AkAdCost extends Command
                 'endDate'       =>  date('Y-m', strtotime($adCostCreate['month'] . '01')),
                 'monthlyQuery'  =>  true
             ];
+//            dump($params);exit();
             $akAdCostRes = AkOpenAPI::makeRequest("/bd/profit/report/open/report/msku/list", "POST", $params);
             $akAdCostData = $akAdCostRes['data'];
 
@@ -54,29 +55,37 @@ class AkAdCost extends Command
                     continue;
                 }
                 $addData[] = [
-                    'totalSalesQuantity'        =>  $item['totalSalesQuantity'],
-                    'totalAdsSales'             =>  $item['totalAdsSales'],
-                    'totalAdsSalesQuantity'     =>  $item['totalAdsSalesQuantity'],
-                    'totalSalesAmount'          =>  $item['totalSalesAmount'],
-                    'totalSalesRefunds'         =>  $item['totalSalesRefunds'],
-                    'totalFeeRefunds'           =>  $item['totalFeeRefunds'],
-                    'totalAdsCost'              =>  $item['totalAdsCost'],
-                    'totalStorageFee'           =>  $item['totalStorageFee'],
-                    'totalSalesTax'             =>  $item['totalSalesTax'],
-                    'totalCost'                 =>  $item['totalCost'],
-                    'custom_id'                 =>  $item['id'],
-                    'sid'                       =>  $item['sid'],
-                    'reportDateMonth'           =>  $item['reportDateMonth'],
-                    'postedDateLocale'          =>  $item['postedDateLocale'],
-                    'msku'                      =>  $item['msku'],
-                    'localSku'                  =>  $item['localSku'],
-                    'principalRealname'         =>  $item['principalRealname'],
-                    'productDeveloperRealname'  =>  $item['productDeveloperRealname'],
-                    'currencyCode'              =>  $item['currencyCode'],
-                    'adsSpCost'                 =>  $item['adsSpCost'],
-                    'adsSbCost'                 =>  $item['adsSbCost'],
-                    'adsSbvCost'                =>  $item['adsSbvCost'],
-                    'adsSdCost'                 =>  $item['adsSdCost'],
+                    'totalSalesQuantity'                    =>  $item['totalSalesQuantity'],
+                    'totalAdsSales'                         =>  $item['totalAdsSales'],
+                    'totalAdsSalesQuantity'                 =>  $item['totalAdsSalesQuantity'],
+                    'totalSalesAmount'                      =>  $item['totalSalesAmount'],
+                    'totalSalesRefunds'                     =>  $item['totalSalesRefunds'],
+                    'totalFeeRefunds'                       =>  $item['totalFeeRefunds'],
+                    'totalAdsCost'                          =>  $item['totalAdsCost'],
+                    'totalStorageFee'                       =>  $item['totalStorageFee'],
+                    'sharedFbaStorageFee'                   =>  $item['sharedFbaStorageFee'],
+                    'longTermStorageFee'                    =>  $item['longTermStorageFee'],
+                    'sharedLongTermStorageFee'              =>  $item['sharedLongTermStorageFee'],
+                    'sharedFbaOverageFee'                   =>  $item['sharedFbaOverageFee'],
+                    'fbaStorageFeeAccrual'                  =>  $item['fbaStorageFeeAccrual'],
+                    'fbaStorageFeeAccrualDifference'        =>  $item['fbaStorageFeeAccrualDifference'],
+                    'longTermStorageFeeAccrual'             =>  $item['longTermStorageFeeAccrual'],
+                    'longTermStorageFeeAccrualDifference'   =>  $item['longTermStorageFeeAccrualDifference'],
+                    'totalSalesTax'                         =>  $item['totalSalesTax'],
+                    'totalCost'                             =>  $item['totalCost'],
+                    'custom_id'                             =>  $item['id'],
+                    'sid'                                   =>  $item['sid'],
+                    'reportDateMonth'                       =>  $item['reportDateMonth'],
+                    'postedDateLocale'                      =>  $item['postedDateLocale'],
+                    'msku'                                  =>  $item['msku'],
+                    'localSku'                              =>  $item['localSku'],
+                    'principalRealname'                     =>  $item['principalRealname'],
+                    'productDeveloperRealname'              =>  $item['productDeveloperRealname'],
+                    'currencyCode'                          =>  $item['currencyCode'],
+                    'adsSpCost'                             =>  $item['adsSpCost'],
+                    'adsSbCost'                             =>  $item['adsSbCost'],
+                    'adsSbvCost'                            =>  $item['adsSbvCost'],
+                    'adsSdCost'                             =>  $item['adsSdCost'],
                 ];
                 unset($item);
             }
