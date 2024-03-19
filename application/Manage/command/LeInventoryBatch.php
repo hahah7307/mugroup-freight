@@ -45,108 +45,45 @@ class LeInventoryBatch extends Command
             LeInventoryBatchCreateModel::update($dataCa);
         } else {
             if ($dataCa['date'] == date('Ymd') && $dataCa['is_finished'] == 0) {
-                if (date('H') >= Config::get('INVENTORY_BATCH_TIME')['CAP2']) {
-                    $apiRes = ApiClient::LeWarehouseApi("https://app.lecangs.com/api/oms/inventoryOverview/apiPage", "POST", ['pageNum' => $dataCa['page'], 'pageSize' => $dataCa['pageSize'], 'warehouseCode' => $dataCa['warehouseCode']]);
-                    if ($apiRes['code'] == 1) {
-                        $batchData = [];
-                        foreach ($apiRes['data']['list'] as $item) {
-                            if (empty($item['uesNum'])) {
-                                continue;
-                            }
+                $apiRes = ApiClient::LeWarehouseApi("https://app.lecangs.com/api/oms/inventoryBatch/api/list", "POST", ['pageNum' => $dataCa['page'], 'pageSize' => $dataCa['pageSize']]);
+                if ($apiRes['code'] == 1) {
+                    $batchData = [];
+                    foreach ($apiRes['data']['list'] as $item) {
+                        $batchData[] = [
+                            'businessNo'   =>  $item['businessNo'],
+                            'warehouseCode' =>  $item['warehouseCode'],
+                            'lecangsCode'     =>  $item['lecangsCode'],
+                            'cnName'        =>  $item['cnName'],
+                            'enName'        =>  $item['enName'],
+                            'goodsNum'    =>  $item['goodsNum'],
+                            'warehouseDate'   =>  $item['warehouseDate'],
+                            'wmsLength'      =>  $item['wmsLength'],
+                            'wmsWidth'    =>  $item['wmsWidth'],
+                            'wmsHeight'    =>  $item['wmsHeight'],
+                            'measureUnit'        =>  $item['measureUnit'],
+                            'wmsWeight'        =>  $item['wmsWeight'],
+                            'weightUnit'        =>  $item['weightUnit'],
+                            'inventoryAge'        =>  $item['inventoryAge'],
+                            'created_year'  =>  date('Y'),
+                            'created_month' =>  date('Ym'),
+                            'created_date'  =>  date('Ymd'),
+                            'created_time'  =>  date('Y-m-d H:i:s')
+                        ];
+                        unset($item);
+                    }
+                    $leInventoryBatchObj = new LeInventoryBatchModel();
+                    $leInventoryBatchObj->insertAll($batchData);
+                    unset($batchData);
+                    unset($leInventoryBatchObj);
 
-                            $batchData[] = [
-                                'lecangsCode'   =>  $item['lecangsCode'],
-                                'goodsCode'     =>  $item['goodsCode'],
-                                'cnName'        =>  $item['cnName'],
-                                'enName'        =>  $item['enName'],
-                                'warehouseId'   =>  24,
-                                'warehouseCode' =>  $item['warehouseCode'],
-                                'goodsLevel'    =>  $item['goodsLevel'],
-                                'validStatus'   =>  $item['validStatus'],
-                                'onWayNum'      =>  $item['onWayNum'],
-                                'pendingNum'    =>  $item['pendingNum'],
-                                'goodsNum'      =>  $item['goodsNum'],
-                                'blockedNum'    =>  $item['blockedNum'],
-                                'uesNum'        =>  $item['uesNum'],
-                                'created_year'  =>  date('Y'),
-                                'created_month' =>  date('Ym'),
-                                'created_date'  =>  date('Ymd'),
-                                'created_time'  =>  date('Y-m-d H:i:s')
-                            ];
-                            unset($item);
-                        }
-                        $leInventoryBatchObj = new LeInventoryBatchModel();
-                        $leInventoryBatchObj->insertAll($batchData);
-                        unset($batchData);
-                        unset($leInventoryBatchObj);
-
-                        if (count($apiRes['data']['list']) >= $dataCa['pageSize']) {
-                            LeInventoryBatchCreateModel::update(['id' => $dataCa['id'], 'page' => $dataCa['page'] + 1]);
-                        } else {
-                            LeInventoryBatchCreateModel::update(['id' => $dataCa['id'], 'is_finished' => 1]);
-                        }
+                    if (count($apiRes['data']['list']) >= $dataCa['pageSize']) {
+                        LeInventoryBatchCreateModel::update(['id' => $dataCa['id'], 'page' => $dataCa['page'] + 1]);
+                    } else {
+                        LeInventoryBatchCreateModel::update(['id' => $dataCa['id'], 'is_finished' => 1]);
                     }
                 }
             }
         }
-
-        $dataPa = LeInventoryBatchCreateModel::get(2);
-        if ($dataPa['date'] < date('Ymd')) {
-            $dataPa = [
-                'id'            =>  2,
-                'page'          =>  1,
-                'pageSize'      =>  100,
-                'date'          =>  date('Ymd'),
-                'is_finished'   =>  0
-            ];
-            LeInventoryBatchCreateModel::update($dataPa);
-        } else {
-            if ($dataPa['date'] == date('Ymd') && $dataPa['is_finished'] == 0) {
-                if (date('H') >= Config::get('INVENTORY_BATCH_TIME')['LG-USA-PA01']) {
-                    $apiRes = ApiClient::LeWarehouseApi("https://app.lecangs.com/api/oms/inventoryOverview/apiPage", "POST", ['pageNum' => $dataPa['page'], 'pageSize' => $dataPa['pageSize'], 'warehouseCode' => $dataPa['warehouseCode']]);
-                    if ($apiRes['code'] == 1) {
-                        $batchData = [];
-                        foreach ($apiRes['data']['list'] as $item) {
-                            if (empty($item['uesNum'])) {
-                                continue;
-                            }
-
-                            $batchData[] = [
-                                'lecangsCode'   =>  $item['lecangsCode'],
-                                'goodsCode'     =>  $item['goodsCode'],
-                                'cnName'        =>  $item['cnName'],
-                                'enName'        =>  $item['enName'],
-                                'warehouseId'   =>  37,
-                                'warehouseCode' =>  $item['warehouseCode'],
-                                'goodsLevel'    =>  $item['goodsLevel'],
-                                'validStatus'   =>  $item['validStatus'],
-                                'onWayNum'      =>  $item['onWayNum'],
-                                'pendingNum'    =>  $item['pendingNum'],
-                                'goodsNum'      =>  $item['goodsNum'],
-                                'blockedNum'    =>  $item['blockedNum'],
-                                'uesNum'        =>  $item['uesNum'],
-                                'created_year'  =>  date('Y'),
-                                'created_month' =>  date('Ym'),
-                                'created_date'  =>  date('Ymd'),
-                                'created_time'  =>  date('Y-m-d H:i:s')
-                            ];
-                            unset($item);
-                        }
-                        $leInventoryBatchObj = new LeInventoryBatchModel();
-                        $leInventoryBatchObj->insertAll($batchData);
-                        unset($batchData);
-                        unset($leInventoryBatchObj);
-
-                        if (count($apiRes['data']['list']) >= $dataPa['pageSize']) {
-                            LeInventoryBatchCreateModel::update(['id' => $dataPa['id'], 'page' => $dataPa['page'] + 1]);
-                        } else {
-                            LeInventoryBatchCreateModel::update(['id' => $dataPa['id'], 'is_finished' => 1]);
-                        }
-                    }
-                }
-            }
-        }
-
 
         $output->writeln("success");
     }

@@ -5,7 +5,7 @@ use app\Manage\model\DateStockCalculateModel;
 use app\Manage\model\DateStockConsumeModel;
 use app\Manage\model\DateStockReceivingModel;
 use app\Manage\model\LcInventoryBatchModel;
-use app\Manage\model\LeInventoryBatchModel;
+use app\Manage\model\LeInventoryOverviewModel;
 use app\Manage\model\ProductModel;
 use think\Config;
 use think\console\Command;
@@ -93,7 +93,7 @@ class DateStockCalculate extends Command
 //                        33  =>  'MEM',
 //                        37  =>  'PAW'
 //                    ];
-                    $leInventoryBatchObj = new LeInventoryBatchModel();
+                    $leInventoryBatchObj = new LeInventoryOverviewModel();
                     $leInventoryBatchSum = $leInventoryBatchObj->where(['goodsCode' => $item['product_sku'], 'warehouseId' => $item['warehouse_id'], 'created_date' => $ymd])->sum('uesNum');
                     $updateData[] = [
                         'id'                        =>  $item['id'],

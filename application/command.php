@@ -27,6 +27,7 @@ return [
     'app\Manage\command\ShippingOrderCode', // 自动更新易仓订单海外仓单号 * * * * *
     'app\Manage\command\LcReceivingUpdate', //
     'app\Manage\command\ReceivingUpdate', //
+    'app\Manage\command\LeInventoryOverview', //
     'app\Manage\command\LeInventoryBatch', //
     'app\Manage\command\ProductInventory', //
     'app\Manage\command\UserUpdate', //

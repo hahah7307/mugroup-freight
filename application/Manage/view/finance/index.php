@@ -19,6 +19,16 @@
         </form>
 
         <div class="layui-form">
+            <div class="layui-input-inline w180">
+                <select name="payment_type" id="payment_type">
+                    <option value="">请选择账单类型</option>
+                    <option value="amazon_us">amazon_us</option>
+                    <option value="amazon_uk">amazon_uk</option>
+                    <option value="amazon_eu">amazon_eu</option>
+                    <option value="wayfair">wayfair</option>
+                    <option value="walmart">walmart</option>
+                </select>
+            </div>
             <button type="button" class="layui-btn  layui-btn-normal" id="excel">导入</button>
             <table class="layui-table" lay-size="sm">
                 <colgroup>
@@ -82,11 +92,22 @@
             elem: '#excel' //绑定元素
             ,url: '/manage/upload/file_upload' //上传接口
             ,exts: 'xls|xlsx|csv'
+            ,data: {
+                payment_type: function(){
+                    return $("#payment_type").val();
+                }
+            }
             ,multiple: true
             ,done: function(res){
                 //上传完毕回调
-                console.log(res.data);
-                location.href = "/Manage/Finance/import/rid/{$rid}/filename/" + res.data + "/origin/" + res.origin;
+                console.log(res);
+                if (res.code === 1) {
+                    location.href = "/Manage/Finance/import/rid/{$rid}/filename/" + res.data + "/origin/" + res.origin + "/payment_type/" + res.payment_type;
+                } else {
+                    layer.alert(res.msg,{icon:2,closeBtn:0,title:false,btnAlign:'c'},function(){
+                        layer.closeAll();
+                    });
+                }
             }
             ,error: function(){
                 //请求异常回调
