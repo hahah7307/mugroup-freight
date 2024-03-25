@@ -11,6 +11,7 @@ use app\Manage\model\FinanceOrderSaleModel;
 use app\Manage\model\FinanceOrderOutboundModel;
 use app\Manage\model\FinanceOrderShippingServiceModel;
 use app\Manage\model\FinanceReportModel;
+use app\Manage\model\FinanceStoreModel;
 use app\Manage\model\FinanceTableModel;
 use app\Manage\model\OrderAddressModel;
 use app\Manage\model\OrderModel;
@@ -499,5 +500,115 @@ ORDER BY
 
         Session::set(Config::get('BACK_URL'), $this->request->url(), 'manage');
         return view();
+    }
+
+    /**
+     * @throws DbException
+     */
+    public function store($id): \think\response\View
+    {
+        $keyword = $this->request->get('keyword', '', 'htmlspecialchars');
+        $this->assign('keyword', $keyword);
+        if ($keyword) {
+            $where['payment_id'] = ['like', '%' . $keyword . '%'];
+        } else {
+            $where = [];
+        }
+
+        $page_num = $this->request->get('page_num', Config::get('PAGE_NUM'));
+        $this->assign('page_num', $page_num);
+
+        // 订单列表
+        $order = new FinanceStoreModel();
+        $where['report_id'] = $id;
+        $list = $order->where($where)->order('id asc')->paginate($page_num, false, ['query' => ['keyword' => $keyword]]);
+        $this->assign('list', $list);
+        $this->assign('report_id', $id);
+
+        return view();
+    }
+
+    /**
+     * @throws PHPExcel_Reader_Exception
+     */
+    public function store_import()
+    {
+        // phpexcel
+        require_once './static/classes/PHPExcel/Classes/PHPExcel.php';
+
+        $filename = input('filename');
+        $report_id = input('id');
+        $file= "./upload/excel/" . $filename;
+        $excelReader = PHPExcel_IOFactory::createReaderForFile($file);
+        $excelObj = $excelReader->load($file);
+        $worksheet = $excelObj->getSheet(0);
+        $data = $worksheet->toArray();
+        unset($data[0]);
+        array_pop($data);
+
+        Db::startTrans();
+        try {
+            $storeData = [];
+            foreach ($data as $item) {
+                $storeData[] = [
+                    'report_id'                 =>  $report_id,
+                    'entering_date'             =>  date('Ymd', strtotime($item[0])),
+                    'currency'                  =>  $item[1],
+                    'quantity_amount'           =>  $item[2],
+                    'purchase_amount'           =>  $item[3],
+                    'cost_amount'               =>  $item[4],
+                    'arriving_date'             =>  date('Ymd', strtotime($item[5])),
+                    'export_no'                 =>  $item[6],
+                    'shipment_date'             =>  date('Ymd', strtotime($item[7])),
+                    'sku'                       =>  $item[8],
+                    'cn_name'                   =>  $item[9],
+                    'entering_quantity'         =>  $item[10],
+                    'sku_purchase_unit'         =>  $item[11],
+                    'sku_purchase_amount'       =>  $item[12],
+                    'sku_ddp_unit'              =>  $item[13],
+                    'sku_ddp_amount'            =>  $item[14],
+                    'outbound_quantity'         =>  $item[15],
+                    'available_quantity'        =>  $item[16],
+                    'seller'                    =>  $item[17],
+                    'purchaser'                 =>  $item[18],
+                    'content'                   =>  $item[19],
+                    'created_date'              =>  date('Y-m-d H:i:s')
+                ];
+            }
+            $financeStoreObj = new FinanceStoreModel();
+            if($financeStoreObj->insertAll($storeData)) {
+                $sql = "
+                SELECT DISTINCT
+                    a.report_id,
+                    b.id ecang_order_id,
+                    c.id ecang_order_detail_id,
+                    a.payment_id,
+                    b.saleOrderCode,
+                    b.dateWarehouseShipping,
+                    c.warehouseSku warehouse_sku,
+	                c.qty
+                FROM
+                    mu_finance_order_sale a
+                    LEFT JOIN mu_ecang_order b ON a.payment_id = b.refNo
+                    LEFT JOIN mu_ecang_order_detail c ON b.id = c.order_id 
+                WHERE
+                    a.report_id = " . $report_id . " 
+                    AND b.`status` = 4 
+                ORDER BY
+                    b.dateWarehouseShipping;
+                ";
+                $outboundData = $financeStoreObj->query($sql);
+                $outboundObj = new FinanceOrderOutboundModel();
+                $outboundObj->insertAll($outboundData);
+                echo 'success';
+            } else {
+                throw new \think\Exception('表格导入失败！');
+            }
+            Db::commit();
+        } catch (Exception $e) {
+            Db::rollback();
+            $this->error($e->getMessage(), Session::get(Config::get('BACK_URL')));
+        }
+        $this->redirect(Session::get(Config::get('BACK_URL'), 'manage'));
     }
 }

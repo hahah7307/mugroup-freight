@@ -25,7 +25,7 @@
                     <col>
                     <col width="100">
                     <col width="80">
-                    <col width="180">
+                    <col width="220">
                 </colgroup>
                 <thead>
                 <tr>
@@ -51,6 +51,7 @@
                     </td>
                     <td class="tc">
                         <a href="{:url('index', ['id' => $v.id])}" class="layui-btn layui-btn-sm">详情</a>
+                        <a href="{:url('store', ['id' => $v.id])}" class="layui-btn layui-btn-sm">库存</a>
                         <a href="{:url('report_edit', ['id' => $v.id])}" class="layui-btn layui-btn-normal layui-btn-sm">编辑</a>
                         <a href="{:url('report_export', ['id' => $v.id, 'month' => $v.month])}" class="layui-btn layui-btn-normal layui-btn-sm">导出</a>
                     </td>
