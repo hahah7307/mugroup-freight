@@ -1,8 +1,10 @@
 <?php
 namespace app\Manage\command;
 
-use app\Manage\model\FinanceOrderModel;
+use app\Manage\model\FinanceOrderRefundModel;
+use app\Manage\model\FinanceOrderSaleModel;
 use app\Manage\model\FinanceOrderOutboundModel;
+use app\Manage\model\FinanceOrderShippingServiceModel;
 use app\Manage\model\FinanceReportModel;
 use app\Manage\model\FinanceTableModel;
 use app\Manage\model\OrderDetailModel;
@@ -31,7 +33,7 @@ class FinanceNotify extends Command
 
         Db::startTrans();
         try {
-            $financeObj = new FinanceOrderModel();
+            $financeObj = new FinanceOrderSaleModel();
             $list = $financeObj->where(['is_notify' => 0])->order('id asc')->limit(Config::get('finance_notify_num'))->select();
             if (count($list)) {
                 $newData = [];
@@ -43,7 +45,7 @@ class FinanceNotify extends Command
                         $orderDetail = $orderDetailObj->with('product')->where(['order_id' => $outbound['id']])->find()->toArray();
                         $outbound_id[] = $outbound['id'];
                         $newData[] = [
-                            'report_id'         =>  $item['rid'],
+                            'report_id'         =>  $item['report_id'],
                             'table_id'          =>  $item['table_id'],
                             'finance_order_id'  =>  $item['id'],
                             'ecang_order_id'    =>  $outbound['id'],
@@ -62,8 +64,7 @@ class FinanceNotify extends Command
                     }
                     $notifyData = [
                         'id'            =>  $item['id'],
-                        'is_notify'     =>  1,
-                        'outbound_id'   =>  implode(',', $outbound_id)
+                        'is_notify'     =>  1
                     ];
                     if (!$financeObj->update($notifyData)) {
                         throw new Exception("原始订单与出库数据关联失败！");
@@ -88,9 +89,23 @@ class FinanceNotify extends Command
                     throw new Exception("批量新增失败！");
                 }
                 Db::commit();
-                file_put_contents( APP_PATH . '/../runtime/log/FinanceNotify-' . date('Y-m-d') . '.log', PHP_EOL . "[" . date('Y-m-d H:i:s') . "] : " . var_export(json_encode($newData),TRUE), FILE_APPEND);
                 unset($newData);
             }
+
+            $financeOrderShippingServiceObj = new FinanceOrderShippingServiceModel();
+            $shipping_service = $financeOrderShippingServiceObj->where(['is_finished' => 0])->order('id asc')->limit(100)->select();
+            if (count($shipping_service)) {
+                $orderRefundObj = new FinanceOrderRefundModel();
+                foreach ($shipping_service as $value) {
+                    $orderRefundItem = $orderRefundObj->where(['payment_id' => $value['payment_id']])->find();
+                    if ($orderRefundItem) {
+                        $financeOrderShippingServiceObj->update(['sku' => $orderRefundItem['sku'], 'is_finished' => 1], ['id' => $value['id']]);
+                    } else {
+                        $financeOrderShippingServiceObj->update(['is_finished' => 1], ['id' => $value['id']]);
+                    }
+                }
+            }
+
             $output->writeln("success");
         } catch (\Exception $e) {
             Db::rollback();

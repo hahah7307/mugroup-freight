@@ -2,8 +2,14 @@
 namespace app\Manage\controller;
 
 use app\Manage\model\AkAdCostCreateModel;
-use app\Manage\model\FinanceOrderModel;
+use app\Manage\model\AmazonPayment;
+use app\Manage\model\FinanceOrderAdjustmentModel;
+use app\Manage\model\FinanceOrderLiquidationModel;
+use app\Manage\model\FinanceOrderPromotionModel;
+use app\Manage\model\FinanceOrderRefundModel;
+use app\Manage\model\FinanceOrderSaleModel;
 use app\Manage\model\FinanceOrderOutboundModel;
+use app\Manage\model\FinanceOrderShippingServiceModel;
 use app\Manage\model\FinanceReportModel;
 use app\Manage\model\FinanceTableModel;
 use app\Manage\model\OrderAddressModel;
@@ -270,68 +276,63 @@ ORDER BY
         $filename = input('filename');
         $origin = input('origin');
         $rid = input('rid');
+        $payment_type = input('payment_type');
+        $payment_type_new = strpos($payment_type, 'amazon') !== false ? 'amazon' : $payment_type;
         $file= "./upload/excel/" . $filename;
         $excelReader = PHPExcel_IOFactory::createReaderForFile($file);
         $excelObj = $excelReader->load($file);
         $worksheet = $excelObj->getSheet(0);
         $data = $worksheet->toArray();
 
-        if (count($data[0]) != 30) {
-            $this->error("请上传正确的表格", Session::get(Config::get('BACK_URL')));
-        }
-
         Db::startTrans();
         try {
             $tableData = [
                 'rid'           =>  $rid,
                 'table_name'    =>  $origin,
+                'platform'      =>  $payment_type_new,
                 'created_at'    =>  date('Y-m-d H:i:s')
             ];
             $financeTableObj = new FinanceTableModel();
             if ($tableId = $financeTableObj->insertGetId($tableData)) {
-                $new = [];
-                foreach ($data as $item) {
-                    if (!is_numeric($item[29])) {
-                        continue;
+                $paymentObj = new AmazonPayment();
+                if ($payment_type) {
+                    $paymentData = $paymentObj->$payment_type($data, $tableId, $rid);
+
+                    $financeOrderSaleObj = new FinanceOrderSaleModel();
+                    if (!$financeOrderSaleObj->saveAll($paymentData['orderSaleNew'])) {
+                        throw new \think\Exception('Payment导入失败！');
                     }
-                    $new[] = [
-                        "rid"                       =>  $rid,
-                        "table_id"                  =>  $tableId,
-                        "settlement_id"             =>  $item[1],
-                        "payment_id"                =>  $item[3],
-                        "order_time"                =>  date('Y-m-d H:i:s', strtotime($item[0])),
-                        "order_type"                =>  $item[2],
-                        "sku"                       =>  $item[4],
-                        "description"               =>  $item[5],
-                        "qty"                       =>  $item[6],
-                        "market_place"              =>  $item[7],
-                        "account_type"              =>  $item[8],
-                        "fulfillment"               =>  $item[9],
-                        "order_city"                =>  $item[10],
-                        "order_state"               =>  $item[11],
-                        "postal"                    =>  $item[12],
-                        "tax_collection_model"      =>  $item[13],
-                        "product_sales"             =>  sprintf('%.2f',$item[14]),
-                        "product_sales_tax"         =>  sprintf('%.2f',$item[15]),
-                        "shipping_credits"          =>  sprintf('%.2f',$item[16]),
-                        "shipping_credits_tax"      =>  sprintf('%.2f',$item[17]),
-                        "gift_wrap_credits"         =>  sprintf('%.2f',$item[18]),
-                        "gift_wrap_credits_tax"     =>  sprintf('%.2f',$item[19]),
-                        "regulatory_fee"            =>  sprintf('%.2f',$item[20]),
-                        "regulatory_fee_tax"        =>  sprintf('%.2f',$item[21]),
-                        "promotional_rebates"       =>  sprintf('%.2f',$item[22]),
-                        "promotional_rebates_tax"   =>  sprintf('%.2f',$item[23]),
-                        "marketplace_withheld_tax"  =>  sprintf('%.2f',$item[24]),
-                        "selling_fees"              =>  sprintf('%.2f',$item[25]),
-                        "fba_fees"                  =>  sprintf('%.2f',$item[26]),
-                        "other_transaction_fees"    =>  sprintf('%.2f',$item[27]),
-                        "other"                     =>  sprintf('%.2f',$item[28]),
-                        "total"                     =>  sprintf('%.2f',$item[29]),
-                    ];
-                }
-                $financeOrderObj = new FinanceOrderModel();
-                if (!$financeOrderObj->saveAll($new)) {
-                    throw new \think\Exception('Payment导入失败！');
+
+                    $financeOrderRefundObj = new FinanceOrderRefundModel();
+                    if (!$financeOrderRefundObj->saveAll($paymentData['orderRefundNew'])) {
+                        throw new \think\Exception('Payment导入失败！');
+                    }
+
+                    $financeOrderPromotionObj = new FinanceOrderPromotionModel();
+                    if (!$financeOrderPromotionObj->saveAll($paymentData['orderPromotionNew'])) {
+                        throw new \think\Exception('Payment导入失败！');
+                    }
+
+                    $financeOrderShippingServiceObj = new FinanceOrderShippingServiceModel();
+                    if (!$financeOrderShippingServiceObj->saveAll($paymentData['orderShippingServiceNew'])) {
+                        throw new \think\Exception('Payment导入失败！');
+                    }
+
+                    $financeOrderLiquidationObj = new FinanceOrderLiquidationModel();
+                    if (!$financeOrderLiquidationObj->saveAll($paymentData['orderLiquidationNew'])) {
+                        throw new \think\Exception('Payment导入失败！');
+                    }
+
+                    $financeOrderAdjustmentObj = new FinanceOrderAdjustmentModel();
+                    if (!$financeOrderAdjustmentObj->saveAll($paymentData['orderAdjustmentNew'])) {
+                        throw new \think\Exception('Payment导入失败！');
+                    }
+
+                    if (!FinanceTableModel::update(['userAccount' => $paymentData['userAccount']], ['id' => $tableId])) {
+                        throw new \think\Exception('店铺号同步失败！');
+                    }
+                } else {
+                    throw new \think\Exception('请先选择账单类型！');
                 }
             } else {
                 throw new \think\Exception('表格导入失败！');
@@ -376,7 +377,7 @@ ORDER BY
         $this->assign('page_num', $page_num);
 
         // 订单列表
-        $order = new FinanceOrderModel();
+        $order = new FinanceOrderSaleModel();
         $list = $order->where($where)->order('id asc')->paginate($page_num, false, ['query' => ['keyword' => $keyword, 'order_type' => $order_type, 'fulfillment' => $fulfillment, 'page_num' => $page_num, 'id' => $table_id]]);
         $this->assign('list', $list);
 
@@ -399,7 +400,7 @@ ORDER BY
         if (empty($start_time)) {
             $this->error('缺少开始时间');
         }
-        $financeOrderObj = new FinanceOrderModel();
+        $financeOrderObj = new FinanceOrderSaleModel();
         $orderList = $financeOrderObj->whereBetween('created_date', [$start_time, $end_time])->select();
 
         // phpexcel
