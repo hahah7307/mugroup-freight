@@ -24,7 +24,10 @@
                     <option value="">请选择账单类型</option>
                     <option value="amazon_us">amazon_us</option>
                     <option value="amazon_uk">amazon_uk</option>
-                    <option value="amazon_eu">amazon_eu</option>
+                    <option value="amazon_de">amazon_de</option>
+                    <option value="amazon_es">amazon_es</option>
+                    <option value="amazon_fr">amazon_fr</option>
+                    <option value="amazon_it">amazon_it</option>
                     <option value="wayfair">wayfair</option>
                     <option value="walmart">walmart</option>
                 </select>
@@ -34,6 +37,8 @@
                 <colgroup>
                     <col width="50">
                     <col width="50">
+                    <col>
+                    <col>
                     <col>
                     <col width="140">
                     <col width="80">
@@ -46,6 +51,8 @@
                     </th>
                     <th class="tc">ID</th>
                     <th>导入表格名</th>
+                    <th>所属平台</th>
+                    <th>所属店铺</th>
                     <th>导入时间</th>
                     <th class="tc">状态</th>
                     <th class="tc">操作</th>
@@ -61,6 +68,8 @@
                     </td>
                     <td class="tc">{$v.id}</td>
                     <td>{$v.table_name}</td>
+                    <td>{$v.platform}</td>
+                    <td>{$v.userAccount}</td>
                     <td>{$v.created_at}</td>
                     <td class="tc">
                         {if condition="$v.is_notify eq 1"}

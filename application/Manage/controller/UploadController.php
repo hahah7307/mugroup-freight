@@ -67,7 +67,7 @@ class UploadController extends Controller
         header("content-type:text/html;charset=utf-8");
 
         $payment_type = $_POST['payment_type'];
-        if (!in_array($payment_type, ['amazon_us', 'amazon_uk', 'amazon_eu', 'wayfair', 'walmart'])) {
+        if (!in_array($payment_type, ['amazon_us', 'amazon_uk', 'amazon_de', 'amazon_es', 'amazon_fr', 'amazon_it', 'wayfair', 'walmart'])) {
             echo json_encode(['code' => 0, 'msg' => '请先选择账单类型']);
             exit();
         }

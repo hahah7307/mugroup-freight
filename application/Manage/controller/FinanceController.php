@@ -4,6 +4,7 @@ namespace app\Manage\controller;
 use app\Manage\model\AkAdCostCreateModel;
 use app\Manage\model\AmazonPayment;
 use app\Manage\model\FinanceOrderAdjustmentModel;
+use app\Manage\model\FinanceOrderFbaInventoryModel;
 use app\Manage\model\FinanceOrderLiquidationModel;
 use app\Manage\model\FinanceOrderPromotionModel;
 use app\Manage\model\FinanceOrderRefundModel;
@@ -13,15 +14,11 @@ use app\Manage\model\FinanceOrderShippingServiceModel;
 use app\Manage\model\FinanceReportModel;
 use app\Manage\model\FinanceStoreModel;
 use app\Manage\model\FinanceTableModel;
-use app\Manage\model\OrderAddressModel;
-use app\Manage\model\OrderModel;
-use app\Manage\model\ProductModel;
 use app\Manage\validate\FinanceReportValidate;
 use PHPExcel;
 use PHPExcel_IOFactory;
 use PHPExcel_Reader_Exception;
 use PHPExcel_Style_Fill;
-use SoapClient;
 use think\Db;
 use think\db\exception\DataNotFoundException;
 use think\db\exception\ModelNotFoundException;
@@ -326,6 +323,11 @@ ORDER BY
 
                     $financeOrderAdjustmentObj = new FinanceOrderAdjustmentModel();
                     if (!$financeOrderAdjustmentObj->saveAll($paymentData['orderAdjustmentNew'])) {
+                        throw new \think\Exception('Payment导入失败！');
+                    }
+
+                    $financeOrderAdjustmentObj = new FinanceOrderFbaInventoryModel();
+                    if (!$financeOrderAdjustmentObj->saveAll($paymentData['orderFbaInventory'])) {
                         throw new \think\Exception('Payment导入失败！');
                     }
 
