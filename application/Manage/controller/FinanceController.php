@@ -349,6 +349,52 @@ ORDER BY
     }
 
     /**
+     * @throws Exception
+     */
+    public function table_delete()
+    {
+        if ($this->request->isPost()) {
+            $post = $this->request->post();
+
+            Db::startTrans();
+            try {
+                $financeTableObj = new FinanceTableModel();
+                $financeTableObj->where('id', $post['id'])->delete();
+
+                $financeOrderSaleObj = new FinanceOrderSaleModel();
+                $financeOrderSaleObj->where('table_id', $post['id'])->delete();
+
+                $financeOrderRefundObj = new FinanceOrderRefundModel();
+                $financeOrderRefundObj->where('table_id', $post['id'])->delete();
+
+                $financeOrderPromotionObj = new FinanceOrderPromotionModel();
+                $financeOrderPromotionObj->where('table_id', $post['id'])->delete();
+
+                $financeOrderShippingServiceObj = new FinanceOrderShippingServiceModel();
+                $financeOrderShippingServiceObj->where('table_id', $post['id'])->delete();
+
+                $financeOrderLiquidationObj = new FinanceOrderLiquidationModel();
+                $financeOrderLiquidationObj->where('table_id', $post['id'])->delete();
+
+                $financeOrderAdjustmentObj = new FinanceOrderAdjustmentModel();
+                $financeOrderAdjustmentObj->where('table_id', $post['id'])->delete();
+
+                $financeOrderAdjustmentObj = new FinanceOrderFbaInventoryModel();
+                $financeOrderAdjustmentObj->where('table_id', $post['id'])->delete();
+
+                Db::commit();
+                echo json_encode(['code' => 1, 'msg' => '删除成功']);
+            } catch (Exception $e) {
+                Db::rollback();
+                echo json_encode(['code' => 0, 'msg' => $e->getMessage()]);
+            }
+        } else {
+            echo json_encode(['code' => 0, 'msg' => '异常操作']);
+        }
+        exit;
+    }
+
+    /**
      * @throws DbException
      */
     public function order(): \think\response\View

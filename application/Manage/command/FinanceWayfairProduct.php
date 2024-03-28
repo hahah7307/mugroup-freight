@@ -31,15 +31,26 @@ class FinanceWayfairProduct extends Command
             if (count($list)) {
                 $orderObj = new OrderModel();
                 foreach ($list as $item) {
+                    // wayfair订单一拆到底，按每一个sku发货所以数量可以恒定为1
                     $orderDetails = $orderObj->with('details')->where(['refNo|saleOrderCode' => $item['payment_id'], 'status' => 0])->find();
                     if (count($orderDetails['details'])) {
                         foreach ($orderDetails['details'] as $detailItem) {
-                            if ($financeOrderSaleObj->update(['sku' => $detailItem['productSku'], 'quantity' => $detailItem['qty']], ['id' => $item['id']])) {
+                            if ($financeOrderSaleObj->update(['sku' => $detailItem['productSku'], 'quantity' => 1], ['id' => $item['id']])) {
                                 break;
                             }
                         }
                     } else {
-                        $financeOrderSaleObj->update(['sku' => ''], ['id' => $item['id']]);
+                        // 未拆单
+                        $orderDetails = $orderObj->with('details')->where(['refNo|saleOrderCode' => $item['payment_id'], 'status' => 4])->find();
+                        if (count($orderDetails['details'])) {
+                            foreach ($orderDetails['details'] as $detailItem) {
+                                if ($financeOrderSaleObj->update(['sku' => $detailItem['productSku'], 'quantity' => 1], ['id' => $item['id']])) {
+                                    break;
+                                }
+                            }
+                        } else {
+                            $financeOrderSaleObj->update(['sku' => ''], ['id' => $item['id']]);
+                        }
                     }
                 }
             }
