@@ -10,10 +10,10 @@
                 <input type="text" class="layui-input" name="keyword" value="{$keyword}" placeholder="SKU/各种单号">
             </div>
             <div class="layui-inline w120">
-                <select name="warehouse_code" lay-verify="">
+                <select name="warehouseCode" lay-verify="">
                     <option value="">仓库代码</option>
-                    <option value="PAW" {if condition="$warehouse_code eq 'PAW'"}selected{/if}>PAW</option>
-                    <option value="CAP" {if condition="$warehouse_code eq 'CAP'"}selected{/if}>CAP</option>
+                    <option value="PAW" {if condition="$warehouseCode eq 'PAW'"}selected{/if}>PAW</option>
+                    <option value="CAP" {if condition="$warehouseCode eq 'CAP'"}selected{/if}>CAP</option>
                 </select>
             </div>
             <div class="layui-inline w100">
@@ -28,10 +28,14 @@
         </form>
 
         <div class="layui-form">
-            <button type="button" class="layui-btn  layui-btn-normal" id="excel">导入</button>
+            <button type="button" class="layui-btn  layui-btn-disabled" id="excel">导入</button>
             <table class="layui-table" lay-size="sm">
                 <colgroup>
                     <col width="50">
+                    <col>
+                    <col>
+                    <col>
+                    <col>
                     <col>
                     <col>
                     <col>
@@ -52,18 +56,21 @@
                         <input type="checkbox" lay-skin="primary" id="YanNanQiu_checkall" lay-filter="YanNanQiu_checkall">
                     </th>
                     <th>ID</th>
-                    <th>SKU</th>
-                    <th>日结单号</th>
+                    <th>入库单据</th>
                     <th>仓库代码</th>
-                    <th>类型</th>
-                    <th class="tc">长(米)</th>
-                    <th class="tc">宽(米)</th>
-                    <th class="tc">高(米)</th>
+                    <th>乐仓SKU</th>
+                    <th>品名</th>
+                    <th>中文品名</th>
+                    <th>入库时间</th>
+                    <th class="tc">长(INCH)</th>
+                    <th class="tc">宽(INCH)</th>
+                    <th class="tc">高(INCH)</th>
+                    <th class="tc">重量(LBS)</th>
                     <th class="tc">可用数量</th>
                     <th class="red tc">库龄</th>
                     <th>计费日期</th>
-                    <th>体积</th>
-                    <th>合计</th>
+                    <th class="tc">体积</th>
+                    <th class="tc">合计</th>
                     <th>状态</th>
                 </tr>
                 </thead>
@@ -76,18 +83,21 @@
                         </div>
                     </td>
                     <td>{$v.id}</td>
-                    <td>{$v.product_sku}</td>
-                    <td>{$v.date_no}</td>
-                    <td>{$v.warehouse_code}</td>
-                    <td>{$v.type}</td>
-                    <td class="tc">{$v.product_length}</td>
-                    <td class="tc">{$v.product_width}</td>
-                    <td class="tc">{$v.product_height}</td>
-                    <td class="tc">{$v.ib_quantity}</td>
-                    <td class="red tc">{$v.stock_age}</td>
+                    <td>{$v.businessNo}</td>
+                    <td>{$v.warehouseCode}</td>
+                    <td>{$v.lecangsCode}</td>
+                    <td>{$v.enName}</td>
+                    <td>{$v.cnName}</td>
+                    <td>{$v.warehouseDate}</td>
+                    <td class="tr">{$v.wmsLength}</td>
+                    <td class="tr">{$v.wmsWidth}</td>
+                    <td class="tr">{$v.wmsHeight}</td>
+                    <td class="tr">{$v.wmsWeight}</td>
+                    <td class="tr">{$v.goodsNum}</td>
+                    <td class="red tr">{$v.inventoryAge}</td>
                     <td>{$v.created_date}</td>
-                    <td>{$v.volume}</td>
-                    <td>{$v.price}</td>
+                    <td class="tr">{$v.volume}</td>
+                    <td class="tr">{$v.price}</td>
                     <td>
                         {if condition="$v.is_finished eq 0"}
                             <p class="red">未核算</p>

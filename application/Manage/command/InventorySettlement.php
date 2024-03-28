@@ -109,9 +109,12 @@ class InventorySettlement extends Command
                     * $item['wmsWidth']  * StorageBaseModel::INCH2CM / 100
                     * $item['wmsHeight'] * StorageBaseModel::INCH2CM / 100;
 
-                $storage_id = 2;
                 $storageFeeObj = new StorageFeeModel();
-                $fees = $storageFeeObj->where(['state' => StorageFeeModel::STATE_ACTIVE, 'storage_id' => $storage_id])->order('level asc')->select();
+                $condition['state'] = StorageFeeModel::STATE_ACTIVE;
+                $condition['storage_id'] = 2;
+                $condition['start_at'] = ['lt', $item['created_time']];
+                $condition['end_at'] = ['egt', $item['created_time']];
+                $fees = $storageFeeObj->where($condition)->order('level asc')->select();
                 $storageFeeUnit = 0;
                 foreach ($fees as $value) {
                     if ($item['inventoryAge'] > $value['condition']) {
