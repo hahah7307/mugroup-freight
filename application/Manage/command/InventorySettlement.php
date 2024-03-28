@@ -3,11 +3,9 @@ namespace app\Manage\command;
 
 use app\Manage\model\InventoryBatchModel;
 use app\Manage\model\LcInventoryBatchModel;
-use app\Manage\model\LcProductModel;
 use app\Manage\model\LeInventoryBatchModel;
 use app\Manage\model\ProductModel;
 use app\Manage\model\StorageAreaModel;
-use app\Manage\model\StorageBaseModel;
 use app\Manage\model\StorageFeeModel;
 use Exception;
 use think\Config;
@@ -67,15 +65,8 @@ class InventorySettlement extends Command
             $data = $lcInventoryBatchObj->with('receiving')->where('is_finished', 0)->order('id asc')->limit(Config::get('inventory_batch_num'))->select();
             foreach ($data as $item) {
                 $warehouseCode = $item['receiving']['warehouse_code'];
-                $productItem = LcProductModel::get(['product_sku' => $item['product_sku']]);
-                $productItemWarehouseAttr = json_decode($productItem['warehouse_attribute'], true);
-                $volume = 0;
-                foreach ($productItemWarehouseAttr as $warehouseAttr) {
-                    if ($warehouseAttr['warehouse_code'] == $warehouseCode) {
-                        $volume = $warehouseAttr['product_length'] * $warehouseAttr['product_width'] * $warehouseAttr['product_height'] / 1000000;
-                    }
-                }
-                $volume = $volume == 0 ? $productItem['product_length'] * $productItem['product_width'] * $productItem['product_height'] / 1000000 : $volume;
+                $product = ProductModel::get(['productSku' => $item['product_sku']]);
+                $volume = $product['productLength'] * $product['productWidth'] * $product['productHeight'] / 1000000;
 
                 $storageArea = new StorageAreaModel();
                 $storageAreaItem = $storageArea->where('storage_code', 'like', '%' . $warehouseCode)->find();
@@ -105,9 +96,8 @@ class InventorySettlement extends Command
             $leInventoryBatchObj = new LeInventoryBatchModel();
             $data = $leInventoryBatchObj->where('is_finished', 0)->order('id asc')->limit(Config::get('inventory_batch_num'))->select();
             foreach ($data as $item) {
-                $volume = $item['wmsLength'] * StorageBaseModel::INCH2CM / 100
-                    * $item['wmsWidth']  * StorageBaseModel::INCH2CM / 100
-                    * $item['wmsHeight'] * StorageBaseModel::INCH2CM / 100;
+                $product = ProductModel::get(['productSku' => substr($item['lecangsCode'], 6)]);
+                $volume = $product['productLength'] * $product['productWidth'] * $product['productHeight'] / 1000000;
 
                 $storageFeeObj = new StorageFeeModel();
                 $condition['state'] = StorageFeeModel::STATE_ACTIVE;

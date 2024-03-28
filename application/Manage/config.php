@@ -51,7 +51,7 @@ return [
 
     // 不同仓库抓取订单时间
     'INVENTORY_BATCH_TIME'  => [
-        'LC-CANG'       =>  2,
+        'LC-CANG'       =>  0,
         'CAP2'          =>  16,
         'LG-USA-PA01'   =>  13,
     ],
