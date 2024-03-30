@@ -25,6 +25,8 @@ class AmazonPayment extends Model
 
     public $orderFbaInventory = [];
 
+    public $orderTransferNew = [];
+
     /**
      * @throws DbException
      * @throws ModelNotFoundException
@@ -139,6 +141,13 @@ class AmazonPayment extends Model
                     "other"                     =>  sprintf('%.2f', $item[28]),
                     "total"                     =>  sprintf('%.2f', $item[29]),
                 ];
+            } elseif ($item[2] == 'Transfer') {
+                $this->orderTransferNew[] = [
+                    "report_id"                 =>  $reportId,
+                    "table_id"                  =>  $tableId,
+                    "description"               =>  $item[5],
+                    "total"                     =>  sprintf('%.2f',$item[29]),
+                ];
             }
         }
 
@@ -150,7 +159,8 @@ class AmazonPayment extends Model
             'orderShippingServiceNew'   =>  $this->orderShippingServiceNew,
             'orderLiquidationNew'       =>  $this->orderLiquidationNew,
             'orderAdjustmentNew'        =>  $this->orderAdjustmentNew,
-            'orderFbaInventory'         =>  $this->orderFbaInventory
+            'orderFbaInventory'         =>  $this->orderFbaInventory,
+            'orderTransferNew'          =>  $this->orderTransferNew
         ];
     }
 
@@ -268,6 +278,13 @@ class AmazonPayment extends Model
                     "other"                     =>  sprintf('%.2f', $item[25]),
                     "total"                     =>  sprintf('%.2f', $item[26]),
                 ];
+            } elseif ($item[2] == 'Transfer') {
+                $this->orderTransferNew[] = [
+                    "report_id"                 =>  $reportId,
+                    "table_id"                  =>  $tableId,
+                    "description"               =>  $item[5],
+                    "total"                     =>  sprintf('%.2f',$item[26]),
+                ];
             }
         }
 
@@ -279,7 +296,8 @@ class AmazonPayment extends Model
             'orderShippingServiceNew'   =>  $this->orderShippingServiceNew,
             'orderLiquidationNew'       =>  $this->orderLiquidationNew,
             'orderAdjustmentNew'        =>  $this->orderAdjustmentNew,
-            'orderFbaInventory'         =>  $this->orderFbaInventory
+            'orderFbaInventory'         =>  $this->orderFbaInventory,
+            'orderTransferNew'          =>  $this->orderTransferNew
         ];
     }
 
@@ -394,6 +412,13 @@ class AmazonPayment extends Model
                     "other"                     =>  sprintf('%.2f', str_replace(',', '.', str_replace('.', '', $item[25]))),
                     "total"                     =>  sprintf('%.2f', str_replace(',', '.', str_replace('.', '', $item[26]))),
                 ];
+            } elseif ($item[2] == 'Übertrag') {
+                $this->orderTransferNew[] = [
+                    "report_id"                 =>  $reportId,
+                    "table_id"                  =>  $tableId,
+                    "description"               =>  $item[5],
+                    "total"                     =>  sprintf('%.2f', str_replace(',', '.', str_replace('.', '', $item[26]))),
+                ];
             }
         }
 
@@ -405,7 +430,8 @@ class AmazonPayment extends Model
             'orderShippingServiceNew'   =>  $this->orderShippingServiceNew,
             'orderLiquidationNew'       =>  $this->orderLiquidationNew,
             'orderAdjustmentNew'        =>  $this->orderAdjustmentNew,
-            'orderFbaInventory'         =>  $this->orderFbaInventory
+            'orderFbaInventory'         =>  $this->orderFbaInventory,
+            'orderTransferNew'          =>  $this->orderTransferNew
         ];
     }
 
@@ -519,6 +545,13 @@ class AmazonPayment extends Model
                     "other"                     =>  sprintf('%.2f', str_replace(',', '.', str_replace('.', '', $item[25]))),
                     "total"                     =>  sprintf('%.2f', str_replace(',', '.', str_replace('.', '', $item[26]))),
                 ];
+            } elseif ($item[2] == 'Transferir') {
+                $this->orderTransferNew[] = [
+                    "report_id"                 =>  $reportId,
+                    "table_id"                  =>  $tableId,
+                    "description"               =>  $item[5],
+                    "total"                     =>  sprintf('%.2f', str_replace(',', '.', str_replace('.', '', $item[26]))),
+                ];
             }
         }
 
@@ -530,7 +563,8 @@ class AmazonPayment extends Model
             'orderShippingServiceNew'   =>  $this->orderShippingServiceNew,
             'orderLiquidationNew'       =>  $this->orderLiquidationNew,
             'orderAdjustmentNew'        =>  $this->orderAdjustmentNew,
-            'orderFbaInventory'         =>  $this->orderFbaInventory
+            'orderFbaInventory'         =>  $this->orderFbaInventory,
+            'orderTransferNew'          =>  $this->orderTransferNew
         ];
     }
 
@@ -644,6 +678,13 @@ class AmazonPayment extends Model
                     "other"                     =>  sprintf('%.2f', str_replace(',', '.', str_replace('.', '', $item[25]))),
                     "total"                     =>  sprintf('%.2f', str_replace(',', '.', str_replace('.', '', $item[26]))),
                 ];
+            } elseif ($item[2] == 'Transfert') {
+                $this->orderTransferNew[] = [
+                    "report_id"                 =>  $reportId,
+                    "table_id"                  =>  $tableId,
+                    "description"               =>  $item[5],
+                    "total"                     =>  sprintf('%.2f', str_replace(',', '.', str_replace('.', '', $item[26]))),
+                ];
             }
         }
 
@@ -655,7 +696,8 @@ class AmazonPayment extends Model
             'orderShippingServiceNew'   =>  $this->orderShippingServiceNew,
             'orderLiquidationNew'       =>  $this->orderLiquidationNew,
             'orderAdjustmentNew'        =>  $this->orderAdjustmentNew,
-            'orderFbaInventory'         =>  $this->orderFbaInventory
+            'orderFbaInventory'         =>  $this->orderFbaInventory,
+            'orderTransferNew'          =>  $this->orderTransferNew
         ];
     }
 
@@ -769,6 +811,13 @@ class AmazonPayment extends Model
                     "other"                     =>  sprintf('%.2f', str_replace(',', '.', str_replace('.', '', $item[25]))),
                     "total"                     =>  sprintf('%.2f', str_replace(',', '.', str_replace('.', '', $item[26]))),
                 ];
+            } elseif ($item[2] == 'Trasferimento') {
+                $this->orderTransferNew[] = [
+                    "report_id"                 =>  $reportId,
+                    "table_id"                  =>  $tableId,
+                    "description"               =>  $item[5],
+                    "total"                     =>  sprintf('%.2f', str_replace(',', '.', str_replace('.', '', $item[26]))),
+                ];
             }
         }
 
@@ -780,7 +829,8 @@ class AmazonPayment extends Model
             'orderShippingServiceNew'   =>  $this->orderShippingServiceNew,
             'orderLiquidationNew'       =>  $this->orderLiquidationNew,
             'orderAdjustmentNew'        =>  $this->orderAdjustmentNew,
-            'orderFbaInventory'         =>  $this->orderFbaInventory
+            'orderFbaInventory'         =>  $this->orderFbaInventory,
+            'orderTransferNew'          =>  $this->orderTransferNew
         ];
     }
 
@@ -841,7 +891,8 @@ class AmazonPayment extends Model
             'orderShippingServiceNew'   =>  $this->orderShippingServiceNew,
             'orderLiquidationNew'       =>  $this->orderLiquidationNew,
             'orderAdjustmentNew'        =>  $this->orderAdjustmentNew,
-            'orderFbaInventory'         =>  $this->orderFbaInventory
+            'orderFbaInventory'         =>  $this->orderFbaInventory,
+            'orderTransferNew'          =>  $this->orderTransferNew
         ];
     }
 
@@ -908,7 +959,8 @@ class AmazonPayment extends Model
             'orderShippingServiceNew'   =>  $this->orderShippingServiceNew,
             'orderLiquidationNew'       =>  $this->orderLiquidationNew,
             'orderAdjustmentNew'        =>  $this->orderAdjustmentNew,
-            'orderFbaInventory'         =>  $this->orderFbaInventory
+            'orderFbaInventory'         =>  $this->orderFbaInventory,
+            'orderTransferNew'          =>  $this->orderTransferNew
         ];
     }
 }

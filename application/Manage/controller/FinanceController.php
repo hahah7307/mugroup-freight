@@ -11,6 +11,7 @@ use app\Manage\model\FinanceOrderRefundModel;
 use app\Manage\model\FinanceOrderSaleModel;
 use app\Manage\model\FinanceOrderOutboundModel;
 use app\Manage\model\FinanceOrderShippingServiceModel;
+use app\Manage\model\FinanceOrderTransferModel;
 use app\Manage\model\FinanceReportModel;
 use app\Manage\model\FinanceStoreModel;
 use app\Manage\model\FinanceTableModel;
@@ -331,6 +332,11 @@ ORDER BY
                         throw new \think\Exception('Payment导入失败！');
                     }
 
+                    $financeOrderTransferObj = new FinanceOrderTransferModel();
+                    if (!$financeOrderTransferObj->saveAll($paymentData['orderTransferNew'])) {
+                        throw new \think\Exception('Payment导入失败！');
+                    }
+
                     if (!FinanceTableModel::update(['userAccount' => $paymentData['userAccount']], ['id' => $tableId])) {
                         throw new \think\Exception('店铺号同步失败！');
                     }
@@ -380,6 +386,9 @@ ORDER BY
                 $financeOrderAdjustmentObj->where('table_id', $post['id'])->delete();
 
                 $financeOrderAdjustmentObj = new FinanceOrderFbaInventoryModel();
+                $financeOrderAdjustmentObj->where('table_id', $post['id'])->delete();
+
+                $financeOrderAdjustmentObj = new FinanceOrderTransferModel();
                 $financeOrderAdjustmentObj->where('table_id', $post['id'])->delete();
 
                 Db::commit();
