@@ -668,4 +668,23 @@ ORDER BY
         }
         $this->redirect(Session::get(Config::get('BACK_URL'), 'manage'));
     }
+
+    public function store_empty()
+    {
+        if ($this->request->isPost()) {
+            $post = $this->request->post();
+            $reportId = $post['id'];
+            $storeObj = new FinanceStoreModel();
+            if ($storeObj->where('report_id', $reportId)->delete()) {
+                $outboundObj = new FinanceOrderOutboundModel();
+                $outboundObj->where('report_id', $reportId)->delete();
+                echo json_encode(['code' => 1, 'msg' => '清空完成']);
+            } else {
+                echo json_encode(['code' => 0, 'msg' => '清空失败，请重试']);
+            }
+        } else {
+            echo json_encode(['code' => 0, 'msg' => '异常操作']);
+        }
+        exit;
+    }
 }
