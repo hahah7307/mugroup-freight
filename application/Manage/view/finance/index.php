@@ -8,13 +8,10 @@
         <div class="title">导入表格列表</div>
         <form class="layui-form search-form" method="get">
             <div class="layui-inline w200">
-                <input type="text" class="layui-input" name="keyword" value="{$keyword}" placeholder="原始单号">
+                <input type="text" class="layui-input" name="keyword" value="{$keyword}" placeholder="文件名称">
             </div>
             <div class="layui-inline">
                 <button class="layui-btn" lay-submit lay-filter="Search"><i class="layui-icon">&#xe615;</i> 查询</button>
-            </div>
-            <div class="layui-inline">
-                <a class="layui-btn layui-btn-normal" href="{:url('index')}"><i class="layui-icon">&#xe669;</i> 重置</a>
             </div>
         </form>
 
@@ -41,7 +38,6 @@
                     <col>
                     <col>
                     <col width="140">
-                    <col width="80">
                     <col width="120">
                 </colgroup>
                 <thead>
@@ -54,7 +50,6 @@
                     <th>所属平台</th>
                     <th>所属店铺</th>
                     <th>导入时间</th>
-                    <th class="tc">状态</th>
                     <th class="tc">操作</th>
                 </tr>
                 </thead>
@@ -71,13 +66,6 @@
                     <td>{$v.platform}</td>
                     <td>{$v.userAccount}</td>
                     <td>{$v.created_at}</td>
-                    <td class="tc">
-                        {if condition="$v.is_notify eq 1"}
-                        <span class="green">已同步</span>
-                        {else/}
-                        <span class="red">未同步</span>
-                        {/if}
-                    </td>
                     <td class="tc">
                         <a href="{:url('order', ['id' => $v.id])}" class="layui-btn layui-btn layui-btn-sm">查看</a>
                         <button data-id="{$v.id}" class="layui-btn layui-btn-sm layui-btn-danger ml0" lay-submit lay-filter="Detele">删除</button>

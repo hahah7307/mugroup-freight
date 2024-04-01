@@ -34,4 +34,5 @@ return [
     'app\Manage\command\AkSeller', //
     'app\Manage\command\SkuRelationUpdate', //
     'app\Manage\command\FinanceWayfairProduct', //
+    'app\Manage\command\FinanceOutboundNotify', //
 ];

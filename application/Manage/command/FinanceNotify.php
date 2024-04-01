@@ -2,6 +2,8 @@
 namespace app\Manage\command;
 
 use app\Manage\model\FinanceOrderOutboundModel;
+use app\Manage\model\FinanceOrderSaleModel;
+use app\Manage\model\FinanceReportModel;
 use app\Manage\model\FinanceStoreModel;
 use Exception;
 use think\Config;
@@ -27,31 +29,33 @@ class FinanceNotify extends Command
 
         Db::startTrans();
         try {
-            $financeOutboundObj = new FinanceOrderOutboundModel();
-            $list = $financeOutboundObj->where(['is_notify' => 0])->limit(Config::get('finance_notify_num'))->order('dateWarehouseShipping asc')->select();
+            $financeReportObj = new FinanceReportModel();
+            $list = $financeReportObj->where(['is_notify' => 0])->order('created_at asc')->select();
             if (count($list)) {
-                $financeStoreObj = new FinanceStoreModel();
-                foreach ($list as $item) {
-                    $sku = $item['warehouse_sku'];
-                    $storeItems = $financeStoreObj->where(['sku' => $sku])->order('entering_date asc')->select(); // 剩余库存
-                    if (count($storeItems) <= 0) {
-                        $financeOutboundObj->update(['is_notify' => 1], ['id' => $item['id']]);
+                foreach ($list as $report) {
+                    // 检测wayfair订单是否关联完毕
+                    $financeOrderSaleObj = new FinanceOrderSaleModel();
+                    $orderSale = $financeOrderSaleObj->where(['sku' => null, 'report_id' => $report['id']])->order('id asc')->select();
+                    if (count($orderSale) > 0) {
+                        continue;
                     }
-                    $outboundCount = $financeOutboundObj->where(['warehouse_sku' => $sku, 'is_notify' => 1])->sum('qty'); // 已发总计
-                    foreach ($storeItems as $storeItem) {
-                        if ($outboundCount + $item['qty'] > $storeItem['available_quantity']) {
-                            $outboundCount -= $storeItem['available_quantity'];
-                        } else {
-                            $financeOutboundObj->update(['store_id' => $storeItem['id'], 'is_notify' => 1], ['id' => $item['id']]);
-                            $outboundCount = 0;
-                            break;
-                        }
-                        unset($storeItem);
+
+                    // 检测期初库存是否导入
+                    $financeStoreObj = new FinanceStoreModel();
+                    $store = $financeStoreObj->where(['report_id' => $report['id']])->order('entering_date asc')->select();
+                    if (count($store) == 0) {
+                        continue;
                     }
-                    if ($outboundCount >= 0) {
-                        $financeOutboundObj->update(['is_notify' => 1], ['id' => $item['id']]);
+
+                    // 检测出库数据是否完全关联ddp
+                    $financeOutboundObj = new FinanceOrderOutboundModel();
+                    $outbound = $financeOutboundObj->where(['is_notify' => 0])->order('dateWarehouseShipping asc')->select();
+                    if (count($outbound) > 0) {
+                        continue;
                     }
-                    unset($outboundCount);
+
+                    $financeReportObj->save(['is_notify' => 1], ['id' => $report['id']]);
+                    unset($report);
                 }
             }
 

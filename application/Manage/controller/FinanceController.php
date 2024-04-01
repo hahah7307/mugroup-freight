@@ -566,7 +566,7 @@ ORDER BY
         $keyword = $this->request->get('keyword', '', 'htmlspecialchars');
         $this->assign('keyword', $keyword);
         if ($keyword) {
-            $where['payment_id'] = ['like', '%' . $keyword . '%'];
+            $where['export_no|sku|content'] = ['like', '%' . $keyword . '%'];
         } else {
             $where = [];
         }
