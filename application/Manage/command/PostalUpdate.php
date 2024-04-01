@@ -55,7 +55,6 @@ class PostalUpdate extends Command
 
                 // 更新易仓记录
                 OrderModel::orderId2DeliverParams($orderData['id']);
-                file_put_contents( APP_PATH . '/../runtime/log/PostalUpdate-' . date('Y-m-d') . '.log', PHP_EOL . "[" . date('Y-m-d H:i:s') . "] : " . $item['saleOrderCode'] . " " . var_export("Update Success",TRUE), FILE_APPEND);
                 unset($item);
             }
 
