@@ -542,7 +542,7 @@ ORDER BY
         $keyword = $this->request->get('keyword', '', 'htmlspecialchars');
         $this->assign('keyword', $keyword);
         if ($keyword) {
-            $where['payment_id|saleOrderCode'] = ['like', '%' . $keyword . '%'];
+            $where['payment_id|saleOrderCode|id'] = ['like', '%' . $keyword . '%'];
         } else {
             $where = [];
         }
@@ -552,10 +552,9 @@ ORDER BY
 
         // 订单列表
         $order = new FinanceOrderOutboundModel();
-        $list = $order->with(['order_details.details.product', 'order_address.address'])->where($where)->order('id asc')->paginate($page_num, false, ['query' => ['keyword' => $keyword, 'page_num' => $page_num]]);
+        $list = $order->with(['store'])->where($where)->order('id asc')->paginate($page_num, false, ['query' => ['keyword' => $keyword, 'page_num' => $page_num]]);
         $this->assign('list', $list);
 
-        Session::set(Config::get('BACK_URL'), $this->request->url(), 'manage');
         return view();
     }
 

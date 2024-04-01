@@ -1,16 +1,14 @@
 
 {include file="public/header" /}
 
-<style>
-    .calcuRes {cursor: pointer;}
-</style>
 <!-- 主体内容 -->
 <div class="layui-body" id="LAY_app_body">
     <div class="right">
+        <a href="{:session('back_url', '', 'manage')}" class="layui-btn layui-btn-danger layui-btn-sm fr"><i class="layui-icon">&#xe603;</i>返回上一页</a>
         <div class="title">出库明细列表</div>
         <form class="layui-form search-form" method="get">
             <div class="layui-inline w200">
-                <input type="text" class="layui-input" name="keyword" value="{$keyword}" placeholder="参考/销售/系统单号">
+                <input type="text" class="layui-input" name="keyword" value="{$keyword}" placeholder="参考/系统单号">
             </div>
             <div class="layui-inline w100">
                 <input type="text" class="layui-input" name="page_num" value="{$page_num}" placeholder="每页条数">
@@ -21,40 +19,21 @@
             <div class="layui-inline">
                 <a class="layui-btn layui-btn-normal" href="{:url('index')}"><i class="layui-icon">&#xe669;</i> 重置</a>
             </div>
-            <div class="layui-input-inline">
-                <input type="text" class="layui-input" id="export_start_time" name="start_time" value="" placeholder="开始时间">
-            </div>
-            <div class="layui-input-inline">
-                <input type="text" class="layui-input" id="export_end_time" name="end_time" value="" placeholder="结束时间">
-            </div>
-            <div class="layui-inline">
-                <a class="layui-btn layui-btn-normal" lay-submit lay-filter="Export"><i class="layui-icon">&#xe621;</i> 导出</a>
-            </div>
         </form>
 
         <div class="layui-form">
             <table class="layui-table" lay-size="sm">
                 <colgroup>
                     <col width="50">
-                    <col>
-                    <col width="150">
-                    <col width="150">
-                    <col width="150">
-                    <col width="120">
-                    <col width="100">
-                    <col>
-                    <col width="60">
-                    <col>
-                    <col>
-                    <col>
-                    <col>
-                    <col>
-                    <col>
+                    <col width="80">
                     <col>
                     <col>
                     <col>
                     <col>
                     <col width="140">
+                    <col>
+                    <col>
+                    <col>
                     <col width="80">
                 </colgroup>
                 <thead>
@@ -64,24 +43,14 @@
                     </th>
                     <th>ID</th>
                     <th>参考单号</th>
-                    <th>销售单号</th>
-                    <th>系统单号</th>
-                    <th>仓库单号</th>
-                    <th>仓库代码</th>
-                    <th>平台</th>
-                    <th>计费重</th>
-                    <th>邮编</th>
-                    <th>Zone</th>
-                    <th>出库</th>
-                    <th>基础</th>
-                    <th>AHS</th>
-                    <th>偏远</th>
-                    <th>住宅</th>
-                    <th>旺季</th>
-                    <th>燃油</th>
-                    <th>总计</th>
-                    <th>创建时间</th>
-                    <th class="tc">审核状态</th>
+                    <th>Payment</th>
+                    <th>外销合同号</th>
+                    <th>采购单号</th>
+                    <th>仓库SKU</th>
+                    <th>发货时间</th>
+                    <th>数量</th>
+                    <th>DDP</th>
+                    <th class="tc">核算DDP</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -92,31 +61,21 @@
                             <input type="checkbox" name="id[]" lay-skin="primary" lay-filter="imgbox" class="YanNanQiu_imgId" value="{$v.id}">
                         </div>
                     </td>
-                    <td>{$v.id}</td>
-                    <td>{$v.order_details.refNo}</td>
-                    <td>{$v.order_details.saleOrderCode}</td>
-                    <td>{$v.order_details.sysOrderCode}</td>
-                    <td>{$v.order_details.warehouseOrderCode}</td>
-                    <td>{$v.order_details.warehouseCode}</td>
-                    <td>{$v.order_details.platform}</td>
-                    <td>{$v.order_details.charged_weight}</td>
-                    <td>{$v.order_details.postalFormat}</td>
-                    <td>{$v.order_details.zoneFormat}</td>
-                    <td>{$v.order_details.outbound}</td>
-                    <td>{$v.order_details.base}</td>
-                    <td>{$v.order_details.ahs}</td>
-                    <td>{$v.order_details.das}</td>
-                    <td>{$v.order_details.rdcFee}</td>
-                    <td>{$v.order_details.ahsds}+{$v.order_details.drdcFee}</td>
-                    <td>{$v.order_details.fuelCost}</td>
-                    <td class="calcuRes" data-info="{$v.order_details.calcuInfo}">{$v.order_details.calcuRes}</td>
-                    <td>{$v.order_details.createdDate}</td>
+                    <td class="tr">{$v.id}</td>
+                    <td>{$v.saleOrderCode}</td>
+                    <td>{$v.payment_id}</td>
+                    <td>{$v.store.export_no}</td>
+                    <td>{$v.store.content}</td>
+                    <td>{$v.warehouse_sku}</td>
+                    <td>{$v.dateWarehouseShipping}</td>
+                    <td class="tr">{$v.qty}</td>
+                    <td class="tr">{$v.store.sku_ddp_unit}</td>
                     <td class="tc">
-                        {if condition="$v.order_details.calcu_state eq 1"}
-                            <p class="blue">待审核</p>
-                        {elseif condition="$v.order_details.calcu_state eq 2" /}
-                            <p class="green">通过</p>
-                        {elseif condition="$v.order_details.calcu_state eq 3" /}
+                        {if condition="$v.is_notify eq 0"}
+                            <p class="blue">待核算</p>
+                        {elseif condition="$v.is_notify eq 1" /}
+                            <p class="green">已核算</p>
+                        {elseif condition="$v.is_notify eq 2" /}
                             <p class="red">未通过</p>
                         {/if}
                     </td>
