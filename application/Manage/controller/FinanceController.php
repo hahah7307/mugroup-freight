@@ -11,6 +11,7 @@ use app\Manage\model\FinanceOrderRefundModel;
 use app\Manage\model\FinanceOrderSaleModel;
 use app\Manage\model\FinanceOrderOutboundModel;
 use app\Manage\model\FinanceOrderShippingServiceModel;
+use app\Manage\model\FinanceOrderStatisticsModel;
 use app\Manage\model\FinanceOrderTransferModel;
 use app\Manage\model\FinanceReportModel;
 use app\Manage\model\FinanceStoreModel;
@@ -685,5 +686,109 @@ ORDER BY
             echo json_encode(['code' => 0, 'msg' => '异常操作']);
         }
         exit;
+    }
+
+    /**
+     * @throws DbException
+     */
+    public function order_statistics(): \think\response\View
+    {
+        $keyword = $this->request->get('keyword', '', 'htmlspecialchars');
+        $this->assign('keyword', $keyword);
+        if ($keyword) {
+            $where['payment_id|saleOrderCode|warehouse_sku|warehouse_no|service_no|shipping_no|inventory_batch_no'] = ['like', '%' . $keyword . '%'];
+        } else {
+            $where = [];
+        }
+
+        $page_num = $this->request->get('page_num', Config::get('PAGE_NUM'));
+        $this->assign('page_num', $page_num);
+
+        // 订单列表
+        $order = new FinanceOrderStatisticsModel();
+        $list = $order->where($where)->order('id asc')->paginate($page_num, false, ['query' => ['keyword' => $keyword]]);
+        $this->assign('list', $list);
+
+        return view();
+    }
+
+    /**
+     * @throws PHPExcel_Reader_Exception
+     */
+    public function order_statistics_import()
+    {
+        // phpexcel
+        require_once './static/classes/PHPExcel/Classes/PHPExcel.php';
+
+        $filename = input('filename');
+        $file= "./upload/excel/" . $filename;
+        $excelReader = PHPExcel_IOFactory::createReaderForFile($file);
+        $excelObj = $excelReader->load($file);
+        $worksheet = $excelObj->getSheet(0);
+        $data = $worksheet->toArray();
+        unset($data[0]);
+        unset($data[1]);
+        unset($data[2]);
+
+        Db::startTrans();
+        try {
+            $orderData = [];
+            $financeOrderStatisticsObj = new FinanceOrderStatisticsModel();
+            foreach ($data as $item) {
+                $order = $financeOrderStatisticsObj->where(['saleOrderCode' => $item[11]])->find();
+                if (!empty($order)) {
+                    continue;
+                }
+                $orderData[] = [
+                    "platform"              =>  $item[0],
+                    "user_account"          =>  $item[1],
+                    "user_account_alias"    =>  $item[2],
+                    "site"                  =>  $item[3],
+                    "warehouse"             =>  $item[4],
+                    "created_time"          =>  date('Y-m-d H:i:s', strtotime($item[5])),
+                    "paid_time"             =>  date('Y-m-d H:i:s', strtotime($item[6])),
+                    "audit_time"            =>  date('Y-m-d H:i:s', strtotime($item[7])),
+                    "shipping_time"         =>  date('Y-m-d H:i:s', strtotime($item[8])),
+                    "order_status"          =>  $item[9],
+                    "order_type"            =>  $item[10],
+                    "saleOrderCode"         =>  trim($item[11]),
+                    "payment_id"            =>  trim($item[12]),
+                    "platform_sku"          =>  trim($item[13]),
+                    "seller_sku"            =>  trim($item[14]),
+                    "warehouse_sku"         =>  trim($item[15]),
+                    "qty"                   =>  $item[16],
+                    "product_name"          =>  $item[17],
+                    "product_style"         =>  $item[18],
+                    "product_brand"         =>  $item[19],
+                    "category_1"            =>  $item[20],
+                    "category_2"            =>  $item[21],
+                    "category_3"            =>  $item[22],
+                    "product_status"        =>  $item[23],
+                    "warehouse_no"          =>  $item[24],
+                    "service_no"            =>  $item[25],
+                    "order_delisting_type"  =>  $item[26],
+                    "is_shipping"           =>  $item[27],
+                    "shipping_no"           =>  $item[28],
+                    "sys_transaction"       =>  $item[29],
+                    "shipping_method"       =>  $item[30],
+                    "product_weight"        =>  $item[31],
+                    "inventory_batch_no"    =>  $item[32],
+                    "currency"              =>  $item[33],
+                    "sale_unit"             =>  $item[35],
+                    "sale_amount"           =>  $item[36],
+                    "sale_shipping"         =>  $item[38],
+                    "selling_fee"           =>  $item[40],
+                    "fba_fee"               =>  $item[43],
+                    "tax"                   =>  $item[45]
+                ];
+            }
+            $financeOrderStatisticsObj->insertAll($orderData);
+
+            Db::commit();
+        } catch (Exception $e) {
+            Db::rollback();
+            $this->error($e->getMessage(), url('order_statistics'));
+        }
+        $this->redirect(url('order_statistics'));
     }
 }

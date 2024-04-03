@@ -29,8 +29,8 @@ class UploadController extends Controller
             exit();
         }
         //判断文件大小是否超过设置的最大上传限制
-        if ($size > 10 * 1024 * 1024){
-            echo json_encode(['code' => 0, 'msg' => '文件大小超过10M']);
+        if ($size > 20 * 1024 * 1024){
+            echo json_encode(['code' => 0, 'msg' => '文件大小超过20M']);
             exit();
         }
         //phpinfo函数会以数组的形式返回关于文件路径的信息 
@@ -55,7 +55,7 @@ class UploadController extends Controller
         $new_filename = $default_title.'.'.$ext_suffix;
         //将文件从临时路径移动到磁盘
         if (move_uploaded_file($temp_name, 'upload/excel/' . $new_filename)){
-            echo json_encode(['code' => 1, 'msg' => '文件上传成功', 'data' => $new_filename, 'origin' => $arr['filename'], 'payment_type' => $payment_type]);
+            echo json_encode(['code' => 1, 'msg' => '文件上传成功', 'data' => $new_filename, 'origin' => $arr['filename']]);
             exit;
         }else{
             echo json_encode(['code' => 0, 'msg' => '文件上传失败']);

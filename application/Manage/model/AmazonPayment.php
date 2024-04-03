@@ -41,85 +41,94 @@ class AmazonPayment extends Model
                 $this->userAccount = $order['userAccount'];
             }
 
+            // 过滤sku的不被压缩宽度的半角空格 asc码为 160和190的组合 0xC2 0xA0
+            $sku = trim($item[4]);
+            $sku_new = '';
+            for ($i = 0; $i < strlen($sku); $i++) {
+                if (ord($sku[$i]) != 160 && ord($sku[$i]) != 194) {
+                    $sku_new .= $sku[$i];
+                }
+            }
+
             if ($item[2] == 'Order') {
                 $this->orderSaleNew[] = [
                     "report_id"                 =>  $reportId,
                     "table_id"                  =>  $tableId,
-                    "payment_id"                =>  $item[3],
-                    "sku"                       =>  $item[4],
+                    "payment_id"                =>  trim($item[3]),
+                    "sku"                       =>  trim($sku_new),
                     "description"               =>  $item[5],
                     "quantity"                  =>  $item[6],
                     "fulfillment"               =>  $item[9],
                     "postal"                    =>  $item[12],
-                    "product_sales"             =>  sprintf('%.2f',$item[14]),
-                    "product_sales_tax"         =>  sprintf('%.2f',$item[15]),
-                    "shipping_credits"          =>  sprintf('%.2f',$item[16]),
-                    "shipping_credits_tax"      =>  sprintf('%.2f',$item[17]),
-                    "gift_wrap_credits"         =>  sprintf('%.2f',$item[18]),
-                    "gift_wrap_credits_tax"     =>  sprintf('%.2f',$item[19]),
-                    "regulatory_fee"            =>  sprintf('%.2f',$item[20]),
-                    "regulatory_fee_tax"        =>  sprintf('%.2f',$item[21]),
-                    "promotional_rebates"       =>  sprintf('%.2f',$item[22]),
-                    "promotional_rebates_tax"   =>  sprintf('%.2f',$item[23]),
-                    "marketplace_withheld_tax"  =>  sprintf('%.2f',$item[24]),
-                    "selling_fees"              =>  sprintf('%.2f',$item[25]),
-                    "fba_fees"                  =>  sprintf('%.2f',$item[26]),
-                    "other_transaction_fees"    =>  sprintf('%.2f',$item[27]),
-                    "other"                     =>  sprintf('%.2f',$item[28]),
-                    "total"                     =>  sprintf('%.2f',$item[29]),
+                    "product_sales"             =>  sprintf('%.2f', str_replace(',', '', $item[14])),
+                    "product_sales_tax"         =>  sprintf('%.2f', str_replace(',', '', $item[15])),
+                    "shipping_credits"          =>  sprintf('%.2f', str_replace(',', '', $item[16])),
+                    "shipping_credits_tax"      =>  sprintf('%.2f', str_replace(',', '', $item[17])),
+                    "gift_wrap_credits"         =>  sprintf('%.2f', str_replace(',', '', $item[18])),
+                    "gift_wrap_credits_tax"     =>  sprintf('%.2f', str_replace(',', '', $item[19])),
+                    "regulatory_fee"            =>  sprintf('%.2f', str_replace(',', '', $item[20])),
+                    "regulatory_fee_tax"        =>  sprintf('%.2f', str_replace(',', '', $item[21])),
+                    "promotional_rebates"       =>  sprintf('%.2f', str_replace(',', '', $item[22])),
+                    "promotional_rebates_tax"   =>  sprintf('%.2f', str_replace(',', '', $item[23])),
+                    "marketplace_withheld_tax"  =>  sprintf('%.2f', str_replace(',', '', $item[24])),
+                    "selling_fees"              =>  sprintf('%.2f', str_replace(',', '', $item[25])),
+                    "fba_fees"                  =>  sprintf('%.2f', str_replace(',', '', $item[26])),
+                    "other_transaction_fees"    =>  sprintf('%.2f', str_replace(',', '', $item[27])),
+                    "other"                     =>  sprintf('%.2f', str_replace(',', '', $item[28])),
+                    "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[29])),
                 ];
             } elseif ($item[2] == 'Refund') {
                 $this->orderRefundNew[] = [
                     "report_id"                 =>  $reportId,
                     "table_id"                  =>  $tableId,
-                    "payment_id"                =>  $item[3],
-                    "sku"                       =>  $item[4],
+                    "payment_id"                =>  trim($item[3]),
+                    "sku"                       =>  trim($sku_new),
                     "description"               =>  $item[5],
                     "quantity"                  =>  $item[6],
                     "fulfillment"               =>  $item[9],
                     "postal"                    =>  $item[12],
-                    "product_sales"             =>  sprintf('%.2f',$item[14]),
-                    "product_sales_tax"         =>  sprintf('%.2f',$item[15]),
-                    "shipping_credits"          =>  sprintf('%.2f',$item[16]),
-                    "shipping_credits_tax"      =>  sprintf('%.2f',$item[17]),
-                    "gift_wrap_credits"         =>  sprintf('%.2f',$item[18]),
-                    "gift_wrap_credits_tax"     =>  sprintf('%.2f',$item[19]),
-                    "regulatory_fee"            =>  sprintf('%.2f',$item[20]),
-                    "regulatory_fee_tax"        =>  sprintf('%.2f',$item[21]),
-                    "promotional_rebates"       =>  sprintf('%.2f',$item[22]),
-                    "promotional_rebates_tax"   =>  sprintf('%.2f',$item[23]),
-                    "marketplace_withheld_tax"  =>  sprintf('%.2f',$item[24]),
-                    "selling_fees"              =>  sprintf('%.2f',$item[25]),
-                    "fba_fees"                  =>  sprintf('%.2f',$item[26]),
-                    "other_transaction_fees"    =>  sprintf('%.2f',$item[27]),
-                    "other"                     =>  sprintf('%.2f',$item[28]),
-                    "total"                     =>  sprintf('%.2f',$item[29]),
+                    "product_sales"             =>  sprintf('%.2f', str_replace(',', '', $item[14])),
+                    "product_sales_tax"         =>  sprintf('%.2f', str_replace(',', '', $item[15])),
+                    "shipping_credits"          =>  sprintf('%.2f', str_replace(',', '', $item[16])),
+                    "shipping_credits_tax"      =>  sprintf('%.2f', str_replace(',', '', $item[17])),
+                    "gift_wrap_credits"         =>  sprintf('%.2f', str_replace(',', '', $item[18])),
+                    "gift_wrap_credits_tax"     =>  sprintf('%.2f', str_replace(',', '', $item[19])),
+                    "regulatory_fee"            =>  sprintf('%.2f', str_replace(',', '', $item[20])),
+                    "regulatory_fee_tax"        =>  sprintf('%.2f', str_replace(',', '', $item[21])),
+                    "promotional_rebates"       =>  sprintf('%.2f', str_replace(',', '', $item[22])),
+                    "promotional_rebates_tax"   =>  sprintf('%.2f', str_replace(',', '', $item[23])),
+                    "marketplace_withheld_tax"  =>  sprintf('%.2f', str_replace(',', '', $item[24])),
+                    "selling_fees"              =>  sprintf('%.2f', str_replace(',', '', $item[25])),
+                    "fba_fees"                  =>  sprintf('%.2f', str_replace(',', '', $item[26])),
+                    "other_transaction_fees"    =>  sprintf('%.2f', str_replace(',', '', $item[27])),
+                    "other"                     =>  sprintf('%.2f', str_replace(',', '', $item[28])),
+                    "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[29])),
                 ];
             } elseif ($item[2] == 'Service Fee') {
                 $this->orderPromotionNew[] = [
                     "report_id"                 =>  $reportId,
                     "table_id"                  =>  $tableId,
                     "description"               =>  $item[5],
-                    "total"                     =>  sprintf('%.2f',$item[29]),
+                    "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[29])),
                 ];
             } elseif ($item[2] == 'Shipping Services') {
                 $this->orderShippingServiceNew[] = [
                     "report_id"                 =>  $reportId,
                     "table_id"                  =>  $tableId,
-                    "payment_id"                =>  $item[3],
+                    "payment_id"                =>  trim($item[3]),
                     "description"               =>  $item[5],
-                    "total"                     =>  sprintf('%.2f',$item[29]),
+                    "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[29])),
                 ];
             } elseif ($item[2] == 'Liquidations'
                 || $item[2] == 'Liquidations Adjustments') {
                 $this->orderLiquidationNew[] = [
                     "report_id"                 =>  $reportId,
                     "table_id"                  =>  $tableId,
-                    "order_id"                  =>  $item[3],
-                    "sku"                       =>  $item[4],
-                    "product_sales"             =>  sprintf('%.2f',$item[14]),
-                    "transaction_fee"           =>  sprintf('%.2f',$item[27]),
-                    "total"                     =>  sprintf('%.2f',$item[29]),
+                    "order_id"                  =>  trim($item[3]),
+                    "sku"                       =>  trim($sku_new),
+                    "product_sales"             =>  sprintf('%.2f', str_replace(',', '', $item[14])),
+                    "transaction_fee"           =>  sprintf('%.2f', str_replace(',', '', $item[27])),
+                    "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[29])),
                 ];
             } elseif ($item[2] == 'Adjustment'
                 ||  $item[2] == 'A-to-z Guarantee Claim'
@@ -127,16 +136,16 @@ class AmazonPayment extends Model
                 $this->orderAdjustmentNew[] = [
                     "report_id"                 =>  $reportId,
                     "table_id"                  =>  $tableId,
-                    "payment_id"                =>  $item[3],
-                    "sku"                       =>  $item[4],
-                    "total"                     =>  sprintf('%.2f',$item[29]),
+                    "payment_id"                =>  trim($item[3]),
+                    "sku"                       =>  trim($sku_new),
+                    "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[29])),
                 ];
             } elseif ($item[2] == 'FBA Inventory Fee'
                 || $item[2] == 'FBA Customer Return Fee') {
                 $this->orderFbaInventory[] = [
                     "report_id"                 =>  $reportId,
                     "table_id"                  =>  $tableId,
-                    "payment_id"                =>  $item[3],
+                    "payment_id"                =>  trim($item[3]),
                     "description"               =>  $item[5],
                     "other"                     =>  sprintf('%.2f', $item[28]),
                     "total"                     =>  sprintf('%.2f', $item[29]),
@@ -146,7 +155,7 @@ class AmazonPayment extends Model
                     "report_id"                 =>  $reportId,
                     "table_id"                  =>  $tableId,
                     "description"               =>  $item[5],
-                    "total"                     =>  sprintf('%.2f',$item[29]),
+                    "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[29])),
                 ];
             }
         }
@@ -188,22 +197,22 @@ class AmazonPayment extends Model
                     "quantity"                  =>  $item[6],
                     "fulfillment"               =>  $item[8],
                     "postal"                    =>  $item[11],
-                    "product_sales"             =>  sprintf('%.2f',$item[13]),
-                    "product_sales_tax"         =>  sprintf('%.2f',$item[14]),
-                    "shipping_credits"          =>  sprintf('%.2f',$item[15]),
-                    "shipping_credits_tax"      =>  sprintf('%.2f',$item[16]),
-                    "gift_wrap_credits"         =>  sprintf('%.2f',$item[17]),
-                    "gift_wrap_credits_tax"     =>  sprintf('%.2f',$item[18]),
+                    "product_sales"             =>  sprintf('%.2f', str_replace(',', '', $item[13])),
+                    "product_sales_tax"         =>  sprintf('%.2f', str_replace(',', '', $item[14])),
+                    "shipping_credits"          =>  sprintf('%.2f', str_replace(',', '', $item[15])),
+                    "shipping_credits_tax"      =>  sprintf('%.2f', str_replace(',', '', $item[16])),
+                    "gift_wrap_credits"         =>  sprintf('%.2f', str_replace(',', '', $item[17])),
+                    "gift_wrap_credits_tax"     =>  sprintf('%.2f', str_replace(',', '', $item[18])),
                     "regulatory_fee"            =>  0,
                     "regulatory_fee_tax"        =>  0,
-                    "promotional_rebates"       =>  sprintf('%.2f',$item[19]),
-                    "promotional_rebates_tax"   =>  sprintf('%.2f',$item[20]),
-                    "marketplace_withheld_tax"  =>  sprintf('%.2f',$item[21]),
-                    "selling_fees"              =>  sprintf('%.2f',$item[22]),
-                    "fba_fees"                  =>  sprintf('%.2f',$item[23]),
-                    "other_transaction_fees"    =>  sprintf('%.2f',$item[24]),
-                    "other"                     =>  sprintf('%.2f',$item[25]),
-                    "total"                     =>  sprintf('%.2f',$item[26]),
+                    "promotional_rebates"       =>  sprintf('%.2f', str_replace(',', '', $item[19])),
+                    "promotional_rebates_tax"   =>  sprintf('%.2f', str_replace(',', '', $item[20])),
+                    "marketplace_withheld_tax"  =>  sprintf('%.2f', str_replace(',', '', $item[21])),
+                    "selling_fees"              =>  sprintf('%.2f', str_replace(',', '', $item[22])),
+                    "fba_fees"                  =>  sprintf('%.2f', str_replace(',', '', $item[23])),
+                    "other_transaction_fees"    =>  sprintf('%.2f', str_replace(',', '', $item[24])),
+                    "other"                     =>  sprintf('%.2f', str_replace(',', '', $item[25])),
+                    "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[26])),
                 ];
             } elseif ($item[2] == 'Refund') {
                 $this->orderRefundNew[] = [
@@ -215,29 +224,29 @@ class AmazonPayment extends Model
                     "quantity"                  =>  $item[6],
                     "fulfillment"               =>  $item[8],
                     "postal"                    =>  $item[11],
-                    "product_sales"             =>  sprintf('%.2f',$item[13]),
-                    "product_sales_tax"         =>  sprintf('%.2f',$item[14]),
-                    "shipping_credits"          =>  sprintf('%.2f',$item[15]),
-                    "shipping_credits_tax"      =>  sprintf('%.2f',$item[16]),
-                    "gift_wrap_credits"         =>  sprintf('%.2f',$item[17]),
-                    "gift_wrap_credits_tax"     =>  sprintf('%.2f',$item[18]),
+                    "product_sales"             =>  sprintf('%.2f', str_replace(',', '', $item[13])),
+                    "product_sales_tax"         =>  sprintf('%.2f', str_replace(',', '', $item[14])),
+                    "shipping_credits"          =>  sprintf('%.2f', str_replace(',', '', $item[15])),
+                    "shipping_credits_tax"      =>  sprintf('%.2f', str_replace(',', '', $item[16])),
+                    "gift_wrap_credits"         =>  sprintf('%.2f', str_replace(',', '', $item[17])),
+                    "gift_wrap_credits_tax"     =>  sprintf('%.2f', str_replace(',', '', $item[18])),
                     "regulatory_fee"            =>  0,
                     "regulatory_fee_tax"        =>  0,
-                    "promotional_rebates"       =>  sprintf('%.2f',$item[19]),
-                    "promotional_rebates_tax"   =>  sprintf('%.2f',$item[20]),
-                    "marketplace_withheld_tax"  =>  sprintf('%.2f',$item[21]),
-                    "selling_fees"              =>  sprintf('%.2f',$item[22]),
-                    "fba_fees"                  =>  sprintf('%.2f',$item[23]),
-                    "other_transaction_fees"    =>  sprintf('%.2f',$item[24]),
-                    "other"                     =>  sprintf('%.2f',$item[25]),
-                    "total"                     =>  sprintf('%.2f',$item[26]),
+                    "promotional_rebates"       =>  sprintf('%.2f', str_replace(',', '', $item[19])),
+                    "promotional_rebates_tax"   =>  sprintf('%.2f', str_replace(',', '', $item[20])),
+                    "marketplace_withheld_tax"  =>  sprintf('%.2f', str_replace(',', '', $item[21])),
+                    "selling_fees"              =>  sprintf('%.2f', str_replace(',', '', $item[22])),
+                    "fba_fees"                  =>  sprintf('%.2f', str_replace(',', '', $item[23])),
+                    "other_transaction_fees"    =>  sprintf('%.2f', str_replace(',', '', $item[24])),
+                    "other"                     =>  sprintf('%.2f', str_replace(',', '', $item[25])),
+                    "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[26])),
                 ];
             } elseif ($item[2] == 'Service Fee') {
                 $this->orderPromotionNew[] = [
                     "report_id"                 =>  $reportId,
                     "table_id"                  =>  $tableId,
                     "description"               =>  $item[5],
-                    "total"                     =>  sprintf('%.2f',$item[26]),
+                    "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[26])),
                 ];
             } elseif ($item[2] == 'Shipping Services') {
                 $this->orderShippingServiceNew[] = [
@@ -245,7 +254,7 @@ class AmazonPayment extends Model
                     "table_id"                  =>  $tableId,
                     "payment_id"                =>  $item[3],
                     "description"               =>  $item[5],
-                    "total"                     =>  sprintf('%.2f',$item[26]),
+                    "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[26])),
                 ];
             } elseif ($item[2] == 'Liquidations'
                 || $item[2] == 'Liquidations Adjustments') {
@@ -254,9 +263,9 @@ class AmazonPayment extends Model
                     "table_id"                  =>  $tableId,
                     "order_id"                  =>  $item[3],
                     "sku"                       =>  $item[4],
-                    "product_sales"             =>  sprintf('%.2f',$item[13]),
-                    "transaction_fee"           =>  sprintf('%.2f',$item[24]),
-                    "total"                     =>  sprintf('%.2f',$item[26]),
+                    "product_sales"             =>  sprintf('%.2f', str_replace(',', '', $item[13])),
+                    "transaction_fee"           =>  sprintf('%.2f', str_replace(',', '', $item[24])),
+                    "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[26])),
                 ];
             } elseif ($item[2] == 'Adjustment'
                 ||  $item[2] == 'A-to-z Guarantee Claim'
@@ -266,7 +275,7 @@ class AmazonPayment extends Model
                     "table_id"                  =>  $tableId,
                     "payment_id"                =>  $item[3],
                     "sku"                       =>  $item[4],
-                    "total"                     =>  sprintf('%.2f',$item[26]),
+                    "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[26])),
                 ];
             } elseif ($item[2] == 'FBA Inventory Fee'
                 || $item[2] == 'FBA Customer Return Fee') {
@@ -283,7 +292,7 @@ class AmazonPayment extends Model
                     "report_id"                 =>  $reportId,
                     "table_id"                  =>  $tableId,
                     "description"               =>  $item[5],
-                    "total"                     =>  sprintf('%.2f',$item[26]),
+                    "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[26])),
                 ];
             }
         }
@@ -856,8 +865,8 @@ class AmazonPayment extends Model
                     "sku"                       =>  $item[8],
                     "quantity"                  =>  $item[7],
                     "postal"                    =>  $item[18],
-                    "product_sales"             =>  sprintf('%.2f',$item[24]),
-                    "selling_fees"              =>  sprintf('%.2f',$item[22]),
+                    "product_sales"             =>  sprintf('%.2f', str_replace(',', '', $item[24])),
+                    "selling_fees"              =>  sprintf('%.2f', str_replace(',', '', $item[22])),
                     "fba_fees"                  =>  0,
                 ];
             } elseif ($item[5] == 'REFUNDED') {
@@ -868,8 +877,8 @@ class AmazonPayment extends Model
                     "sku"                       =>  $item[8],
                     "quantity"                  =>  $item[7],
                     "postal"                    =>  $item[18],
-                    "product_sales"             =>  sprintf('%.2f',$item[24]),
-                    "selling_fees"              =>  sprintf('%.2f',$item[22]),
+                    "product_sales"             =>  sprintf('%.2f', str_replace(',', '', $item[24])),
+                    "selling_fees"              =>  sprintf('%.2f', str_replace(',', '', $item[22])),
                     "fba_fees"                  =>  0,
                 ];
             } elseif ($item[5] == 'Adjustment') {
@@ -878,7 +887,7 @@ class AmazonPayment extends Model
                     "table_id"                  =>  $tableId,
                     "payment_id"                =>  number_format($item[2], 0, '', ''),
                     "sku"                       =>  $item[8],
-                    "total"                     =>  sprintf('%.2f',$item[24]),
+                    "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[24])),
                 ];
             }
         }
@@ -917,7 +926,7 @@ class AmazonPayment extends Model
                     "payment_id"                =>  $item[1],
                     "sku"                       =>  $item[13],
                     "quantity"                  =>  $item[14],
-                    "product_sales"             =>  sprintf('%.2f',$item[3]),
+                    "product_sales"             =>  sprintf('%.2f', str_replace(',', '', $item[3])),
                     "shipping_credits"          =>  0,
                     "gift_wrap_credits"         =>  0,
                     "regulatory_fee"            =>  0,
@@ -932,7 +941,7 @@ class AmazonPayment extends Model
                     "payment_id"                =>  $item[1],
                     "sku"                       =>  $item[13],
                     "quantity"                  =>  $item[14],
-                    "product_sales"             =>  sprintf('%.2f',$item[3]),
+                    "product_sales"             =>  sprintf('%.2f', str_replace(',', '', $item[3])),
                     "shipping_credits"          =>  0,
                     "gift_wrap_credits"         =>  0,
                     "regulatory_fee"            =>  0,
@@ -946,7 +955,7 @@ class AmazonPayment extends Model
                     "table_id"                  =>  $tableId,
                     "payment_id"                =>  $item[1],
                     "sku"                       =>  $item[13],
-                    "total"                     =>  sprintf('%.2f',$item[3]),
+                    "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[3])),
                 ];
             }
         }
