@@ -51,6 +51,7 @@
                     <dl class="layui-nav-child">
                         <dd><a layui-href="{:url('Finance/report')}">财务报表</a></dd>
                         <dd><a layui-href="{:url('Finance/order_statistics')}">订单统计</a></dd>
+                        <dd><a layui-href="{:url('SkuRelation/index')}">SKU映射</a></dd>
                     </dl>
                 </li>
                 <li data-name="Storage" class="layui-nav-item">

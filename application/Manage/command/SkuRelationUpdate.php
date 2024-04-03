@@ -29,6 +29,10 @@ class SkuRelationUpdate extends Command
 
         $updateObj = new SkuRelationUpdateModel();
         $ecUpdate = $updateObj->find(1);
+        if ($ecUpdate['is_open'] == 0) {
+            echo "success";exit();
+        }
+
         if (date('Ymd') == $ecUpdate['date'] && $ecUpdate['is_finished'] == 1) {
             echo "success";exit();
         }
@@ -47,7 +51,7 @@ class SkuRelationUpdate extends Command
             $skuRelationRes = ApiClient::EcWarehouseApi(Config::get("ec_eb_uri"), "getSkuRelation", '{"page":' . $ecUpdate['page'] . ',"pageSize":500,"condition":{"addTimeStart":"2021-09-01 00:00:00"}}');
             $skuRelation = $skuRelationRes['data'];
             if (count($skuRelation) <= 0) {
-                SkuRelationUpdateModel::update(['id' => $ecUpdate['id'], 'page' => $ecUpdate['page'] + 1, 'is_finished' => 1]);
+                SkuRelationUpdateModel::update(['id' => $ecUpdate['id'], 'page' => $ecUpdate['page'] + 1, 'is_finished' => 1, 'is_open' => 0]);
             } else {
                 foreach ($skuRelation as $item) {
                     $skuDetail = $item;
