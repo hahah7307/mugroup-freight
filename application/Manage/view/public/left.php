@@ -55,6 +55,15 @@
                     </dl>
                 </li>
                 <li data-name="Storage" class="layui-nav-item">
+                    <a layui-href="javascript:;" lay-tips="财务" lay-direction="2">
+                        <i class="layui-icon iconfont icon-caiwu1"></i>
+                        <cite>BI</cite>
+                    </a>
+                    <dl class="layui-nav-child">
+                        <dd><a layui-href="{:url('SkuReport/index')}">Sku报表</a></dd>
+                    </dl>
+                </li>
+                <li data-name="Storage" class="layui-nav-item">
                     <a layui-href="javascript:;" lay-tips="产品" lay-direction="2">
                         <i class="layui-icon iconfont icon-chanpin2"></i>
                         <cite>产品</cite>
