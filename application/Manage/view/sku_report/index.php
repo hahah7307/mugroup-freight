@@ -88,7 +88,7 @@
                 </thead>
                 <tbody>
                 {foreach name="qtyList" item="item"}
-                <tr class="sku-item" data-sku="{$v.warehouseSku}">
+                <tr class="sku-item" data-sku="{$item.warehouseSku}">
                     <td>{$item.warehouseSku}</td>
                     <td><img src="{$item.productImages}" height="50" alt=""></td>
                     <td>{$item.qty}</td>
