@@ -1,6 +1,10 @@
 
 {include file="public/header" /}
 
+<style>
+    .layui-btn {margin: 4px 0}
+</style>
+
 <!-- 主体内容 -->
 <div class="layui-body" id="LAY_app_body">
     <div class="right">
@@ -25,7 +29,7 @@
                     <col>
                     <col width="100">
                     <col width="80">
-                    <col width="280">
+                    <col width="200">
                 </colgroup>
                 <thead>
                 <tr>
@@ -52,6 +56,7 @@
                     <td class="tc">
                         <a href="{:url('index', ['id' => $v.id])}" class="layui-btn layui-btn-sm">详情</a>
                         <a href="{:url('store', ['id' => $v.id])}" class="layui-btn layui-btn-sm">库存</a>
+                        <a href="{:url('warehouse', ['id' => $v.id])}" class="layui-btn layui-btn-sm">仓租</a>
                         <a href="{:url('outbound', ['id' => $v.id])}" class="layui-btn layui-btn-sm">出库</a>
                         <a href="{:url('report_edit', ['id' => $v.id])}" class="layui-btn layui-btn-normal layui-btn-sm">编辑</a>
                         <a href="{:url('report_export', ['id' => $v.id, 'month' => $v.month])}" class="layui-btn layui-btn-normal layui-btn-sm">导出</a>

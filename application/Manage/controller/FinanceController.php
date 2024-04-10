@@ -16,6 +16,7 @@ use app\Manage\model\FinanceOrderTransferModel;
 use app\Manage\model\FinanceReportModel;
 use app\Manage\model\FinanceStoreModel;
 use app\Manage\model\FinanceTableModel;
+use app\Manage\model\FinanceWarehouseModel;
 use app\Manage\validate\FinanceReportValidate;
 use PHPExcel;
 use PHPExcel_IOFactory;
@@ -790,5 +791,83 @@ ORDER BY
             $this->error($e->getMessage(), url('order_statistics'));
         }
         $this->redirect(url('order_statistics'));
+    }
+
+    /**
+     * @throws DbException
+     */
+    public function warehouse($id): \think\response\View
+    {
+        $keyword = $this->request->get('keyword', '', 'htmlspecialchars');
+        $this->assign('keyword', $keyword);
+        if ($keyword) {
+            $where['warehouse_no|date|sku|warehouse_code'] = ['like', '%' . $keyword . '%'];
+        } else {
+            $where = [];
+        }
+
+        $page_num = $this->request->get('page_num', Config::get('PAGE_NUM'));
+        $this->assign('page_num', $page_num);
+
+        // 订单列表
+        $order = new FinanceWarehouseModel();
+        $list = $order->where($where)->order('id asc')->paginate($page_num, false, ['query' => ['keyword' => $keyword]]);
+        $this->assign('list', $list);
+        $this->assign('report_id', $id);
+
+        return view();
+    }
+
+    /**
+     * @throws PHPExcel_Reader_Exception
+     */
+    public function warehouse_import()
+    {
+        // phpexcel
+        require_once './static/classes/PHPExcel/Classes/PHPExcel.php';
+
+        $filename = input('filename');
+        $report_id = input('id');
+        $file= "./upload/excel/" . $filename;
+        $excelReader = PHPExcel_IOFactory::createReaderForFile($file);
+        $excelObj = $excelReader->load($file);
+        $worksheet = $excelObj->getSheet(0);
+        $data = $worksheet->toArray();
+
+        Db::startTrans();
+        try {
+            $warehouseData = [];
+            $financeWarehouseObj = new FinanceWarehouseModel();
+            foreach ($data as $item) {
+                if ($item[0] != "仓租") {
+                    continue;
+                }
+                $warehouseData[] = [
+                    "report_id"             =>  $report_id,
+                    "warehouse_no"          =>  $item[1],
+                    "inventory_batch"       =>  $item[2],
+                    "date"                  =>  $item[3],
+                    "sku"                   =>  $item[4],
+                    "warehouse_code"        =>  $item[5],
+                    "product_length"        =>  $item[6],
+                    "product_width"         =>  $item[7],
+                    "product_height"        =>  $item[8],
+                    "length_unit"           =>  $item[9],
+                    "quantity"              =>  $item[10],
+                    "age"                   =>  $item[11],
+                    "volume"                =>  $item[12],
+                    "volume_unit"           =>  $item[13],
+                    "total"                 =>  $item[14],
+                    "total_unit"            =>  $item[15]
+                ];
+            }
+            $financeWarehouseObj->insertAll($warehouseData);
+
+            Db::commit();
+        } catch (Exception $e) {
+            Db::rollback();
+            $this->error($e->getMessage(), url('order_statistics'));
+        }
+        $this->redirect(url('warehouse', ['id' => $report_id]));
     }
 }
