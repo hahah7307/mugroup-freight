@@ -130,31 +130,9 @@ class FinanceController extends BaseController
             $this->error('异常操作！', url('report'));
         }
 
-        $reportRes = $financeReportObj->query(FinanceReportModel::getReportSql($report_id));
-        $adCostSql = '
-	SELECT
-	b.name 店铺,
-	d.pcr_product_sku 仓库SKU,
-	SUM( a.totalSalesQuantity * d.pcr_quantity ) 销量,
-	SUM( ROUND( a.totalAdsCost * d.pcr_percent * d.pcr_quantity / 100, 8 ) ) 广告费,
-	a.reportDateMonth 月份,
-	a.principalRealname 运营人员 
-FROM
-	mu_ak_ad_cost a
-	LEFT JOIN mu_ak_seller b ON a.sid = b.sid
-	LEFT JOIN mu_ecang_sku c ON a.msku = c.product_sku
-	LEFT JOIN mu_ecang_sku_relation d ON c.id = d.sku_id 
-WHERE
-	a.reportDateMonth = "' . $report['month'] . '" 
-GROUP BY
-	name,
-	pcr_product_sku,
-	reportDateMonth,
-	principalRealname 
-ORDER BY
-	name,
-	pcr_product_sku';
-        $adCostRes = $financeReportObj->query($adCostSql);
+        $saleRefund = $financeReportObj->query(FinanceReportModel::getSaleRefundSql($report_id));
+        $warehouseSku = $financeReportObj->query(FinanceReportModel::getWarehouseSkuSql($report_id, $report['month']));
+        $warehouseRent = $financeReportObj->query(FinanceReportModel::getWarehouseRentSql($report_id));
 
         // phpexcel
         require_once './static/classes/PHPExcel/Classes/PHPExcel.php';
@@ -162,36 +140,48 @@ ORDER BY
         $objPHPExcel = new PHPExcel();
 
         // Set name sheet
-        $objPHPExcel->setActiveSheetIndex(0)->setTitle($report['name']);
+        $objPHPExcel->setActiveSheetIndex(0)->setTitle('销售-退款');
 
         // Add some data
         $objPHPExcel->setActiveSheetIndex(0)
             ->setCellValue('A1', '平台')
             ->setCellValue('B1', '店铺')
-            ->setCellValue('C1', '仓库SKU')
-            ->setCellValue('D1', '销售数量')
-            ->setCellValue('E1', '退款数量')
-            ->setCellValue('F1', '销售总额')
-            ->setCellValue('G1', '退款总额')
-            ->setCellValue('H1', '佣金')
-            ->setCellValue('I1', '亚马逊尾程')
-            ->setCellValue('J1', '海外仓尾程')
+            ->setCellValue('C1', '账单Payment')
+            ->setCellValue('D1', '销售Payment')
+            ->setCellValue('E1', '易仓订单号')
+            ->setCellValue('F1', '店铺Seller Sku')
+            ->setCellValue('G1', '仓库Sku')
+            ->setCellValue('H1', '销售量')
+            ->setCellValue('I1', '退款量')
+            ->setCellValue('J1', '销售额')
+            ->setCellValue('K1', '退款额')
+            ->setCellValue('L1', '平台佣金')
+            ->setCellValue('M1', '平台佣金退款')
+            ->setCellValue('N1', '亚马逊尾程')
+            ->setCellValue('O1', '海外仓尾程')
+            ->setCellValue('P1', 'DDP')
         ;
 
-        $reportIndex = 1;
-        foreach ($reportRes as $item) {
-            $reportIndex ++;
+        $saleRefundIndex = 1;
+        foreach ($saleRefund as $saleRefundItem) {
+            $saleRefundIndex ++;
             $objPHPExcel->setActiveSheetIndex(0)
-                ->setCellValue('A' . $reportIndex, $item['平台'])
-                ->setCellValue('B' . $reportIndex, $item['店铺'])
-                ->setCellValue('C' . $reportIndex, $item['仓库SKU'])
-                ->setCellValue('D' . $reportIndex, $item['销售数量'])
-                ->setCellValue('E' . $reportIndex, $item['退款数量'])
-                ->setCellValue('F' . $reportIndex, $item['销售总额'])
-                ->setCellValue('G' . $reportIndex, $item['退款总额'])
-                ->setCellValue('H' . $reportIndex, $item['佣金'])
-                ->setCellValue('I' . $reportIndex, $item['亚马逊尾程'])
-                ->setCellValue('J' . $reportIndex, $item['海外仓尾程'])
+                ->setCellValue('A' . $saleRefundIndex, $saleRefundItem['platform'])
+                ->setCellValue('B' . $saleRefundIndex, $saleRefundItem['userAccount'])
+                ->setCellValue('C' . $saleRefundIndex, $saleRefundItem['payment'])
+                ->setCellValue('D' . $saleRefundIndex, $saleRefundItem['payment_id'])
+                ->setCellValue('E' . $saleRefundIndex, $saleRefundItem['saleOrderCode'])
+                ->setCellValue('F' . $saleRefundIndex, $saleRefundItem['seller_sku'])
+                ->setCellValue('G' . $saleRefundIndex, $saleRefundItem['warehouse_sku'])
+                ->setCellValue('H' . $saleRefundIndex, $saleRefundItem['sale_qty'])
+                ->setCellValue('I' . $saleRefundIndex, $saleRefundItem['refund_qty'])
+                ->setCellValue('J' . $saleRefundIndex, $saleRefundItem['sale_amount'])
+                ->setCellValue('K' . $saleRefundIndex, $saleRefundItem['refund_amount'])
+                ->setCellValue('L' . $saleRefundIndex, $saleRefundItem['sale_selling_fees'])
+                ->setCellValue('M' . $saleRefundIndex, $saleRefundItem['refund_selling_fees'])
+                ->setCellValue('N' . $saleRefundIndex, $saleRefundItem['fba_fees'])
+                ->setCellValue('O' . $saleRefundIndex, $saleRefundItem['calcuRes'])
+                ->setCellValue('P' . $saleRefundIndex, $saleRefundItem['ddp'])
             ;
         }
 
@@ -199,28 +189,79 @@ ORDER BY
         $objPHPExcel->createSheet();
 
         // Set name sheet
-        $objPHPExcel->setActiveSheetIndex(1)->setTitle('广告费分摊');
+        $objPHPExcel->setActiveSheetIndex(1)->setTitle('仓库Sku');
 
         // Add some data
         $objPHPExcel->setActiveSheetIndex(1)
-            ->setCellValue('A1', '店铺')
-            ->setCellValue('B1', '仓库SKU')
-            ->setCellValue('C1', '销量')
-            ->setCellValue('D1', '广告费')
-            ->setCellValue('E1', '月份')
-            ->setCellValue('F1', '运营人员')
+            ->setCellValue('A1', '平台')
+            ->setCellValue('B1', '店铺')
+            ->setCellValue('C1', '仓库Sku')
+            ->setCellValue('D1', '销售量')
+            ->setCellValue('E1', '退款量')
+            ->setCellValue('F1', '销售额')
+            ->setCellValue('G1', '退款额')
+            ->setCellValue('H1', '平台佣金')
+            ->setCellValue('I1', '平台佣金退款')
+            ->setCellValue('J1', '亚马逊尾程')
+            ->setCellValue('K1', '海外仓尾程')
+            ->setCellValue('L1', 'DDP')
+            ->setCellValue('M1', '广告费')
+            ->setCellValue('N1', '仓储费')
+            ->setCellValue('O1', '促销费')
+            ->setCellValue('P1', '退运费')
+            ->setCellValue('Q1', '清算费用')
+            ->setCellValue('R1', '调整费用')
+            ->setCellValue('S1', '亚马逊仓储费')
+            ->setCellValue('T1', 'transfer')
         ;
 
-        $adIndex = 1;
-        foreach ($adCostRes as $item) {
-            $adIndex ++;
+        $warehouseSkuIndex = 1;
+        foreach ($warehouseSku as $warehouseSkuItem) {
+            $warehouseSkuIndex ++;
             $objPHPExcel->setActiveSheetIndex(1)
-                ->setCellValue('A' . $adIndex, $item['店铺'])
-                ->setCellValue('B' . $adIndex, $item['仓库SKU'])
-                ->setCellValue('C' . $adIndex, $item['销量'])
-                ->setCellValue('D' . $adIndex, $item['广告费'])
-                ->setCellValue('E' . $adIndex, $item['月份'])
-                ->setCellValue('F' . $adIndex, $item['运营人员'])
+                ->setCellValue('A' . $warehouseSkuIndex, $warehouseSkuItem['platform'])
+                ->setCellValue('B' . $warehouseSkuIndex, $warehouseSkuItem['userAccount'])
+                ->setCellValue('C' . $warehouseSkuIndex, $warehouseSkuItem['warehouse_sku'])
+                ->setCellValue('D' . $warehouseSkuIndex, $warehouseSkuItem['sale_qty'])
+                ->setCellValue('E' . $warehouseSkuIndex, $warehouseSkuItem['refund_qty'])
+                ->setCellValue('F' . $warehouseSkuIndex, $warehouseSkuItem['sale_amount'])
+                ->setCellValue('G' . $warehouseSkuIndex, $warehouseSkuItem['refund_amount'])
+                ->setCellValue('H' . $warehouseSkuIndex, $warehouseSkuItem['sale_selling_fees'])
+                ->setCellValue('I' . $warehouseSkuIndex, $warehouseSkuItem['refund_selling_fees'])
+                ->setCellValue('J' . $warehouseSkuIndex, $warehouseSkuItem['fba_fees'])
+                ->setCellValue('K' . $warehouseSkuIndex, $warehouseSkuItem['calcuRes'])
+                ->setCellValue('L' . $warehouseSkuIndex, $warehouseSkuItem['ddp'])
+                ->setCellValue('M' . $warehouseSkuIndex, $warehouseSkuItem['adCost'])
+                ->setCellValue('N' . $warehouseSkuIndex, $warehouseSkuItem['warehouse_rent'])
+                ->setCellValue('O' . $warehouseSkuIndex, $warehouseSkuItem['promotion'])
+                ->setCellValue('P' . $warehouseSkuIndex, $warehouseSkuItem['shipping_service'])
+                ->setCellValue('Q' . $warehouseSkuIndex, $warehouseSkuItem['liquidation'])
+                ->setCellValue('R' . $warehouseSkuIndex, $warehouseSkuItem['ajustment'])
+                ->setCellValue('S' . $warehouseSkuIndex, $warehouseSkuItem['fba_inventory'])
+                ->setCellValue('T' . $warehouseSkuIndex, $warehouseSkuItem['transfer'])
+            ;
+        }
+
+        // create new sheet
+        $objPHPExcel->createSheet();
+
+        // Set name sheet
+        $objPHPExcel->setActiveSheetIndex(2)->setTitle('仓储费');
+
+        // Add some data
+        $objPHPExcel->setActiveSheetIndex(2)
+            ->setCellValue('A1', '仓库Sku')
+            ->setCellValue('B1', '主运营人员')
+            ->setCellValue('C1', '仓储费总计')
+        ;
+
+        $warehouseRentIndex = 1;
+        foreach ($warehouseRent as $warehouseRentItem) {
+            $warehouseRentIndex ++;
+            $objPHPExcel->setActiveSheetIndex(2)
+                ->setCellValue('A' . $warehouseRentIndex, $warehouseRentItem['sku'])
+                ->setCellValue('B' . $warehouseRentIndex, $warehouseRentItem['user_name'])
+                ->setCellValue('C' . $warehouseRentIndex, $warehouseRentItem['total'])
             ;
         }
 
