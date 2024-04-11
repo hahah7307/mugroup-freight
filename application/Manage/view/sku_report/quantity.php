@@ -1,13 +1,16 @@
 
 {include file="public/header" /}
 
+<style>
+    .product-img {position: absolute; right: 250px; top: 250px}
+</style>
 <!-- 主体内容 -->
 <script src="/static/echarts/dist/echarts.min.js"></script>
 <script src="/static/echarts/test/lib/jquery.min.js"></script>
 <div class="layui-body" id="LAY_app_body">
     <div class="right">
         <a href="{:url('index')}" class="layui-btn layui-btn-danger layui-btn-sm fr"><i class="layui-icon">&#xe603;</i>返回上一页</a>
-        <div class="title">{$sku}销量柱状图</div>
+        <div class="title">{$product.productSku}（{$product.productTitle}）销量柱状图</div>
         <form class="layui-form" method="get">
             <div class="layui-input-inline w200">
                 <input type="text" class="layui-input" id="start" name="start" value="{$start}" placeholder="开始时间">
@@ -21,6 +24,7 @@
         </form>
 
         <div class="layui-form">
+            <div class="product-img"><img src="{$product.productImages}" alt="" height="150"></div>
             <div id="main" style="height:1000px;"></div>
         </div>
     </div>

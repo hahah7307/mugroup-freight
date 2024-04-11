@@ -13,7 +13,7 @@
                         <cite>控制台</cite>
                     </a>
                 </li>
-                <li data-name="Storage" class="layui-nav-item">
+                <li data-name="Order" class="layui-nav-item">
                     <a layui-href="javascript:;" lay-tips="订单" lay-direction="2">
                         <i class="layui-icon iconfont icon-dingdan1"></i>
                         <cite>尾程</cite>
@@ -22,7 +22,7 @@
                         <dd><a layui-href="{:url('Order/index')}">尾程费用</a></dd>
                     </dl>
                 </li>
-                <li data-name="Storage" class="layui-nav-item">
+                <li data-name="Inventory" class="layui-nav-item">
                     <a layui-href="javascript:;" lay-tips="仓储" lay-direction="2">
                         <i class="layui-icon iconfont icon-kucunchaxun"></i>
                         <cite>仓储</cite>
@@ -34,7 +34,7 @@
                         <dd><a layui-href="{:url('LeInventory/index')}">乐歌仓储费</a></dd>
                     </dl>
                 </li>
-                <li data-name="Storage" class="layui-nav-item">
+                <li data-name="Stock" class="layui-nav-item">
                     <a layui-href="javascript:;" lay-tips="库存" lay-direction="2">
                         <i class="layui-icon iconfont icon-kucun"></i>
                         <cite>库存</cite>
@@ -43,7 +43,7 @@
                         <dd><a layui-href="{:url('DateStock/index')}">库存统计</a></dd>
                     </dl>
                 </li>
-                <li data-name="Storage" class="layui-nav-item">
+                <li data-name="Finance" class="layui-nav-item">
                     <a layui-href="javascript:;" lay-tips="财务" lay-direction="2">
                         <i class="layui-icon iconfont icon-caiwu1"></i>
                         <cite>财务</cite>
@@ -54,16 +54,16 @@
                         <dd><a layui-href="{:url('SkuRelation/index')}">SKU映射</a></dd>
                     </dl>
                 </li>
-                <li data-name="Storage" class="layui-nav-item">
-                    <a layui-href="javascript:;" lay-tips="财务" lay-direction="2">
-                        <i class="layui-icon iconfont icon-caiwu1"></i>
+                <li data-name="SkuReport" class="layui-nav-item">
+                    <a layui-href="javascript:;" lay-tips="BI" lay-direction="2">
+                        <i class="layui-icon iconfont icon-icon"></i>
                         <cite>BI</cite>
                     </a>
                     <dl class="layui-nav-child">
                         <dd><a layui-href="{:url('SkuReport/index')}">Sku报表</a></dd>
                     </dl>
                 </li>
-                <li data-name="Storage" class="layui-nav-item">
+                <li data-name="Product" class="layui-nav-item">
                     <a layui-href="javascript:;" lay-tips="产品" lay-direction="2">
                         <i class="layui-icon iconfont icon-chanpin2"></i>
                         <cite>产品</cite>

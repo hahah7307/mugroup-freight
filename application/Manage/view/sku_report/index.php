@@ -21,8 +21,8 @@
             销售：
             <div class="layui-inline w120">
                 <select name="sale_order" lay-verify="">
-                    <option value="DESC" {if condition="$sale_order eq 'DESC'"}selected{/if}>倒序</option>
-                    <option value="ASC" {if condition="$sale_order eq 'ASC'"}selected{/if}>正序</option>
+                    <option value="DESC" {if condition="$sale_order eq 'DESC'"}selected{/if}>从高到低</option>
+                    <option value="ASC" {if condition="$sale_order eq 'ASC'"}selected{/if}>从低到高</option>
                 </select>
             </div>
             <div class="layui-input-inline w200">
@@ -34,8 +34,8 @@
             <span style="margin-left: 120px">销量：</span>
             <div class="layui-inline w120">
                 <select name="qty_order" lay-verify="">
-                    <option value="DESC" {if condition="$qty_order eq 'DESC'"}selected{/if}>倒序</option>
-                    <option value="ASC" {if condition="$qty_order eq 'ASC'"}selected{/if}>正序</option>
+                    <option value="DESC" {if condition="$qty_order eq 'DESC'"}selected{/if}>从高到低</option>
+                    <option value="ASC" {if condition="$qty_order eq 'ASC'"}selected{/if}>从低到高</option>
                 </select>
             </div>
             <div class="layui-input-inline w200">

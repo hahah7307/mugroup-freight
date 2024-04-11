@@ -40,7 +40,7 @@ class SkuReportController extends BaseController
             SELECT
                 b.warehouseSku,
                 c.productImages,
-                SUM( a.amountpaid ) sale
+                SUM( ROUND( a.amountpaid, 3 ) ) sale 
             FROM
                 mu_ecang_order a
                 LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id
@@ -61,7 +61,7 @@ class SkuReportController extends BaseController
             SELECT
                 b.warehouseSku,
                 c.productImages,
-	            SUM(b.qty) qty
+	            SUM( ROUND( b.qty, 3 ) ) qty 
             FROM
                 mu_ecang_order a
                 LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id
@@ -93,6 +93,8 @@ class SkuReportController extends BaseController
             $this->error('操作错误！', url('index'));
         }
 
+        $skuObj = new ProductModel();
+        $product = $skuObj->where(['productSku' => $sku])->find();
         $start = $this->request->get('start', '', 'htmlspecialchars');
         $this->assign('start', $start);
         $start_time = empty($start) ? '' : 'AND a.dateWarehouseShipping >="' . $start . '"';
@@ -134,7 +136,7 @@ class SkuReportController extends BaseController
                 $v[2]['platform']   =>  $v[2]['qty'],
             ];
         }
-        $this->assign('sku', $sku);
+        $this->assign('product', $product);
         $this->assign('data', json_encode($data));
         $this->assign('qty', implode(',', $qty));
 
