@@ -35,4 +35,5 @@ return [
     'app\Manage\command\SkuRelationUpdate', //
     'app\Manage\command\FinanceWayfairProduct', //
     'app\Manage\command\FinanceOutboundNotify', //
+    'app\Manage\command\ApiProductCategory', //
 ];

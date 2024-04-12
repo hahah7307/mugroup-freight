@@ -57,10 +57,11 @@
                 <li data-name="SkuReport" class="layui-nav-item">
                     <a layui-href="javascript:;" lay-tips="BI" lay-direction="2">
                         <i class="layui-icon iconfont icon-icon"></i>
-                        <cite>BI</cite>
+                        <cite>报表</cite>
                     </a>
                     <dl class="layui-nav-child">
                         <dd><a layui-href="{:url('SkuReport/index')}">Sku报表</a></dd>
+                        <dd><a layui-href="{:url('SkuReport/category')}">类目报表</a></dd>
                     </dl>
                 </li>
                 <li data-name="Product" class="layui-nav-item">

@@ -68,7 +68,7 @@
                 <tr class="sku-item" data-sku="{$v.warehouseSku}">
                     <td>{$v.warehouseSku}</td>
                     <td><img src="{$v.productImages}" height="50" alt=""></td>
-                    <td>{$v.sale}</td>
+                    <td>{$v.sale|number_format=###, 3}</td>
                 </tr>
                 {/foreach}
                 </tbody>
@@ -91,7 +91,7 @@
                 <tr class="sku-item" data-sku="{$item.warehouseSku}">
                     <td>{$item.warehouseSku}</td>
                     <td><img src="{$item.productImages}" height="50" alt=""></td>
-                    <td>{$item.qty}</td>
+                    <td>{$item.qty|number_format=###}</td>
                 </tr>
                 {/foreach}
                 </tbody>

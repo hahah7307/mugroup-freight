@@ -22,7 +22,7 @@ class SkuReportController extends BaseController
         $this->assign('sale_start', $sale_start);
         $start_time = empty($sale_start) ? '' : 'AND a.dateWarehouseShipping >="' . $sale_start . '"';
 
-        $sale_end = $this->request->get('sale_end', date('Y-m-d H:i:s'), 'htmlspecialchars');
+        $sale_end = $this->request->get('sale_end', date('Y-m-d 00:00:00'), 'htmlspecialchars');
         $this->assign('sale_end', $sale_end);
 
         $qty_order = $this->request->get('qty_order', 'DESC', 'htmlspecialchars');
@@ -32,7 +32,7 @@ class SkuReportController extends BaseController
         $this->assign('qty_start', $qty_start);
         $qty_time = empty($qty_start) ? '' : 'AND a.dateWarehouseShipping >="' . $qty_start . '"';
 
-        $qty_end = $this->request->get('qty_end', date('Y-m-d H:i:s'), 'htmlspecialchars');
+        $qty_end = $this->request->get('qty_end', date('Y-m-d 00:00:00'), 'htmlspecialchars');
         $this->assign('qty_end', $qty_end);
 
         $model = new ProductModel();
@@ -99,7 +99,7 @@ class SkuReportController extends BaseController
         $this->assign('start', $start);
         $start_time = empty($start) ? '' : 'AND a.dateWarehouseShipping >="' . $start . '"';
 
-        $end = $this->request->get('end', date('Y-m-d H:i:s'), 'htmlspecialchars');
+        $end = $this->request->get('end', date('Y-m-d 00:00:00'), 'htmlspecialchars');
         $this->assign('end', $end);
 
         $model = new ProductModel();
@@ -139,6 +139,58 @@ class SkuReportController extends BaseController
         $this->assign('product', $product);
         $this->assign('data', json_encode($data));
         $this->assign('qty', implode(',', $qty));
+
+        return view();
+    }
+
+    /**
+     * @throws PDOException
+     * @throws BindParamException
+     */
+    public function category(): \think\response\View
+    {
+        $start = $this->request->get('start', '', 'htmlspecialchars');
+        $this->assign('start', $start);
+        $start_time = empty($start) ? '' : 'AND a.dateWarehouseShipping >="' . $start . '"';
+
+        $end = $this->request->get('end', date('Y-m-d 00:00:00'), 'htmlspecialchars');
+        $this->assign('end', $end);
+
+        $model = new ProductModel();
+        $category_1 = $model->query('
+SELECT
+	SUM( b.qty ) value,
+	IFNULL( c.category_name_1, "未分类" ) name 
+FROM
+	mu_ecang_order a
+	LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id
+	LEFT JOIN mu_api_product_category c ON b.warehouseSku = c.productSku 
+WHERE
+	STATUS = 4 ' .
+    $start_time .
+    'AND a.dateWarehouseShipping < "' . $end . '"' . ' 
+GROUP BY
+	category_name_1;
+        ');
+
+        $category_2 = $model->query('
+SELECT
+	SUM( b.qty ) value,
+	IFNULL( c.category_name_2, "未分类" ) name 
+FROM
+	mu_ecang_order a
+	LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id
+	LEFT JOIN mu_api_product_category c ON b.warehouseSku = c.productSku 
+WHERE
+	STATUS = 4 ' .
+            $start_time .
+            'AND a.dateWarehouseShipping < "' . $end . '"' . ' 
+GROUP BY
+	category_name_2;
+        ');
+
+        $this->assign('category_1', json_encode($category_1));
+        $this->assign('category_2', json_encode($category_2));
 
         return view();
     }
