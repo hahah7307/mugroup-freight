@@ -140,6 +140,64 @@ class SkuReportController extends BaseController
         $this->assign('data', json_encode($data));
         $this->assign('qty', implode(',', $qty));
 
+        $list2 = $model->query('
+            SELECT
+            a.userAccount,
+            DATE_FORMAT( a.dateWarehouseShipping, "%Y%m" ) MONTH,
+            SUM( b.qty ) qty 
+        FROM
+            mu_ecang_order a
+            LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id 
+        WHERE
+            b.warehouseSku = "' . $sku . '" 
+            AND a.`status` = 4 ' .
+            $start_time .
+            'AND a.dateWarehouseShipping < "' . $end . '"' . '
+        GROUP BY
+            userAccount,
+            MONTH;
+        ');
+
+        $list3 = $model->query('
+            SELECT DISTINCT
+	        userAccount 
+        FROM
+            mu_ecang_order a
+            LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id 
+        WHERE
+            b.warehouseSku = "' . $sku . '" 
+            AND a.`status` = 4 ' .
+            $start_time .
+            'AND a.dateWarehouseShipping < "' . $end . '"' . '
+        ORDER BY
+	        userAccount;
+        ');
+
+        $this->assign('userAccountArr', $list3);
+        $this->assign('userAccount', '"' . implode('","', array_column($list3, 'userAccount')) . '"');
+
+        $month2 = [];
+        $data2 = [];
+        $qty2 = [];
+        foreach ($list2 as $item2) {
+            $month2[$item2['MONTH']][] = ['userAccount' => $item2['userAccount'], 'qty' => $item2['qty']];
+            $qty2[$item2['MONTH']] += $item2['qty'];
+        }
+        ksort($month2);
+        ksort($qty2);
+        foreach ($month2 as $k => $v) {
+            $data2[] = [
+                'month'                 =>  $k,
+                $v[0]['userAccount']    =>  $v[0]['qty'],
+                $v[1]['userAccount']    =>  $v[1]['qty'],
+                $v[2]['userAccount']    =>  $v[2]['qty'],
+                $v[3]['userAccount']    =>  $v[3]['qty'],
+                $v[4]['userAccount']    =>  $v[4]['qty'],
+            ];
+        }
+        $this->assign('data2', json_encode($data2));
+        $this->assign('qty2', implode(',', $qty2));
+
         return view();
     }
 

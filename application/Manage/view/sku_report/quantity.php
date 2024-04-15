@@ -26,6 +26,7 @@
         <div class="layui-form">
             <div class="product-img"><img src="{$product.productImages}" alt="" height="150"></div>
             <div id="main" style="height:1000px;"></div>
+            <div id="main2" style="height:1000px;"></div>
         </div>
     </div>
 </div>
@@ -101,6 +102,60 @@
                 },
                 {
                     data: [{$qty}],
+                    type: 'bar',
+                    stack: 'x',
+                    label: {
+                        normal: {
+                            show: true,
+                            position: 'insideBottom',
+                            formatter: '{c}',         // 显示的总数
+                            textStyle: { color: 'green', fontsize: 36 }
+                        }
+                    },
+                    itemStyle: {
+                        normal: {
+                            color: 'rgba(128, 128, 128, 0)'      // 柱状图颜色设为透明
+                        }
+                    }
+                }
+            ]
+        });
+
+        const data2 = {$data2};
+        const userAccount = [{$userAccount}];
+        const myChart2 = echarts.init(document.getElementById("main2"));
+        myChart2.setOption({
+            legend: {
+                orient: 'vertical',
+                right: 400,
+                top: 'top',
+                data: userAccount
+            },
+            grid: {
+                left: '10%',
+                top: '-50%' //柱状图上层有透明柱，需要向下减去一半
+            },
+            xAxis: {
+                data: data2.map(item => item.month)
+            },
+            yAxis: {},
+            series: [
+                {foreach name="userAccountArr" item="item"}
+                {
+                    name: "{$item.userAccount}",
+                    data: data2.map(item => item.{$item.userAccount}),
+                    type: 'bar',
+                    stack: 'x',
+                    label: {
+                        normal: {
+                            show: true,// 显示label
+                            position: "inside", // 显示的label的位置
+                        }
+                    }
+                },
+                {/foreach}
+                {
+                    data: [{$qty2}],
                     type: 'bar',
                     stack: 'x',
                     label: {
