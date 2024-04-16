@@ -49,8 +49,13 @@ class LeInventoryBatch extends Command
                     $apiRes = ApiClient::LeWarehouseApi("https://app.lecangs.com/api/oms/inventoryBatch/api/list", "POST", ['pageNum' => $dataCa['page'], 'pageSize' => $dataCa['pageSize']]);
                     if ($apiRes['code'] == 1) {
                         $batchData = [];
+                        $leInventoryBatchObj = new LeInventoryBatchModel();
                         foreach ($apiRes['data']['list'] as $item) {
                             if ($item['warehouseCode'] == $dataCa['warehouseCode']) {
+                                $inventory = $leInventoryBatchObj->where(['businessNo' => $item['businessNo'], 'warehouseCode' => $item['warehouseCode'], 'lecangsCode' => $item['lecangsCode'], 'created_date' => date('Ymd')])->find();
+                                if ($inventory) {
+                                    continue;
+                                }
                                 $batchData[] = [
                                     'businessNo' => $item['businessNo'],
                                     'warehouseCode' => $item['warehouseCode'],
@@ -74,7 +79,6 @@ class LeInventoryBatch extends Command
                                 unset($item);
                             }
                         }
-                        $leInventoryBatchObj = new LeInventoryBatchModel();
                         $leInventoryBatchObj->insertAll($batchData);
                         unset($batchData);
                         unset($leInventoryBatchObj);
@@ -105,8 +109,13 @@ class LeInventoryBatch extends Command
                     $apiRes = ApiClient::LeWarehouseApi("https://app.lecangs.com/api/oms/inventoryBatch/api/list", "POST", ['pageNum' => $dataPaw['page'], 'pageSize' => $dataPaw['pageSize']]);
                     if ($apiRes['code'] == 1) {
                         $batchData = [];
+                        $leInventoryBatchObj = new LeInventoryBatchModel();
                         foreach ($apiRes['data']['list'] as $item) {
                             if ($item['warehouseCode'] == $dataPaw['warehouseCode']) {
+                                $inventory = $leInventoryBatchObj->where(['businessNo' => $item['businessNo'], 'warehouseCode' => $item['warehouseCode'], 'lecangsCode' => $item['lecangsCode'], 'created_date' => date('Ymd')])->find();
+                                if ($inventory) {
+                                    continue;
+                                }
                                 $batchData[] = [
                                     'businessNo' => $item['businessNo'],
                                     'warehouseCode' => $item['warehouseCode'],
@@ -130,7 +139,6 @@ class LeInventoryBatch extends Command
                                 unset($item);
                             }
                         }
-                        $leInventoryBatchObj = new LeInventoryBatchModel();
                         $leInventoryBatchObj->insertAll($batchData);
                         unset($batchData);
                         unset($leInventoryBatchObj);
