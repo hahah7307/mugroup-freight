@@ -57,9 +57,6 @@
                     <col width="50">
                     <col>
                     <col width="150">
-                    <col width="150">
-                    <col>
-                    <col>
                     <col>
                     <col>
                     <col>
@@ -87,8 +84,6 @@
                     </th>
                     <th>ID</th>
                     <th>原始单号</th>
-                    <th>订单时间</th>
-                    <th>订单类型</th>
                     <th>SKU</th>
                     <th>QTY</th>
                     <th>发货类型</th>
@@ -108,7 +103,6 @@
                     <th>其他交易费</th>
                     <th>其他</th>
                     <th>总计</th>
-                    <th>状态</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -121,10 +115,8 @@
                     </td>
                     <td>{$v.id}</td>
                     <td>{$v.payment_id}</td>
-                    <td>{$v.order_time}</td>
-                    <td>{$v.order_type}</td>
                     <td>{$v.sku}</td>
-                    <td class="tr">{$v.qty}</td>
+                    <td class="tr">{$v.quantity}</td>
                     <td>{$v.fulfillment}</td>
                     <td class="tr">{$v.product_sales}</td>
                     <td class="tr">{$v.product_sales_tax}</td>
@@ -142,13 +134,6 @@
                     <td class="tr">{$v.other_transaction_fees}</td>
                     <td class="tr">{$v.other}</td>
                     <td class="tr">{$v.total}</td>
-                    <td class="tc">
-                        {if condition="$v.is_notify eq 1"}
-                        <span class="green">已同步</span>
-                        {else/}
-                        <span class="red">未同步</span>
-                        {/if}
-                    </td>
                 </tr>
                 {/foreach}
                 </tbody>

@@ -422,7 +422,61 @@ FROM
 			mu_finance_order_transfer a
 			LEFT JOIN mu_finance_table b ON a.table_id = b.id 
 		WHERE
-			report_id = ' . $report_id . ' 
+			report_id = ' . $report_id . ' UNION ALL
+		SELECT
+			a.platform,
+			a.user_account userAccount,
+			NULL AS payment,
+			NULL AS payment_id,
+			NULL AS saleOrderCode,
+			NULL AS seller_sku,
+			a.sku warehouse_sku,
+			NULL AS sale_qty,
+			NULL AS refund_qty,
+			NULL AS sale_amount,
+			NULL AS refund_amount,
+			NULL AS sale_selling_fees,
+			NULL AS refund_selling_fees,
+			NULL AS fba_fees,
+			NULL AS calcuRes,
+			NULL AS ddp,
+			NULL AS adCost,
+			SUM( ROUND( a.total / b.qty, 7 ) ) warehouse_rent,
+			NULL AS promotion,
+			NULL AS shipping_service,
+			NULL AS liquidation,
+			NULL AS ajustment,
+			NULL AS fba_inventory,
+			NULL AS transfer 
+		FROM
+			(
+			SELECT
+				sku,
+				pcr_product_sku,
+				sku_id,
+				user_account,
+				platform,
+				total 
+			FROM
+				( SELECT DISTINCT sku, SUM( total ) total FROM mu_finance_warehouse WHERE is_sale = 0 GROUP BY sku ) a
+				LEFT JOIN mu_ecang_sku_relation b ON a.sku = b.pcr_product_sku
+				LEFT JOIN mu_ecang_sku c ON b.sku_id = c.id
+				LEFT JOIN mu_finance_table d ON c.user_account = d.userAccount 
+			) a
+			LEFT JOIN (
+			SELECT
+				sku,
+				COUNT( sku ) qty 
+			FROM
+				( SELECT DISTINCT sku FROM mu_finance_warehouse WHERE is_sale = 0 ) a
+				LEFT JOIN mu_ecang_sku_relation b ON a.sku = b.pcr_product_sku 
+			GROUP BY
+				sku 
+			) b ON a.sku = b.sku 
+		GROUP BY
+			platform,
+			userAccount,
+			warehouse_sku 
 		) a 
 	GROUP BY
 		platform,

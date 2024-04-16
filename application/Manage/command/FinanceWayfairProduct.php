@@ -1,9 +1,7 @@
 <?php
 namespace app\Manage\command;
 
-use app\Manage\model\FinanceOrderOutboundModel;
 use app\Manage\model\FinanceOrderSaleModel;
-use app\Manage\model\FinanceStoreModel;
 use app\Manage\model\OrderModel;
 use Exception;
 use think\Config;
@@ -32,7 +30,7 @@ class FinanceWayfairProduct extends Command
                 $orderObj = new OrderModel();
                 foreach ($list as $item) {
                     // wayfair订单一拆到底，按每一个sku发货所以数量可以恒定为1
-                    $orderDetails = $orderObj->with('details')->where(['refNo|saleOrderCode' => $item['payment_id'], 'status' => 0])->find();
+                    $orderDetails = $orderObj->with('details')->where(['refNo' => ['like', '%' . $item['payment_id']], 'status' => 0])->find();
                     if (count($orderDetails['details'])) {
                         foreach ($orderDetails['details'] as $detailItem) {
                             if ($financeOrderSaleObj->update(['sku' => $detailItem['productSku'], 'quantity' => 1], ['id' => $item['id']])) {
@@ -41,7 +39,7 @@ class FinanceWayfairProduct extends Command
                         }
                     } else {
                         // 未拆单
-                        $orderDetails = $orderObj->with('details')->where(['refNo|saleOrderCode' => $item['payment_id'], 'status' => 4])->find();
+                        $orderDetails = $orderObj->with('details')->where(['refNo' => ['like', '%' . $item['payment_id']], 'status' => 4])->find();
                         if (count($orderDetails['details'])) {
                             foreach ($orderDetails['details'] as $detailItem) {
                                 if ($financeOrderSaleObj->update(['sku' => $detailItem['productSku'], 'quantity' => 1], ['id' => $item['id']])) {
