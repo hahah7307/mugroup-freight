@@ -517,7 +517,9 @@ FROM
 		NULL AS shipping_service,
 		NULL AS liquidation,
 		NULL AS ajustment,
-		SUM( a.fbaStorageFee * e.pcr_percent * e.pcr_quantity ) * 0.01 fba_inventory,
+		SUM(
+			( a.fbaStorageFee + a.longTermStorageFee + a.sharedFbaDisposalFee + a.sharedAmazonPartneredCarrierShipmentFee + a.sharedFbaInboundConvenienceFee ) * e.pcr_percent * e.pcr_quantity 
+		) * 0.01 fba_inventory,
 		NULL AS transfer 
 	FROM
 		mu_ak_ad_cost a
