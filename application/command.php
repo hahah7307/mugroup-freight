@@ -32,6 +32,7 @@ return [
     'app\Manage\command\ProductInventory', //
     'app\Manage\command\UserUpdate', //
     'app\Manage\command\AkSeller', //
+    'app\Manage\command\AkAdCost', //
     'app\Manage\command\SkuRelationUpdate', //
     'app\Manage\command\FinanceWayfairProduct', //
     'app\Manage\command\FinanceOutboundNotify', //

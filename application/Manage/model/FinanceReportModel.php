@@ -386,36 +386,6 @@ FROM
 			NULL AS shipping_service,
 			NULL AS liquidation,
 			NULL AS ajustment,
-			total fba_inventory,
-			NULL AS transfer 
-		FROM
-			mu_finance_order_fba_inventory a
-			LEFT JOIN mu_finance_table b ON a.table_id = b.id 
-		WHERE
-			report_id = ' . $report_id . ' UNION ALL
-		SELECT
-			b.platform,
-			b.userAccount,
-			NULL AS payment,
-			NULL AS payment_id,
-			NULL AS saleOrderCode,
-			NULL AS seller_sku,
-			NULL AS warehouse_sku,
-			NULL AS sale_qty,
-			NULL AS refund_qty,
-			NULL AS sale_amount,
-			NULL AS refund_amount,
-			NULL AS sale_selling_fees,
-			NULL AS refund_selling_fees,
-			NULL AS fba_fees,
-			NULL AS calcuRes,
-			NULL AS ddp,
-			NULL AS adCost,
-			NULL AS warehouse_rent,
-			NULL AS promotion,
-			NULL AS shipping_service,
-			NULL AS liquidation,
-			NULL AS ajustment,
 			NULL AS fba_inventory,
 			total transfer 
 		FROM
@@ -514,6 +484,40 @@ FROM
 		NULL AS liquidation,
 		NULL AS ajustment,
 		NULL AS fba_inventory,
+		NULL AS transfer 
+	FROM
+		mu_ak_ad_cost a
+		LEFT JOIN mu_ak_seller b ON b.sid = a.sid
+		LEFT JOIN mu_ecang_ak_user_account_relation c ON c.ak_user_account = b.`name`
+		LEFT JOIN mu_ecang_sku d ON d.user_account = c.ecang_user_account 
+		AND a.msku = d.product_sku
+		LEFT JOIN mu_ecang_sku_relation e ON e.sku_id = d.id 
+	WHERE
+		reportDateMonth = "' . $month . '" 
+	GROUP BY
+		platform,
+		userAccount,
+		warehouse_sku  UNION ALL
+	SELECT
+		"amazon" AS platform,
+		c.ecang_user_account userAccount,
+		e.pcr_product_sku warehouse_sku,
+		NULL AS sale_qty,
+		NULL AS refund_qty,
+		NULL AS sale_amount,
+		NULL AS refund_amount,
+		NULL AS sale_selling_fees,
+		NULL AS refund_selling_fees,
+		NULL AS fba_fees,
+		NULL AS calcuRes,
+		NULL AS ddp,
+		NULL AS adCost,
+		NULL AS warehouse_rent,
+		NULL AS promotion,
+		NULL AS shipping_service,
+		NULL AS liquidation,
+		NULL AS ajustment,
+		SUM( a.fbaStorageFee * e.pcr_percent * e.pcr_quantity ) * 0.01 fba_inventory,
 		NULL AS transfer 
 	FROM
 		mu_ak_ad_cost a
