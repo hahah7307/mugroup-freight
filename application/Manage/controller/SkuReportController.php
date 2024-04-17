@@ -252,4 +252,76 @@ GROUP BY
 
         return view();
     }
+
+    /**
+     * @throws DbException
+     */
+    public function daily(): \think\response\View
+    {
+        $sale_order = $this->request->get('sale_order', 'DESC', 'htmlspecialchars');
+        $this->assign('sale_order', $sale_order);
+
+        $sale_day = $this->request->get('sale_day', date('Y-m-d', strtotime('-2 day')), 'htmlspecialchars');
+        $this->assign('sale_day', $sale_day);
+
+        $qty_order = $this->request->get('qty_order', 'DESC', 'htmlspecialchars');
+        $this->assign('qty_order', $qty_order);
+
+        $qty_start = $this->request->get('qty_start', 5, 'intval');
+        $this->assign('qty_start', $qty_start);
+
+        $qty_end = $this->request->get('qty_end', 10, 'intval');
+        $this->assign('qty_end', $qty_end);
+
+        $model = new ProductModel();
+        $saleList = $model->query('
+SELECT
+	b.warehouseSku,
+	c.productImages,
+	SUM( qty ) qty 
+FROM
+	mu_ecang_order a
+	LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id
+	LEFT JOIN mu_ecang_product c ON b.warehouseSku = c.productSku 
+WHERE
+	a.datePaidPlatform >= "' . $sale_day . ' 00:00:00" 
+	AND a.datePaidPlatform <= "' . $sale_day . ' 23:59:59" 
+	AND `status` > 0 
+	AND `status` < 8 
+GROUP BY
+	warehouseSku,
+	productImages 
+ORDER BY
+	qty ' . $sale_order . ';
+        ');
+        $this->assign('saleList', $saleList);
+
+        $min = min($qty_start, $qty_end);
+        $max = max($qty_start, $qty_end);
+        $qtyList = $model->query('
+SELECT
+	* 
+FROM
+	(
+	SELECT
+		b.warehouseSku,
+		c.productImages,
+		SUM( qty ) qty 
+	FROM
+		mu_ecang_order a
+		LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id
+		LEFT JOIN mu_ecang_product c ON b.warehouseSku = c.productSku 
+	WHERE
+		a.datePaidPlatform >= "' . $sale_day . ' 00:00:00" 
+	AND a.datePaidPlatform <= "' . $sale_day . ' 23:59:59" AND `status` > 0 
+	AND `status` < 8 GROUP BY warehouseSku, productImages ORDER BY qty ' . $sale_order . ' ) a WHERE qty >= ' . $min . ' 
+	AND qty <= ' . $max . ' 
+ORDER BY
+	qty ' . $qty_order . ';
+        ');
+        $this->assign('qtyList', $qtyList);
+
+        Session::set(Config::get('BACK_URL'), $this->request->url(), 'manage');
+        return view();
+    }
 }
