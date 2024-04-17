@@ -458,7 +458,19 @@ FROM
 				platform,
 				total 
 			FROM
-				( SELECT DISTINCT sku, SUM( total ) total FROM mu_finance_warehouse WHERE is_sale = 0 GROUP BY sku ) a
+				(
+				SELECT DISTINCT
+					sku,
+					SUM( total ) total 
+				FROM
+					mu_finance_warehouse 
+				WHERE
+					is_sale = 0 
+					AND total > 0 
+					AND report_id = ' . $report_id . ' 
+				GROUP BY
+					sku 
+				) a
 				LEFT JOIN mu_ecang_sku_relation b ON a.sku = b.pcr_product_sku
 				LEFT JOIN mu_ecang_sku c ON b.sku_id = c.id
 				LEFT JOIN mu_finance_table d ON c.user_account = d.userAccount 
@@ -468,7 +480,7 @@ FROM
 				sku,
 				COUNT( sku ) qty 
 			FROM
-				( SELECT DISTINCT sku FROM mu_finance_warehouse WHERE is_sale = 0 ) a
+				( SELECT DISTINCT sku FROM mu_finance_warehouse WHERE is_sale = 0 AND total > 0 AND report_id = ' . $report_id . ' ) a
 				LEFT JOIN mu_ecang_sku_relation b ON a.sku = b.pcr_product_sku 
 			GROUP BY
 				sku 
