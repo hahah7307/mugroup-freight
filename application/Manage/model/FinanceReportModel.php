@@ -127,11 +127,11 @@ SELECT
 	warehouse_sku,
 	SUM( sale_qty ) sale_qty,
 	SUM( refund_qty ) refund_qty,
-	SUM( ROUND( sale_amount, 2 ) ) sale_amount,
-	SUM( ROUND( refund_amount, 2 ) ) refund_amount,
-	SUM( ROUND( sale_selling_fees, 2 ) ) sale_selling_fees,
-	SUM( ROUND( refund_selling_fees, 2 ) ) refund_selling_fees,
-	SUM( ROUND( fba_fees, 2 ) ) fba_fees,
+	SUM( ROUND( sale_amount, 7 ) ) sale_amount,
+	SUM( ROUND( refund_amount, 7 ) ) refund_amount,
+	SUM( ROUND( sale_selling_fees, 7 ) ) sale_selling_fees,
+	SUM( ROUND( refund_selling_fees, 7 ) ) refund_selling_fees,
+	SUM( ROUND( fba_fees, 7 ) ) fba_fees,
 	SUM( ROUND( calcuRes, 2 ) ) calcuRes,
 	SUM( ROUND( ddp, 2 ) ) ddp,
 	SUM( ROUND( adCost, 7 ) ) adCost,
@@ -150,11 +150,11 @@ FROM
 		warehouse_sku,
 		SUM( sale_qty ) sale_qty,
 		SUM( refund_qty ) refund_qty,
-		SUM( ROUND( sale_amount, 2 ) ) sale_amount,
-		SUM( ROUND( refund_amount, 2 ) ) refund_amount,
-		SUM( ROUND( sale_selling_fees, 2 ) ) sale_selling_fees,
-		SUM( ROUND( refund_selling_fees, 2 ) ) refund_selling_fees,
-		SUM( ROUND( fba_fees, 2 ) ) fba_fees,
+		SUM( ROUND( sale_amount, 7 ) ) sale_amount,
+		SUM( ROUND( refund_amount, 7 ) ) refund_amount,
+		SUM( ROUND( sale_selling_fees, 7 ) ) sale_selling_fees,
+		SUM( ROUND( refund_selling_fees, 7 ) ) refund_selling_fees,
+		SUM( ROUND( fba_fees, 7 ) ) fba_fees,
 		SUM( ROUND( calcuRes, 2 ) ) calcuRes,
 		SUM( ROUND( ddp, 2 ) ) ddp,
 		SUM( ROUND( adCost, 7 ) ) adCost,
@@ -562,6 +562,39 @@ WHERE
 GROUP BY
 	sku,
 	user_name;    
+        ';
+    }
+
+    static public function getPaymentNoOutboundSql($report_id)
+    {
+        return '
+SELECT
+	* 
+FROM
+	(
+	SELECT
+		c.platform,
+		c.userAccount,
+		a.payment_id,
+		a.sku,
+		b.warehouse_sku,
+		( product_sales + shipping_credits + gift_wrap_credits + regulatory_fee + promotional_rebates ) payment_amount,
+		a.selling_fees payment_selling_fees,
+		a.fba_fees payment_fba_fees,
+		b.sale_amount * - 1 outbound_amount,
+		b.selling_fee outbound_selling_fee,
+		b.fba_fee outbound_fba_fee
+	FROM
+		mu_finance_order_sale a
+		LEFT JOIN mu_finance_order_statistics b ON a.payment_id = b.payment_id
+		LEFT JOIN mu_finance_table c ON a.table_id = c.id 
+	WHERE
+		a.report_id = ' . $report_id . ' 
+	) a 
+WHERE
+	a.warehouse_sku IS NULL 
+	OR a.payment_amount = 0 
+	AND payment_amount != outbound_amount;   
         ';
     }
 }

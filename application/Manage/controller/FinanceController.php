@@ -133,6 +133,7 @@ class FinanceController extends BaseController
         $saleRefund = $financeReportObj->query(FinanceReportModel::getSaleRefundSql($report_id));
         $warehouseSku = $financeReportObj->query(FinanceReportModel::getWarehouseSkuSql($report_id, $report['month']));
         $warehouseRent = $financeReportObj->query(FinanceReportModel::getWarehouseRentSql($report_id));
+        $paymentNoOutbound = $financeReportObj->query(FinanceReportModel::getPaymentNoOutboundSql($report_id));
 
         // phpexcel
         require_once './static/classes/PHPExcel/Classes/PHPExcel.php';
@@ -262,6 +263,45 @@ class FinanceController extends BaseController
                 ->setCellValue('A' . $warehouseRentIndex, $warehouseRentItem['sku'])
                 ->setCellValue('B' . $warehouseRentIndex, $warehouseRentItem['user_name'])
                 ->setCellValue('C' . $warehouseRentIndex, $warehouseRentItem['total'])
+            ;
+        }
+
+        // create new sheet
+        $objPHPExcel->createSheet();
+
+        // Set name sheet
+        $objPHPExcel->setActiveSheetIndex(3)->setTitle('Payment未出库');
+
+        // Add some data
+        $objPHPExcel->setActiveSheetIndex(3)
+            ->setCellValue('A1', '平台')
+            ->setCellValue('B1', '店铺')
+            ->setCellValue('C1', '账单Payment')
+            ->setCellValue('D1', '账单店铺sku')
+            ->setCellValue('E1', '仓库sku')
+            ->setCellValue('F1', '账单销售')
+            ->setCellValue('G1', '账单佣金')
+            ->setCellValue('H1', '账单FBA费用')
+            ->setCellValue('I1', '零销售出库回冲')
+            ->setCellValue('J1', '零销售出库佣金')
+            ->setCellValue('K1', '零销售出库FBA费用')
+        ;
+
+        $paymentNoOutboundIndex = 1;
+        foreach ($paymentNoOutbound as $paymentNoOutboundItem) {
+            $paymentNoOutboundIndex ++;
+            $objPHPExcel->setActiveSheetIndex(3)
+                ->setCellValue('A' . $paymentNoOutboundIndex, $paymentNoOutboundItem['platform'])
+                ->setCellValue('B' . $paymentNoOutboundIndex, $paymentNoOutboundItem['userAccount'])
+                ->setCellValue('C' . $paymentNoOutboundIndex, $paymentNoOutboundItem['payment_id'])
+                ->setCellValue('D' . $paymentNoOutboundIndex, $paymentNoOutboundItem['sku'])
+                ->setCellValue('E' . $paymentNoOutboundIndex, $paymentNoOutboundItem['warehouse_sku'])
+                ->setCellValue('F' . $paymentNoOutboundIndex, $paymentNoOutboundItem['payment_amount'])
+                ->setCellValue('G' . $paymentNoOutboundIndex, $paymentNoOutboundItem['payment_selling_fees'])
+                ->setCellValue('H' . $paymentNoOutboundIndex, $paymentNoOutboundItem['payment_fba_fees'])
+                ->setCellValue('I' . $paymentNoOutboundIndex, $paymentNoOutboundItem['outbound_amount'])
+                ->setCellValue('J' . $paymentNoOutboundIndex, $paymentNoOutboundItem['outbound_selling_fee'])
+                ->setCellValue('K' . $paymentNoOutboundIndex, $paymentNoOutboundItem['outbound_fba_fee'])
             ;
         }
 
