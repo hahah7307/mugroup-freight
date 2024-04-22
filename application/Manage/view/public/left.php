@@ -120,6 +120,25 @@
     layui.use(['jquery'], function(){
         var $ = layui.jquery;
 
+        {if condition="$user.super"}
+        $("#layui-side-menu dl").each(function(){
+            let arr = [],
+                a_tag = $(this).find('a'),
+                unique_arr = [],
+                controller_str = '';
+            a_tag.each(function(){
+                arr.push($(this).attr('layui-href').split('/')[2]);
+            });
+            unique_arr = $.grep($.unique(arr), function(item) {
+                return item !== undefined && item !== null && item !== '';
+            });
+
+            controller_str = unique_arr.join(',');
+            let url = "/Manage/Auth/index/controller/" + controller_str + ".html";
+            $(this).append('<dd class=""><a layui-href="' + url + '">权限列表</a></dd>');
+        });
+        {/if}
+
         if ('{$userMenu}') {
             $("#layui-side-menu").html('{$userMenu}');
             $(".layui-nav-bar").remove();
