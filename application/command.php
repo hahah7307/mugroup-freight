@@ -37,4 +37,5 @@ return [
     'app\Manage\command\FinanceWayfairProduct', //
     'app\Manage\command\FinanceOutboundNotify', //
     'app\Manage\command\ApiProductCategory', //
+    'app\Manage\command\ListingUpdate', //
 ];

@@ -141,37 +141,70 @@ class SkuReportController extends BaseController
         $this->assign('qty', implode(',', $qty));
 
         $list2 = $model->query('
-            SELECT
-            a.userAccount,
-            DATE_FORMAT( a.dateWarehouseShipping, "%Y%m" ) MONTH,
-            SUM( b.qty ) qty 
-        FROM
-            mu_ecang_order a
-            LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id 
-        WHERE
-            b.warehouseSku = "' . $sku . '" 
-            AND a.`status` = 4 ' .
-            $start_time .
-            'AND a.dateWarehouseShipping < "' . $end . '"' . '
-        GROUP BY
-            userAccount,
-            MONTH;
+SELECT
+	IFNULL(access_user_name, \'["未映射"]\') userAccount,
+	DATE_FORMAT( a.dateWarehouseShipping, "%Y%m" ) MONTH,
+	SUM( b.qty ) qty 
+FROM
+    mu_ecang_order a
+    LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id 
+	LEFT JOIN (
+	SELECT DISTINCT
+			b.pcr_product_sku,
+			a.user_account,
+			access_user_name
+		FROM
+			mu_ecang_sku a
+			LEFT JOIN mu_ecang_sku_relation b ON a.id = b.sku_id
+			LEFT JOIN mu_ecang_listing c ON a.product_sku = c.seller_sku
+	    WHERE b.pcr_product_sku = "' . $sku . '"
+	) c ON b.warehouseSku = c.pcr_product_sku 
+	AND a.userAccount = c.user_account
+WHERE
+    b.warehouseSku = "' . $sku . '" 
+    AND a.`status` = 4 ' .
+    $start_time .
+    'AND a.dateWarehouseShipping < "' . $end . '"' . '
+GROUP BY
+    access_user_name,
+    MONTH;
         ');
 
         $list3 = $model->query('
-            SELECT DISTINCT
-	        userAccount 
-        FROM
-            mu_ecang_order a
-            LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id 
-        WHERE
-            b.warehouseSku = "' . $sku . '" 
-            AND a.`status` = 4 ' .
-            $start_time .
-            'AND a.dateWarehouseShipping < "' . $end . '"' . '
-        ORDER BY
-	        userAccount;
+SELECT DISTINCT
+	IFNULL(access_user_name, \'["未映射"]\') userAccount
+FROM
+    mu_ecang_order a
+    LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id 
+	LEFT JOIN (
+	SELECT DISTINCT
+			b.pcr_product_sku,
+			a.user_account,
+			access_user_name
+		FROM
+			mu_ecang_sku a
+			LEFT JOIN mu_ecang_sku_relation b ON a.id = b.sku_id
+			LEFT JOIN mu_ecang_listing c ON a.product_sku = c.seller_sku
+	    WHERE b.pcr_product_sku = "' . $sku . '"
+	) c ON b.warehouseSku = c.pcr_product_sku 
+	AND a.userAccount = c.user_account
+WHERE
+    b.warehouseSku = "' . $sku . '" 
+    AND a.`status` = 4 ' .
+    $start_time .
+    'AND a.dateWarehouseShipping < "' . $end . '"' . '
+ORDER BY
+    userAccount;
         ');
+
+        foreach ($list2 as $key => $value) {
+            $userAccountList2 = json_decode($value['userAccount'], true);
+            $list2[$key]['userAccount'] = empty($userAccountList2) ? "未分配" : $userAccountList2[0];
+        }
+        foreach ($list3 as $k => $v) {
+            $userAccountList3 = json_decode($v['userAccount'], true);
+            $list3[$k]['userAccount'] = empty($userAccountList3) ? "未分配" : $userAccountList3[0];
+        }
 
         $this->assign('userAccountArr', $list3);
         $this->assign('userAccount', '"' . implode('","', array_column($list3, 'userAccount')) . '"');
