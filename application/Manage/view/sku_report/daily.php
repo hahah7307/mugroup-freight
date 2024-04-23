@@ -27,7 +27,7 @@
             <div class="layui-input-inline w120">
                 <input type="text" class="layui-input" id="sale_day" name="sale_day" value="{$sale_day}" placeholder="开始时间">
             </div>
-            <span style="margin-left: 820px">销量区间：</span>
+            <span style="margin-left: 520px">销量区间：</span>
             <div class="layui-inline w120">
                 <select name="qty_order" lay-verify="">
                     <option value="DESC" {if condition="$qty_order eq 'DESC'"}selected{/if}>从高到低</option>
@@ -87,7 +87,30 @@
                 <tr class="sku-item" data-sku="{$item.warehouseSku}">
                     <td>{$item.warehouseSku}</td>
                     <td><img src="{$item.productImages}" height="50" alt=""></td>
-                    <td>{$item.qty|number_format=###}</td>
+                    <td class="tr">{$item.qty|number_format=###}</td>
+                </tr>
+                {/foreach}
+                </tbody>
+            </table>
+            <table class="layui-table" lay-size="sm">
+                <colgroup>
+                    <col
+                    <col>
+                    <col>
+                </colgroup>
+                <thead>
+                <tr>
+                    <th>仓库Sku</th>
+                    <th>海外仓库存(个)</th>
+                    <th>销量(个)</th>
+                </tr>
+                </thead>
+                <tbody>
+                {foreach name="noList" item="vv"}
+                <tr class="sku-vv" data-sku="{$vv.productSku}">
+                    <td>{$vv.productSku}</td>
+                    <td class="tr">{$vv.stock_qty|number_format=###}</td>
+                    <td class="tr">{$vv.sale_qty|number_format=###}</td>
                 </tr>
                 {/foreach}
                 </tbody>

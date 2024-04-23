@@ -321,6 +321,32 @@ ORDER BY
         ');
         $this->assign('qtyList', $qtyList);
 
+        $noList = $model->query('
+SELECT
+	a.*,
+	IFNULL(b.sale_qty, 0)  sale_qty
+FROM
+	( SELECT productSku, SUM( ibQuantity ) stock_qty FROM mu_ecang_inventory_batch WHERE createdDate = ' . date('Ymd', strtotime($sale_day)) . ' GROUP BY productSku ) a
+	LEFT JOIN (
+	SELECT
+		warehouseSku,
+		SUM( qty ) sale_qty 
+	FROM
+		mu_ecang_order_detail b
+		LEFT JOIN mu_ecang_order c ON b.order_id = c.id 
+	WHERE
+		datePaidPlatform >= "' . $sale_day . ' 00:00:00" 
+	AND datePaidPlatform <= "' . $sale_day . ' 23:59:59"
+	AND `status` > 0 
+	AND `status` < 8 
+	GROUP BY
+	warehouseSku 
+	) b ON a.productSku = b.warehouseSku
+	WHERE b.warehouseSku IS NULL
+	ORDER BY stock_qty DESC;
+        ');
+        $this->assign('noList', $noList);
+
         Session::set(Config::get('BACK_URL'), $this->request->url(), 'manage');
         return view();
     }
