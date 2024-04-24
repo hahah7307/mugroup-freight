@@ -359,7 +359,7 @@ SELECT
 	a.*,
 	IFNULL(b.sale_qty, 0)  sale_qty
 FROM
-	( SELECT productSku, SUM( ibQuantity ) stock_qty FROM mu_ecang_inventory_batch WHERE createdDate = ' . date('Ymd', strtotime($sale_day)) . ' GROUP BY productSku ) a
+	( SELECT productSku,SUM(Sellable) stock_qty FROM mu_ecang_product_inventory WHERE createdDate = ' . date('Ymd', strtotime($sale_day)) . ' AND Sellable > 0 GROUP BY productSku ) a
 	LEFT JOIN (
 	SELECT
 		warehouseSku,
