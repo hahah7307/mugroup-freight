@@ -91,6 +91,7 @@
                         <dd><a layui-href="{:url('StorageDas/index')}">偏远地区</a></dd>
                     </dl>
                 </li>
+                {if condition="$user.super eq 1 and $user.id eq 1"}
                 <li data-name="Site" class="layui-nav-item">
                     <a layui-href="javascript:;" lay-tips="设置" lay-direction="2">
                         <i class="layui-icon layui-icon-set"></i>
@@ -99,7 +100,6 @@
                     <dl class="layui-nav-child">
                         <dd><a layui-href="{:url('Param/storage')}">参数配置</a></dd>
                         <!-- <dd><a layui-href="{:url('Mail/index')}">邮件设置</a></dd> -->
-                        {if condition="$user.super eq 1"}
                         <dd data-name="info">
                             <a layui-href="javascript:;">管理设置</a>
                             <dl class="layui-nav-child">
@@ -110,9 +110,9 @@
                                 {/if}
                             </dl>
                         </dd>
-                        {/if}
                     </dl>
                 </li>
+                {/if}
             </ul>
         </div>
     </div>
