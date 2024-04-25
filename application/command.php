@@ -38,4 +38,5 @@ return [
     'app\Manage\command\FinanceOutboundNotify', //
     'app\Manage\command\ApiProductCategory', //
     'app\Manage\command\ListingUpdate', //
+    'app\Manage\command\OrderCaptureMore', //
 ];

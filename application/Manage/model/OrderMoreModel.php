@@ -10,7 +10,7 @@ use think\Exception;
 use think\exception\DbException;
 use think\Model;
 
-class OrderModel extends Model
+class OrderMoreModel extends Model
 {
     protected $name = 'ecang_order';
 
@@ -51,7 +51,7 @@ class OrderModel extends Model
      */
     static public function orderId2DeliverParams($orderId)
     {
-        $order = new OrderModel();
+        $order = new OrderMoreModel();
         $orderInfo = $order->with(['details.product', 'address', 'area'])->where(['id'=>$orderId])->find();
         $storage_id = $orderInfo['area']['storage_id'];
         if (empty($storage_id)) {
@@ -199,7 +199,7 @@ class OrderModel extends Model
      */
     static public function orderSave($isLast, $isPageUp, $item): bool
     {
-        $orderPage = new OrderPageModel();
+        $orderPage = new OrderCaptureModel();
         $orderPageData = $orderPage->where('id', 1)->find();
         $page = $orderPageData['page'] + 1;
 
@@ -212,13 +212,13 @@ class OrderModel extends Model
         $order = $item;
         unset($order['orderDetails']);
         unset($order['orderAddress']);
-        if (OrderModel::get(['saleOrderCode' => $item['saleOrderCode']])) {
+        if (OrderMoreModel::get(['saleOrderCode' => $item['saleOrderCode']])) {
             return false;
         }
 
         Db::startTrans();
         try {
-            $newId = OrderModel::create($order)->getLastInsID();
+            $newId = OrderMoreModel::create($order)->getLastInsID();
             if ($newId) {
                 $orderDetail = $item['orderDetails'];
                 foreach ($orderDetail as $detail) {
@@ -238,7 +238,7 @@ class OrderModel extends Model
                     throw new Exception("订单地址插入失败！");
                 }
 
-                OrderModel::orderId2DeliverParams($newId);
+                OrderMoreModel::orderId2DeliverParams($newId);
             } else {
                 throw new Exception("订单插入失败！");
             }
@@ -261,7 +261,7 @@ class OrderModel extends Model
         $order = $item;
         unset($order['orderDetails']);
         unset($order['orderAddress']);
-        $orderItem = OrderModel::get(['saleOrderCode' => $item['saleOrderCode']]);
+        $orderItem = OrderMoreModel::get(['saleOrderCode' => $item['saleOrderCode']]);
         if (empty($orderItem)) {
             return false;
         }
@@ -286,8 +286,8 @@ class OrderModel extends Model
 //            OrderAddressModel::update($address);
 
             $order['id'] = $orderItem['id'];
-            OrderModel::update($order);
-            OrderModel::orderId2DeliverParams($orderItem['id']);
+            OrderMoreModel::update($order);
+            OrderMoreModel::orderId2DeliverParams($orderItem['id']);
 
             Db::commit();
             return true;
