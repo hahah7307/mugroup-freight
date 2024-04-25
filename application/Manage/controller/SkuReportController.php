@@ -359,7 +359,25 @@ SELECT
 	a.*,
 	IFNULL(b.sale_qty, 0)  sale_qty
 FROM
-	( SELECT productSku,SUM(Sellable) stock_qty FROM mu_ecang_product_inventory WHERE createdDate = ' . date('Ymd', strtotime($sale_day)) . ' AND Sellable > 0 GROUP BY productSku ) a
+	(
+	SELECT
+		a.productSku,
+		b.productImages,
+		c.user_name,
+		SUM( Sellable ) stock_qty 
+	FROM
+		mu_ecang_product_inventory a
+		LEFT JOIN mu_ecang_product b ON a.productSku = b.productSku
+		LEFT JOIN mu_ecang_user c ON b.personSellerId = c.id 
+	WHERE
+		createdDate = ' . date('Ymd', strtotime($sale_day)) . '
+		AND Sellable > 0 
+		AND b.saleStatus = 2 
+	GROUP BY
+		productSku,
+		productImages,
+		user_name 
+	) a
 	LEFT JOIN (
 	SELECT
 		warehouseSku,

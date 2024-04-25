@@ -67,8 +67,8 @@
                 {foreach name="saleList" item="v"}
                 <tr class="sku-item" data-sku="{$v.warehouseSku}">
                     <td>{$v.warehouseSku}</td>
-                    <td><img src="{$v.productImages}" height="50" alt=""></td>
-                    <td>{$v.sale|number_format=###, 3}</td>
+                    <td><img src="{$v.productImages}" height="80" alt=""></td>
+                    <td class="tr">{$v.sale|number_format=###, 3}</td>
                 </tr>
                 {/foreach}
                 </tbody>
@@ -90,8 +90,8 @@
                 {foreach name="qtyList" item="item"}
                 <tr class="sku-item" data-sku="{$item.warehouseSku}">
                     <td>{$item.warehouseSku}</td>
-                    <td><img src="{$item.productImages}" height="50" alt=""></td>
-                    <td>{$item.qty|number_format=###}</td>
+                    <td><img src="{$item.productImages}" height="80" alt=""></td>
+                    <td class="tr">{$item.qty|number_format=###}</td>
                 </tr>
                 {/foreach}
                 </tbody>

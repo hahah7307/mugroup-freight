@@ -63,8 +63,8 @@
                 {foreach name="saleList" item="v"}
                 <tr class="sku-item" data-sku="{$v.warehouseSku}">
                     <td>{$v.warehouseSku}</td>
-                    <td><img src="{$v.productImages}" height="50" alt=""></td>
-                    <td class="tr">{$v.qty|number_format=###, 3}</td>
+                    <td><img src="{$v.productImages}" height="80" alt=""></td>
+                    <td class="tr">{$v.qty|number_format=###}</td>
                 </tr>
                 {/foreach}
                 </tbody>
@@ -86,7 +86,7 @@
                 {foreach name="qtyList" item="item"}
                 <tr class="sku-item" data-sku="{$item.warehouseSku}">
                     <td>{$item.warehouseSku}</td>
-                    <td><img src="{$item.productImages}" height="50" alt=""></td>
+                    <td><img src="{$item.productImages}" alt=""></td>
                     <td class="tr">{$item.qty|number_format=###}</td>
                 </tr>
                 {/foreach}
@@ -97,18 +97,24 @@
                     <col
                     <col>
                     <col>
+                    <col>
+                    <col>
                 </colgroup>
                 <thead>
                 <tr>
                     <th>仓库Sku</th>
+                    <th>产品图片</th>
+                    <th>主运营人员</th>
                     <th>海外仓库存(个)</th>
-                    <th>销量(个)</th>
+                    <th width="50">销量(个)</th>
                 </tr>
                 </thead>
                 <tbody>
                 {foreach name="noList" item="vv"}
                 <tr class="sku-vv" data-sku="{$vv.productSku}">
                     <td>{$vv.productSku}</td>
+                    <td><img src="{$vv.productImages}" alt=""></td>
+                    <td>{$vv.user_name}</td>
                     <td class="tr">{$vv.stock_qty|number_format=###}</td>
                     <td class="tr">{$vv.sale_qty|number_format=###}</td>
                 </tr>
