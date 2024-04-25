@@ -54,6 +54,9 @@ class AkAdCost extends Command
                     continue;
                 }
                 $addData[] = [
+                    'fbaSaleAmount'                             =>  $item['fbaSaleAmount'],
+                    'fbmSaleAmount'                             =>  $item['fbmSaleAmount'],
+                    'is_fba'                                    =>  $item['fbaSaleAmount'] == 0 ? 0 : 1,
                     'totalSalesQuantity'                        =>  $item['totalSalesQuantity'],
                     'totalAdsSales'                             =>  $item['totalAdsSales'],
                     'totalAdsSalesQuantity'                     =>  $item['totalAdsSalesQuantity'],
