@@ -20,7 +20,7 @@ class SkuReportController extends BaseController
 
         $sale_start = $this->request->get('sale_start', '', 'htmlspecialchars');
         $this->assign('sale_start', $sale_start);
-        $start_time = empty($sale_start) ? '' : 'AND a.dateWarehouseShipping >="' . $sale_start . '"';
+        $start_time = empty($sale_start) ? '' : 'AND a.datePaidPlatform >="' . $sale_start . '"';
 
         $sale_end = $this->request->get('sale_end', date('Y-m-d 00:00:00'), 'htmlspecialchars');
         $this->assign('sale_end', $sale_end);
@@ -30,7 +30,7 @@ class SkuReportController extends BaseController
 
         $qty_start = $this->request->get('qty_start', '', 'htmlspecialchars');
         $this->assign('qty_start', $qty_start);
-        $qty_time = empty($qty_start) ? '' : 'AND a.dateWarehouseShipping >="' . $qty_start . '"';
+        $qty_time = empty($qty_start) ? '' : 'AND a.datePaidPlatform >="' . $qty_start . '"';
 
         $qty_end = $this->request->get('qty_end', date('Y-m-d 00:00:00'), 'htmlspecialchars');
         $this->assign('qty_end', $qty_end);
@@ -48,7 +48,7 @@ class SkuReportController extends BaseController
             WHERE
                 a.`status` = 4 ' .
             $start_time .
-            'AND a.dateWarehouseShipping < "' . $sale_end . '"' . '
+            'AND a.datePaidPlatform < "' . $sale_end . '"' . '
             GROUP BY
                 warehouseSku,
                 productImages
@@ -69,7 +69,7 @@ class SkuReportController extends BaseController
             WHERE
                 a.`status` = 4 ' .
             $qty_time .
-            'AND a.dateWarehouseShipping < "' . $qty_end . '"' . '
+            'AND a.datePaidPlatform < "' . $qty_end . '"' . '
             GROUP BY
                 warehouseSku,
                 productImages
@@ -97,7 +97,7 @@ class SkuReportController extends BaseController
         $product = $skuObj->where(['productSku' => $sku])->find();
         $start = $this->request->get('start', '', 'htmlspecialchars');
         $this->assign('start', $start);
-        $start_time = empty($start) ? '' : 'AND a.dateWarehouseShipping >="' . $start . '"';
+        $start_time = empty($start) ? '' : 'AND a.datePaidPlatform >="' . $start . '"';
 
         $end = $this->request->get('end', date('Y-m-d 00:00:00'), 'htmlspecialchars');
         $this->assign('end', $end);
@@ -106,7 +106,7 @@ class SkuReportController extends BaseController
         $list = $model->query('
             SELECT
             a.platform,
-            DATE_FORMAT( a.dateWarehouseShipping, "%Y%m" ) MONTH,
+            DATE_FORMAT( a.datePaidPlatform, "%Y%m" ) MONTH,
             SUM( b.qty ) qty 
         FROM
             mu_ecang_order a
@@ -115,7 +115,7 @@ class SkuReportController extends BaseController
             b.warehouseSku = "' . $sku . '" 
             AND a.`status` = 4 ' .
             $start_time .
-            'AND a.dateWarehouseShipping < "' . $end . '"' . '
+            'AND a.datePaidPlatform < "' . $end . '"' . '
         GROUP BY
             platform,
             MONTH;
@@ -143,7 +143,7 @@ class SkuReportController extends BaseController
         $list2 = $model->query('
 SELECT
 	IFNULL(access_user_name, \'["未映射"]\') userAccount,
-	DATE_FORMAT( a.dateWarehouseShipping, "%Y%m" ) MONTH,
+	DATE_FORMAT( a.datePaidPlatform, "%Y%m" ) MONTH,
 	SUM( b.qty ) qty 
 FROM
     mu_ecang_order a
@@ -164,7 +164,7 @@ WHERE
     b.warehouseSku = "' . $sku . '" 
     AND a.`status` = 4 ' .
     $start_time .
-    'AND a.dateWarehouseShipping < "' . $end . '"' . '
+    'AND a.datePaidPlatform < "' . $end . '"' . '
 GROUP BY
     access_user_name,
     MONTH;
@@ -192,7 +192,7 @@ WHERE
     b.warehouseSku = "' . $sku . '" 
     AND a.`status` = 4 ' .
     $start_time .
-    'AND a.dateWarehouseShipping < "' . $end . '"' . '
+    'AND a.datePaidPlatform < "' . $end . '"' . '
 ORDER BY
     userAccount;
         ');
@@ -242,7 +242,7 @@ ORDER BY
     {
         $start = $this->request->get('start', '', 'htmlspecialchars');
         $this->assign('start', $start);
-        $start_time = empty($start) ? '' : 'AND a.dateWarehouseShipping >="' . $start . '"';
+        $start_time = empty($start) ? '' : 'AND a.datePaidPlatform >="' . $start . '"';
 
         $end = $this->request->get('end', date('Y-m-d 00:00:00'), 'htmlspecialchars');
         $this->assign('end', $end);
@@ -259,7 +259,7 @@ FROM
 WHERE
 	STATUS = 4 ' .
     $start_time .
-    'AND a.dateWarehouseShipping < "' . $end . '"' . ' 
+    'AND a.datePaidPlatform < "' . $end . '"' . ' 
 GROUP BY
 	category_name_1;
         ');
@@ -275,7 +275,7 @@ FROM
 WHERE
 	STATUS = 4 ' .
             $start_time .
-            'AND a.dateWarehouseShipping < "' . $end . '"' . ' 
+            'AND a.datePaidPlatform < "' . $end . '"' . ' 
 GROUP BY
 	category_name_2;
         ');
