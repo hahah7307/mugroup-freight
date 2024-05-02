@@ -404,4 +404,256 @@ FROM
         Session::set(Config::get('BACK_URL'), $this->request->url(), 'manage');
         return view();
     }
+
+    /**
+     * @throws DbException
+     */
+    public function store(): \think\response\View
+    {
+        $sale_day = $this->request->get('sale_day', date('Y-m-d', strtotime('-2 day')), 'htmlspecialchars');
+        $this->assign('sale_day', $sale_day);
+        $sale_day_num = date('Ymd', strtotime($sale_day));
+
+        $model = new ProductModel();
+        $storeList = $model->query('
+SELECT
+CASE
+	WHEN
+		age >= 0 
+		AND age < 30 THEN 30 WHEN age >= 30 
+			AND age < 60 THEN 60 WHEN age >= 60 
+				AND age < 90 THEN 90 WHEN age >= 90 
+					AND age < 120 THEN 120 WHEN age >= 120 
+						AND age < 150 THEN 150 WHEN age >= 150 
+							AND age < 180 THEN 180 WHEN age >= 180 
+								AND age < 210 THEN 210 WHEN age >= 210 
+									AND age < 240 THEN 240 WHEN age >= 240 
+										AND age < 270 THEN 270 WHEN age >= 270 
+											AND age < 300 THEN 300 WHEN age >= 300 
+												AND age < 330 THEN 330 WHEN age >= 330 
+													AND age < 360 THEN 360 WHEN age >= 360 
+														AND age < 450 THEN 450 WHEN age >= 450 
+															AND age < 540 THEN 540 WHEN age >= 540 
+																AND age < 630 THEN 630 WHEN age >= 630 
+																	AND age < 720 THEN 720
+																		ELSE 750 
+																		END AS name,
+	SUM( ibQuantity ) AS value 
+FROM
+	mu_ecang_inventory_batch 
+WHERE
+	createdDate = ' . $sale_day_num . ' 
+GROUP BY
+	name 
+ORDER BY
+	name;
+        ');
+        $this->assign('storeList', json_encode($storeList));
+
+        $storeList2 = $model->query('
+SELECT
+CASE
+	WHEN
+		age >= 0 
+		AND age < 30 THEN 30 WHEN age >= 30 
+			AND age < 60 THEN 60 WHEN age >= 60 
+				AND age < 90 THEN 90 WHEN age >= 90 
+					AND age < 120 THEN 120 WHEN age >= 120 
+						AND age < 150 THEN 150 WHEN age >= 150 
+							AND age < 180 THEN 180 WHEN age >= 180 
+								AND age < 210 THEN 210 WHEN age >= 210 
+									AND age < 240 THEN 240 WHEN age >= 240 
+										AND age < 270 THEN 270 WHEN age >= 270 
+											AND age < 300 THEN 300 WHEN age >= 300 
+												AND age < 330 THEN 330 WHEN age >= 330 
+													AND age < 360 THEN 360 WHEN age >= 360 
+														AND age < 450 THEN 450 WHEN age >= 450 
+															AND age < 540 THEN 540 WHEN age >= 540 
+																AND age < 630 THEN 630 WHEN age >= 630 
+																	AND age < 720 THEN 720
+																		ELSE 750 
+																		END AS name,
+	SUM( ibQuantity ) AS value 
+FROM
+	mu_ecang_inventory_batch 
+WHERE
+	createdDate = ' . date('Ymd', strtotime('-2 month', strtotime($sale_day_num))) . ' 
+GROUP BY
+	name 
+ORDER BY
+	name;
+        ');
+
+        $storeList3 = $model->query('
+SELECT
+CASE
+	WHEN
+		age >= 0 
+		AND age < 30 THEN 30 WHEN age >= 30 
+			AND age < 60 THEN 60 WHEN age >= 60 
+				AND age < 90 THEN 90 WHEN age >= 90 
+					AND age < 120 THEN 120 WHEN age >= 120 
+						AND age < 150 THEN 150 WHEN age >= 150 
+							AND age < 180 THEN 180 WHEN age >= 180 
+								AND age < 210 THEN 210 WHEN age >= 210 
+									AND age < 240 THEN 240 WHEN age >= 240 
+										AND age < 270 THEN 270 WHEN age >= 270 
+											AND age < 300 THEN 300 WHEN age >= 300 
+												AND age < 330 THEN 330 WHEN age >= 330 
+													AND age < 360 THEN 360 WHEN age >= 360 
+														AND age < 450 THEN 450 WHEN age >= 450 
+															AND age < 540 THEN 540 WHEN age >= 540 
+																AND age < 630 THEN 630 WHEN age >= 630 
+																	AND age < 720 THEN 720
+																		ELSE 750 
+																		END AS name,
+	SUM( ibQuantity ) AS value 
+FROM
+	mu_ecang_inventory_batch 
+WHERE
+	createdDate = ' . date('Ymd', strtotime('-1 month', strtotime($sale_day_num))) . ' 
+GROUP BY
+	name 
+ORDER BY
+	name;
+        ');
+
+        $storeData[] = [
+            'date',
+            date('Y-m-d', strtotime('-2 month', strtotime($sale_day))),
+            date('Y-m-d', strtotime('-1 month', strtotime($sale_day))),
+            $sale_day
+        ];
+        foreach ($storeList as $key => $item) {
+            $storeData[] = [
+                $item['name'],
+                $storeList2[$key]['value'],
+                $storeList3[$key]['value'],
+                $item['value']
+            ];
+        }
+        $this->assign('storeData', json_encode($storeData));
+
+        $priceList = $model->query('
+SELECT
+CASE
+	WHEN
+		age >= 0 
+		AND age < 30 THEN 30 WHEN age >= 30 
+			AND age < 60 THEN 60 WHEN age >= 60 
+				AND age < 90 THEN 90 WHEN age >= 90 
+					AND age < 120 THEN 120 WHEN age >= 120 
+						AND age < 150 THEN 150 WHEN age >= 150 
+							AND age < 180 THEN 180 WHEN age >= 180 
+								AND age < 210 THEN 210 WHEN age >= 210 
+									AND age < 240 THEN 240 WHEN age >= 240 
+										AND age < 270 THEN 270 WHEN age >= 270 
+											AND age < 300 THEN 300 WHEN age >= 300 
+												AND age < 330 THEN 330 WHEN age >= 330 
+													AND age < 360 THEN 360 WHEN age >= 360 
+														AND age < 450 THEN 450 WHEN age >= 450 
+															AND age < 540 THEN 540 WHEN age >= 540 
+																AND age < 630 THEN 630 WHEN age >= 630 
+																	AND age < 720 THEN
+																		720 ELSE 750 
+																		END AS name,
+	ROUND( SUM( ibQuantity * unitPrice ), 3 ) AS value 
+FROM
+	mu_ecang_inventory_batch 
+WHERE
+	createdDate = ' . $sale_day_num . '  
+GROUP BY
+	name 
+ORDER BY
+	name;
+        ');
+        $this->assign('priceList', json_encode($priceList));
+
+        $priceList2 = $model->query('
+SELECT
+CASE
+	WHEN
+		age >= 0 
+		AND age < 30 THEN 30 WHEN age >= 30 
+			AND age < 60 THEN 60 WHEN age >= 60 
+				AND age < 90 THEN 90 WHEN age >= 90 
+					AND age < 120 THEN 120 WHEN age >= 120 
+						AND age < 150 THEN 150 WHEN age >= 150 
+							AND age < 180 THEN 180 WHEN age >= 180 
+								AND age < 210 THEN 210 WHEN age >= 210 
+									AND age < 240 THEN 240 WHEN age >= 240 
+										AND age < 270 THEN 270 WHEN age >= 270 
+											AND age < 300 THEN 300 WHEN age >= 300 
+												AND age < 330 THEN 330 WHEN age >= 330 
+													AND age < 360 THEN 360 WHEN age >= 360 
+														AND age < 450 THEN 450 WHEN age >= 450 
+															AND age < 540 THEN 540 WHEN age >= 540 
+																AND age < 630 THEN 630 WHEN age >= 630 
+																	AND age < 720 THEN
+																		720 ELSE 750 
+																		END AS name,
+	ROUND( SUM( ibQuantity * unitPrice ), 3 ) AS value 
+FROM
+	mu_ecang_inventory_batch 
+WHERE
+	createdDate = ' . date('Ymd', strtotime('-2 month', strtotime($sale_day))) . '  
+GROUP BY
+	name 
+ORDER BY
+	name;
+        ');
+
+        $priceList3 = $model->query('
+SELECT
+CASE
+	WHEN
+		age >= 0 
+		AND age < 30 THEN 30 WHEN age >= 30 
+			AND age < 60 THEN 60 WHEN age >= 60 
+				AND age < 90 THEN 90 WHEN age >= 90 
+					AND age < 120 THEN 120 WHEN age >= 120 
+						AND age < 150 THEN 150 WHEN age >= 150 
+							AND age < 180 THEN 180 WHEN age >= 180 
+								AND age < 210 THEN 210 WHEN age >= 210 
+									AND age < 240 THEN 240 WHEN age >= 240 
+										AND age < 270 THEN 270 WHEN age >= 270 
+											AND age < 300 THEN 300 WHEN age >= 300 
+												AND age < 330 THEN 330 WHEN age >= 330 
+													AND age < 360 THEN 360 WHEN age >= 360 
+														AND age < 450 THEN 450 WHEN age >= 450 
+															AND age < 540 THEN 540 WHEN age >= 540 
+																AND age < 630 THEN 630 WHEN age >= 630 
+																	AND age < 720 THEN
+																		720 ELSE 750 
+																		END AS name,
+	ROUND( SUM( ibQuantity * unitPrice ), 3 ) AS value 
+FROM
+	mu_ecang_inventory_batch 
+WHERE
+	createdDate = ' . date('Ymd', strtotime('-1 month', strtotime($sale_day))) . '  
+GROUP BY
+	name 
+ORDER BY
+	name;
+        ');
+
+        $priceData[] = [
+            'date',
+            date('Y-m-d', strtotime('-2 month', strtotime($sale_day))),
+            date('Y-m-d', strtotime('-1 month', strtotime($sale_day))),
+            $sale_day
+        ];
+        foreach ($priceList as $key => $item) {
+            $priceData[] = [
+                $item['name'],
+                $priceList2[$key]['value'],
+                $priceList3[$key]['value'],
+                $item['value']
+            ];
+        }
+        $this->assign('priceData', json_encode($priceData));
+
+        Session::set(Config::get('BACK_URL'), $this->request->url(), 'manage');
+        return view();
+    }
 }

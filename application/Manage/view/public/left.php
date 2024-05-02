@@ -63,6 +63,7 @@
                         <dd><a layui-href="{:url('SkuReport/index')}">Sku报表</a></dd>
                         <dd><a layui-href="{:url('SkuReport/category')}">类目报表</a></dd>
                         <dd><a layui-href="{:url('SkuReport/daily')}">日销报表</a></dd>
+                        <dd><a layui-href="{:url('SkuReport/store')}">日库存报表</a></dd>
                     </dl>
                 </li>
                 <li data-name="Product" class="layui-nav-item">
