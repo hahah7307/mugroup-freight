@@ -1,6 +1,9 @@
 
 {include file="public/header" /}
 
+<style>
+    .total {padding: 0 10px}
+</style>
 <!-- 主体内容 -->
 <div class="layui-body" id="LAY_app_body">
     <div class="right">
@@ -30,6 +33,10 @@
                 </select>
             </div>
             <button type="button" class="layui-btn  layui-btn-normal" id="excel">导入</button>
+            <span class="total">促销合计：{$promotion}</span>
+            <span class="total">退运合计：{$shipping_service}</span>
+            <span class="total">清算合计：{$liquidation}</span>
+            <span class="total">调整合计：{$adjustment}</span>
             <table class="layui-table" lay-size="sm">
                 <colgroup>
                     <col width="50">
@@ -49,6 +56,10 @@
                     <th>导入表格名</th>
                     <th>所属平台</th>
                     <th>所属店铺</th>
+                    <th>促销费</th>
+                    <th>退运费</th>
+                    <th>清算</th>
+                    <th>调整</th>
                     <th>导入时间</th>
                     <th class="tc">操作</th>
                 </tr>
@@ -65,6 +76,10 @@
                     <td>{$v.table_name}</td>
                     <td>{$v.platform}</td>
                     <td>{$v.userAccount}</td>
+                    <td>{$v.promotion}</td>
+                    <td>{$v.shipping_service}</td>
+                    <td>{$v.liquidation}</td>
+                    <td>{$v.adjustment}</td>
                     <td>{$v.created_at}</td>
                     <td class="tc">
                         <a href="{:url('order', ['id' => $v.id])}" class="layui-btn layui-btn layui-btn-sm">查看</a>

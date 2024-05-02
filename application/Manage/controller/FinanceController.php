@@ -336,6 +336,10 @@ class FinanceController extends BaseController
         $order = new FinanceTableModel();
         $list = $order->where($where)->order('id asc')->paginate(Config::get('PAGE_NUM'), false, ['query' => ['keyword' => $keyword]]);
         $this->assign('list', $list);
+        $this->assign('promotion', $order->where($where)->sum('promotion'));
+        $this->assign('shipping_service', $order->where($where)->sum('shipping_service'));
+        $this->assign('liquidation', $order->where($where)->sum('liquidation'));
+        $this->assign('adjustment', $order->where($where)->sum('adjustment'));
 
         Session::set(Config::get('BACK_URL'), $this->request->url(), 'manage');
         return view();
@@ -393,21 +397,29 @@ class FinanceController extends BaseController
                     $financeOrderPromotionObj = new FinanceOrderPromotionModel();
                     if (!$financeOrderPromotionObj->saveAll($paymentData['orderPromotionNew'])) {
                         throw new \think\Exception('Payment导入失败！');
+                    } else {
+                        $promotionSum = $financeOrderPromotionObj->where(['table_id' => $tableId])->sum('total');
                     }
 
                     $financeOrderShippingServiceObj = new FinanceOrderShippingServiceModel();
                     if (!$financeOrderShippingServiceObj->saveAll($paymentData['orderShippingServiceNew'])) {
                         throw new \think\Exception('Payment导入失败！');
+                    } else {
+                        $shippingServiceSum = $financeOrderShippingServiceObj->where(['table_id' => $tableId])->sum('total');
                     }
 
                     $financeOrderLiquidationObj = new FinanceOrderLiquidationModel();
                     if (!$financeOrderLiquidationObj->saveAll($paymentData['orderLiquidationNew'])) {
                         throw new \think\Exception('Payment导入失败！');
+                    } else {
+                        $liquidationSum = $financeOrderLiquidationObj->where(['table_id' => $tableId])->sum('total');
                     }
 
                     $financeOrderAdjustmentObj = new FinanceOrderAdjustmentModel();
                     if (!$financeOrderAdjustmentObj->saveAll($paymentData['orderAdjustmentNew'])) {
                         throw new \think\Exception('Payment导入失败！');
+                    } else {
+                        $adjustmentSum = $financeOrderAdjustmentObj->where(['table_id' => $tableId])->sum('total');
                     }
 
                     $financeOrderAdjustmentObj = new FinanceOrderFbaInventoryModel();
@@ -420,7 +432,7 @@ class FinanceController extends BaseController
                         throw new \think\Exception('Payment导入失败！');
                     }
 
-                    if (!FinanceTableModel::update(['userAccount' => $paymentData['userAccount']], ['id' => $tableId])) {
+                    if (!FinanceTableModel::update(['userAccount' => $paymentData['userAccount'], 'promotion' => $promotionSum, 'shipping_service' => $shippingServiceSum, 'liquidation' => $liquidationSum, 'adjustment' => $adjustmentSum], ['id' => $tableId])) {
                         throw new \think\Exception('店铺号同步失败！');
                     }
                 } else {
