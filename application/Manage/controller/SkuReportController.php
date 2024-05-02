@@ -18,7 +18,7 @@ class SkuReportController extends BaseController
         $sale_order = $this->request->get('sale_order', 'DESC', 'htmlspecialchars');
         $this->assign('sale_order', $sale_order);
 
-        $sale_start = $this->request->get('sale_start', '', 'htmlspecialchars');
+        $sale_start = $this->request->get('sale_start', date('Y-m-01 00:00:00'), 'htmlspecialchars');
         $this->assign('sale_start', $sale_start);
         $start_time = empty($sale_start) ? '' : 'AND a.datePaidPlatform >="' . $sale_start . '"';
 
@@ -28,7 +28,7 @@ class SkuReportController extends BaseController
         $qty_order = $this->request->get('qty_order', 'DESC', 'htmlspecialchars');
         $this->assign('qty_order', $qty_order);
 
-        $qty_start = $this->request->get('qty_start', '', 'htmlspecialchars');
+        $qty_start = $this->request->get('qty_start', date('Y-m-01 00:00:00'), 'htmlspecialchars');
         $this->assign('qty_start', $qty_start);
         $qty_time = empty($qty_start) ? '' : 'AND a.datePaidPlatform >="' . $qty_start . '"';
 
@@ -46,7 +46,8 @@ class SkuReportController extends BaseController
                 LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id
                 LEFT JOIN mu_ecang_product c ON b.warehouseSku = c.productSku
             WHERE
-                a.`status` = 4 ' .
+                a.`status` = 4 
+                AND c.saleStatus = 2 ' .
             $start_time .
             'AND a.datePaidPlatform < "' . $sale_end . '"' . '
             GROUP BY
@@ -67,7 +68,8 @@ class SkuReportController extends BaseController
                 LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id
                 LEFT JOIN mu_ecang_product c ON b.warehouseSku = c.productSku
             WHERE
-                a.`status` = 4 ' .
+                a.`status` = 4  
+                AND c.saleStatus = 2 ' .
             $qty_time .
             'AND a.datePaidPlatform < "' . $qty_end . '"' . '
             GROUP BY
@@ -95,7 +97,7 @@ class SkuReportController extends BaseController
 
         $skuObj = new ProductModel();
         $product = $skuObj->where(['productSku' => $sku])->find();
-        $start = $this->request->get('start', '', 'htmlspecialchars');
+        $start = $this->request->get('start', date('Y-m-01 00:00:00'), 'htmlspecialchars');
         $this->assign('start', $start);
         $start_time = empty($start) ? '' : 'AND a.datePaidPlatform >="' . $start . '"';
 
@@ -240,7 +242,7 @@ ORDER BY
      */
     public function category(): \think\response\View
     {
-        $start = $this->request->get('start', '', 'htmlspecialchars');
+        $start = $this->request->get('start', date('Y-m-01 00:00:00'), 'htmlspecialchars');
         $this->assign('start', $start);
         $start_time = empty($start) ? '' : 'AND a.datePaidPlatform >="' . $start . '"';
 
@@ -321,6 +323,7 @@ WHERE
 	AND a.datePaidPlatform <= "' . $sale_day . ' 23:59:59" 
 	AND `status` > 0 
 	AND `status` < 8 
+    AND c.saleStatus = 2 
 GROUP BY
 	warehouseSku,
 	productImages 
@@ -347,7 +350,7 @@ FROM
 	WHERE
 		a.datePaidPlatform >= "' . $sale_day . ' 00:00:00" 
 	AND a.datePaidPlatform <= "' . $sale_day . ' 23:59:59" AND `status` > 0 
-	AND `status` < 8 GROUP BY warehouseSku, productImages ORDER BY qty ' . $sale_order . ' ) a WHERE qty >= ' . $min . ' 
+	AND `status` < 8 AND c.saleStatus = 2 GROUP BY warehouseSku, productImages ORDER BY qty ' . $sale_order . ' ) a WHERE qty >= ' . $min . ' 
 	AND qty <= ' . $max . ' 
 ORDER BY
 	qty ' . $qty_order . ';
