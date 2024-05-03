@@ -2,6 +2,9 @@
 {include file="public/header" /}
 
 <style>
+    .pie-chart {margin-top: 32px}
+</style>
+<style>
     .product-img {position: absolute; right: 250px; top: 250px}
 </style>
 <!-- 主体内容 -->
@@ -23,9 +26,12 @@
             </div>
         </form>
 
-        <div class="layui-form" style="display: flex">
+        <div class="layui-form pie-chart" style="display: flex">
             <div id="main_1" style="height:500px; width: 800px"></div>
             <div id="main_2" style="height:500px; width: 800px"></div>
+        </div>
+        <div class="layui-form" style="display: flex">
+            <div id="main_3" style="height:500px; width: 800px"></div>
         </div>
     </div>
 </div>
@@ -47,6 +53,10 @@
 
         const category_1 = echarts.init(document.getElementById("main_1"));
         category_1.setOption({
+            title: {
+                text: '一级类目销量饼状图',
+                left: 'center'
+            },
             series: [
                 {
                     type: 'pie',
@@ -55,12 +65,35 @@
             ]
         });
 
+        category_1.on('click', function (params) {
+            // 跳转到对应的页面
+            window.location.href = "/Manage/SkuReport/category/category/" + params.name + ".html";
+        });
+
         const category_2 = echarts.init(document.getElementById("main_2"));
         category_2.setOption({
+            title: {
+                text: '二级类目销量饼状图',
+                left: 'center'
+            },
             series: [
                 {
                     type: 'pie',
                     data: {$category_2}
+                }
+            ]
+        });
+
+        const category_3 = echarts.init(document.getElementById("main_3"));
+        category_3.setOption({
+            title: {
+                text: "{$category}类目销量饼状图",
+                left: 'center'
+            },
+            series: [
+                {
+                    type: 'pie',
+                    data: {$category_3}
                 }
             ]
         });

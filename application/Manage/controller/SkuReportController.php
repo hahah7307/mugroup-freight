@@ -240,7 +240,7 @@ ORDER BY
      * @throws PDOException
      * @throws BindParamException
      */
-    public function category(): \think\response\View
+    public function category($category = "室内家具"): \think\response\View
     {
         $start = $this->request->get('start', date('Y-m-01 00:00:00'), 'htmlspecialchars');
         $this->assign('start', $start);
@@ -282,8 +282,38 @@ GROUP BY
 	category_name_2;
         ');
 
+        $category_3 = $model->query('
+SELECT 
+	value,
+	name 
+FROM
+	(
+	SELECT
+		SUM( b.qty ) 
+	VALUE
+		,
+		IFNULL( c.category_name_1, "未分类" ) name_1,
+		IFNULL( c.category_name_2, "未分类" ) name 
+	FROM
+		mu_ecang_order a
+		LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id
+		LEFT JOIN mu_api_product_category c ON b.warehouseSku = c.productSku 
+	WHERE
+		STATUS = 4 ' .
+            $start_time .
+            'AND a.datePaidPlatform < "' . $end . '"' . ' 
+	GROUP BY
+		category_name_1,
+		category_name_2 
+	) a 
+WHERE
+	name_1 = "' . $category . '";
+        ');
+
         $this->assign('category_1', json_encode($category_1));
         $this->assign('category_2', json_encode($category_2));
+        $this->assign('category_3', json_encode($category_3));
+        $this->assign('category', $category);
 
         return view();
     }
