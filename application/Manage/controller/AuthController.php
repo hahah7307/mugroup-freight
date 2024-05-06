@@ -29,6 +29,7 @@ FROM
 	LEFT JOIN mu_admin_user_role e ON d.id = e.role_id
 	LEFT JOIN mu_admin_user f ON e.user_id = f.id 
 WHERE
+    f.status = 1 AND
 	a.CODE IN ( ' . $whereIn . ' );
         ';
         $res = $userModel->query($sql);
