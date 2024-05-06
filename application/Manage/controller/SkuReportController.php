@@ -686,4 +686,73 @@ ORDER BY
         Session::set(Config::get('BACK_URL'), $this->request->url(), 'manage');
         return view();
     }
+
+    /**
+     * @throws PDOException
+     * @throws BindParamException
+     */
+    public function inventory($date, $num = 30): \think\response\View
+    {
+        if ($num > 360) {
+            $numStart = $num - 90;
+        } else {
+            $numStart = $num - 30;
+        }
+        $this->assign('numStart', $numStart);
+        $this->assign('num', $num);
+
+        $date = date('Ymd', strtotime($date));
+        $this->assign('date', $date);
+
+        $model = new ProductModel();
+        $leList = $model->query('
+SELECT
+	SUM( goodsNum ) goodsNum,
+	SUBSTRING( lecangsCode, 7 ) lecangsCode,
+	c.user_name,
+	b.productImages 
+FROM
+	mu_le_inventory_batch a
+	LEFT JOIN mu_ecang_product b ON SUBSTRING( a.lecangsCode, 7 ) = b.productSku 
+	LEFT JOIN mu_ecang_user c ON b.personSellerId = c.user_id
+WHERE
+	created_date = ' . $date . ' 
+	AND inventoryAge > ' . $numStart . ' 
+	AND inventoryAge <= ' . $num . ' 
+	AND b.saleStatus = 2
+GROUP BY
+	lecangsCode,
+	user_name,
+	productImages 
+ORDER BY
+	goodsNum DESC;
+        ');
+        $this->assign('leList', $leList);
+
+        $lcList = $model->query('
+SELECT
+	SUM( sellable_quantity ) sellable_quantity,
+	product_sku,
+	c.user_name,
+	b.productImages 
+FROM
+	mu_lc_inventory_batch a
+	LEFT JOIN mu_ecang_product b ON a.product_sku = b.productSku 
+	LEFT JOIN mu_ecang_user c ON b.personSellerId = c.user_id
+WHERE
+	created_date = ' . $date . ' 
+	AND stock_age > ' . $numStart . ' 
+	AND stock_age <= ' . $num . ' 
+	AND b.saleStatus = 2
+GROUP BY
+	product_sku,
+	user_name,
+	productImages 
+ORDER BY
+	sellable_quantity DESC;
+        ');
+        $this->assign('lcList', $lcList);
+
+        return view();
+    }
 }
