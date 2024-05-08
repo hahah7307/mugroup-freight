@@ -17,7 +17,15 @@
 <div class="layui-body" id="LAY_app_body">
     <div class="right">
         <a href="{:session('back_url', '', 'manage')}" class="layui-btn layui-btn-danger layui-btn-sm fr"><i class="layui-icon">&#xe603;</i>返回上一页</a>
-        <div class="title">{$date|strtotime|date="Y-m-d", ###}库龄 {$numStart}-{$num} 海外仓库存</div>
+        <div class="title">{$date|strtotime|date="Y-m-d", ###}库龄 {$numStart}-{$num}天海外仓库存<strong>(只包含在线产品)</strong></div>
+        <form class="layui-form" method="get">
+            <div class="layui-input-inline w100">
+                <input type="text" class="layui-input" name="seller" value="{$seller}" placeholder="主运营人员">
+            </div>
+            <div class="layui-inline">
+                <button class="layui-btn" lay-submit lay-filter="Search"><i class="layui-icon">&#xe615;</i> 查询</button>
+            </div>
+        </form>
 
         <div class="layui-form table-flex">
             <table class="layui-table" lay-size="sm">

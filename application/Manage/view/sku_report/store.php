@@ -9,7 +9,7 @@
 <script src="/static/echarts/test/lib/jquery.min.js"></script>
 <div class="layui-body" id="LAY_app_body">
     <div class="right">
-        <div class="title">日库存统计饼状图</div>
+        <div class="title">日库存统计饼状图<strong>(只包含在线产品)</strong></div>
         <form class="layui-form" method="get">
             <div class="layui-input-inline w200">
                 <input type="text" class="layui-input" id="sale_day" name="sale_day" value="{$sale_day}" placeholder="请选择日期">
@@ -87,7 +87,7 @@
         const category_1 = echarts.init(document.getElementById("main_1"));
         category_1.setOption({
             title: {
-                text: '当日海外仓批次库存库龄统计饼状图',
+                text: '当日海外仓批次库存数量库龄统计饼状图',
                 // subtext: 'Fake Data',
                 left: 'center'
             },
@@ -163,7 +163,7 @@
         const category_3 = echarts.init(document.getElementById("main_3"));
         category_3.setOption({
             title: {
-                text: '当日与前两月批次库存库龄对比柱状图',
+                text: '当日与前两月批次库存数量库龄对比柱状图',
                 // subtext: 'Fake Data',
                 left: 'center'
             },
@@ -179,7 +179,7 @@
             yAxis: {},
             // Declare several bar series, each will be mapped
             // to a column of dataset.source by default.
-            series: [{ type: 'bar' }, { type: 'bar' }, { type: 'bar' }]
+            series: [{ type: 'bar', itemStyle: {color: '#FFC858'} }, { type: 'bar', itemStyle: {color: '#91CC75'} }, { type: 'bar', itemStyle: {color: '#5470C6'}  }]
         });
 
         category_3.on('click', function (params) {
@@ -206,7 +206,7 @@
             yAxis: {},
             // Declare several bar series, each will be mapped
             // to a column of dataset.source by default.
-            series: [{ type: 'bar' }, { type: 'bar' }, { type: 'bar' }]
+            series: [{ type: 'bar', itemStyle: {color: '#FFC858'} }, { type: 'bar', itemStyle: {color: '#91CC75'} }, { type: 'bar', itemStyle: {color: '#5470C6'}  }]
         });
 
         category_4.on('click', function (params) {
