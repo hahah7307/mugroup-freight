@@ -29,7 +29,7 @@
                     <col>
                     <col width="100">
                     <col width="80">
-                    <col width="200">
+                    <col width="220">
                 </colgroup>
                 <thead>
                 <tr>
@@ -53,10 +53,11 @@
                             <span class="red">未同步</span>
                         {/if}
                     </td>
-                    <td class="tc">
+                    <td class="tl">
                         <a href="{:url('index', ['id' => $v.id])}" class="layui-btn layui-btn-sm">详情</a>
                         <a href="{:url('store', ['id' => $v.id])}" class="layui-btn layui-btn-sm">库存</a>
                         <a href="{:url('warehouse', ['id' => $v.id])}" class="layui-btn layui-btn-sm">仓租</a>
+                        <a href="{:url('additional', ['id' => $v.id])}" class="layui-btn layui-btn-sm">额外</a>
                         <a href="{:url('outbound', ['id' => $v.id])}" class="layui-btn layui-btn-sm">出库</a>
                         <a href="{:url('report_edit', ['id' => $v.id])}" class="layui-btn layui-btn-normal layui-btn-sm">编辑</a>
                         <a href="{:url('report_export', ['id' => $v.id, 'month' => $v.month])}" class="layui-btn layui-btn-normal layui-btn-sm">导出</a>

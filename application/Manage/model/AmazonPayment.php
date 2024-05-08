@@ -139,6 +139,7 @@ class AmazonPayment extends Model
                     "payment_id"                =>  trim($item[3]),
                     "sku"                       =>  trim($sku_new),
                     "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[29])),
+                    "is_amazon"                 =>  1,
                 ];
             } elseif ($item[2] == 'FBA Inventory Fee'
                 || $item[2] == 'FBA Customer Return Fee') {
@@ -276,6 +277,7 @@ class AmazonPayment extends Model
                     "payment_id"                =>  $item[3],
                     "sku"                       =>  $item[4],
                     "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[26])),
+                    "is_amazon"                 =>  1,
                 ];
             } elseif ($item[2] == 'FBA Inventory Fee'
                 || $item[2] == 'FBA Customer Return Fee') {
@@ -411,6 +413,7 @@ class AmazonPayment extends Model
                     "payment_id"                =>  $item[3],
                     "sku"                       =>  $item[4],
                     "total"                     =>  sprintf('%.2f', str_replace(',', '.', str_replace('.', '', $item[26]))),
+                    "is_amazon"                 =>  1,
                 ];
             } elseif ($item[2] == 'Versand durch Amazon Lagergebühr') {
                 $this->orderFbaInventory[] = [
@@ -544,6 +547,7 @@ class AmazonPayment extends Model
                     "payment_id"                =>  $item[3],
                     "sku"                       =>  $item[4],
                     "total"                     =>  sprintf('%.2f', str_replace(',', '.', str_replace('.', '', $item[26]))),
+                    "is_amazon"                 =>  1,
                 ];
             } elseif ($item[2] == 'Tarifas de inventario de Logística de Amazon') {
                 $this->orderFbaInventory[] = [
@@ -677,6 +681,7 @@ class AmazonPayment extends Model
                     "payment_id"                =>  $item[3],
                     "sku"                       =>  $item[4],
                     "total"                     =>  sprintf('%.2f', str_replace(',', '.', str_replace('.', '', $item[26]))),
+                    "is_amazon"                 =>  1,
                 ];
             } elseif ($item[2] == 'Frais de stock Expédié par Amazon') {
                 $this->orderFbaInventory[] = [
@@ -810,6 +815,7 @@ class AmazonPayment extends Model
                     "payment_id"                =>  $item[3],
                     "sku"                       =>  $item[4],
                     "total"                     =>  sprintf('%.2f', str_replace(',', '.', str_replace('.', '', $item[26]))),
+                    "is_amazon"                 =>  1,
                 ];
             } elseif ($item[2] == 'Costo di stoccaggio Logistica di Amazon') {
                 $this->orderFbaInventory[] = [
@@ -869,6 +875,15 @@ class AmazonPayment extends Model
                     "selling_fees"              =>  sprintf('%.2f', str_replace(',', '', $item[22])),
                     "fba_fees"                  =>  0,
                 ];
+                if ($item[71]) {
+                    $this->orderAdjustmentNew[] = [
+                        "report_id"                 =>  $reportId,
+                        "table_id"                  =>  $tableId,
+                        "payment_id"                =>  number_format($item[2], 0, '', ''),
+                        "sku"                       =>  $item[8],
+                        "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[71])),
+                    ];
+                }
             } elseif ($item[5] == 'REFUNDED') {
                 $this->orderRefundNew[] = [
                     "report_id"                 =>  $reportId,
@@ -881,13 +896,22 @@ class AmazonPayment extends Model
                     "selling_fees"              =>  sprintf('%.2f', str_replace(',', '', $item[22])),
                     "fba_fees"                  =>  0,
                 ];
-            } elseif ($item[5] == 'Adjustment') {
+                if ($item[71]) {
+                    $this->orderAdjustmentNew[] = [
+                        "report_id"                 =>  $reportId,
+                        "table_id"                  =>  $tableId,
+                        "payment_id"                =>  number_format($item[2], 0, '', ''),
+                        "sku"                       =>  $item[8],
+                        "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[71])),
+                    ];
+                }
+            } elseif ($item[5] == 'ADJMNT') {
                 $this->orderAdjustmentNew[] = [
                     "report_id"                 =>  $reportId,
                     "table_id"                  =>  $tableId,
                     "payment_id"                =>  number_format($item[2], 0, '', ''),
                     "sku"                       =>  $item[8],
-                    "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[24])),
+                    "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[21])),
                 ];
             }
         }

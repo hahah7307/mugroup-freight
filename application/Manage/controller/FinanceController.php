@@ -3,6 +3,7 @@ namespace app\Manage\controller;
 
 use app\Manage\model\AkAdCostCreateModel;
 use app\Manage\model\AmazonPayment;
+use app\Manage\model\FinanceOrderAdditionalModel;
 use app\Manage\model\FinanceOrderAdjustmentModel;
 use app\Manage\model\FinanceOrderFbaInventoryModel;
 use app\Manage\model\FinanceOrderLiquidationModel;
@@ -398,7 +399,7 @@ class FinanceController extends BaseController
                     if (!$financeOrderPromotionObj->saveAll($paymentData['orderPromotionNew'])) {
                         throw new \think\Exception('Payment导入失败！');
                     } else {
-                        $promotionSum = $financeOrderPromotionObj->where(['table_id' => $tableId])->sum('total');
+                        $promotionSum = $financeOrderPromotionObj->where(['table_id' => $tableId, 'description' => [['like', '%Coupon Redemption Fee%'], ['like', '%Vine Enrollment Fee%'], 'or']])->sum('total');
                     }
 
                     $financeOrderShippingServiceObj = new FinanceOrderShippingServiceModel();
@@ -959,8 +960,79 @@ class FinanceController extends BaseController
             Db::commit();
         } catch (Exception $e) {
             Db::rollback();
-            $this->error($e->getMessage(), url('order_statistics'));
+            $this->error($e->getMessage(), url('warehouse'));
         }
         $this->redirect(url('warehouse', ['id' => $report_id]));
+    }
+
+    /**
+     * @throws DbException
+     */
+    public function additional($id): \think\response\View
+    {
+        $keyword = $this->request->get('keyword', '', 'htmlspecialchars');
+        $this->assign('keyword', $keyword);
+        if ($keyword) {
+            $where['warehouse_sku|user_account'] = ['like', '%' . $keyword . '%'];
+        } else {
+            $where = [];
+        }
+
+        $page_num = $this->request->get('page_num', Config::get('PAGE_NUM'));
+        $this->assign('page_num', $page_num);
+
+        // 订单列表
+        $order = new FinanceOrderAdditionalModel();
+        $list = $order->where($where)->order('id asc')->paginate($page_num, false, ['query' => ['keyword' => $keyword]]);
+        $this->assign('list', $list);
+        $this->assign('report_id', $id);
+
+        return view();
+    }
+
+    /**
+     * @throws PHPExcel_Reader_Exception
+     */
+    public function additional_import()
+    {
+        // phpexcel
+        require_once './static/classes/PHPExcel/Classes/PHPExcel.php';
+
+        $filename = input('filename');
+        $report_id = input('id');
+        $file= "./upload/excel/" . $filename;
+        $excelReader = PHPExcel_IOFactory::createReaderForFile($file);
+        $excelObj = $excelReader->load($file);
+        $worksheet = $excelObj->getSheet(0);
+        $data = $worksheet->toArray();
+
+        Db::startTrans();
+        try {
+            $additionalData = [];
+            $financeAdditionalObj = new FinanceOrderAdditionalModel();
+            foreach ($data as $key => $item) {
+                if ($key == 0 || $key == 1) {
+                    continue;
+                }
+                $additionalData[] = [
+                    "report_id"             =>  $report_id,
+                    "user_account"          =>  $item[0],
+                    "warehouse_sku"         =>  $item[1],
+                    "claimant"              =>  $item[2],
+                    "liquidation"           =>  $item[3],
+                    "promotion"             =>  $item[4],
+                    "shipping_service"      =>  $item[5],
+                    "lc_adjustment"         =>  $item[6],
+                    "le_adjustment"         =>  $item[7],
+                ];
+            }
+            $financeAdditionalObj->insertAll($additionalData);
+
+            Db::commit();
+        } catch (Exception $e) {
+            Db::rollback();
+            $this->error($e->getMessage(), url('additional'));
+        }
+        $this->redirect(url('additional', ['id' => $report_id]));
     }
 }
