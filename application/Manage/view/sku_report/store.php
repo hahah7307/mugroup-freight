@@ -9,7 +9,7 @@
 <script src="/static/echarts/test/lib/jquery.min.js"></script>
 <div class="layui-body" id="LAY_app_body">
     <div class="right">
-        <div class="title">日库存统计饼状图<strong>(只包含在线产品)</strong></div>
+        <div class="title">日库存统计饼状图<strong>(不包含RETURN、ACCESSORY)</strong></div>
         <form class="layui-form" method="get">
             <div class="layui-input-inline w200">
                 <input type="text" class="layui-input" id="sale_day" name="sale_day" value="{$sale_day}" placeholder="请选择日期">

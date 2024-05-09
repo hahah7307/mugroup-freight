@@ -479,7 +479,8 @@ FROM
 	LEFT JOIN mu_ecang_product b ON SUBSTRING( a.lecangsCode, 7 ) = b.productSku 
 WHERE
 	created_date = ' . $sale_day_num . '  
-	AND b.saleStatus = 2
+	AND b.saleStatus != 18
+	AND b.saleStatus != 19
 GROUP BY name UNION ALL
 SELECT
 CASE
@@ -509,7 +510,8 @@ CASE
 	LEFT JOIN mu_ecang_product b ON a.product_sku = b.productSku 
 		WHERE
 			created_date = ' . $sale_day_num . '  
-	AND b.saleStatus = 2
+	AND b.saleStatus != 18
+	AND b.saleStatus != 19
 		GROUP BY
 		name 
 		) a 
@@ -554,7 +556,8 @@ FROM
 	LEFT JOIN mu_ecang_product b ON SUBSTRING( a.lecangsCode, 7 ) = b.productSku 
 WHERE
 	created_date = ' . date('Ymd', strtotime('-2 month', strtotime($sale_day_num))) . ' 
-	AND b.saleStatus = 2
+	AND b.saleStatus != 18
+	AND b.saleStatus != 19
 GROUP BY name UNION ALL
 SELECT
 CASE
@@ -584,7 +587,8 @@ CASE
 	LEFT JOIN mu_ecang_product b ON a.product_sku = b.productSku 
 		WHERE
 			created_date = ' . date('Ymd', strtotime('-2 month', strtotime($sale_day_num))) . ' 
-	AND b.saleStatus = 2
+	AND b.saleStatus != 18
+	AND b.saleStatus != 19
 		GROUP BY
 		name 
 		) a 
@@ -628,7 +632,8 @@ FROM
 	LEFT JOIN mu_ecang_product b ON SUBSTRING( a.lecangsCode, 7 ) = b.productSku 
 WHERE
 	created_date = ' . date('Ymd', strtotime('-1 month', strtotime($sale_day_num))) . ' 
-	AND b.saleStatus = 2
+	AND b.saleStatus != 18
+	AND b.saleStatus != 19
 GROUP BY name UNION ALL
 SELECT
 CASE
@@ -658,7 +663,8 @@ CASE
 	LEFT JOIN mu_ecang_product b ON a.product_sku = b.productSku 
 		WHERE
 			created_date = ' . date('Ymd', strtotime('-1 month', strtotime($sale_day_num))) . ' 
-	AND b.saleStatus = 2
+	AND b.saleStatus != 18
+	AND b.saleStatus != 19
 		GROUP BY
 		name 
 		) a 
@@ -718,7 +724,8 @@ FROM
 	LEFT JOIN mu_ecang_product b ON SUBSTRING( a.lecangsCode, 7 ) = b.productSku 
 WHERE
 	created_date = ' . $sale_day_num . '  
-	AND b.saleStatus = 2
+	AND b.saleStatus != 18
+	AND b.saleStatus != 19
 GROUP BY name UNION ALL
 SELECT
 CASE
@@ -748,7 +755,8 @@ CASE
 	LEFT JOIN mu_ecang_product b ON a.product_sku = b.productSku 
 		WHERE
 			created_date = ' . $sale_day_num . '  
-	AND b.saleStatus = 2
+	AND b.saleStatus != 18
+	AND b.saleStatus != 19
 		GROUP BY
 		name 
 		) a 
@@ -793,7 +801,8 @@ FROM
 	LEFT JOIN mu_ecang_product b ON SUBSTRING( a.lecangsCode, 7 ) = b.productSku 
 WHERE
 	created_date = ' . date('Ymd', strtotime('-2 month', strtotime($sale_day_num))) . ' 
-	AND b.saleStatus = 2
+	AND b.saleStatus != 18
+	AND b.saleStatus != 19
 GROUP BY name UNION ALL
 SELECT
 CASE
@@ -823,7 +832,8 @@ CASE
 	LEFT JOIN mu_ecang_product b ON a.product_sku = b.productSku 
 		WHERE
 			created_date = ' . date('Ymd', strtotime('-2 month', strtotime($sale_day_num))) . ' 
-	AND b.saleStatus = 2
+	AND b.saleStatus != 18
+	AND b.saleStatus != 19
 		GROUP BY
 		name 
 		) a 
@@ -867,7 +877,8 @@ FROM
 	LEFT JOIN mu_ecang_product b ON SUBSTRING( a.lecangsCode, 7 ) = b.productSku 
 WHERE
 	created_date = ' . date('Ymd', strtotime('-1 month', strtotime($sale_day_num))) . ' 
-	AND b.saleStatus = 2
+	AND b.saleStatus != 18
+	AND b.saleStatus != 19
 GROUP BY name UNION ALL
 SELECT
 CASE
@@ -897,7 +908,8 @@ CASE
 	LEFT JOIN mu_ecang_product b ON a.product_sku = b.productSku 
 		WHERE
 			created_date = ' . date('Ymd', strtotime('-1 month', strtotime($sale_day_num))) . ' 
-	AND b.saleStatus = 2
+	AND b.saleStatus != 18
+	AND b.saleStatus != 19
 		GROUP BY
 		name 
 		) a 
@@ -964,7 +976,8 @@ WHERE
 	created_date = ' . $date . ' 
 	AND inventoryAge >= ' . $numStart . ' 
 	AND inventoryAge < ' . $num . ' 
-	AND b.saleStatus = 2
+	AND b.saleStatus != 18
+	AND b.saleStatus != 19
 	' . $seller . '
 GROUP BY
 	lecangsCode,
@@ -989,7 +1002,8 @@ WHERE
 	created_date = ' . $date . ' 
 	AND stock_age >= ' . $numStart . ' 
 	AND stock_age < ' . $num . ' 
-	AND b.saleStatus = 2
+	AND b.saleStatus != 18
+	AND b.saleStatus != 19
 	' . $seller . '
 GROUP BY
 	product_sku,
