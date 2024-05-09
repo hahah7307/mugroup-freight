@@ -52,20 +52,23 @@
         <div class="layui-form table-flex">
             <table class="layui-table" lay-size="sm">
                 <colgroup>
-                    <col
+                    <col width="50">
+                    <col>
                     <col>
                     <col>
                 </colgroup>
                 <thead>
                 <tr>
+                    <th>名次</th>
                     <th>仓库Sku</th>
                     <th>产品图片</th>
                     <th>销售(美金)</th>
                 </tr>
                 </thead>
                 <tbody>
-                {foreach name="saleList" item="v"}
+                {foreach name="saleList" key="key" item="v"}
                 <tr class="sku-item" data-sku="{$v.warehouseSku}">
+                    <td class="tr">{$key + 1}</td>
                     <td>{$v.warehouseSku}</td>
                     <td><img src="{$v.productImages}" height="80" alt=""></td>
                     <td class="tr">{$v.sale|number_format=###, 3}</td>
@@ -75,20 +78,23 @@
             </table>
             <table class="layui-table" lay-size="sm">
                 <colgroup>
+                    <col width="50">
                     <col
                     <col>
                     <col>
                 </colgroup>
                 <thead>
                 <tr>
+                    <th>名次</th>
                     <th>仓库Sku</th>
                     <th>产品图片</th>
                     <th>销量(个)</th>
                 </tr>
                 </thead>
                 <tbody>
-                {foreach name="qtyList" item="item"}
+                {foreach name="qtyList" key="k" item="item"}
                 <tr class="sku-item" data-sku="{$item.warehouseSku}">
+                    <td class="tr">{$k + 1}</td>
                     <td>{$item.warehouseSku}</td>
                     <td><img src="{$item.productImages}" height="80" alt=""></td>
                     <td class="tr">{$item.qty|number_format=###}</td>
