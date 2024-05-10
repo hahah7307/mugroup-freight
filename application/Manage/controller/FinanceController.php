@@ -3,6 +3,7 @@ namespace app\Manage\controller;
 
 use app\Manage\model\AkAdCostCreateModel;
 use app\Manage\model\AmazonPayment;
+use app\Manage\model\FinanceEvaluationModel;
 use app\Manage\model\FinanceOrderAdditionalModel;
 use app\Manage\model\FinanceOrderAdjustmentModel;
 use app\Manage\model\FinanceOrderFbaInventoryModel;
@@ -1034,5 +1035,74 @@ class FinanceController extends BaseController
             $this->error($e->getMessage(), url('additional'));
         }
         $this->redirect(url('additional', ['id' => $report_id]));
+    }
+
+    public function evaluation($id): \think\response\View
+    {
+        $keyword = $this->request->get('keyword', '', 'htmlspecialchars');
+        $this->assign('keyword', $keyword);
+        if ($keyword) {
+            $where['saleOrderCode|warehouse_sku'] = ['like', '%' . $keyword . '%'];
+        } else {
+            $where = [];
+        }
+
+        $page_num = $this->request->get('page_num', Config::get('PAGE_NUM'));
+        $this->assign('page_num', $page_num);
+
+        // 列表
+        $order = new FinanceEvaluationModel();
+        $list = $order->where($where)->order('id asc')->paginate($page_num, false, ['query' => ['keyword' => $keyword]]);
+        $this->assign('list', $list);
+        $this->assign('report_id', $id);
+
+        return view();
+    }
+
+    /**
+     * @throws PHPExcel_Reader_Exception
+     */
+    public function evaluation_import()
+    {
+        // phpexcel
+        require_once './static/classes/PHPExcel/Classes/PHPExcel.php';
+
+        $filename = input('filename');
+        $report_id = input('id');
+        $file= "./upload/excel/" . $filename;
+        $excelReader = PHPExcel_IOFactory::createReaderForFile($file);
+        $excelObj = $excelReader->load($file);
+        $worksheet = $excelObj->getSheet(0);
+        $data = $worksheet->toArray();
+
+        Db::startTrans();
+        try {
+            $additionalData = [];
+            $financeAdditionalObj = new FinanceEvaluationModel();
+            foreach ($data as $key => $item) {
+                if ($key == 0 || $key == 1) {
+                    continue;
+                }
+                $additionalData[] = [
+                    "report_id"                 =>  $report_id,
+                    "payment"                   =>  $item[1],
+                    "warehouse_sku"             =>  $item[2],
+                    "usd_sale_amount"           =>  currencyToNumber($item[3]),
+                    "usd_paid_amount"           =>  currencyToNumber($item[4]),
+                    "cny_actual_paid"           =>  currencyToNumber($item[5]),
+                    "usd_actual_paid"           =>  currencyToNumber($item[6]),
+                    "seller"                    =>  $item[7],
+                    "content"                   =>  $item[8],
+                    "date"                      =>  date('Ymd', strtotime($item[0])),
+                ];
+            }
+            $financeAdditionalObj->insertAll($additionalData);
+
+            Db::commit();
+        } catch (Exception $e) {
+            Db::rollback();
+            $this->error($e->getMessage(), url('evaluation'));
+        }
+        $this->redirect(url('evaluation', ['id' => $report_id]));
     }
 }

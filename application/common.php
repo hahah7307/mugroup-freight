@@ -240,3 +240,31 @@ function getAhs()
 {
     return \app\Manage\model\StorageAhsModel::all();
 }
+
+
+// 货币转数值
+function currencyToNumber($currencyString): float
+{
+    if (is_numeric($currencyString)) {
+        return floatval($currencyString);
+    }
+    // 移除货币符号
+    $currencySymbols = [
+        '£' => 'GBP',
+        '$' => 'USD',
+        '€' => 'EUR',
+        // 添加其他货币符号及其对应的货币名称
+    ];
+    foreach ($currencySymbols as $symbol => $currency) {
+        $currencyString = str_replace($symbol, '', $currencyString);
+    }
+
+    // 移除非数字字符，包括逗号
+    $currencyString = preg_replace('/[^0-9\.]/', '', $currencyString);
+
+    // 将逗号转换为点，以便number_format正确处理
+    $currencyString = str_replace(',', '', $currencyString);
+
+    // 转换为数值
+    return floatval($currencyString);
+}
