@@ -76,7 +76,7 @@ class SkuReportController extends BaseController
                 warehouseSku,
                 productImages
             ORDER BY
-	            qty DESC;
+	            qty ' . $qty_order . ';
         ');
         $this->assign('qtyList', $qtyList);
 
