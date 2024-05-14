@@ -274,8 +274,13 @@ class OrderModel extends Model
             foreach ($orderDetail as $key => $detail) {
                 $detail['warehouseSkuList'] = isset($detail['warehouseSkuList']) ? json_encode($detail['warehouseSkuList']) : json_encode([]);
                 $detail['promotionIdList'] = isset($detail['promotionIdList']) ? json_encode($detail['promotionIdList']) : json_encode([]);
-                $detail['id'] = $detailItem[$key]['id'];
-                OrderDetailModel::update($detail);
+                if (count($detailItem)) {
+                    $detail['id'] = $detailItem[$key]['id'];
+                    OrderDetailModel::update($detail);
+                } else {
+                    $detail['order_id'] = $orderItem['id'];
+                    OrderDetailModel::create($detail);
+                }
             }
 
             // 保留地址数据保留邮编，用于就算尾程
@@ -292,6 +297,7 @@ class OrderModel extends Model
             Db::commit();
             return true;
         } catch (\Exception $e) {
+            dump($e->getMessage());
             Db::rollback();
             return false;
         }
