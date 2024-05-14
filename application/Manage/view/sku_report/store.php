@@ -9,7 +9,7 @@
 <script src="/static/echarts/test/lib/jquery.min.js"></script>
 <div class="layui-body" id="LAY_app_body">
     <div class="right">
-        <div class="title">日库存统计饼状图<strong>(不包含RETURN、ACCESSORY)</strong></div>
+        <div class="title">FBM日库存统计饼状图<strong>(不包含RETURN、ACCESSORY)</strong></div>
         <form class="layui-form" method="get">
             <div class="layui-input-inline w200">
                 <input type="text" class="layui-input" id="sale_day" name="sale_day" value="{$sale_day}" placeholder="请选择日期">
@@ -87,7 +87,7 @@
         const category_1 = echarts.init(document.getElementById("main_1"));
         category_1.setOption({
             title: {
-                text: '当日海外仓批次库存数量库龄统计饼状图',
+                text: '当日海外仓批次库存数量库龄统计饼状图(合计：{$sum.0.value|number_format}个)',
                 // subtext: 'Fake Data',
                 left: 'center'
             },
@@ -125,7 +125,7 @@
         const category_2 = echarts.init(document.getElementById("main_2"));
         category_2.setOption({
             title: {
-                text: '当日海外仓批次采购金额库龄统计饼状图',
+                text: '当日海外仓批次采购金额库龄统计饼状图(合计：{$sum.0.sum|number_format=###,2}元)',
                 // subtext: 'Fake Data',
                 left: 'center'
             },

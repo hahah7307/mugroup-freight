@@ -935,6 +935,36 @@ ORDER BY
         }
         $this->assign('priceData', json_encode($priceData));
 
+        $sum = $model->query('
+SELECT
+	SUM( value ) value,
+	SUM( sum ) sum
+FROM
+	(
+SELECT
+	SUM( goodsNum ) AS value,
+	ROUND( SUM( goodsNum * b.sp_unit_price ), 4) AS sum
+FROM
+	mu_le_inventory_batch a
+	LEFT JOIN mu_ecang_product b ON SUBSTRING( a.lecangsCode, 7 ) = b.productSku 
+WHERE
+	created_date = ' . $sale_day_num . ' 
+	AND b.saleStatus != 18
+	AND b.saleStatus != 19 UNION ALL
+SELECT
+	SUM( sellable_quantity ) AS value,
+	ROUND( SUM( sellable_quantity * b.sp_unit_price ), 4) AS sum
+FROM
+	mu_lc_inventory_batch a
+	LEFT JOIN mu_ecang_product b ON a.product_sku = b.productSku 
+WHERE
+	created_date = ' . $sale_day_num . '
+	AND b.saleStatus != 18
+	AND b.saleStatus != 19
+	) a;        
+        ');
+        $this->assign('sum', $sum);
+
         Session::set(Config::get('BACK_URL'), $this->request->url(), 'manage');
         return view();
     }
