@@ -31,11 +31,12 @@ class InventorySettlement extends Command
 
         Db::startTrans();
         try {
+            $productObj = new ProductModel();
             // 易仓仓储费计算
             $inventorySettlementObj = new InventoryBatchModel();
             $data = $inventorySettlementObj->where('is_settlement', 0)->order('id asc')->limit(Config::get('inventory_batch_num'))->select();
             foreach ($data as $item) {
-                $product = ProductModel::get(['productSku' => $item['productSku']]);
+                $product = $productObj->where(['productSku' => $item['product_sku']])->find();
                 $volume = $product['productLength'] * $product['productWidth'] * $product['productHeight'] / 1000000;
                 $storageArea = StorageAreaModel::get(['storage_code' => $item['lcCode']]);
                 $storage_id = $storageArea['storage_id'];
@@ -65,7 +66,7 @@ class InventorySettlement extends Command
             $data = $lcInventoryBatchObj->with('receiving')->where('is_finished', 0)->order('id asc')->limit(Config::get('inventory_batch_num'))->select();
             foreach ($data as $item) {
                 $warehouseCode = $item['receiving']['warehouse_code'];
-                $product = ProductModel::get(['productSku' => $item['product_sku']]);
+                $product = $productObj->where(['productSku' => $item['product_sku']])->find();
                 $volume = $product['productLength'] * $product['productWidth'] * $product['productHeight'] / 1000000;
 
                 $storageArea = new StorageAreaModel();
@@ -96,7 +97,7 @@ class InventorySettlement extends Command
             $leInventoryBatchObj = new LeInventoryBatchModel();
             $data = $leInventoryBatchObj->where('is_finished', 0)->order('id asc')->limit(Config::get('inventory_batch_num'))->select();
             foreach ($data as $item) {
-                $product = ProductModel::get(['productSku' => substr($item['lecangsCode'], 6)]);
+                $product = $productObj->where(['productSku' =>  substr($item['lecangsCode'], 6)])->find();
                 $volume = $product['productLength'] * $product['productWidth'] * $product['productHeight'] / 1000000;
 
                 $storageFeeObj = new StorageFeeModel();
