@@ -39,4 +39,5 @@ return [
     'app\Manage\command\ApiProductCategory', //
     'app\Manage\command\ListingUpdate', //
     'app\Manage\command\OrderCaptureMore', //
+    'app\Manage\command\FinanceOrderShare', //
 ];
