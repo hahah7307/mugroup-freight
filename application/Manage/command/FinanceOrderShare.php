@@ -2,6 +2,7 @@
 namespace app\Manage\command;
 
 use app\Manage\model\FinanceOrderAdjustmentModel;
+use app\Manage\model\FinanceOrderLiquidationModel;
 use app\Manage\model\FinanceOrderRefundModel;
 use app\Manage\model\FinanceOrderShareModel;
 use app\Manage\model\FinanceOrderShippingServiceModel;
@@ -260,6 +261,66 @@ class FinanceOrderShare extends Command
                     }
                 }
             }
+
+            // 清算分摊
+            $financeOrderLiquidationObj = new FinanceOrderLiquidationModel();
+            $liquidation = $financeOrderLiquidationObj->where('share_code', null)->order('id asc')->limit(100)->select();
+            if (count($liquidation)) {
+                $orderStatisticObj = new FinanceOrderStatisticsModel();
+                foreach ($liquidation as $item) {
+                    $shareCode = self::generateRandomCode(16);
+                    $list = $orderStatisticObj->query('
+SELECT
+	a.id,
+	a.total,
+	c.user_account,
+	a.sku,
+	c.asin,
+	c.seller_sku,
+	e.pcr_product_sku 
+FROM
+	mu_finance_order_liquidation a
+	LEFT JOIN mu_finance_table b ON a.table_id = b.id
+	LEFT JOIN mu_ecang_listing c ON a.sku = c.asin 
+	AND b.userAccount = c.user_account
+	LEFT JOIN mu_ecang_sku d ON c.seller_sku = d.product_sku
+	LEFT JOIN mu_ecang_sku_relation e ON d.id = e.sku_id 
+WHERE
+	a.total > 0 
+	AND a.id = ' . $item['id'] . ' 
+ORDER BY
+	id ASC;
+                    ');
+                    if (count($list)) {
+                        $shareItem = [];
+                        foreach ($list as $value) {
+                            $amount = $item['total'];
+                            $percent = round(1 / count($list), 4);
+                            $shareItem[] = [
+                                'report_id'     =>  $item['report_id'],
+                                'table_id'      =>  $item['table_id'],
+                                'cost_type'     =>  'LIQUIDATION',
+                                'share_code'    =>  $shareCode,
+                                'payment'       =>  $item['order_id'],
+                                'seller_sku'    =>  $value['seller_sku'],
+                                'warehouse_sku' =>  $value['pcr_product_sku'],
+                                'amount'        =>  $amount,
+                                'percent'       =>  min($percent, 1),
+                                'total'         =>  round($amount * min($percent, 1), 6)
+                            ];
+                        }
+                        if ($financeOrderShareObj->insertAll($shareItem)) {
+                            $financeOrderLiquidationObj->update(['share_code' => $shareCode], ['id' => $item['id']]);
+                        }
+                    } else {
+                        // 无listing TODO
+                        continue;
+
+                    }
+                }
+            }
+
+
 
 
             Db::commit();
