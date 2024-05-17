@@ -965,6 +965,49 @@ WHERE
         ');
         $this->assign('sum', $sum);
 
+        $last_sum = $model->query('
+SELECT
+	SUM( value ) value,
+	SUM( sum ) sum
+FROM
+	(
+SELECT
+	SUM( goodsNum ) AS value,
+	ROUND( SUM( goodsNum * b.sp_unit_price ), 4) AS sum
+FROM
+	mu_le_inventory_batch a
+	LEFT JOIN mu_ecang_product b ON SUBSTRING( a.lecangsCode, 7 ) = b.productSku 
+WHERE
+	created_date = ' . date('Ymd', strtotime('-1 month', strtotime($sale_day_num))) . ' 
+	AND b.saleStatus != 18
+	AND b.saleStatus != 19 UNION ALL
+SELECT
+	SUM( sellable_quantity ) AS value,
+	ROUND( SUM( sellable_quantity * b.sp_unit_price ), 4) AS sum
+FROM
+	mu_lc_inventory_batch a
+	LEFT JOIN mu_ecang_product b ON a.product_sku = b.productSku 
+WHERE
+	created_date = ' . date('Ymd', strtotime('-1 month', strtotime($sale_day_num))) . ' 
+	AND b.saleStatus != 18
+	AND b.saleStatus != 19
+	) a;        
+        ');
+        $this->assign('last_sum', $last_sum);
+
+        $monthQty = $model->query('
+SELECT
+	SUM( b.qty ) qty
+FROM
+	mu_ecang_order a
+	LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id 
+WHERE
+	a.`status` = 4 
+	AND a.dateWarehouseShipping >= "' . date('Y-m-d H:i:s', strtotime('-1 month', strtotime($sale_day_num))) . '" 
+	AND a.dateWarehouseShipping < "' . date('Y-m-d H:i:s', strtotime($sale_day_num)) . ' ";      
+        ');
+        $this->assign('monthQty', $monthQty);
+
         Session::set(Config::get('BACK_URL'), $this->request->url(), 'manage');
         return view();
     }

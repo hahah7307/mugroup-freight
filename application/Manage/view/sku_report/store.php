@@ -19,6 +19,34 @@
             </div>
         </form>
 
+        <table class="layui-table" lay-size="sm" style="width: 1600px">
+            <colgroup>
+                <col>
+                <col>
+                <col>
+                <col>
+                <col>
+            </colgroup>
+            <thead>
+            <tr>
+                <th class="tc">上月库存</th>
+                <th class="tc">今日库存</th>
+                <th class="tc">上月销售库存</th>
+                <th class="tc">月库存周转率</th>
+                <th class="tc">年库存周转率</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td class="tr">{$last_sum.0.value}</td>
+                <td class="tr">{$sum.0.value}</td>
+                <td class="tr">{$monthQty.0.qty}</td>
+                <td class="tr">{$monthQty.0.qty / (($last_sum.0.value + $sum.0.value) / 2)|round=###,2}</td>
+                <td class="tr">{$monthQty.0.qty / (($last_sum.0.value + $sum.0.value) / 2) * 12|round=###,2}</td>
+            </tr>
+            </tbody>
+        </table>
+
         <div class="layui-form pie-chart" style="display: flex">
             <div id="main_1" style="height:500px; width: 800px"></div>
             <div id="main_2" style="height:500px; width: 800px"></div>
