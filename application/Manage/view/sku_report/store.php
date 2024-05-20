@@ -29,18 +29,18 @@
             </colgroup>
             <thead>
             <tr>
-                <th class="tc">上月库存</th>
-                <th class="tc">今日库存</th>
-                <th class="tc">上月销售库存</th>
+                <th class="tc">上月库存数量(个)</th>
+                <th class="tc">今日库存数量(个)</th>
+                <th class="tc">上月销售库存数量(个)</th>
                 <th class="tc">月库存周转率</th>
                 <th class="tc">年库存周转率</th>
             </tr>
             </thead>
             <tbody>
             <tr>
-                <td class="tr">{$last_sum.0.value}</td>
-                <td class="tr">{$sum.0.value}</td>
-                <td class="tr">{$monthQty.0.qty}</td>
+                <td class="tr">{$last_sum.0.value|number_format}</td>
+                <td class="tr">{$sum.0.value|number_format}</td>
+                <td class="tr">{$monthQty.0.qty|number_format}</td>
                 <td class="tr">{$monthQty.0.qty / (($last_sum.0.value + $sum.0.value) / 2)|round=###,2}</td>
                 <td class="tr">{$monthQty.0.qty / (($last_sum.0.value + $sum.0.value) / 2) * 12|round=###,2}</td>
             </tr>
@@ -153,7 +153,7 @@
         const category_2 = echarts.init(document.getElementById("main_2"));
         category_2.setOption({
             title: {
-                text: '当日海外仓批次采购金额库龄统计饼状图(合计：{$sum.0.sum|number_format=###,2}元)',
+                text: '当日海外仓批次采购金额库龄统计饼状图(FOB合计：{$sum.0.sum|number_format=###,2}元)',
                 // subtext: 'Fake Data',
                 left: 'center'
             },
