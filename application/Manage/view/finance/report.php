@@ -23,6 +23,7 @@
 
         <div class="layui-form">
             <a class="layui-btn" href="{:url('report_add')}">添加</a>
+            <button class="layui-btn layui-btn-danger" id="introduction">使用说明</button>
             <table class="layui-table">
                 <colgroup>
                     <col width="50">
@@ -76,6 +77,24 @@
     layui.use(['form', 'jquery'], function(){
         var $ = layui.jquery,
             form = layui.form;
+
+        // 使用说明
+        $("#introduction").click(function() {
+            layer.alert('见到你真的很高兴', {
+                title: false,
+                content: "使用说明：<br>" +
+                    "按顺序进行以下操作方可导出<br>" +
+                    "①导入当月所有payment订单<br>" +
+                    "②导入月初批次库存和对应DDP<br>" +
+                    "③导入当月海外仓账单仓租费用<br>" +
+                    "④导入运营分摊四项调整费用<br>" +
+                    "⑤导入测评订单<br>" +
+                    "⑥等待报表状态变为已同步",
+                btnAlign: 'c',
+                closeBtn: 0,
+                anim: 1,
+            });
+        });
 
         // 状态
         form.on('switch(formLock)', function(data){
