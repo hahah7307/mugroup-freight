@@ -20,6 +20,24 @@
                 </div>
             </div>
             <div class="layui-form-item">
+                <label class="layui-form-label">美元汇率</label>
+                <div class="layui-input-inline w300">
+                    <input type="text" class="layui-input" name="USD" placeholder="请选择美元汇率">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">欧元汇率</label>
+                <div class="layui-input-inline w300">
+                    <input type="text" class="layui-input" name="EUR" placeholder="请选择欧元汇率">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">澳元汇率</label>
+                <div class="layui-input-inline w300">
+                    <input type="text" class="layui-input" name="AUD" placeholder="请选择澳元汇率">
+                </div>
+            </div>
+            <div class="layui-form-item">
                 <div class="layui-input-block">
                     <button class="layui-btn w200" lay-submit lay-filter="formCoding">提交保存</button>
                 </div>
@@ -50,7 +68,7 @@
                     let res = response.data;
                     if (res.code === 1) {
                         layer.alert(res.msg,{icon:1,closeBtn:0,title:false,btnAlign:'c',},function(){
-                            location.reload();
+                            location.href = "{:url('report')}";
                         });
                     } else {
                         layer.alert(res.msg,{icon:2,closeBtn:0,title:false,btnAlign:'c'},function(){

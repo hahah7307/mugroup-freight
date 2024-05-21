@@ -69,7 +69,7 @@ layui.use(['form', 'jquery', 'laydate'], function(){
                 var res = response.data;
                 if (res.code === 1) {
                     layer.alert(res.msg,{icon:1,closeBtn:0,title:false,btnAlign:'c',},function(){
-                        location.reload();
+                        location.href = "{:url('report')}";
                     });
                 } else {
                     layer.alert(res.msg,{icon:2,closeBtn:0,title:false,btnAlign:'c'},function(){
