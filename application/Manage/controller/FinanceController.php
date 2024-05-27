@@ -136,6 +136,8 @@ class FinanceController extends BaseController
         $warehouseSku = $financeReportObj->query(FinanceReportModel::getWarehouseSkuSql($report_id, $report['month']));
         $warehouseRent = $financeReportObj->query(FinanceReportModel::getWarehouseRentSql($report_id));
         $paymentNoOutbound = $financeReportObj->query(FinanceReportModel::getPaymentNoOutboundSql($report_id));
+        $fbaWarehouseSku = $financeReportObj->query(FinanceReportModel::getFbaWarehouseSkuSql($report_id, $report['month']));
+        $fbmWarehouseSku = $financeReportObj->query(FinanceReportModel::getFbmWarehouseSkuSql($report_id, $report['month']));
 
         // phpexcel
         require_once './static/classes/PHPExcel/Classes/PHPExcel.php';
@@ -192,7 +194,7 @@ class FinanceController extends BaseController
         $objPHPExcel->createSheet();
 
         // Set name sheet
-        $objPHPExcel->setActiveSheetIndex(1)->setTitle('仓库Sku');
+        $objPHPExcel->setActiveSheetIndex(1)->setTitle('FBA');
 
         // Add some data
         $objPHPExcel->setActiveSheetIndex(1)
@@ -206,42 +208,58 @@ class FinanceController extends BaseController
             ->setCellValue('H1', '平台佣金')
             ->setCellValue('I1', '平台佣金退款')
             ->setCellValue('J1', '亚马逊尾程')
-            ->setCellValue('K1', '海外仓尾程')
+            ->setCellValue('K1', '亚马逊尾程退款')
             ->setCellValue('L1', 'DDP')
             ->setCellValue('M1', '广告费')
             ->setCellValue('N1', '仓储费')
-            ->setCellValue('O1', '促销费')
-            ->setCellValue('P1', '退运费')
-            ->setCellValue('Q1', '清算费用')
-            ->setCellValue('R1', '调整费用')
-            ->setCellValue('S1', '亚马逊仓储费')
-            ->setCellValue('T1', 'transfer')
+            ->setCellValue('O1', '调整费用')
+            ->setCellValue('P1', '清算费用')
+            ->setCellValue('Q1', '促销费')
+            ->setCellValue('R1', '退运费')
+            ->setCellValue('S1', '广告费占比')
+            ->setCellValue('T1', '仓储费占比')
+            ->setCellValue('U1', '尾程占比')
+            ->setCellValue('V1', 'DDP占比')
+            ->setCellValue('W1', '毛利')
+            ->setCellValue('X1', '毛利率')
+            ->setCellValue('Y1', '测评数量')
+            ->setCellValue('Z1', '测评金额')
+            ->setCellValue('AA1', '含测评毛利')
+            ->setCellValue('AB1', '含测评毛利率')
         ;
 
-        $warehouseSkuIndex = 1;
-        foreach ($warehouseSku as $warehouseSkuItem) {
-            $warehouseSkuIndex ++;
+        $fbaIndex = 1;
+        foreach ($fbaWarehouseSku as $fbaItem) {
+            $fbaIndex ++;
             $objPHPExcel->setActiveSheetIndex(1)
-                ->setCellValue('A' . $warehouseSkuIndex, $warehouseSkuItem['platform'])
-                ->setCellValue('B' . $warehouseSkuIndex, $warehouseSkuItem['userAccount'])
-                ->setCellValue('C' . $warehouseSkuIndex, $warehouseSkuItem['warehouse_sku'])
-                ->setCellValue('D' . $warehouseSkuIndex, $warehouseSkuItem['sale_qty'])
-                ->setCellValue('E' . $warehouseSkuIndex, $warehouseSkuItem['refund_qty'])
-                ->setCellValue('F' . $warehouseSkuIndex, $warehouseSkuItem['sale_amount'])
-                ->setCellValue('G' . $warehouseSkuIndex, $warehouseSkuItem['refund_amount'])
-                ->setCellValue('H' . $warehouseSkuIndex, $warehouseSkuItem['sale_selling_fees'])
-                ->setCellValue('I' . $warehouseSkuIndex, $warehouseSkuItem['refund_selling_fees'])
-                ->setCellValue('J' . $warehouseSkuIndex, $warehouseSkuItem['fba_fees'])
-                ->setCellValue('K' . $warehouseSkuIndex, $warehouseSkuItem['calcuRes'])
-                ->setCellValue('L' . $warehouseSkuIndex, $warehouseSkuItem['ddp'])
-                ->setCellValue('M' . $warehouseSkuIndex, $warehouseSkuItem['adCost'])
-                ->setCellValue('N' . $warehouseSkuIndex, $warehouseSkuItem['warehouse_rent'])
-                ->setCellValue('O' . $warehouseSkuIndex, $warehouseSkuItem['promotion'])
-                ->setCellValue('P' . $warehouseSkuIndex, $warehouseSkuItem['shipping_service'])
-                ->setCellValue('Q' . $warehouseSkuIndex, $warehouseSkuItem['liquidation'])
-                ->setCellValue('R' . $warehouseSkuIndex, $warehouseSkuItem['ajustment'])
-                ->setCellValue('S' . $warehouseSkuIndex, $warehouseSkuItem['fba_inventory'])
-                ->setCellValue('T' . $warehouseSkuIndex, $warehouseSkuItem['transfer'])
+                ->setCellValue('A' . $fbaIndex, $fbaItem['platform'])
+                ->setCellValue('B' . $fbaIndex, $fbaItem['userAccount'])
+                ->setCellValue('C' . $fbaIndex, $fbaItem['warehouse_sku'])
+                ->setCellValue('D' . $fbaIndex, $fbaItem['fba_sale_qty'])
+                ->setCellValue('E' . $fbaIndex, $fbaItem['fba_refund_qty'])
+                ->setCellValue('F' . $fbaIndex, $fbaItem['fba_sale_amount'])
+                ->setCellValue('G' . $fbaIndex, $fbaItem['fba_refund_amount'])
+                ->setCellValue('H' . $fbaIndex, $fbaItem['fba_sale_selling_fees'])
+                ->setCellValue('I' . $fbaIndex, $fbaItem['fba_refund_selling_fees'])
+                ->setCellValue('J' . $fbaIndex, $fbaItem['fba_fees'])
+                ->setCellValue('K' . $fbaIndex, $fbaItem['fba_refund_fees'])
+                ->setCellValue('L' . $fbaIndex, $fbaItem['fba_ddp'])
+                ->setCellValue('M' . $fbaIndex, $fbaItem['fba_adCost'])
+                ->setCellValue('N' . $fbaIndex, $fbaItem['fba_inventory'])
+                ->setCellValue('O' . $fbaIndex, $fbaItem['adjustment'])
+                ->setCellValue('P' . $fbaIndex, $fbaItem['liquidation'])
+                ->setCellValue('Q' . $fbaIndex, $fbaItem['promotion'])
+                ->setCellValue('R' . $fbaIndex, $fbaItem['shipping_service'])
+                ->setCellValue('S' . $fbaIndex, $fbaItem['ad_percent'])
+                ->setCellValue('T' . $fbaIndex, $fbaItem['inventory_percent'])
+                ->setCellValue('U' . $fbaIndex, $fbaItem['tail_percent'])
+                ->setCellValue('V' . $fbaIndex, $fbaItem['ddp_percent'])
+                ->setCellValue('W' . $fbaIndex, $fbaItem['profit'])
+                ->setCellValue('X' . $fbaIndex, $fbaItem['gross_profit_margin'])
+                ->setCellValue('Y' . $fbaIndex, $fbaItem['evaluation_qty'])
+                ->setCellValue('Z' . $fbaIndex, $fbaItem['evaluation_amount'])
+                ->setCellValue('AA' . $fbaIndex, $fbaItem['profit_include_evaluation'])
+                ->setCellValue('AB' . $fbaIndex, $fbaItem['gross_profit_margin_include_evaluation'])
             ;
         }
 
@@ -249,22 +267,74 @@ class FinanceController extends BaseController
         $objPHPExcel->createSheet();
 
         // Set name sheet
-        $objPHPExcel->setActiveSheetIndex(2)->setTitle('仓储费');
+        $objPHPExcel->setActiveSheetIndex(2)->setTitle('FBM');
 
         // Add some data
         $objPHPExcel->setActiveSheetIndex(2)
-            ->setCellValue('A1', '仓库Sku')
-            ->setCellValue('B1', '主运营人员')
-            ->setCellValue('C1', '仓储费总计')
+            ->setCellValue('A1', '平台')
+            ->setCellValue('B1', '店铺')
+            ->setCellValue('C1', '仓库Sku')
+            ->setCellValue('D1', '销售量')
+            ->setCellValue('E1', '退款量')
+            ->setCellValue('F1', '销售额')
+            ->setCellValue('G1', '退款额')
+            ->setCellValue('H1', '平台佣金')
+            ->setCellValue('I1', '平台佣金退款')
+            ->setCellValue('J1', 'FBM尾程')
+            ->setCellValue('K1', 'DDP')
+            ->setCellValue('L1', '广告费')
+            ->setCellValue('M1', '仓储费')
+            ->setCellValue('N1', '调整费用')
+            ->setCellValue('O1', '清算费用')
+            ->setCellValue('P1', '促销费')
+            ->setCellValue('Q1', '退运费')
+            ->setCellValue('R1', '良仓调整费用')
+            ->setCellValue('S1', '乐歌调整费用')
+            ->setCellValue('T1', '广告费占比')
+            ->setCellValue('U1', '仓储费占比')
+            ->setCellValue('V1', '尾程占比')
+            ->setCellValue('W1', 'DDP占比')
+            ->setCellValue('X1', '毛利')
+            ->setCellValue('Y1', '毛利率')
+            ->setCellValue('Z1', '测评数量')
+            ->setCellValue('AA1', '测评金额')
+            ->setCellValue('AB1', '含测评毛利')
+            ->setCellValue('AC1', '含测评毛利率')
         ;
 
-        $warehouseRentIndex = 1;
-        foreach ($warehouseRent as $warehouseRentItem) {
-            $warehouseRentIndex ++;
+        $fbmIndex = 1;
+        foreach ($fbmWarehouseSku as $fbmItem) {
+            $fbmIndex ++;
             $objPHPExcel->setActiveSheetIndex(2)
-                ->setCellValue('A' . $warehouseRentIndex, $warehouseRentItem['sku'])
-                ->setCellValue('B' . $warehouseRentIndex, $warehouseRentItem['user_name'])
-                ->setCellValue('C' . $warehouseRentIndex, $warehouseRentItem['total'])
+                ->setCellValue('A' . $fbmIndex, $fbmItem['platform'])
+                ->setCellValue('B' . $fbmIndex, $fbmItem['userAccount'])
+                ->setCellValue('C' . $fbmIndex, $fbmItem['warehouse_sku'])
+                ->setCellValue('D' . $fbmIndex, $fbmItem['fbm_sale_qty'])
+                ->setCellValue('E' . $fbmIndex, $fbmItem['fbm_refund_qty'])
+                ->setCellValue('F' . $fbmIndex, $fbmItem['fbm_sale_amount'])
+                ->setCellValue('G' . $fbmIndex, $fbmItem['fbm_refund_amount'])
+                ->setCellValue('H' . $fbmIndex, $fbmItem['fbm_sale_selling_fees'])
+                ->setCellValue('I' . $fbmIndex, $fbmItem['fbm_refund_selling_fees'])
+                ->setCellValue('J' . $fbmIndex, $fbmItem['calcuRes'])
+                ->setCellValue('K' . $fbmIndex, $fbmItem['fbm_ddp'])
+                ->setCellValue('L' . $fbmIndex, $fbmItem['fbm_adCost'])
+                ->setCellValue('M' . $fbmIndex, $fbmItem['warehouse_rent'])
+                ->setCellValue('N' . $fbmIndex, $fbmItem['adjustment'])
+                ->setCellValue('O' . $fbmIndex, $fbmItem['liquidation'])
+                ->setCellValue('P' . $fbmIndex, $fbmItem['promotion'])
+                ->setCellValue('Q' . $fbmIndex, $fbmItem['shipping_service'])
+                ->setCellValue('R' . $fbmIndex, $fbmItem['lc_adjustment'])
+                ->setCellValue('S' . $fbmIndex, $fbmItem['le_adjustment'])
+                ->setCellValue('T' . $fbmIndex, $fbmItem['ad_percent'])
+                ->setCellValue('U' . $fbmIndex, $fbmItem['inventory_percent'])
+                ->setCellValue('V' . $fbmIndex, $fbmItem['tail_percent'])
+                ->setCellValue('W' . $fbmIndex, $fbmItem['ddp_percent'])
+                ->setCellValue('X' . $fbmIndex, $fbmItem['profit'])
+                ->setCellValue('Y' . $fbmIndex, $fbmItem['gross_profit_margin'])
+                ->setCellValue('Z' . $fbmIndex, $fbmItem['evaluation_qty'])
+                ->setCellValue('AA' . $fbmIndex, $fbmItem['evaluation_amount'])
+                ->setCellValue('AB' . $fbmIndex, $fbmItem['profit_include_evaluation'])
+                ->setCellValue('AC' . $fbmIndex, $fbmItem['gross_profit_margin_include_evaluation'])
             ;
         }
 
@@ -634,7 +704,7 @@ class FinanceController extends BaseController
     /**
      * @throws DbException
      */
-    public function outbound(): \think\response\View
+    public function outbound($id): \think\response\View
     {
         $keyword = $this->request->get('keyword', '', 'htmlspecialchars');
         $this->assign('keyword', $keyword);
@@ -649,6 +719,7 @@ class FinanceController extends BaseController
 
         // 订单列表
         $order = new FinanceOrderOutboundModel();
+        $where['report_id'] = $id;
         $list = $order->with(['store'])->where($where)->order('id asc')->paginate($page_num, false, ['query' => ['keyword' => $keyword, 'page_num' => $page_num]]);
         $this->assign('list', $list);
 
@@ -906,6 +977,7 @@ class FinanceController extends BaseController
 
         // 订单列表
         $order = new FinanceWarehouseModel();
+        $where['report_id'] = $id;
         $list = $order->where($where)->order('id asc')->paginate($page_num, false, ['query' => ['keyword' => $keyword]]);
         $this->assign('list', $list);
         $this->assign('report_id', $id);
@@ -984,6 +1056,7 @@ class FinanceController extends BaseController
 
         // 订单列表
         $order = new FinanceOrderAdditionalModel();
+        $where['report_id'] = $id;
         $list = $order->where($where)->order('id asc')->paginate($page_num, false, ['query' => ['keyword' => $keyword]]);
         $this->assign('list', $list);
         $this->assign('report_id', $id);
@@ -1052,6 +1125,7 @@ class FinanceController extends BaseController
 
         // 列表
         $order = new FinanceEvaluationModel();
+        $where['report_id'] = $id;
         $list = $order->where($where)->order('id asc')->paginate($page_num, false, ['query' => ['keyword' => $keyword]]);
         $this->assign('list', $list);
         $this->assign('report_id', $id);
