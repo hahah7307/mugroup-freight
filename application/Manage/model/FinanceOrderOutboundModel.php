@@ -14,4 +14,9 @@ class FinanceOrderOutboundModel extends Model
     {
         return $this->hasOne('FinanceStoreModel', 'id', 'store_id');
     }
+
+    public function saleOrderCode(): \think\model\relation\HasOne
+    {
+        return $this->hasOne('OrderModel', 'saleOrderCode', 'saleOrderCode');
+    }
 }
