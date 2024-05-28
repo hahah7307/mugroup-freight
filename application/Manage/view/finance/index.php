@@ -98,7 +98,7 @@
         // 导入
         let uploadInst = upload.render({
             elem: '#excel' //绑定元素
-            ,url: '/manage/upload/finance_order_upload' //上传接口
+            ,url: '/Manage/upload/finance_order_upload' //上传接口
             ,exts: 'xls|xlsx|csv'
             ,data: {
                 payment_type: function(){
