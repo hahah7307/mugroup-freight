@@ -8,7 +8,7 @@
 <div class="layui-body" id="LAY_app_body">
     <div class="right">
         <a href="{:url('report')}" class="layui-btn layui-btn-danger layui-btn-sm fr"><i class="layui-icon">&#xe603;</i>返回上一页</a>
-        <div class="title">导入表格列表</div>
+        <div class="title">Payment列表</div>
         <form class="layui-form search-form" method="get">
             <div class="layui-inline w200">
                 <input type="text" class="layui-input" name="keyword" value="{$keyword}" placeholder="文件名称">
@@ -48,7 +48,7 @@
                     <col>
                     <col>
                     <col width="140">
-                    <col width="120">
+                    <col width="180">
                 </colgroup>
                 <thead>
                 <tr>
@@ -71,13 +71,14 @@
                     <td>{$v.table_name}</td>
                     <td>{$v.platform}</td>
                     <td>{$v.userAccount}</td>
-                    <td>{$v.promotion}</td>
-                    <td>{$v.shipping_service}</td>
-                    <td>{$v.liquidation}</td>
-                    <td>{$v.adjustment}</td>
+                    <td class="tr">{$v.promotion}</td>
+                    <td class="tr">{$v.shipping_service}</td>
+                    <td class="tr">{$v.liquidation}</td>
+                    <td class="tr">{$v.adjustment}</td>
                     <td>{$v.created_at}</td>
                     <td class="tc">
                         <a href="{:url('order', ['id' => $v.id])}" class="layui-btn layui-btn layui-btn-sm">查看</a>
+                        <a href="{:url('index_edit', ['id' => $v.id])}" class="layui-btn layui-btn-normal layui-btn-sm">编辑</a>
                         <button data-id="{$v.id}" class="layui-btn layui-btn-sm layui-btn-danger ml0" lay-submit lay-filter="Detele">删除</button>
                     </td>
                 </tr>

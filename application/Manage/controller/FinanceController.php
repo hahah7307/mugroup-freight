@@ -23,6 +23,7 @@ use app\Manage\model\FinanceStoreModel;
 use app\Manage\model\FinanceTableModel;
 use app\Manage\model\FinanceWarehouseModel;
 use app\Manage\validate\FinanceReportValidate;
+use app\Manage\validate\FinanceTableValidate;
 use PHPExcel;
 use PHPExcel_IOFactory;
 use PHPExcel_Reader_Exception;
@@ -87,7 +88,6 @@ class FinanceController extends BaseController
     }
 
     // 编辑
-
     /**
      * @throws DbException
      */
@@ -418,6 +418,34 @@ class FinanceController extends BaseController
 
         Session::set(Config::get('BACK_URL'), $this->request->url(), 'manage');
         return view();
+    }
+
+    // 编辑
+    /**
+     * @throws DbException
+     */
+    public function index_edit($id)
+    {
+        if ($this->request->isPost()) {
+            $post = $this->request->post();
+            $dataValidate = new FinanceTableValidate();
+            if ($dataValidate->scene('edit')->check($post)) {
+                $model = new FinanceTableModel();
+                if ($model->allowField(true)->save($post, ['id' => $id])) {
+                    echo json_encode(['code' => 1, 'msg' => '修改成功']);
+                } else {
+                    echo json_encode(['code' => 0, 'msg' => '修改失败，请重试']);
+                }
+            } else {
+                echo json_encode(['code' => 0, 'msg' => $dataValidate->getError()]);
+            }
+            exit;
+        } else {
+            $info = FinanceTableModel::get(['id' => $id,]);
+            $this->assign('info', $info);
+
+            return view();
+        }
     }
 
     // 导入excel计算计费重差和最终费用
