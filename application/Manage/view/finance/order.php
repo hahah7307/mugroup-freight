@@ -37,24 +37,11 @@
             <div class="layui-inline">
                 <button class="layui-btn" lay-submit lay-filter="Search"><i class="layui-icon">&#xe615;</i> 查询</button>
             </div>
-            <div class="layui-inline">
-                <a class="layui-btn layui-btn-normal" href="{:url('index')}"><i class="layui-icon">&#xe669;</i> 重置</a>
-            </div>
-            <div class="layui-input-inline">
-                <input type="text" class="layui-input" id="export_start_time" name="start_time" value="" placeholder="开始时间">
-            </div>
-            <div class="layui-input-inline">
-                <input type="text" class="layui-input" id="export_end_time" name="end_time" value="" placeholder="结束时间">
-            </div>
-            <div class="layui-inline">
-                <a class="layui-btn layui-btn-normal" lay-submit lay-filter="Export"><i class="layui-icon">&#xe621;</i> 导出</a>
-            </div>
         </form>
 
         <div class="layui-form">
             <table class="layui-table" lay-size="sm">
                 <colgroup>
-                    <col width="50">
                     <col>
                     <col width="150">
                     <col>
@@ -79,9 +66,6 @@
                 </colgroup>
                 <thead>
                 <tr>
-                    <th class="tc">
-                        <input type="checkbox" lay-skin="primary" id="YanNanQiu_checkall" lay-filter="YanNanQiu_checkall">
-                    </th>
                     <th>ID</th>
                     <th>原始单号</th>
                     <th>SKU</th>
@@ -108,11 +92,6 @@
                 <tbody>
                 {foreach name="list" item="v"}
                 <tr>
-                    <td class="tc">
-                        <div class="YanNanQiu_Checkbox">
-                            <input type="checkbox" name="id[]" lay-skin="primary" lay-filter="imgbox" class="YanNanQiu_imgId" value="{$v.id}">
-                        </div>
-                    </td>
                     <td>{$v.id}</td>
                     <td>{$v.payment_id}</td>
                     <td>{$v.sku}</td>
@@ -150,39 +129,6 @@
             upload = layui.upload,
             laydate = layui.laydate;
 
-        // 上传
-        let uploadInst = upload.render({
-            elem: '#excel' //绑定元素
-            ,url: '/manage/upload/file_upload' //上传接口
-            ,exts: 'xls|xlsx|csv'
-            ,done: function(res){
-                //上传完毕回调
-                console.log(res.data);
-                location.href = "/Manage/Finance/import/filename/" + res.data + "/origin/" + res.origin;
-            }
-            ,error: function(){
-                //请求异常回调
-            }
-        });
-
-        // 显示日期选择器
-        laydate.render({
-            elem: '#export_start_time',
-            type: 'datetime'
-        });
-        laydate.render({
-            elem: '#export_end_time',
-            type: 'datetime'
-        });
-
-        // 导出
-        form.on('submit(Export)', function(data){
-            let start_time = data.field.start_time,
-                end_time = data.field.end_time;
-
-            location.href = "{:url('Finance/export')}" + "?start_time=" + start_time + "&end_time=" + end_time;
-            return false;
-        });
     });
 </script>
 

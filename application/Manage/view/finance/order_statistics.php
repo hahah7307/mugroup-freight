@@ -35,13 +35,9 @@
                     <col>
                     <col>
                     <col>
-                    <col>
                 </colgroup>
                 <thead>
                 <tr>
-                    <th class="tc">
-                        <input type="checkbox" lay-skin="primary" id="YanNanQiu_checkall" lay-filter="YanNanQiu_checkall">
-                    </th>
                     <th>平台</th>
                     <th>店铺</th>
                     <th>付款时间</th>
@@ -60,11 +56,6 @@
                 <tbody>
                 {foreach name="list" item="v"}
                 <tr>
-                    <td class="tc">
-                        <div class="YanNanQiu_Checkbox">
-                            <input type="checkbox" name="id[]" lay-skin="primary" lay-filter="imgbox" class="YanNanQiu_imgId" value="{$v.id}">
-                        </div>
-                    </td>
                     <td>{$v.platform}</td>
                     <td>{$v.user_account}</td>
                     <td>{$v.paid_time}</td>

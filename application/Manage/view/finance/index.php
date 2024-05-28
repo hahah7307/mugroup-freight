@@ -40,7 +40,10 @@
             <table class="layui-table" lay-size="sm">
                 <colgroup>
                     <col width="50">
-                    <col width="50">
+                    <col>
+                    <col>
+                    <col>
+                    <col>
                     <col>
                     <col>
                     <col>
@@ -49,9 +52,6 @@
                 </colgroup>
                 <thead>
                 <tr>
-                    <th class="tc">
-                        <input type="checkbox" lay-skin="primary" id="YanNanQiu_checkall" lay-filter="YanNanQiu_checkall">
-                    </th>
                     <th class="tc">ID</th>
                     <th>导入表格名</th>
                     <th>所属平台</th>
@@ -67,11 +67,6 @@
                 <tbody>
                 {foreach name="list" item="v"}
                 <tr>
-                    <td class="tc">
-                        <div class="YanNanQiu_Checkbox">
-                            <input type="checkbox" name="id[]" lay-skin="primary" lay-filter="imgbox" class="YanNanQiu_imgId" value="{$v.id}">
-                        </div>
-                    </td>
                     <td class="tc">{$v.id}</td>
                     <td>{$v.table_name}</td>
                     <td>{$v.platform}</td>
@@ -100,7 +95,7 @@
             form = layui.form,
             upload = layui.upload;
 
-        // 上传
+        // 导入
         let uploadInst = upload.render({
             elem: '#excel' //绑定元素
             ,url: '/manage/upload/finance_order_upload' //上传接口

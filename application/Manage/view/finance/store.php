@@ -47,9 +47,7 @@
                 </colgroup>
                 <thead>
                 <tr>
-                    <th class="tc">
-                        <input type="checkbox" lay-skin="primary" id="YanNanQiu_checkall" lay-filter="YanNanQiu_checkall">
-                    </th>
+                    <th>ID</th>
                     <th>入库时间</th>
                     <th>入库币种</th>
                     <th>数量合计</th>
@@ -75,11 +73,7 @@
                 <tbody>
                 {foreach name="list" item="v"}
                 <tr>
-                    <td class="tc">
-                        <div class="YanNanQiu_Checkbox">
-                            <input type="checkbox" name="id[]" lay-skin="primary" lay-filter="imgbox" class="YanNanQiu_imgId" value="{$v.id}">
-                        </div>
-                    </td>
+                    <td>{$v.id}</td>
                     <td>{$v.entering_date}</td>
                     <td>{$v.currency}</td>
                     <td>{$v.quantity_amount}</td>
@@ -116,7 +110,7 @@
             upload = layui.upload,
             laydate = layui.laydate;
 
-        // 上传
+        // 导入
         let uploadInst = upload.render({
             elem: '#excel' //绑定元素
             ,url: '/manage/upload/file_upload' //上传接口

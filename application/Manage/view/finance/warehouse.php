@@ -20,6 +20,7 @@
 
         <div class="layui-form">
             <button type="button" class="layui-btn  layui-btn-normal" id="excel">导入</button>
+            <button data-id="{$report_id}" class="layui-btn layui-btn-danger ml0" lay-submit lay-filter="Detele">清空</button>
             <table class="layui-table" lay-size="sm">
                 <colgroup>
                     <col>
@@ -39,17 +40,15 @@
                 </colgroup>
                 <thead>
                 <tr>
-                    <th class="tc">
-                        <input type="checkbox" lay-skin="primary" id="YanNanQiu_checkall" lay-filter="YanNanQiu_checkall">
-                    </th>
+                    <th>ID</th>
                     <th>单号</th>
                     <th>入库单号</th>
                     <th>计费日期</th>
                     <th>SKU</th>
                     <th>仓库代码</th>
-                    <th>长</th>
-                    <th>宽</th>
-                    <th>高</th>
+                    <th>长(cm)</th>
+                    <th>宽(cm)</th>
+                    <th>高(cm)</th>
                     <th>数量</th>
                     <th>库龄</th>
                     <th>体积（m³）</th>
@@ -59,11 +58,7 @@
                 <tbody>
                 {foreach name="list" item="v"}
                 <tr>
-                    <td class="tc">
-                        <div class="YanNanQiu_Checkbox">
-                            <input type="checkbox" name="id[]" lay-skin="primary" lay-filter="imgbox" class="YanNanQiu_imgId" value="{$v.id}">
-                        </div>
-                    </td>
+                    <td class="tr">{$v.id}</td>
                     <td>{$v.warehouse_no}</td>
                     <td>{$v.inventory_batch}</td>
                     <td>{$v.date}</td>
@@ -111,6 +106,36 @@
             ,error: function(){
                 //请求异常回调
             }
+        });
+
+        // 删除
+        form.on('submit(Detele)', function(data){
+            var text = $(this).text(),
+                button = $(this),
+                id = $(this).data('id');
+            layer.confirm('确定清空仓储费列表吗？',{icon:3,closeBtn:0,title:false,btnAlign:'c'},function(){
+                $('button').attr('disabled',true);
+                button.text('请稍候...');
+                axios.post("{:url('warehouse_empty')}", {id:id})
+                    .then(function (response) {
+                        var res = response.data;
+                        if (res.code === 1) {
+                            layer.alert(res.msg,{icon:1,closeBtn:0,title:false,btnAlign:'c',},function(){
+                                location.reload();
+                            });
+                        } else {
+                            layer.alert(res.msg,{icon:2,closeBtn:0,title:false,btnAlign:'c'},function(){
+                                layer.closeAll();
+                                $('button').attr('disabled',false);
+                                button.text(text);
+                            });
+                        }
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    });
+                return false;
+            });
         });
     });
 </script>

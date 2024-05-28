@@ -1038,6 +1038,23 @@ class FinanceController extends BaseController
         $this->redirect(url('warehouse', ['id' => $report_id]));
     }
 
+    public function warehouse_empty()
+    {
+        if ($this->request->isPost()) {
+            $post = $this->request->post();
+            $reportId = $post['id'];
+            $warehouseObj = new FinanceWarehouseModel();
+            if ($warehouseObj->where('report_id', $reportId)->delete()) {
+                echo json_encode(['code' => 1, 'msg' => '清空完成']);
+            } else {
+                echo json_encode(['code' => 0, 'msg' => '清空失败，请重试']);
+            }
+        } else {
+            echo json_encode(['code' => 0, 'msg' => '异常操作']);
+        }
+        exit;
+    }
+
     /**
      * @throws DbException
      */
@@ -1110,6 +1127,23 @@ class FinanceController extends BaseController
         $this->redirect(url('additional', ['id' => $report_id]));
     }
 
+    public function additional_empty()
+    {
+        if ($this->request->isPost()) {
+            $post = $this->request->post();
+            $reportId = $post['id'];
+            $additionalObj = new FinanceOrderAdditionalModel();
+            if ($additionalObj->where('report_id', $reportId)->delete()) {
+                echo json_encode(['code' => 1, 'msg' => '清空完成']);
+            } else {
+                echo json_encode(['code' => 0, 'msg' => '清空失败，请重试']);
+            }
+        } else {
+            echo json_encode(['code' => 0, 'msg' => '异常操作']);
+        }
+        exit;
+    }
+
     public function evaluation($id): \think\response\View
     {
         $keyword = $this->request->get('keyword', '', 'htmlspecialchars');
@@ -1178,5 +1212,22 @@ class FinanceController extends BaseController
             $this->error($e->getMessage(), url('evaluation'));
         }
         $this->redirect(url('evaluation', ['id' => $report_id]));
+    }
+
+    public function evaluation_empty()
+    {
+        if ($this->request->isPost()) {
+            $post = $this->request->post();
+            $reportId = $post['id'];
+            $evaluationObj = new FinanceEvaluationModel();
+            if ($evaluationObj->where('report_id', $reportId)->delete()) {
+                echo json_encode(['code' => 1, 'msg' => '清空完成']);
+            } else {
+                echo json_encode(['code' => 0, 'msg' => '清空失败，请重试']);
+            }
+        } else {
+            echo json_encode(['code' => 0, 'msg' => '异常操作']);
+        }
+        exit;
     }
 }

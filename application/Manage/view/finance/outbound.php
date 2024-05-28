@@ -19,9 +19,9 @@
         </form>
 
         <div class="layui-form">
+            <button data-id="{$report_id}" class="layui-btn layui-btn-danger ml0" lay-submit lay-filter="Detele">清空</button>
             <table class="layui-table" lay-size="sm">
                 <colgroup>
-                    <col width="50">
                     <col width="80">
                     <col>
                     <col>
@@ -36,9 +36,6 @@
                 </colgroup>
                 <thead>
                 <tr>
-                    <th class="tc">
-                        <input type="checkbox" lay-skin="primary" id="YanNanQiu_checkall" lay-filter="YanNanQiu_checkall">
-                    </th>
                     <th>ID</th>
                     <th>参考单号</th>
                     <th>Payment</th>
@@ -55,11 +52,6 @@
                 <tbody>
                 {foreach name="list" item="v"}
                 <tr>
-                    <td class="tc">
-                        <div class="YanNanQiu_Checkbox">
-                            <input type="checkbox" name="id[]" lay-skin="primary" lay-filter="imgbox" class="YanNanQiu_imgId" value="{$v.id}">
-                        </div>
-                    </td>
                     <td class="tr">{$v.id}</td>
                     <td>{$v.saleOrderCode}</td>
                     <td>{$v.payment_id}</td>
@@ -89,195 +81,10 @@
     </div>
 </div>
 <script>
-    layui.use(['form', 'jquery', 'upload', 'laydate'], function(){
+    layui.use(['form', 'jquery'], function(){
         let $ = layui.jquery,
-            form = layui.form,
-            upload = layui.upload,
-            laydate = layui.laydate;
+            form = layui.form;
 
-        // 上传
-        let uploadInst = upload.render({
-            elem: '#excel' //绑定元素
-            ,url: '/manage/upload/file_upload' //上传接口
-            ,exts: 'xls|xlsx'
-            ,done: function(res){
-                //上传完毕回调
-                console.log(res.data);
-                location.href = "/Manage/Order/import/filename/" + res.data;
-            }
-            ,error: function(){
-                //请求异常回调
-            }
-        });
-
-        // 显示日期选择器
-        laydate.render({
-            elem: '#export_start_time',
-            type: 'datetime'
-        });
-        laydate.render({
-            elem: '#export_end_time',
-            type: 'datetime'
-        });
-
-        // 导出
-        form.on('submit(Export)', function(data){
-            let start_time = data.field.start_time,
-                end_time = data.field.end_time;
-
-            location.href = "{:url('Order/export')}" + "?start_time=" + start_time + "&end_time=" + end_time;
-            return false;
-        });
-
-        // 状态
-        form.on('switch(formLock)', function(data){
-            $('button').attr('disabled',true);
-            axios.post("{:url('status')}", {id:data.value,type:'look'})
-                .then(function (response) {
-                    let res = response.data;
-                    if (res.code === 0) {
-                        layer.alert(data.msg,{icon:2,closeBtn:0,title:false,btnAlign:'c'},function(){
-                            location.reload();
-                        });
-                    }
-                })
-                .catch(function (error) {
-                    console.log(error);
-                });
-            return false;
-        });
-
-        // 测算
-        form.on('submit(Calculate)', function(data){
-            let text = $(this).text(),
-                button = $(this);
-            layer.confirm('确定测算吗？',{icon:3,closeBtn:0,title:false,btnAlign:'c'},function(){
-                $('button').attr('disabled',true);
-                button.text('请稍候...');
-                axios.post("{:url('calculate')}", {id:data.field})
-                    .then(function (response) {
-                        let res = response.data;
-                        if (res.code === 1) {
-                            layer.alert(res.msg,{icon:1,closeBtn:0,title:false,btnAlign:'c',},function(){
-                                location.reload();
-                            });
-                        } else {
-                            layer.alert(res.msg,{icon:2,closeBtn:0,title:false,btnAlign:'c'},function(){
-                                layer.closeAll();
-                                $('button').attr('disabled',false);
-                                button.text(text);
-                            });
-                        }
-                    })
-                    .catch(function (error) {
-                        console.log(error);
-                    });
-                return false;
-            });
-        });
-
-        // 批量更新
-        form.on('submit(Update)', function(data){
-            let text = $(this).text(),
-                button = $(this);
-            layer.confirm('确定更新吗？',{icon:3,closeBtn:0,title:false,btnAlign:'c'},function(){
-                $('button').attr('disabled',true);
-                button.text('请稍候...');
-                layer.load(2);
-                axios.post("{:url('update')}", {id:data.field})
-                    .then(function (response) {
-                        let res = response.data;
-                        if (res.code === 1) {
-                            layer.alert(res.msg,{icon:1,closeBtn:0,title:false,btnAlign:'c',},function(){
-                                layer.closeAll();
-                                location.reload();
-                            });
-                        } else {
-                            layer.alert(res.msg,{icon:2,closeBtn:0,title:false,btnAlign:'c'},function(){
-                                layer.closeAll();
-                                $('button').attr('disabled',false);
-                                button.text(text);
-                            });
-                        }
-                    })
-                    .catch(function (error) {
-                        console.log(error);
-                    });
-                return false;
-            });
-        });
-
-        // 批量审核
-        form.on('submit(Audit)', function(data){
-            let text = $(this).text(),
-                button = $(this);
-            $('button').attr('disabled',true);
-            button.text('请稍候...');
-            layer.open({
-                content: '请选择审核结果？',
-                icon: 3,
-                btnAlign : 'c',
-                btn: ['通过', '未通过'],
-                title: false,
-                yes: function(index) {
-                    axios.post("{:url('auditYes')}", {id:data.field})
-                        .then(function (response) {
-                            let res = response.data;
-                            if (res.code === 1) {
-                                layer.alert(res.msg,{icon:1,closeBtn:0,title:false,btnAlign:'c',},function(){
-                                    location.reload();
-                                });
-                            } else {
-                                layer.alert(res.msg,{icon:2,closeBtn:0,title:false,btnAlign:'c'},function(){
-                                    layer.closeAll();
-                                    $('button').attr('disabled',false);
-                                    button.text(text);
-                                });
-                            }
-                        })
-                        .catch(function (error) {
-                            console.log(error);
-                        });
-                },
-                btn2: function (index) {
-                    axios.post("{:url('auditNo')}", {id:data.field})
-                        .then(function (response) {
-                            let res = response.data;
-                            if (res.code === 1) {
-                                layer.alert(res.msg,{icon:1,closeBtn:0,title:false,btnAlign:'c',},function(){
-                                    location.reload();
-                                });
-                            } else {
-                                layer.alert(res.msg,{icon:2,closeBtn:0,title:false,btnAlign:'c'},function(){
-                                    layer.closeAll();
-                                    $('button').attr('disabled',false);
-                                    button.text(text);
-                                });
-                            }
-                        })
-                        .catch(function (error) {
-                            console.log(error);
-                        });
-                },
-                cancel: function(index) {
-                    $('button').attr('disabled',false);
-                    button.text('批量审核');
-                }
-            });
-            return false;
-        });
-
-        // 显示费用详情特效
-        $(".calcuRes").click(function(){
-            let info = $(this).data('info');
-            layer.alert(info,{
-                title: "费用详情",
-                icon: 7,
-                area: ['500px', '180px'],
-                btn: ['关闭'],
-                btnAlign: 'c'
-            });
-        });
     });
 </script>
 

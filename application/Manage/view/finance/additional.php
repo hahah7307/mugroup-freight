@@ -20,6 +20,7 @@
 
         <div class="layui-form">
             <button type="button" class="layui-btn  layui-btn-normal" id="excel">导入</button>
+            <button data-id="{$report_id}" class="layui-btn layui-btn-danger ml0" lay-submit lay-filter="Detele">清空</button>
             <table class="layui-table" lay-size="sm">
                 <colgroup>
                     <col>
@@ -35,7 +36,7 @@
                 <tr>
                     <th>店铺</th>
                     <th>仓库SKU</th>
-                    <th>索赔费用</th>
+                    <th>索赔(调整)费用</th>
                     <th>清算费用</th>
                     <th>促销费用</th>
                     <th>退运费用</th>
@@ -89,6 +90,36 @@
             ,error: function(){
                 //请求异常回调
             }
+        });
+
+        // 删除
+        form.on('submit(Detele)', function(data){
+            var text = $(this).text(),
+                button = $(this),
+                id = $(this).data('id');
+            layer.confirm('确定清空列表吗？',{icon:3,closeBtn:0,title:false,btnAlign:'c'},function(){
+                $('button').attr('disabled',true);
+                button.text('请稍候...');
+                axios.post("{:url('additional_empty')}", {id:id})
+                    .then(function (response) {
+                        var res = response.data;
+                        if (res.code === 1) {
+                            layer.alert(res.msg,{icon:1,closeBtn:0,title:false,btnAlign:'c',},function(){
+                                location.reload();
+                            });
+                        } else {
+                            layer.alert(res.msg,{icon:2,closeBtn:0,title:false,btnAlign:'c'},function(){
+                                layer.closeAll();
+                                $('button').attr('disabled',false);
+                                button.text(text);
+                            });
+                        }
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    });
+                return false;
+            });
         });
     });
 </script>
