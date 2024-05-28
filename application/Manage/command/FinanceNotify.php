@@ -1,10 +1,17 @@
 <?php
 namespace app\Manage\command;
 
+use app\Manage\model\FinanceEvaluationModel;
+use app\Manage\model\FinanceOrderAdditionalModel;
+use app\Manage\model\FinanceOrderAdjustmentModel;
+use app\Manage\model\FinanceOrderLiquidationModel;
 use app\Manage\model\FinanceOrderOutboundModel;
+use app\Manage\model\FinanceOrderRefundModel;
 use app\Manage\model\FinanceOrderSaleModel;
+use app\Manage\model\FinanceOrderShippingServiceModel;
 use app\Manage\model\FinanceReportModel;
 use app\Manage\model\FinanceStoreModel;
+use app\Manage\model\FinanceWarehouseModel;
 use Exception;
 use think\Config;
 use think\console\Command;
@@ -40,6 +47,27 @@ class FinanceNotify extends Command
                         continue;
                     }
 
+                    // 检测仓租费是否导入
+                    $warehouseObj = new FinanceWarehouseModel();
+                    $warehouse = $warehouseObj->where(['report_id' => $report['id']])->order('id asc')->select();
+                    if (count($warehouse) == 0) {
+                        continue;
+                    }
+
+                    // 检测额外费用是否导入
+                    $additionalObj = new FinanceOrderAdditionalModel();
+                    $additional = $additionalObj->where(['report_id' => $report['id']])->order('id asc')->select();
+                    if (count($additional) == 0) {
+                        continue;
+                    }
+
+                    // 检测测评订单是否导入
+                    $evaluationObj = new FinanceEvaluationModel();
+                    $evaluation = $evaluationObj->where(['report_id' => $report['id']])->order('id asc')->select();
+                    if (count($evaluation) == 0) {
+                        continue;
+                    }
+
                     // 检测期初库存是否导入
                     $financeStoreObj = new FinanceStoreModel();
                     $store = $financeStoreObj->where(['report_id' => $report['id']])->order('entering_date asc')->select();
@@ -47,10 +75,40 @@ class FinanceNotify extends Command
                         continue;
                     }
 
-                    // 检测出库数据是否完全关联ddp
+                    // 检测出库数据是否完全关联ddp和仓储费分摊
                     $financeOutboundObj = new FinanceOrderOutboundModel();
-                    $outbound = $financeOutboundObj->where(['is_notify' => 0])->order('dateWarehouseShipping asc')->select();
+                    $outbound = $financeOutboundObj->where(['report_id' => $report['id']])->where(['is_notify' => 0])->order('dateWarehouseShipping asc')->select();
                     if (count($outbound) > 0) {
+                        continue;
+                    }
+
+                    // 检测分摊是否完成
+                    $financeOrderRefundObj = new FinanceOrderRefundModel();
+                    $refund = $financeOrderRefundObj->where(['report_id' => $report['id']])->where('share_code', null)->order('id asc')->select();
+                    if (count($refund) > 0) {
+                        continue;
+                    }
+
+                    $financeOrderShippingObj = new FinanceOrderShippingServiceModel();
+                    $shipping = $financeOrderShippingObj->where(['report_id' => $report['id']])->where('share_code', null)->order('id asc')->select();
+                    if (count($shipping) > 0) {
+                        continue;
+                    }
+
+                    $financeOrderAdjustmentObj = new FinanceOrderAdjustmentModel();
+                    $adjustment = $financeOrderAdjustmentObj->where(['report_id' => $report['id']])->where('share_code', null)->order('id asc')->select();
+                    if (count($adjustment) > 0) {
+                        continue;
+                    }
+
+                    $financeOrderLiquidationObj = new FinanceOrderLiquidationModel();
+                    $liquidation = $financeOrderLiquidationObj->where(['report_id' => $report['id']])->where('total', 'neq', 0)->where('share_code', null)->order('id asc')->select();
+                    if (count($liquidation) > 0) {
+                        continue;
+                    }
+
+                    $additional = $additionalObj->where(['report_id' => $report['id']])->where('share_code', null)->where('promotion', 'not null')->order('id asc')->select();
+                    if (count($additional) > 0) {
                         continue;
                     }
 

@@ -1,6 +1,8 @@
 <?php
 namespace app\Manage\controller;
 
+use app\Manage\command\FinanceNotify;
+use app\Manage\command\FinanceOrderShare;
 use app\Manage\model\AkAdCostCreateModel;
 use app\Manage\model\AmazonPayment;
 use app\Manage\model\FinanceEvaluationModel;
@@ -12,6 +14,7 @@ use app\Manage\model\FinanceOrderPromotionModel;
 use app\Manage\model\FinanceOrderRefundModel;
 use app\Manage\model\FinanceOrderSaleModel;
 use app\Manage\model\FinanceOrderOutboundModel;
+use app\Manage\model\FinanceOrderShareModel;
 use app\Manage\model\FinanceOrderShippingServiceModel;
 use app\Manage\model\FinanceOrderStatisticsModel;
 use app\Manage\model\FinanceOrderTransferModel;
@@ -841,12 +844,43 @@ class FinanceController extends BaseController
         if ($this->request->isPost()) {
             $post = $this->request->post();
             $reportId = $post['id'];
-            $storeObj = new FinanceStoreModel();
-            if ($storeObj->where('report_id', $reportId)->delete()) {
+
+            Db::startTrans();
+            try {
+                $storeObj = new FinanceStoreModel();
+                $storeObj->where('report_id', $reportId)->delete();
+
                 $outboundObj = new FinanceOrderOutboundModel();
                 $outboundObj->where('report_id', $reportId)->delete();
+
+                $shareObj = new FinanceOrderShareModel();
+                $shareObj->where('report_id', $reportId)->delete();
+
+                $refundObj = new FinanceOrderRefundModel();
+                $refundObj->where(['report_id' => $reportId])->update(['share_code' => null]);
+
+                $shippingObj = new FinanceOrderShippingServiceModel();
+                $shippingObj->where(['report_id' => $reportId])->update(['share_code' => null]);
+
+                $adjustmentObj = new FinanceOrderAdjustmentModel();
+                $adjustmentObj->where(['report_id' => $reportId])->update(['share_code' => null]);
+
+                $liquidationObj = new FinanceOrderLiquidationModel();
+                $liquidationObj->where(['report_id' => $reportId])->update(['share_code' => null]);
+
+                $promotionObj = new FinanceOrderAdditionalModel();
+                $promotionObj->where(['report_id' => $reportId])->where('promotion', 'not null')->update(['share_code' => null]);
+
+                $financeReportObj = new FinanceReportModel();
+                $financeReportObj->save(['is_notify' => 0], ['id' => $reportId]);
+
+                Db::commit();
                 echo json_encode(['code' => 1, 'msg' => '清空完成']);
-            } else {
+            } catch (\SoapFault $e) {
+                Db::rollback();
+                echo json_encode(['code' => 0, 'msg' => '清空失败，请重试']);
+            } catch (\Exception $e) {
+                Db::rollback();
                 echo json_encode(['code' => 0, 'msg' => '清空失败，请重试']);
             }
         } else {
@@ -1045,6 +1079,9 @@ class FinanceController extends BaseController
             $reportId = $post['id'];
             $warehouseObj = new FinanceWarehouseModel();
             if ($warehouseObj->where('report_id', $reportId)->delete()) {
+                $financeReportObj = new FinanceReportModel();
+                $financeReportObj->save(['is_notify' => 0], ['id' => $reportId]);
+
                 echo json_encode(['code' => 1, 'msg' => '清空完成']);
             } else {
                 echo json_encode(['code' => 0, 'msg' => '清空失败，请重试']);
@@ -1134,6 +1171,9 @@ class FinanceController extends BaseController
             $reportId = $post['id'];
             $additionalObj = new FinanceOrderAdditionalModel();
             if ($additionalObj->where('report_id', $reportId)->delete()) {
+                $financeReportObj = new FinanceReportModel();
+                $financeReportObj->save(['is_notify' => 0], ['id' => $reportId]);
+
                 echo json_encode(['code' => 1, 'msg' => '清空完成']);
             } else {
                 echo json_encode(['code' => 0, 'msg' => '清空失败，请重试']);
@@ -1144,6 +1184,9 @@ class FinanceController extends BaseController
         exit;
     }
 
+    /**
+     * @throws DbException
+     */
     public function evaluation($id): \think\response\View
     {
         $keyword = $this->request->get('keyword', '', 'htmlspecialchars');
@@ -1221,6 +1264,9 @@ class FinanceController extends BaseController
             $reportId = $post['id'];
             $evaluationObj = new FinanceEvaluationModel();
             if ($evaluationObj->where('report_id', $reportId)->delete()) {
+                $financeReportObj = new FinanceReportModel();
+                $financeReportObj->save(['is_notify' => 0], ['id' => $reportId]);
+
                 echo json_encode(['code' => 1, 'msg' => '清空完成']);
             } else {
                 echo json_encode(['code' => 0, 'msg' => '清空失败，请重试']);
@@ -1229,5 +1275,31 @@ class FinanceController extends BaseController
             echo json_encode(['code' => 0, 'msg' => '异常操作']);
         }
         exit;
+    }
+
+    /**
+     * @throws DbException
+     */
+    public function share($id): \think\response\View
+    {
+        $keyword = $this->request->get('keyword', '', 'htmlspecialchars');
+        $this->assign('keyword', $keyword);
+        if ($keyword) {
+            $where['share_code|payment|seller_sku|warehouse_sku'] = ['like', '%' . $keyword . '%'];
+        } else {
+            $where = [];
+        }
+
+        $page_num = $this->request->get('page_num', Config::get('PAGE_NUM'));
+        $this->assign('page_num', $page_num);
+
+        // 列表
+        $order = new FinanceOrderShareModel();
+        $where['report_id'] = $id;
+        $list = $order->where($where)->order('id asc')->paginate($page_num, false, ['query' => ['keyword' => $keyword]]);
+        $this->assign('list', $list);
+        $this->assign('report_id', $id);
+
+        return view();
     }
 }

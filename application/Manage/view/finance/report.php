@@ -30,7 +30,7 @@
                     <col>
                     <col width="100">
                     <col width="80">
-                    <col width="220">
+                    <col width="270">
                 </colgroup>
                 <thead>
                 <tr>
@@ -56,11 +56,12 @@
                     </td>
                     <td class="tl">
                         <a href="{:url('index', ['id' => $v.id])}" class="layui-btn layui-btn-sm">详情</a>
-                        <a href="{:url('store', ['id' => $v.id])}" class="layui-btn layui-btn-sm">库存</a>
                         <a href="{:url('warehouse', ['id' => $v.id])}" class="layui-btn layui-btn-sm">仓租</a>
                         <a href="{:url('additional', ['id' => $v.id])}" class="layui-btn layui-btn-sm">额外</a>
                         <a href="{:url('evaluation', ['id' => $v.id])}" class="layui-btn layui-btn-sm">测评</a>
+                        <a href="{:url('store', ['id' => $v.id])}" class="layui-btn layui-btn-sm">库存</a>
                         <a href="{:url('outbound', ['id' => $v.id])}" class="layui-btn layui-btn-sm">出库</a>
+                        <a href="{:url('share', ['id' => $v.id])}" class="layui-btn layui-btn-sm">分摊</a>
                         <a href="{:url('report_edit', ['id' => $v.id])}" class="layui-btn layui-btn-normal layui-btn-sm">编辑</a>
                         <a href="{:url('report_export', ['id' => $v.id, 'month' => $v.month])}" class="layui-btn layui-btn-normal layui-btn-sm">导出</a>
                     </td>
@@ -85,11 +86,13 @@
                 content: "使用说明：<br>" +
                     "按顺序进行以下操作方可导出<br>" +
                     "①导入当月所有payment订单<br>" +
-                    "②导入月初批次库存和对应DDP<br>" +
-                    "③导入当月海外仓账单仓租费用<br>" +
-                    "④导入运营分摊四项调整费用<br>" +
-                    "⑤导入测评订单<br>" +
-                    "⑥等待报表状态变为已同步",
+                    "②导入当月海外仓账单仓租费用<br>" +
+                    "③导入运营分摊四项调整费用<br>" +
+                    "④导入测评订单<br>" +
+                    "⑤导入月初批次库存和对应DDP<br>" +
+                    "⑥等待报表状态变为已同步<br>" +
+                    "<p class='red'>注：清空库存数据会重置出库和分摊数据，清空除payment外的导入数据会重置财报状态</p>" +
+                    "<p class='red'>(敬请期待财报各类费用分摊逻辑！！！)</p>",
                 btnAlign: 'c',
                 closeBtn: 0,
                 anim: 1,
