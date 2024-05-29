@@ -39,14 +39,10 @@
                     <col>
                     <col>
                     <col>
-                    <col>
-                    <col>
                 </colgroup>
                 <thead>
                 <tr>
                     <th>ID</th>
-                    <th>单号</th>
-                    <th>入库单号</th>
                     <th>计费日期</th>
                     <th>SKU</th>
                     <th>仓库代码</th>
@@ -63,8 +59,6 @@
                 {foreach name="list" item="v"}
                 <tr>
                     <td class="tr">{$v.id}</td>
-                    <td>{$v.warehouse_no}</td>
-                    <td>{$v.inventory_batch}</td>
                     <td>{$v.date}</td>
                     <td>{$v.sku}</td>
                     <td>{$v.warehouse_code}</td>

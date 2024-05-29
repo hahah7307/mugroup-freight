@@ -1076,21 +1076,17 @@ class FinanceController extends BaseController
                 }
                 $warehouseData[] = [
                     "report_id"             =>  $report_id,
-                    "warehouse_no"          =>  $item[1],
-                    "inventory_batch"       =>  $item[2],
-                    "date"                  =>  $item[3],
-                    "sku"                   =>  $item[4],
-                    "warehouse_code"        =>  $item[5],
-                    "product_length"        =>  $item[6],
-                    "product_width"         =>  $item[7],
-                    "product_height"        =>  $item[8],
-                    "length_unit"           =>  $item[9],
-                    "quantity"              =>  $item[10],
-                    "age"                   =>  $item[11],
-                    "volume"                =>  $item[12],
-                    "volume_unit"           =>  $item[13],
-                    "total"                 =>  $item[14],
-                    "total_unit"            =>  $item[15]
+                    "date"                  =>  $item[1],
+                    "sku"                   =>  $item[2],
+                    "warehouse_code"        =>  $item[3],
+                    "product_length"        =>  $item[4],
+                    "product_width"         =>  $item[5],
+                    "product_height"        =>  $item[6],
+                    "quantity"              =>  $item[7],
+                    "age"                   =>  $item[8],
+                    "volume"                =>  $item[9],
+                    "total"                 =>  $item[10],
+                    "total_unit"            =>  $item[11]
                 ];
             }
             $financeWarehouseObj->insertAll($warehouseData);
