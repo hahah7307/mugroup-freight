@@ -1044,6 +1044,9 @@ class FinanceController extends BaseController
         $this->assign('list', $list);
         $this->assign('report_id', $id);
 
+        $sum = $order->where($where)->sum('total');
+        $this->assign('sum', $sum);
+
         return view();
     }
 
@@ -1095,7 +1098,7 @@ class FinanceController extends BaseController
             Db::commit();
         } catch (Exception $e) {
             Db::rollback();
-            $this->error($e->getMessage(), url('warehouse'));
+            $this->error($e->getMessage(), url('warehouse', ['id' => $report_id]));
         }
         $this->redirect(url('warehouse', ['id' => $report_id]));
     }
