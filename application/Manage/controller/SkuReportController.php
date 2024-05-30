@@ -1089,4 +1089,200 @@ ORDER BY
 
         return view();
     }
+
+    /**
+     * @throws DbException
+     */
+    public function wayfair(): \think\response\View
+    {
+
+        $start = $this->request->get('start', date('Y-m-01 00:00:00'), 'htmlspecialchars');
+        $this->assign('start', $start);
+        $end = $this->request->get('end', date('Y-m-d 00:00:00'), 'htmlspecialchars');
+        $this->assign('end', $end);
+
+        $last_order = $this->request->get('last_order', 'DESC', 'htmlspecialchars');
+        $this->assign('last_order', $last_order);
+        $last_start = date('Y-m-01 00:00:00', strtotime('-1 month', strtotime($start)));
+        $last_end = date('Y-m-d 00:00:00', strtotime('-1 month', strtotime($end)));
+
+        $last2_order = $this->request->get('last2_order', 'DESC', 'htmlspecialchars');
+        $this->assign('last2_order', $last2_order);
+        $last2_start = date('Y-m-01 00:00:00', strtotime('-2 month', strtotime($start)));
+        $last2_end = date('Y-m-d 00:00:00', strtotime('-2 month', strtotime($end)));
+
+        $week_order = $this->request->get('week_order', 'DESC', 'htmlspecialchars');
+        $this->assign('week_order', $week_order);
+        $last_week = date('Y-m-d 00:00:00', strtotime('-7 day', strtotime($end)));
+        $last2_week = date('Y-m-d 00:00:00', strtotime('-14 day', strtotime($end)));
+
+        $model = new ProductModel();
+        $saleList = $model->query('
+SELECT
+	SUM( qty ) current,
+	SUM( last_qty ) last,
+	SUM( qty ) - SUM( last_qty ) diff,
+	ROUND((SUM(qty) - SUM(last_qty)) / SUM(last_qty), 4) diff_rate,
+	warehouseSku,
+	productImages
+FROM
+	(
+	SELECT
+		SUM( b.qty ) qty,
+		0 AS last_qty,
+		b.warehouseSku,
+		c.productImages
+	FROM
+		mu_ecang_order a
+		LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id
+		LEFT JOIN mu_ecang_product c ON b.warehouseSku = c.productSku 
+	WHERE
+		a.dateWarehouseShipping >= "' . $start . '" 
+		AND a.dateWarehouseShipping < "' . $end . '" 
+		AND a.platform = "wayfairnew" 
+		AND c.saleStatus = 2 
+		AND a.`status` = 4
+	GROUP BY
+		warehouseSku,
+		productImages	UNION ALL
+	SELECT 0 AS
+		qty,
+		SUM( b.qty ) last_qty,
+		b.warehouseSku,
+		c.productImages
+	FROM
+		mu_ecang_order a
+		LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id
+		LEFT JOIN mu_ecang_product c ON b.warehouseSku = c.productSku 
+	WHERE
+		a.dateWarehouseShipping >= "' . $last_start . '" 
+		AND a.dateWarehouseShipping < "' . $last_end . '" 
+		AND a.platform = "wayfairnew" 
+		AND c.saleStatus = 2 
+		AND a.`status` = 4
+	GROUP BY
+		warehouseSku,
+		productImages
+	) a 
+GROUP BY
+	warehouseSku,
+	productImages
+ORDER BY
+	diff_rate ' . $last_order . ';
+        ');
+        $this->assign('saleList', $saleList);
+
+        $sale2List = $model->query('
+SELECT
+	SUM( qty ) current,
+	SUM( last_qty ) last,
+	SUM( qty ) - SUM( last_qty ) diff,
+	ROUND((SUM(qty) - SUM(last_qty)) / SUM(last_qty), 4) diff_rate,
+	warehouseSku,
+	productImages
+FROM
+	(
+	SELECT
+		SUM( b.qty ) qty,
+		0 AS last_qty,
+		b.warehouseSku,
+		c.productImages
+	FROM
+		mu_ecang_order a
+		LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id
+		LEFT JOIN mu_ecang_product c ON b.warehouseSku = c.productSku 
+	WHERE
+		a.dateWarehouseShipping >= "' . $start . '" 
+		AND a.dateWarehouseShipping < "' . $end . '" 
+		AND a.platform = "wayfairnew" 
+		AND c.saleStatus = 2 
+		AND a.`status` = 4
+	GROUP BY
+		warehouseSku,
+		productImages	UNION ALL
+	SELECT 0 AS
+		qty,
+		SUM( b.qty ) last_qty,
+		b.warehouseSku,
+		c.productImages
+	FROM
+		mu_ecang_order a
+		LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id
+		LEFT JOIN mu_ecang_product c ON b.warehouseSku = c.productSku 
+	WHERE
+		a.dateWarehouseShipping >= "' . $last2_start . '" 
+		AND a.dateWarehouseShipping < "' . $last2_end . '" 
+		AND a.platform = "wayfairnew" 
+		AND c.saleStatus = 2 
+		AND a.`status` = 4
+	GROUP BY
+		warehouseSku,
+		productImages
+	) a 
+GROUP BY
+	warehouseSku,
+	productImages
+ORDER BY
+	diff_rate ' . $last2_order . ';
+        ');
+        $this->assign('sale2List', $sale2List);
+
+        $weekList = $model->query('
+SELECT
+	SUM( qty ) current,
+	SUM( last_qty ) last,
+	SUM( qty ) - SUM( last_qty ) diff,
+	ROUND((SUM(qty) - SUM(last_qty)) / SUM(last_qty), 4) diff_rate,
+	warehouseSku,
+	productImages
+FROM
+	(
+	SELECT
+		SUM( b.qty ) qty,
+		0 AS last_qty,
+		b.warehouseSku,
+		c.productImages
+	FROM
+		mu_ecang_order a
+		LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id
+		LEFT JOIN mu_ecang_product c ON b.warehouseSku = c.productSku 
+	WHERE
+		a.dateWarehouseShipping >= "' . $last_week . '" 
+		AND a.dateWarehouseShipping < "' . $end . '" 
+		AND a.platform = "wayfairnew" 
+		AND c.saleStatus = 2 
+		AND a.`status` = 4
+	GROUP BY
+		warehouseSku,
+		productImages	UNION ALL
+	SELECT 0 AS
+		qty,
+		SUM( b.qty ) last_qty,
+		b.warehouseSku,
+		c.productImages
+	FROM
+		mu_ecang_order a
+		LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id
+		LEFT JOIN mu_ecang_product c ON b.warehouseSku = c.productSku 
+	WHERE
+		a.dateWarehouseShipping >= "' . $last2_week . '" 
+		AND a.dateWarehouseShipping < "' . $last_week . '" 
+		AND a.platform = "wayfairnew" 
+		AND c.saleStatus = 2 
+		AND a.`status` = 4
+	GROUP BY
+		warehouseSku,
+		productImages
+	) a 
+GROUP BY
+	warehouseSku,
+	productImages
+ORDER BY
+	diff_rate ' . $week_order . ';
+        ');
+        $this->assign('weekList', $weekList);
+
+        Session::set(Config::get('BACK_URL'), $this->request->url(), 'manage');
+        return view();
+    }
 }
