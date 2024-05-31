@@ -65,21 +65,21 @@
                 </colgroup>
                 <thead>
                 <tr>
-                    <th class="tc" colspan="7">环比上月销量增长率排行榜</th>
+                    <th class="tc" colspan="7">环比<strong>上月</strong>销量增长率排行榜</th>
                 </tr>
                 <tr>
                     <th>名次</th>
                     <th>仓库Sku</th>
                     <th>产品图片</th>
-                    <th></th>
-                    <th></th>
+                    <th>本月</th>
+                    <th>上月</th>
                     <th>环比上月增长销量</th>
                     <th>环比上月增长率</th>
                 </tr>
                 </thead>
                 <tbody>
                 {foreach name="saleList" key="key" item="v"}
-                <tr>
+                <tr {if condition="$v.diff lt 0"}style="background: #f8b9b7"{/if}>
                     <td class="tr">{$key + 1}</td>
                     <td>{$v.warehouseSku}</td>
                     <td><img src="{$v.productImages}" height="80" alt=""></td>
@@ -103,21 +103,21 @@
                 </colgroup>
                 <thead>
                 <tr>
-                    <th class="tc" colspan="7">环比上上月销量增长率排行榜</th>
+                    <th class="tc" colspan="7">环比<strong>上上月</strong>销量增长率排行榜</th>
                 </tr>
                 <tr>
                     <th>名次</th>
                     <th>仓库Sku</th>
                     <th>产品图片</th>
-                    <th></th>
-                    <th></th>
+                    <th>本月</th>
+                    <th>上上月</th>
                     <th>环比上上月增长销量</th>
                     <th>环比上上月增长率</th>
                 </tr>
                 </thead>
                 <tbody>
                 {foreach name="sale2List" key="k" item="item"}
-                <tr>
+                <tr {if condition="$item.diff lt 0"}style="background: #f8b9b7"{/if}>
                     <td class="tr">{$k + 1}</td>
                     <td>{$item.warehouseSku}</td>
                     <td><img src="{$item.productImages}" height="80" alt=""></td>
@@ -141,21 +141,21 @@
                 </colgroup>
                 <thead>
                 <tr>
-                    <th class="tc" colspan="7">环比上周销量增长率排行榜</th>
+                    <th class="tc" colspan="7">环比<strong>上周</strong>销量增长率排行榜</th>
                 </tr>
                 <tr>
                     <th>名次</th>
                     <th>仓库Sku</th>
                     <th>产品图片</th>
-                    <th></th>
-                    <th></th>
+                    <th>本周</th>
+                    <th>上周</th>
                     <th>环比上周增长销量</th>
                     <th>环比上周增长率</th>
                 </tr>
                 </thead>
                 <tbody>
                 {foreach name="weekList" key="wk" item="wv"}
-                <tr>
+                <tr {if condition="$wv.diff lt 0"}style="background: #f8b9b7"{/if}>
                     <td class="tr">{$wk + 1}</td>
                     <td>{$wv.warehouseSku}</td>
                     <td><img src="{$wv.productImages}" height="80" alt=""></td>
