@@ -1093,9 +1093,81 @@ ORDER BY
     /**
      * @throws DbException
      */
+    public function growth(): \think\response\View
+    {
+        $start = $this->request->get('start', date('Y-m-01 00:00:00'), 'htmlspecialchars');
+        $this->assign('start', $start);
+        $end = $this->request->get('end', date('Y-m-d 00:00:00'), 'htmlspecialchars');
+        $this->assign('end', $end);
+
+        $last_order = $this->request->get('last_order', 'DESC', 'htmlspecialchars');
+        $this->assign('last_order', $last_order);
+        $last_start = date('Y-m-01 00:00:00', strtotime('-1 month', strtotime($start)));
+        $last_end = date('Y-m-d 00:00:00', strtotime('-1 month', strtotime($end)));
+
+        $model = new ProductModel();
+        $saleList = $model->query('
+SELECT
+	SUM( qty ) current,
+	SUM( last_qty ) last,
+	SUM( qty ) - SUM( last_qty ) diff,
+	ROUND((SUM(qty) - SUM(last_qty)) / SUM(last_qty), 4) diff_rate,
+	warehouseSku,
+	productImages
+FROM
+	(
+	SELECT
+		SUM( b.qty ) qty,
+		0 AS last_qty,
+		b.warehouseSku,
+		c.productImages
+	FROM
+		mu_ecang_order a
+		LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id
+		LEFT JOIN mu_ecang_product c ON b.warehouseSku = c.productSku 
+	WHERE
+		a.dateWarehouseShipping >= "' . $start . '" 
+		AND a.dateWarehouseShipping < "' . $end . '" 
+		AND c.saleStatus = 2 
+		AND a.`status` = 4
+	GROUP BY
+		warehouseSku,
+		productImages	UNION ALL
+	SELECT 0 AS
+		qty,
+		SUM( b.qty ) last_qty,
+		b.warehouseSku,
+		c.productImages
+	FROM
+		mu_ecang_order a
+		LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id
+		LEFT JOIN mu_ecang_product c ON b.warehouseSku = c.productSku 
+	WHERE
+		a.dateWarehouseShipping >= "' . $last_start . '" 
+		AND a.dateWarehouseShipping < "' . $last_end . '" 
+		AND c.saleStatus = 2 
+		AND a.`status` = 4
+	GROUP BY
+		warehouseSku,
+		productImages
+	) a 
+GROUP BY
+	warehouseSku,
+	productImages
+ORDER BY
+	diff_rate ' . $last_order . ';
+        ');
+        $this->assign('saleList', $saleList);
+
+        Session::set(Config::get('BACK_URL'), $this->request->url(), 'manage');
+        return view();
+    }
+
+    /**
+     * @throws DbException
+     */
     public function wayfair(): \think\response\View
     {
-
         $start = $this->request->get('start', date('Y-m-01 00:00:00'), 'htmlspecialchars');
         $this->assign('start', $start);
         $end = $this->request->get('end', date('Y-m-d 00:00:00'), 'htmlspecialchars');
@@ -1283,6 +1355,60 @@ ORDER BY
         $this->assign('weekList', $weekList);
 
         Session::set(Config::get('BACK_URL'), $this->request->url(), 'manage');
+        return view();
+    }
+
+    /**
+     * @throws PDOException
+     * @throws BindParamException
+     */
+    public function sku_growth($sku): \think\response\View
+    {
+        $sale_start = $this->request->get('sale_start', '2024-01-01 00:00:00', 'htmlspecialchars');
+        $this->assign('sale_start', $sale_start);
+        $sale_start = date('Y-m-d 00:00:00', strtotime('-1 month', strtotime($sale_start)));
+
+        $sale_end = $this->request->get('sale_end', date('Y-m-d 00:00:00'), 'htmlspecialchars');
+        $this->assign('sale_end', $sale_end);
+
+        $model = new ProductModel();
+        $data = $model->query('
+SELECT
+	`month`,
+	qty,
+	lag ( qty ) over ( ORDER BY MONTH ASC ) last_qty,
+	ROUND(
+		( qty - lag ( qty ) over ( ORDER BY MONTH ASC ) ) / lag ( qty ) over ( ORDER BY MONTH ASC ),
+		4 
+	) rate 
+FROM
+	(
+	SELECT
+		SUM( b.qty ) qty,
+		b.warehouseSku,
+		DATE_FORMAT( a.createdDate, "%Y-%m" ) MONTH 
+	FROM
+		mu_ecang_order a
+		LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id 
+	WHERE
+		`status` = 4 
+		AND createdDate >= "' . $sale_start . '" 
+		AND createdDate < "' . $sale_end . '" 
+		AND b.warehouseSku = "' . $sku . '" 
+	GROUP BY
+		MONTH,
+	warehouseSku 
+	) a;
+        ');
+
+        $this->assign('month', implode('","', array_column($data, 'month')));
+        $this->assign('qty', implode(',', array_column($data, 'qty')));
+
+        array_shift($data);
+        $this->assign('month2', implode('","', array_column($data, 'month')));
+        $this->assign('rate', implode(',', array_column($data, 'rate')));
+
+        $this->assign('sku', $sku);
         return view();
     }
 }
