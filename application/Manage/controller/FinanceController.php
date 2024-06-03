@@ -886,6 +886,9 @@ class FinanceController extends BaseController
                 $shareObj = new FinanceOrderShareModel();
                 $shareObj->where('report_id', $reportId)->delete();
 
+                $warehouseObj = new FinanceWarehouseModel();
+                $warehouseObj->where('report_id' , $reportId)->update(['is_sale' => 0]);
+
                 $refundObj = new FinanceOrderRefundModel();
                 $refundObj->where(['report_id' => $reportId])->update(['share_code' => null]);
 

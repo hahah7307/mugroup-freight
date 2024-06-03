@@ -39,6 +39,7 @@
                     <col>
                     <col>
                     <col>
+                    <col>
                 </colgroup>
                 <thead>
                 <tr>
@@ -53,6 +54,7 @@
                     <th>库龄</th>
                     <th>体积（m³）</th>
                     <th>金额（USD）</th>
+                    <th>是否销售</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -69,6 +71,13 @@
                     <td class="tr">{$v.age}</td>
                     <td class="tr">{$v.volume}</td>
                     <td class="tr">{$v.total}</td>
+                    <td class="tr">
+                        {if condition="$v.is_sale eq 1"}
+                        <span class="green">是</span>
+                        {else/}
+                        <span class="red">否</span>
+                        {/if}
+                    </td>
                 </tr>
                 {/foreach}
                 </tbody>
