@@ -1173,16 +1173,22 @@ ORDER BY
         $end = $this->request->get('end', date('Y-m-d 00:00:00'), 'htmlspecialchars');
         $this->assign('end', $end);
 
+        $last_diff = $this->request->get('last_diff', 'diff_rate', 'htmlspecialchars');
+        $this->assign('last_diff', $last_diff);
         $last_order = $this->request->get('last_order', 'DESC', 'htmlspecialchars');
         $this->assign('last_order', $last_order);
         $last_start = date('Y-m-01 00:00:00', strtotime('-1 month', strtotime($start)));
         $last_end = date('Y-m-d 00:00:00', strtotime('-1 month', strtotime($end)));
 
+        $last2_diff = $this->request->get('last2_diff', 'diff_rate', 'htmlspecialchars');
+        $this->assign('last2_diff', $last2_diff);
         $last2_order = $this->request->get('last2_order', 'DESC', 'htmlspecialchars');
         $this->assign('last2_order', $last2_order);
         $last2_start = date('Y-m-01 00:00:00', strtotime('-2 month', strtotime($start)));
         $last2_end = date('Y-m-d 00:00:00', strtotime('-2 month', strtotime($end)));
 
+        $week_diff = $this->request->get('week_diff', 'diff_rate', 'htmlspecialchars');
+        $this->assign('week_diff', $week_diff);
         $week_order = $this->request->get('week_order', 'DESC', 'htmlspecialchars');
         $this->assign('week_order', $week_order);
         $last_week = date('Y-m-d 00:00:00', strtotime('-7 day', strtotime($end)));
@@ -1240,7 +1246,7 @@ GROUP BY
 	warehouseSku,
 	productImages
 ORDER BY
-	diff_rate ' . $last_order . ';
+	' . $last_diff . ' ' . $last_order . ';
         ');
         $this->assign('saleList', $saleList);
 
@@ -1295,7 +1301,7 @@ GROUP BY
 	warehouseSku,
 	productImages
 ORDER BY
-	diff_rate ' . $last2_order . ';
+	' . $last2_diff . ' ' . $last2_order . ';
         ');
         $this->assign('sale2List', $sale2List);
 
@@ -1350,7 +1356,7 @@ GROUP BY
 	warehouseSku,
 	productImages
 ORDER BY
-	diff_rate ' . $week_order . ';
+	' . $week_diff . ' ' . $week_order . ';
         ');
         $this->assign('weekList', $weekList);
 

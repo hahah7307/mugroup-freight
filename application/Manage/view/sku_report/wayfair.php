@@ -25,22 +25,40 @@
                 <input type="text" class="layui-input" id="end" name="end" value="{$end}" placeholder="结束时间">
             </div>
             环比上月排序：
+            <div class="layui-inline w100">
+                <select name="last_diff" lay-verify="">
+                    <option value="diff_rate" {if condition="$last_diff eq 'diff_rate'"}selected{/if}>增长率</option>
+                    <option value="diff" {if condition="$last_diff eq 'diff'"}selected{/if}>增长量</option>
+                </select>
+            </div>
             <div class="layui-inline w120">
                 <select name="last_order" lay-verify="">
                     <option value="DESC" {if condition="$last_order eq 'DESC'"}selected{/if}>从高到低</option>
                     <option value="ASC" {if condition="$last_order eq 'ASC'"}selected{/if}>从低到高</option>
                 </select>
             </div>
-            <span style="margin-left: 120px">
+            <span style="margin-left: 20px">
             环比上上月排序：</span>
+            <div class="layui-inline w100">
+                <select name="last2_diff" lay-verify="">
+                    <option value="diff_rate" {if condition="$last2_diff eq 'diff_rate'"}selected{/if}>增长率</option>
+                    <option value="diff" {if condition="$last2_diff eq 'diff'"}selected{/if}>增长量</option>
+                </select>
+            </div>
             <div class="layui-inline w120">
                 <select name="last2_order" lay-verify="">
                     <option value="DESC" {if condition="$last2_order eq 'DESC'"}selected{/if}>从高到低</option>
                     <option value="ASC" {if condition="$last2_order eq 'ASC'"}selected{/if}>从低到高</option>
                 </select>
             </div>
-            <span style="margin-left: 500px">
+            <span style="margin-left: 400px">
             环比上周排序：</span>
+            <div class="layui-inline w100">
+                <select name="week_diff" lay-verify="">
+                    <option value="diff_rate" {if condition="$week_diff eq 'diff_rate'"}selected{/if}>增长率</option>
+                    <option value="diff" {if condition="$week_diff eq 'diff'"}selected{/if}>增长量</option>
+                </select>
+            </div>
             <div class="layui-inline w120">
                 <select name="week_order" lay-verify="">
                     <option value="DESC" {if condition="$week_order eq 'DESC'"}selected{/if}>从高到低</option>
