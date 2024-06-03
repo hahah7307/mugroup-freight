@@ -312,7 +312,7 @@ FROM
 	LEFT JOIN mu_ecang_sku d ON c.seller_sku = d.product_sku
 	LEFT JOIN mu_ecang_sku_relation e ON d.id = e.sku_id 
 WHERE
-	a.total > 0 
+	a.total != 0 
 	AND a.id = ' . $item['id'] . ' 
 ORDER BY
 	id ASC;
