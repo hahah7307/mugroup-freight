@@ -1,6 +1,9 @@
 
 {include file="public/header" /}
 
+<style>
+    .total {padding: 0 10px}
+</style>
 <!-- 主体内容 -->
 <div class="layui-body" id="LAY_app_body">
     <div class="right">
@@ -21,6 +24,12 @@
         <div class="layui-form">
             <button type="button" class="layui-btn  layui-btn-normal" id="excel">导入</button>
             <button data-id="{$report_id}" class="layui-btn layui-btn-danger ml0" lay-submit lay-filter="Detele">清空</button>
+            <span class="total">调整合计：{$adjustment|number_format=###,2}</span>
+            <span class="total">清算合计：{$liquidation|number_format=###,2}</span>
+            <span class="total">促销合计：{$promotion|number_format=###,2}</span>
+            <span class="total">退运合计：{$shipping_service|number_format=###,2}</span>
+            <span class="total">良仓合计：{$lc_adjustment|number_format=###,2}</span>
+            <span class="total">乐歌合计：{$le_adjustment|number_format=###,2}</span>
             <table class="layui-table" lay-size="sm">
                 <colgroup>
                     <col>

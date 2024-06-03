@@ -1144,6 +1144,13 @@ class FinanceController extends BaseController
         $this->assign('list', $list);
         $this->assign('report_id', $id);
 
+        $this->assign('adjustment', $order->where($where)->sum('claimant'));
+        $this->assign('liquidation', $order->where($where)->sum('liquidation'));
+        $this->assign('promotion', $order->where($where)->sum('promotion'));
+        $this->assign('shipping_service', $order->where($where)->sum('shipping_service'));
+        $this->assign('lc_adjustment', $order->where($where)->sum('lc_adjustment'));
+        $this->assign('le_adjustment', $order->where($where)->sum('le_adjustment'));
+
         return view();
     }
 
