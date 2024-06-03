@@ -805,30 +805,32 @@ class FinanceController extends BaseController
         try {
             $storeData = [];
             foreach ($data as $item) {
-                $storeData[] = [
-                    'report_id'                 =>  $report_id,
-                    'entering_date'             =>  date('Ymd', strtotime($item[0])),
-                    'currency'                  =>  $item[1],
-                    'quantity_amount'           =>  $item[2],
-                    'purchase_amount'           =>  $item[3],
-                    'cost_amount'               =>  $item[4],
-                    'arriving_date'             =>  date('Ymd', strtotime($item[5])),
-                    'export_no'                 =>  $item[6],
-                    'shipment_date'             =>  date('Ymd', strtotime($item[7])),
-                    'sku'                       =>  $item[8],
-                    'cn_name'                   =>  $item[9],
-                    'entering_quantity'         =>  $item[10],
-                    'sku_purchase_unit'         =>  $item[11],
-                    'sku_purchase_amount'       =>  $item[12],
-                    'sku_ddp_unit'              =>  $item[13],
-                    'sku_ddp_amount'            =>  $item[14],
-                    'outbound_quantity'         =>  $item[15],
-                    'available_quantity'        =>  $item[16],
-                    'seller'                    =>  $item[17],
-                    'purchaser'                 =>  $item[18],
-                    'content'                   =>  $item[19],
-                    'created_date'              =>  date('Y-m-d H:i:s')
-                ];
+                if (!empty($item[0])) {
+                    $storeData[] = [
+                        'report_id'                 =>  $report_id,
+                        'entering_date'             =>  date('Ymd', strtotime($item[0])),
+                        'currency'                  =>  $item[1],
+                        'quantity_amount'           =>  $item[2],
+                        'purchase_amount'           =>  $item[3],
+                        'cost_amount'               =>  $item[4],
+                        'arriving_date'             =>  date('Ymd', strtotime($item[5])),
+                        'export_no'                 =>  $item[6],
+                        'shipment_date'             =>  date('Ymd', strtotime($item[7])),
+                        'sku'                       =>  $item[8],
+                        'cn_name'                   =>  $item[9],
+                        'entering_quantity'         =>  $item[10],
+                        'sku_purchase_unit'         =>  $item[11],
+                        'sku_purchase_amount'       =>  $item[12],
+                        'sku_ddp_unit'              =>  $item[13],
+                        'sku_ddp_amount'            =>  $item[14],
+                        'outbound_quantity'         =>  $item[15],
+                        'available_quantity'        =>  $item[16],
+                        'seller'                    =>  $item[17],
+                        'purchaser'                 =>  $item[18],
+                        'content'                   =>  $item[19],
+                        'created_date'              =>  date('Y-m-d H:i:s')
+                    ];
+                }
             }
             $financeStoreObj = new FinanceStoreModel();
             if($financeStoreObj->insertAll($storeData)) {
