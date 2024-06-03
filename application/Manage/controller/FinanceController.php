@@ -780,6 +780,12 @@ class FinanceController extends BaseController
         $this->assign('list', $list);
         $this->assign('report_id', $id);
 
+        $this->assign('available_qty', $order->where($where)->sum('available_quantity'));
+        $sum = $order->query('
+SELECT SUM(available_quantity * sku_ddp_unit) sum FROM mu_finance_store WHERE report_id = ' . $id . ';
+        ');
+        $this->assign('available_sum', $sum[0]['sum']);
+
         return view();
     }
 
