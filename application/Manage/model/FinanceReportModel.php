@@ -569,32 +569,49 @@ GROUP BY
     {
         return '
 SELECT
-	* 
+	a.platform,
+	a.userAccount,
+	a.payment_id,
+	a.fulfillment,
+	a.sku,
+	c.pcr_product_sku warehouse_sku,
+	a.quantity * c.pcr_quantity quantity,
+	a.payment_amount * c.pcr_percent / 100 payment_amount,
+	a.payment_selling_fees * c.pcr_percent / 100 payment_selling_fees,
+	a.payment_fba_fees * c.pcr_percent / 100 payment_fba_fees,
+	a.outbound_amount * c.pcr_percent / 100 * - 1 outbound_amount,
+	a.outbound_selling_fee * c.pcr_percent / 100 outbound_selling_fee,
+	a.outbound_fba_fee * c.pcr_percent / 100 outbound_fba_fee 
 FROM
 	(
 	SELECT
 		c.platform,
 		c.userAccount,
 		a.payment_id,
+		a.fulfillment,
 		a.sku,
+		a.quantity,
 		b.warehouse_sku,
 		( product_sales + shipping_credits + gift_wrap_credits + regulatory_fee + promotional_rebates ) payment_amount,
 		a.selling_fees payment_selling_fees,
 		a.fba_fees payment_fba_fees,
 		b.sale_amount * - 1 outbound_amount,
 		b.selling_fee outbound_selling_fee,
-		b.fba_fee outbound_fba_fee
+		b.fba_fee outbound_fba_fee 
 	FROM
 		mu_finance_order_sale a
 		LEFT JOIN mu_finance_order_statistics b ON a.payment_id = b.payment_id
 		LEFT JOIN mu_finance_table c ON a.table_id = c.id 
 	WHERE
 		a.report_id = ' . $report_id . ' 
-	) a 
+	) a
+	LEFT JOIN mu_ecang_sku b ON a.sku = b.product_sku 
+	AND a.userAccount = b.user_account
+	LEFT JOIN mu_ecang_sku_relation c ON b.id = c.sku_id 
 WHERE
 	a.warehouse_sku IS NULL 
 	OR a.payment_amount = 0 
-	AND payment_amount != outbound_amount;   
+	AND payment_amount != outbound_amount;  
         ';
     }
 
