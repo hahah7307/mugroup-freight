@@ -1100,6 +1100,8 @@ ORDER BY
         $end = $this->request->get('end', date('Y-m-d 00:00:00'), 'htmlspecialchars');
         $this->assign('end', $end);
 
+        $last_diff = $this->request->get('last_diff', 'diff_rate', 'htmlspecialchars');
+        $this->assign('last_diff', $last_diff);
         $last_order = $this->request->get('last_order', 'DESC', 'htmlspecialchars');
         $this->assign('last_order', $last_order);
         $last_start = date('Y-m-01 00:00:00', strtotime('-1 month', strtotime($start)));
@@ -1155,7 +1157,7 @@ GROUP BY
 	warehouseSku,
 	productImages
 ORDER BY
-	diff_rate ' . $last_order . ';
+	' . $last_diff . ' ' . $last_order . ';
         ');
         $this->assign('saleList', $saleList);
 

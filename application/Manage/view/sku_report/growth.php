@@ -25,6 +25,12 @@
                 <input type="text" class="layui-input" id="end" name="end" value="{$end}" placeholder="结束时间">
             </div>
             环比上月排序：
+            <div class="layui-inline w100">
+                <select name="last_diff" lay-verify="">
+                    <option value="diff_rate" {if condition="$last_diff eq 'diff_rate'"}selected{/if}>增长率</option>
+                    <option value="diff" {if condition="$last_diff eq 'diff'"}selected{/if}>增长量</option>
+                </select>
+            </div>
             <div class="layui-inline w120">
                 <select name="last_order" lay-verify="">
                     <option value="DESC" {if condition="$last_order eq 'DESC'"}selected{/if}>从高到低</option>
