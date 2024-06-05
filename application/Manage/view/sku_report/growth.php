@@ -16,7 +16,7 @@
 <!-- 主体内容 -->
 <div class="layui-body" id="LAY_app_body">
     <div class="right">
-        <div class="title">销量月增长报表<strong>(不包含RETURN、ACCESSORY)</strong><span class="red">(销量有增长但增长率为0%表示上月无销量，销量增长为负且增长率为-100%表示本月无销量，上上月和上周同理)</span></div>
+        <div class="title">全平台销量月增长报表<strong>(不包含RETURN、ACCESSORY)</strong><span class="red">(销量有增长但增长率为0%表示上月无销量，销量增长为负且增长率为-100%表示本月无销量，上上月和上周同理)</span></div>
         <form class="layui-form" method="get">
             <div class="layui-input-inline w200">
                 <input type="text" class="layui-input" id="start" name="start" value="{$start}" placeholder="开始时间">
@@ -73,7 +73,7 @@
                     <td class="tr">{$v.current|number_format=###}</td>
                     <td class="tr">{$v.last|number_format=###}</td>
                     <td class="tr">{$v.diff|number_format=###}</td>
-                    <td class="tr">{$v.diff_rate * 100}%</td>
+                    <td class="tr">{$v.diff_rate * 100|number_format=###,2}%</td>
                 </tr>
                 {/foreach}
                 </tbody>

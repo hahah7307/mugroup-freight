@@ -1370,6 +1370,61 @@ ORDER BY
      * @throws PDOException
      * @throws BindParamException
      */
+    public function wayfair_growth($sku): \think\response\View
+    {
+        $sale_start = $this->request->get('sale_start', '2024-01-01 00:00:00', 'htmlspecialchars');
+        $this->assign('sale_start', $sale_start);
+        $sale_start = date('Y-m-d 00:00:00', strtotime('-1 month', strtotime($sale_start)));
+
+        $sale_end = $this->request->get('sale_end', date('Y-m-d 00:00:00'), 'htmlspecialchars');
+        $this->assign('sale_end', $sale_end);
+
+        $model = new ProductModel();
+        $data = $model->query('
+SELECT
+	`month`,
+	qty,
+	lag ( qty ) over ( ORDER BY MONTH ASC ) last_qty,
+	ROUND(
+		( qty - lag ( qty ) over ( ORDER BY MONTH ASC ) ) / lag ( qty ) over ( ORDER BY MONTH ASC ),
+		4 
+	) rate 
+FROM
+	(
+	SELECT
+		SUM( b.qty ) qty,
+		b.warehouseSku,
+		DATE_FORMAT( a.createdDate, "%Y-%m" ) MONTH 
+	FROM
+		mu_ecang_order a
+		LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id 
+	WHERE
+		`status` = 4 
+		AND createdDate >= "' . $sale_start . '" 
+		AND createdDate < "' . $sale_end . '" 
+		AND b.warehouseSku = "' . $sku . '" 
+		AND a.platform = "wayfairnew" 
+	GROUP BY
+		MONTH,
+	warehouseSku 
+	) a;
+        ');
+
+        $this->assign('month', implode('","', array_column($data, 'month')));
+        $this->assign('qty', implode(',', array_column($data, 'qty')));
+
+        array_shift($data);
+        $this->assign('month2', implode('","', array_column($data, 'month')));
+        $this->assign('rate', implode(',', array_column($data, 'rate')));
+
+        $this->assign('sku', $sku);
+        return view();
+    }
+
+    /**
+     * @throws PDOException
+     * @throws BindParamException
+     */
     public function sku_growth($sku): \think\response\View
     {
         $sale_start = $this->request->get('sale_start', '2024-01-01 00:00:00', 'htmlspecialchars');

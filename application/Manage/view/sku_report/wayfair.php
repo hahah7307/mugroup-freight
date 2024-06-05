@@ -97,14 +97,14 @@
                 </thead>
                 <tbody>
                 {foreach name="saleList" key="key" item="v"}
-                <tr {if condition="$v.diff lt 0"}style="background: #f8b9b7"{/if}>
+                <tr class="sku-item" data-sku="{$v.warehouseSku}" {if condition="$v.diff lt 0"}style="background: #f8b9b7"{/if}>
                     <td class="tr">{$key + 1}</td>
                     <td>{$v.warehouseSku}</td>
                     <td><img src="{$v.productImages}" height="80" alt=""></td>
                     <td class="tr">{$v.current|number_format=###}</td>
                     <td class="tr">{$v.last|number_format=###}</td>
                     <td class="tr">{$v.diff|number_format=###}</td>
-                    <td class="tr">{$v.diff_rate * 100}%</td>
+                    <td class="tr">{$v.diff_rate * 100|number_format=###,2}%</td>
                 </tr>
                 {/foreach}
                 </tbody>
@@ -135,14 +135,14 @@
                 </thead>
                 <tbody>
                 {foreach name="sale2List" key="k" item="item"}
-                <tr {if condition="$item.diff lt 0"}style="background: #f8b9b7"{/if}>
+                <tr class="sku-item" data-sku="{$item.warehouseSku}" {if condition="$item.diff lt 0"}style="background: #f8b9b7"{/if}>
                     <td class="tr">{$k + 1}</td>
                     <td>{$item.warehouseSku}</td>
                     <td><img src="{$item.productImages}" height="80" alt=""></td>
                     <td class="tr">{$item.current|number_format=###}</td>
                     <td class="tr">{$item.last|number_format=###}</td>
                     <td class="tr">{$item.diff|number_format=###}</td>
-                    <td class="tr">{$item.diff_rate * 100}%</td>
+                    <td class="tr">{$item.diff_rate * 100|number_format=###,2}%</td>
                 </tr>
                 {/foreach}
                 </tbody>
@@ -173,14 +173,14 @@
                 </thead>
                 <tbody>
                 {foreach name="weekList" key="wk" item="wv"}
-                <tr {if condition="$wv.diff lt 0"}style="background: #f8b9b7"{/if}>
+                <tr class="sku-item" data-sku="{$wv.warehouseSku}" {if condition="$wv.diff lt 0"}style="background: #f8b9b7"{/if}>
                     <td class="tr">{$wk + 1}</td>
                     <td>{$wv.warehouseSku}</td>
                     <td><img src="{$wv.productImages}" height="80" alt=""></td>
                     <td class="tr">{$wv.current|number_format=###}</td>
                     <td class="tr">{$wv.last|number_format=###}</td>
                     <td class="tr">{$wv.diff|number_format=###}</td>
-                    <td class="tr">{$wv.diff_rate * 100}%</td>
+                    <td class="tr">{$wv.diff_rate * 100|number_format=###,2}%</td>
                 </tr>
                 {/foreach}
                 </tbody>
@@ -207,7 +207,7 @@
 
         $(".sku-item").click(function(){
             let sku = $(this).data('sku');
-            location.href = "/Manage/SkuReport/quantity/sku/" + sku + ".html";
+            location.href = "/Manage/SkuReport/wayfair_growth/sku/" + sku + ".html";
         });
     });
 </script>

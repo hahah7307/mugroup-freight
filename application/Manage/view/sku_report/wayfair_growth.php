@@ -7,7 +7,7 @@
 <div class="layui-body" id="LAY_app_body">
     <div class="right">
         <a href="{:session('back_url', '', 'manage')}" class="layui-btn layui-btn-danger layui-btn-sm fr"><i class="layui-icon">&#xe603;</i>返回上一页</a>
-        <div class="title"><strong>{$sku}</strong>全平台销量、增长率折线图</div>
+        <div class="title"><strong>{$sku}</strong> Wayfair平台销量、增长率折线图</div>
         <form class="layui-form" method="get">
             <div class="layui-input-inline w200">
                 <input type="text" class="layui-input" id="sale_start" name="sale_start" value="{$sale_start}" placeholder="开始时间">
