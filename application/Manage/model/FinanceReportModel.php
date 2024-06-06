@@ -1007,7 +1007,7 @@ FROM
 			LEFT JOIN mu_ecang_sku_relation e ON e.sku_id = d.id 
 		WHERE
 			reportDateMonth = "' . $month . '" 
-			AND is_fba = 1 
+			AND a.fbaStorageFee + a.longTermStorageFee + a.sharedFbaDisposalFee + a.sharedAmazonPartneredCarrierShipmentFee + a.sharedFbaInboundConvenienceFee != 0
 		GROUP BY
 			platform,
 			userAccount,
