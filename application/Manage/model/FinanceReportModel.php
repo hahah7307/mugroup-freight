@@ -601,6 +601,7 @@ FROM
 	FROM
 		mu_finance_order_sale a
 		LEFT JOIN mu_finance_order_statistics b ON a.payment_id = b.payment_id
+		AND a.sku = b.platform_sku
 		LEFT JOIN mu_finance_table c ON a.table_id = c.id 
 	WHERE
 		a.report_id = ' . $report_id . ' 
