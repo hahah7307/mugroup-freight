@@ -565,7 +565,7 @@ GROUP BY
         ';
     }
 
-    static public function getPaymentNoOutboundSql($report_id)
+    static public function getPaymentNoOutboundSql($report_id): string
     {
         return '
 SELECT
@@ -1035,7 +1035,7 @@ FROM
 			ROUND( a.cny_actual_paid / c.USD, 2 ) evaluation_amount 
 		FROM
 			mu_finance_evaluation a
-			LEFT JOIN mu_finance_order_statistics b ON a.payment = b.payment_id
+			LEFT JOIN mu_finance_order_statistics b ON a.payment = b.saleOrderCode
 			LEFT JOIN mu_finance_report c ON a.report_id = c.id
 			LEFT JOIN mu_ecang_order d ON a.payment = d.saleOrderCode 
 		WHERE
@@ -1546,7 +1546,7 @@ FROM
 			ROUND( a.cny_actual_paid / c.USD, 2 ) evaluation_amount 
 		FROM
 			mu_finance_evaluation a
-			LEFT JOIN mu_finance_order_statistics b ON a.payment = b.payment_id
+			LEFT JOIN mu_finance_order_statistics b ON a.payment = b.saleOrderCode
 			LEFT JOIN mu_finance_report c ON a.report_id = c.id
 			LEFT JOIN mu_ecang_order d ON a.payment = d.saleOrderCode 
 		WHERE
