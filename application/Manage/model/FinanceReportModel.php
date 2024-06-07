@@ -728,7 +728,7 @@ FROM
 				NULL AS fba_refund_selling_fees,
 				ROUND( b.fba_fee, 7 ) fba_fees,
 				NULL AS fba_refund_fees,
-				f.sku_ddp_unit * b.qty / g.USD fba_ddp,
+				NULL AS fba_ddp,
 				NULL AS adCost,
 				NULL AS fba_inventory,
 				NULL AS adjustment,
@@ -747,16 +747,52 @@ FROM
 					LEFT JOIN mu_finance_table b ON a.table_id = b.id 
 				WHERE
 					report_id = ' . $report_id . '
-				
-				AND a.fulfillment = "Amazon" 
-				AND b.platform = "amazon"
+					AND a.fulfillment = "Amazon" 
+					AND b.platform = "amazon" 
 				) a
 				LEFT JOIN mu_finance_order_statistics b ON a.payment_id = b.payment_id
-				LEFT JOIN mu_ecang_order c ON b.saleOrderCode = c.saleOrderCode
-				LEFT JOIN mu_finance_order_outbound e ON b.saleOrderCode = e.saleOrderCode
-				LEFT JOIN mu_finance_store f ON e.store_id = f.id
-				LEFT JOIN mu_finance_report g ON a.report_id = g.id
-				WHERE e.report_id = ' . $report_id . ' UNION ALL
+				LEFT JOIN mu_ecang_order c ON b.saleOrderCode = c.saleOrderCode UNION ALL
+			SELECT
+				a.platform,
+				a.userAccount,
+				a.payment_id payment,
+				b.payment_id,
+				b.saleOrderCode,
+				b.seller_sku,
+				b.warehouse_sku,
+				NULL AS fba_sale_qty,
+				NULL AS fba_refund_qty,
+				NULL AS fba_sale_amount,
+				NULL AS fba_refund_amount,
+				NULL AS fba_sale_selling_fees,
+				NULL AS fba_refund_selling_fees,
+				NULL AS fba_fees,
+				NULL AS fba_refund_fees,
+				c.sku_ddp_unit * b.qty / d.USD fba_ddp,
+				NULL AS adCost,
+				NULL AS fba_inventory,
+				NULL AS adjustment,
+				NULL AS liquidation,
+				NULL AS promotion,
+				NULL AS shipping_service 
+			FROM
+				(
+				SELECT DISTINCT
+					report_id,
+					payment_id,
+					platform,
+					userAccount 
+				FROM
+					mu_finance_order_sale a
+					LEFT JOIN mu_finance_table b ON a.table_id = b.id 
+				WHERE
+					report_id = ' . $report_id . ' 
+					AND a.fulfillment = "Amazon" 
+					AND b.platform = "amazon" 
+				) a
+				LEFT JOIN mu_finance_order_outbound b ON b.payment_id = a.payment_id
+				LEFT JOIN mu_finance_store c ON b.store_id = c.id
+				LEFT JOIN mu_finance_report d ON b.report_id = d.id UNION ALL
 			SELECT
 				b.platform,
 				b.userAccount,
@@ -1173,8 +1209,8 @@ FROM
 				ROUND( b.selling_fee, 7 ) fbm_sale_selling_fees,
 				NULL AS fbm_refund_selling_fees,
 				c.calcuRes calcuRes,
-				f.sku_ddp_unit * b.qty / g.USD fbm_ddp,
-				e.warehouse_rent,
+				NULL AS fbm_ddp,
+				NULL AS warehouse_rent,
 				NULL AS adjustment,
 				NULL AS liquidation,
 				NULL AS promotion,
@@ -1193,16 +1229,54 @@ FROM
 					LEFT JOIN mu_finance_table b ON a.table_id = b.id 
 				WHERE
 					report_id = ' . $report_id . ' 
-					AND a.fulfillment = "Seller"  
-					AND b.platform = "amazon"
+					AND b.platform = "amazon" 
+					AND a.fulfillment = "Seller" 
 					OR a.fulfillment IS NULL 
 				) a
 				LEFT JOIN mu_finance_order_statistics b ON a.payment_id = b.payment_id
-				LEFT JOIN mu_ecang_order c ON b.saleOrderCode = c.saleOrderCode
-				LEFT JOIN mu_finance_order_outbound e ON b.saleOrderCode = e.saleOrderCode
-				LEFT JOIN mu_finance_store f ON e.store_id = f.id
-				LEFT JOIN mu_finance_report g ON a.report_id = g.id
-				WHERE e.report_id = ' . $report_id . ' UNION ALL
+				LEFT JOIN mu_ecang_order c ON b.saleOrderCode = c.saleOrderCode UNION ALL
+			SELECT
+				a.platform,
+				a.userAccount,
+				a.payment_id payment,
+				b.payment_id,
+				b.saleOrderCode,
+				b.seller_sku,
+				b.warehouse_sku,
+				NULL AS fbm_sale_qty,
+				NULL AS fbm_refund_qty,
+				NULL AS fbm_sale_amount,
+				NULL AS fbm_refund_amount,
+				NULL AS fbm_sale_selling_fees,
+				NULL AS fbm_refund_selling_fees,
+				NULL AS calcuRes,
+				c.sku_ddp_unit * b.qty / d.USD fbm_ddp,
+				b.warehouse_rent,
+				NULL AS adjustment,
+				NULL AS liquidation,
+				NULL AS promotion,
+				NULL AS shipping_service,
+				NULL AS lc_adjustment,
+				NULL AS le_adjustment 
+			FROM
+				(
+				SELECT DISTINCT
+					report_id,
+					payment_id,
+					platform,
+					userAccount 
+				FROM
+					mu_finance_order_sale a
+					LEFT JOIN mu_finance_table b ON a.table_id = b.id 
+				WHERE
+					report_id = ' . $report_id . '
+					AND b.platform = "amazon" 
+					AND a.fulfillment = "Seller" 
+					OR a.fulfillment IS NULL 
+				) a
+				LEFT JOIN mu_finance_order_outbound b ON b.payment_id = a.payment_id
+				LEFT JOIN mu_finance_store c ON b.store_id = c.id
+				LEFT JOIN mu_finance_report d ON b.report_id = d.id UNION ALL
 			SELECT
 				b.platform,
 				b.userAccount,

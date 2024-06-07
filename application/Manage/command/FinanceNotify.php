@@ -77,7 +77,7 @@ class FinanceNotify extends Command
 
                     // 检测出库数据是否完全关联ddp和仓储费分摊
                     $financeOutboundObj = new FinanceOrderOutboundModel();
-                    $outbound = $financeOutboundObj->where(['report_id' => $report['id']])->where(['is_notify' => 0])->order('dateWarehouseShipping asc')->select();
+                    $outbound = $financeOutboundObj->where(['report_id' => $report['id']])->where(['is_notify' => 0])->order('shipping_time asc')->select();
                     if (count($outbound) > 0) {
                         continue;
                     }
