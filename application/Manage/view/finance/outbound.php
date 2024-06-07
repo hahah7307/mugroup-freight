@@ -26,8 +26,9 @@
                     <col>
                     <col>
                     <col>
-                    <col width="140">
                     <col>
+                    <col>
+                    <col width="140">
                     <col>
                     <col>
                     <col>
@@ -40,6 +41,7 @@
                     <th>Payment</th>
                     <th>外销合同号</th>
                     <th>采购单号</th>
+                    <th>店铺SKU</th>
                     <th>仓库SKU</th>
                     <th>发货时间</th>
                     <th>数量</th>
@@ -56,8 +58,9 @@
                     <td>{$v.payment_id}</td>
                     <td>{$v.store.export_no}</td>
                     <td>{$v.store.content}</td>
+                    <td>{$v.seller_sku}</td>
                     <td>{$v.warehouse_sku}</td>
-                    <td>{$v.dateWarehouseShipping}</td>
+                    <td>{$v.shipping_time}</td>
                     <td class="tr">{$v.qty}</td>
                     <td class="tr">{$v.store.sku_ddp_unit}</td>
                     <td class="tr">{$v.warehouse_rent}</td>

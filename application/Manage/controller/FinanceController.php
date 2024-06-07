@@ -845,24 +845,22 @@ SELECT SUM(available_quantity * sku_ddp_unit) sum FROM mu_finance_store WHERE re
             $financeStoreObj = new FinanceStoreModel();
             if($financeStoreObj->insertAll($storeData)) {
                 $sql = "
-                SELECT DISTINCT
-                    a.report_id,
-                    b.id ecang_order_id,
-                    c.id ecang_order_detail_id,
-                    a.payment_id,
-                    b.saleOrderCode,
-                    b.dateWarehouseShipping,
-                    c.warehouseSku warehouse_sku,
-	                c.qty
-                FROM
-                    mu_finance_order_sale a
-                    LEFT JOIN mu_ecang_order b ON a.payment_id = b.refNo
-                    LEFT JOIN mu_ecang_order_detail c ON b.id = c.order_id 
-                WHERE
-                    a.report_id = " . $report_id . " 
-                    AND b.`status` = 4 
-                ORDER BY
-                    b.dateWarehouseShipping;
+SELECT DISTINCT
+	a.report_id,
+	b.payment_id,
+	b.saleOrderCode,
+	b.shipping_time,
+	b.platform_sku seller_sku,
+	b.warehouse_sku,
+	b.qty 
+FROM
+	mu_finance_order_sale a
+	LEFT JOIN mu_finance_order_statistics b ON a.payment_id = b.payment_id 
+WHERE
+	a.report_id = " . $report_id . "
+	AND b.saleOrderCode IS NOT NULL
+ORDER BY
+	b.shipping_time
                 ";
                 $outboundData = $financeStoreObj->query($sql);
                 $outboundObj = new FinanceOrderOutboundModel();
