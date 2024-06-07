@@ -852,6 +852,7 @@ SELECT DISTINCT
 	b.shipping_time,
 	b.platform_sku seller_sku,
 	b.warehouse_sku,
+	a.fulfillment,
 	b.qty 
 FROM
 	mu_finance_order_sale a

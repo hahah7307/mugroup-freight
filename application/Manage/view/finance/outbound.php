@@ -28,6 +28,7 @@
                     <col>
                     <col>
                     <col>
+                    <col>
                     <col width="140">
                     <col>
                     <col>
@@ -43,6 +44,7 @@
                     <th>采购单号</th>
                     <th>店铺SKU</th>
                     <th>仓库SKU</th>
+                    <th>发货方式</th>
                     <th>发货时间</th>
                     <th>数量</th>
                     <th>DDP</th>
@@ -60,6 +62,7 @@
                     <td>{$v.store.content}</td>
                     <td>{$v.seller_sku}</td>
                     <td>{$v.warehouse_sku}</td>
+                    <td>{$v.fulfillment}</td>
                     <td>{$v.shipping_time}</td>
                     <td class="tr">{$v.qty}</td>
                     <td class="tr">{$v.store.sku_ddp_unit}</td>
