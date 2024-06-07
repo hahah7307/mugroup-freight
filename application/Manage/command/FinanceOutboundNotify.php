@@ -37,14 +37,14 @@ class FinanceOutboundNotify extends Command
                     $sku = $item['warehouse_sku'];
 
                     // 仓储费单价
-                    if (self::sku_identify($sku)) {
+                    if (self::sku_identify($sku) && $item['fulfillment'] == "Seller") {
                         $warehouse_rent_total = $financeWarehouseObj->where(['sku' => ['like', $sku . '%'], 'report_id' => $item['report_id']])->sum('total');
-                        $outbound_qty = $financeOutboundObj->where(['warehouse_sku' => $sku, 'report_id' => $item['report_id']])->sum('qty');
+                        $outbound_qty = $financeOutboundObj->where(['warehouse_sku' => $sku, 'report_id' => $item['report_id'], 'fulfillment' => 'Seller'])->sum('qty');
 
                         // 判断是否为最后一个
-                        $last_one = $financeOutboundObj->where(['warehouse_sku' => $sku, 'report_id' => $item['report_id'], 'is_notify' => 0])->order('shipping_time desc')->find();
+                        $last_one = $financeOutboundObj->where(['warehouse_sku' => $sku, 'report_id' => $item['report_id'], 'is_notify' => 0, 'fulfillment' => 'Seller'])->order('shipping_time desc')->find();
                         if ($last_one['id'] == $item['id']) {
-                            $warehouse_rent_sum = $financeOutboundObj->where(['warehouse_sku' => $sku, 'report_id' => $item['report_id']])->sum('warehouse_rent');
+                            $warehouse_rent_sum = $financeOutboundObj->where(['warehouse_sku' => $sku, 'report_id' => $item['report_id'], 'fulfillment' => 'Seller'])->sum('warehouse_rent');
                             $warehouse_rent = $warehouse_rent_total - $warehouse_rent_sum;
                         } else {
                             $warehouse_rent = round($warehouse_rent_total / $outbound_qty, 2) * $item['qty'];
