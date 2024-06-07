@@ -77,7 +77,9 @@ class AmazonPayment extends Model
                     "other"                     =>  sprintf('%.2f', str_replace(',', '', $item[28])),
                     "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[29])),
                 ];
-            } elseif ($item[2] == 'Refund') {
+            } elseif ($item[2] == 'Refund'
+                ||  $item[2] == 'Chargeback Refund'
+            ) {
                 $this->orderRefundNew[] = [
                     "report_id"                 =>  $reportId,
                     "table_id"                  =>  $tableId,
@@ -104,7 +106,9 @@ class AmazonPayment extends Model
                     "other"                     =>  sprintf('%.2f', str_replace(',', '', $item[28])),
                     "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[29])),
                 ];
-            } elseif ($item[2] == 'Service Fee') {
+            } elseif ($item[2] == 'Service Fee'
+                ||  $item[2] == 'Deal Fee'
+            ) {
                 $this->orderPromotionNew[] = [
                     "report_id"                 =>  $reportId,
                     "table_id"                  =>  $tableId,
@@ -132,6 +136,7 @@ class AmazonPayment extends Model
                 ];
             } elseif ($item[2] == 'Adjustment'
                 ||  $item[2] == 'A-to-z Guarantee Claim'
+                ||  $item[2] == 'SAFE-T reimbursement'
                 ||  $item[2] == 'Fee Adjustment') {
                 $this->orderAdjustmentNew[] = [
                     "report_id"                 =>  $reportId,
@@ -380,7 +385,7 @@ class AmazonPayment extends Model
                     "other"                     =>  sprintf('%.2f', str_replace(',', '.', str_replace('.', '', $item[25]))),
                     "total"                     =>  sprintf('%.2f', str_replace(',', '.', str_replace('.', '', $item[26]))),
                 ];
-            } elseif ($item[2] == 'Servicegebuhr') {
+            } elseif ($item[2] == 'Servicegebühr') {
                 $this->orderPromotionNew[] = [
                     "report_id"                 =>  $reportId,
                     "table_id"                  =>  $tableId,
@@ -515,7 +520,9 @@ class AmazonPayment extends Model
                     "other"                     =>  sprintf('%.2f', str_replace(',', '.', str_replace('.', '', $item[25]))),
                     "total"                     =>  sprintf('%.2f', str_replace(',', '.', str_replace('.', '', $item[26]))),
                 ];
-            } elseif ($item[2] == 'Tarifa de prestación de servicio') {
+            } elseif ($item[2] == 'Tarifa de prestación de servicio'
+                || $item[2] == 'Tarifa de Oferta flash'
+            ) {
                 $this->orderPromotionNew[] = [
                     "report_id"                 =>  $reportId,
                     "table_id"                  =>  $tableId,
