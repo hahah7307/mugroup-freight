@@ -30,7 +30,7 @@ class FinanceOutboundNotify extends Command
         try {
             $financeOutboundObj = new FinanceOrderOutboundModel();
             $financeWarehouseObj = new FinanceWarehouseModel();
-            $list = $financeOutboundObj->where(['is_notify' => 0])->limit(Config::get('finance_notify_num'))->order('dateWarehouseShipping asc')->select();
+            $list = $financeOutboundObj->where(['is_notify' => 0])->limit(Config::get('finance_notify_num'))->order('shipping_time asc')->select();
             if (count($list)) {
                 $financeStoreObj = new FinanceStoreModel();
                 foreach ($list as $item) {
@@ -40,7 +40,16 @@ class FinanceOutboundNotify extends Command
                     if (self::sku_identify($sku)) {
                         $warehouse_rent_total = $financeWarehouseObj->where(['sku' => ['like', $sku . '%'], 'report_id' => $item['report_id']])->sum('total');
                         $outbound_qty = $financeOutboundObj->where(['warehouse_sku' => $sku, 'report_id' => $item['report_id']])->sum('qty');
-                        $warehouse_rent = round($warehouse_rent_total / $outbound_qty, 9) * $item['qty'];
+
+                        // 判断是否为最后一个
+                        $last_one = $financeOutboundObj->where(['warehouse_sku' => $sku, 'report_id' => $item['report_id'], 'is_notify' => 0])->order('shipping_time desc')->find();
+                        if ($last_one['id'] == $item['id']) {
+                            $warehouse_rent_sum = $financeOutboundObj->where(['warehouse_sku' => $sku, 'report_id' => $item['report_id']])->sum('warehouse_rent');
+                            $warehouse_rent = $warehouse_rent_total - $warehouse_rent_sum;
+                        } else {
+                            $warehouse_rent = round($warehouse_rent_total / $outbound_qty, 2) * $item['qty'];
+                        }
+
                         if ($warehouse_rent_total) {
                             $financeWarehouseObj->update(['is_sale' => 1], ['sku' => ['like', $sku . '%'], 'report_id' => $item['report_id']]);
                         }
