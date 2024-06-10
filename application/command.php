@@ -40,4 +40,5 @@ return [
     'app\Manage\command\ListingUpdate', //
     'app\Manage\command\OrderCaptureMore', //
     'app\Manage\command\FinanceOrderShare', //
+    'app\Manage\command\FinanceWarehouseNotify', //
 ];

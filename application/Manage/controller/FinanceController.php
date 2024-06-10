@@ -1136,6 +1136,31 @@ ORDER BY
     /**
      * @throws DbException
      */
+    public function warehouse_edit($id)
+    {
+        if ($this->request->isPost()) {
+            $post = $this->request->post();
+            $model = new FinanceWarehouseModel();
+            $info = $model->find($id);
+            if ($info['is_sale'] != 0) {
+                echo json_encode(['code' => 0, 'msg' => '有销售的sku无法修改']);
+            }
+            if ($model->update(['main_sku' => $post['new_sku']], ['report_id' => $info['report_id'], 'sku' => $info['sku'], 'main_sku' => $info['main_sku']])) {
+                echo json_encode(['code' => 1, 'msg' => '修改成功']);
+            } else {
+                echo json_encode(['code' => 0, 'msg' => '修改失败，请重试']);
+            }
+        } else {
+            $info = FinanceWarehouseModel::get(['id' => $id,]);
+            $this->assign('info', $info);
+
+            return view();
+        }
+    }
+
+    /**
+     * @throws DbException
+     */
     public function additional($id): \think\response\View
     {
         $keyword = $this->request->get('keyword', '', 'htmlspecialchars');

@@ -40,6 +40,7 @@
                     <col>
                     <col>
                     <col>
+                    <col width="80">
                 </colgroup>
                 <thead>
                 <tr>
@@ -55,6 +56,8 @@
                     <th>体积（m³）</th>
                     <th>金额（USD）</th>
                     <th>是否销售</th>
+                    <th>主件Sku</th>
+                    <th class="tc">操作</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -76,6 +79,14 @@
                         <span class="green">是</span>
                         {else/}
                         <span class="red">否</span>
+                        {/if}
+                    </td>
+                    <td class="tr">{$v.main_sku}</td>
+                    <td class="tc">
+                        {if condition="$v.is_sale eq 0"}
+                            <a href="{:url('warehouse_edit', ['id' => $v.id])}" class="layui-btn layui-btn-normal layui-btn-sm">修改主件</a>
+                        {else/}
+                            <a href="javascript:;" class="layui-btn layui-btn-disabled layui-btn-sm">修改主件</a>
                         {/if}
                     </td>
                 </tr>

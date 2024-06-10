@@ -112,6 +112,12 @@ class FinanceNotify extends Command
                         continue;
                     }
 
+                    // 检测无销售的sku仓储费是否归类主件
+                    $noSaleWarehouse = $warehouseObj->where(['is_sale' => 0])->where('main_sku', null)->order('id asc')->select();
+                    if (count($noSaleWarehouse) > 0) {
+                        continue;
+                    }
+
                     $financeReportObj->save(['is_notify' => 1], ['id' => $report['id']]);
                     unset($report);
                 }
