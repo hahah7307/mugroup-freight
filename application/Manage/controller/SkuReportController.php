@@ -1171,8 +1171,12 @@ FROM
 		warehouseSku,
 		SUM( current ) current,
 		SUM( last ) last,
-	IF
-		( SUM( current ) > SUM( last ), "增", "减" ) is_growth,
+	CASE	
+			WHEN SUM( current ) > SUM( last ) THEN
+			"增(Sku个数)" 
+			WHEN SUM( current ) = SUM( last ) THEN
+			"平(Sku个数)" ELSE "减(Sku个数)" 
+		END is_growth,
 		SUM( current ) - SUM( last ) growth_num 
 	FROM
 		(
@@ -1227,7 +1231,7 @@ FROM
 		SUM( current ) current,
 		SUM( last ) last,
 	IF
-		( SUM( current ) > SUM( last ), "增", "减" ) is_growth,
+		( SUM( current ) > SUM( last ), "增(销售)", "减(销售)" ) is_growth,
 		SUM( current ) - SUM( last ) growth_num 
 	FROM
 		(
@@ -1481,8 +1485,12 @@ FROM
 		warehouseSku,
 		SUM( current ) current,
 		SUM( last ) last,
-	IF
-		( SUM( current ) > SUM( last ), "增", "减" ) is_growth,
+	CASE	
+			WHEN SUM( current ) > SUM( last ) THEN
+			"增(Sku个数)" 
+			WHEN SUM( current ) = SUM( last ) THEN
+			"平(Sku个数)" ELSE "减(Sku个数)" 
+		END is_growth,
 		SUM( current ) - SUM( last ) growth_num 
 	FROM
 		(
@@ -1539,7 +1547,7 @@ FROM
 		SUM( current ) current,
 		SUM( last ) last,
 	IF
-		( SUM( current ) > SUM( last ), "增", "减" ) is_growth,
+		( SUM( current ) > SUM( last ), "增(销售)", "减(销售)" ) is_growth,
 		SUM( current ) - SUM( last ) growth_num 
 	FROM
 		(

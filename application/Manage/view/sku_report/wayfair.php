@@ -257,7 +257,7 @@
         const category_1 = echarts.init(document.getElementById("main_1"));
         category_1.setOption({
             title: {
-                text: 'Sku数量增减饼状图（减的数量中包含平）',
+                text: 'Sku个数增减饼状图',
                 // subtext: 'Fake Data',
                 left: 'center'
             },
@@ -295,7 +295,7 @@
         const category_2 = echarts.init(document.getElementById("main_2"));
         category_2.setOption({
             title: {
-                text: 'Sku销量增减饼状图',
+                text: '销售数量增减饼状图',
                 // subtext: 'Fake Data',
                 left: 'center'
             },
