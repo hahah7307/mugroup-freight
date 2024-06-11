@@ -12,8 +12,11 @@
     /*.layui-table {display: flex}*/
     .select {margin-left: 0!important;}
     .warm-tips {display: inline-block; font-size: 14px; position: relative; top: 8px; left: 5px; color: #ce0000}
+    .pie-chart {margin-top: 32px}
 </style>
 <!-- 主体内容 -->
+<script src="/static/echarts/dist/echarts.min.js"></script>
+<script src="/static/echarts/test/lib/jquery.min.js"></script>
 <div class="layui-body" id="LAY_app_body">
     <div class="right">
         <div class="title">Wayfair环比销量增长率排行榜<span class="red">(销量有增长但增长率为0%表示上月无销量，销量增长为负且增长率为-100%表示本月无销量，上上月和上周同理)</span></div>
@@ -69,6 +72,11 @@
                 <button class="layui-btn" lay-submit lay-filter="Search"><i class="layui-icon">&#xe615;</i> 查询</button>
             </div>
         </form>
+
+        <div class="layui-form pie-chart" style="display: flex">
+            <div id="main_1" style="height:500px; width: 800px"></div>
+            <div id="main_2" style="height:500px; width: 800px"></div>
+        </div>
 
         <div class="layui-form table-flex">
             <table class="layui-table" lay-size="sm">
@@ -203,6 +211,123 @@
         laydate.render({
             elem: '#end',
             type: 'datetime'
+        });
+
+        function moneyFormat (num, decimal = 2, split = ',') {
+            /*
+              parameter：
+              num：格式化目标数字
+              decimal：保留几位小数，默认2位
+              split：千分位分隔符，默认为,
+              moneyFormat(123456789.87654321, 2, ',') // 123,456,789.88
+            */
+            function thousandFormat (num) {
+                const len = num.length
+                return len <= 3 ? num : thousandFormat(num.slice(0, len - 3)) + split + num.slice(len - 3, len)
+            }
+            if (isFinite(num)) { // num是数字
+                if (num === 0) { // 为0
+                    return num.toFixed(decimal)
+                } else { // 非0
+                    var res = ''
+                    var dotIndex = String(num).indexOf('.')
+                    if (dotIndex === -1) { // 整数
+                        if (decimal === 0) {
+                            res = thousandFormat(String(num))
+                        } else {
+                            res = thousandFormat(String(num)) + '.' + '0'.repeat(decimal)
+                        }
+                    } else { // 非整数
+                        // js四舍五入 Math.round()：正数时4舍5入，负数时5舍6入
+                        // Math.round(1.5) = 2
+                        // Math.round(-1.5) = -1
+                        // Math.round(-1.6) = -2
+                        // 保留decimals位小数
+                        const numStr = String((Math.round(num * Math.pow(10, decimal)) / Math.pow(10, decimal)).toFixed(decimal)) // 四舍五入，然后固定保留2位小数
+                        const decimals = numStr.slice(dotIndex, dotIndex + decimal + 1) // 截取小数位
+                        res = thousandFormat(numStr.slice(0, dotIndex)) + decimals
+                    }
+                    return res
+                }
+            } else {
+                return '--'
+            }
+        }
+
+        const category_1 = echarts.init(document.getElementById("main_1"));
+        category_1.setOption({
+            title: {
+                text: 'Sku数量增减饼状图（减的数量中包含平）',
+                // subtext: 'Fake Data',
+                left: 'center'
+            },
+            tooltip: {
+                trigger: 'item'
+            },
+            legend: {
+                orient: 'vertical',
+                left: 'left'
+            },
+            series: [
+                {
+                    type: 'pie',
+                    data: {$is_growth},
+                    label: {
+                        normal: {
+                            show: true,
+                            position: 'inner', // 数值显示在内部
+                            formatter: function (c) {
+                                return moneyFormat(c.value, 0);
+                            }
+                        },
+                    },
+                    emphasis: {
+                        itemStyle: {
+                            shadowBlur: 10,
+                            shadowOffsetX: 0,
+                            shadowColor: 'rgba(0, 0, 0, 0.5)'
+                        }
+                    }
+                }
+            ]
+        });
+
+        const category_2 = echarts.init(document.getElementById("main_2"));
+        category_2.setOption({
+            title: {
+                text: 'Sku销量增减饼状图',
+                // subtext: 'Fake Data',
+                left: 'center'
+            },
+            tooltip: {
+                trigger: 'item'
+            },
+            legend: {
+                orient: 'vertical',
+                left: 'left'
+            },
+            series: [
+                {
+                    type: 'pie',
+                    data: {$growth_num},
+                    label: {
+                        normal: {
+                            show: true,
+                            position: 'inner', // 数值显示在内部
+                            formatter: function (c) {
+                                return moneyFormat(c.value, 0);
+                            }
+                        },
+                    },
+                    emphasis: {
+                        itemStyle: {
+                            shadowBlur: 10,
+                            shadowOffsetX: 0,
+                            shadowColor: 'rgba(0, 0, 0, 0.5)'
+                        }
+                    }
+                }
+            ]
         });
 
         $(".sku-item").click(function(){

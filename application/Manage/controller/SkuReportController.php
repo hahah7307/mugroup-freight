@@ -1161,6 +1161,115 @@ ORDER BY
         ');
         $this->assign('saleList', $saleList);
 
+        $is_growth = $model->query('
+SELECT
+	is_growth name,
+	COUNT( is_growth ) value 
+FROM
+	(
+	SELECT
+		warehouseSku,
+		SUM( current ) current,
+		SUM( last ) last,
+	IF
+		( SUM( current ) > SUM( last ), "增", "减" ) is_growth,
+		SUM( current ) - SUM( last ) growth_num 
+	FROM
+		(
+		SELECT
+			b.warehouseSku,
+			SUM( b.qty ) current,
+			0 AS last 
+		FROM
+			mu_ecang_order a
+			LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id
+			LEFT JOIN mu_ecang_product c ON b.warehouseSku = c.productSku 
+		WHERE
+			a.dateWarehouseShipping >= "' . $start . '" 
+			AND a.dateWarehouseShipping < "' . $end . '" 
+			AND a.`status` = 4 
+			AND c.saleStatus = 2 
+		GROUP BY
+			warehouseSku UNION ALL
+		SELECT
+			b.warehouseSku,
+			0 AS current,
+			SUM( b.qty ) last 
+		FROM
+			mu_ecang_order a
+			LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id
+			LEFT JOIN mu_ecang_product c ON b.warehouseSku = c.productSku 
+		WHERE
+			a.dateWarehouseShipping >= "' . $last_start . '" 
+			AND a.dateWarehouseShipping < "' . $last_end . '" 
+			AND a.`status` = 4 
+			AND c.saleStatus = 2 
+		GROUP BY
+			warehouseSku 
+		) a 
+	GROUP BY
+		warehouseSku 
+	) a 
+GROUP BY
+	is_growth;
+        ');
+        $this->assign('is_growth', json_encode($is_growth));
+
+        $growth_num = $model->query('
+SELECT
+	is_growth name,
+	IF
+	( SUM( growth_num ) < 0, - SUM( growth_num ), SUM( growth_num ) ) `value` 
+FROM
+	(
+	SELECT
+		warehouseSku,
+		SUM( current ) current,
+		SUM( last ) last,
+	IF
+		( SUM( current ) > SUM( last ), "增", "减" ) is_growth,
+		SUM( current ) - SUM( last ) growth_num 
+	FROM
+		(
+		SELECT
+			b.warehouseSku,
+			SUM( b.qty ) current,
+			0 AS last 
+		FROM
+			mu_ecang_order a
+			LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id
+			LEFT JOIN mu_ecang_product c ON b.warehouseSku = c.productSku 
+		WHERE
+			a.dateWarehouseShipping >= "' . $start . '" 
+			AND a.dateWarehouseShipping < "' . $end . '" 
+			AND a.`status` = 4 
+			AND c.saleStatus = 2 
+		GROUP BY
+			warehouseSku UNION ALL
+		SELECT
+			b.warehouseSku,
+			0 AS current,
+			SUM( b.qty ) last 
+		FROM
+			mu_ecang_order a
+			LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id
+			LEFT JOIN mu_ecang_product c ON b.warehouseSku = c.productSku 
+		WHERE
+			a.dateWarehouseShipping >= "' . $last_start . '" 
+			AND a.dateWarehouseShipping < "' . $last_end . '" 
+			AND a.`status` = 4 
+			AND c.saleStatus = 2 
+		GROUP BY
+			warehouseSku 
+		) a 
+	GROUP BY
+		warehouseSku 
+	) a 
+GROUP BY
+	is_growth;        
+        ');
+        $this->assign('growth_num', json_encode($growth_num));
+
         Session::set(Config::get('BACK_URL'), $this->request->url(), 'manage');
         return view();
     }
@@ -1361,6 +1470,119 @@ ORDER BY
 	' . $week_diff . ' ' . $week_order . ';
         ');
         $this->assign('weekList', $weekList);
+
+        $is_growth = $model->query('
+SELECT
+	is_growth name,
+	COUNT( is_growth ) value 
+FROM
+	(
+	SELECT
+		warehouseSku,
+		SUM( current ) current,
+		SUM( last ) last,
+	IF
+		( SUM( current ) > SUM( last ), "增", "减" ) is_growth,
+		SUM( current ) - SUM( last ) growth_num 
+	FROM
+		(
+		SELECT
+			b.warehouseSku,
+			SUM( b.qty ) current,
+			0 AS last 
+		FROM
+			mu_ecang_order a
+			LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id
+			LEFT JOIN mu_ecang_product c ON b.warehouseSku = c.productSku 
+		WHERE
+			a.dateWarehouseShipping >= "' . $start . '" 
+			AND a.dateWarehouseShipping < "' . $end . '" 
+			AND a.`status` = 4 
+			AND c.saleStatus = 2 
+			AND a.platform = "wayfairnew"
+		GROUP BY
+			warehouseSku UNION ALL
+		SELECT
+			b.warehouseSku,
+			0 AS current,
+			SUM( b.qty ) last 
+		FROM
+			mu_ecang_order a
+			LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id
+			LEFT JOIN mu_ecang_product c ON b.warehouseSku = c.productSku 
+		WHERE
+			a.dateWarehouseShipping >= "' . $last_start . '" 
+			AND a.dateWarehouseShipping < "' . $last_end . '" 
+			AND a.`status` = 4 
+			AND c.saleStatus = 2 
+			AND a.platform = "wayfairnew"
+		GROUP BY
+			warehouseSku 
+		) a 
+	GROUP BY
+		warehouseSku 
+	) a 
+GROUP BY
+	is_growth;
+        ');
+        $this->assign('is_growth', json_encode($is_growth));
+
+        $growth_num = $model->query('
+SELECT
+	is_growth name,
+	IF
+	( SUM( growth_num ) < 0, - SUM( growth_num ), SUM( growth_num ) ) `value` 
+FROM
+	(
+	SELECT
+		warehouseSku,
+		SUM( current ) current,
+		SUM( last ) last,
+	IF
+		( SUM( current ) > SUM( last ), "增", "减" ) is_growth,
+		SUM( current ) - SUM( last ) growth_num 
+	FROM
+		(
+		SELECT
+			b.warehouseSku,
+			SUM( b.qty ) current,
+			0 AS last 
+		FROM
+			mu_ecang_order a
+			LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id
+			LEFT JOIN mu_ecang_product c ON b.warehouseSku = c.productSku 
+		WHERE
+			a.dateWarehouseShipping >= "' . $start . '" 
+			AND a.dateWarehouseShipping < "' . $end . '" 
+			AND a.`status` = 4 
+			AND c.saleStatus = 2 
+			AND a.platform = "wayfairnew"
+		GROUP BY
+			warehouseSku UNION ALL
+		SELECT
+			b.warehouseSku,
+			0 AS current,
+			SUM( b.qty ) last 
+		FROM
+			mu_ecang_order a
+			LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id
+			LEFT JOIN mu_ecang_product c ON b.warehouseSku = c.productSku 
+		WHERE
+			a.dateWarehouseShipping >= "' . $last_start . '" 
+			AND a.dateWarehouseShipping < "' . $last_end . '" 
+			AND a.`status` = 4 
+			AND c.saleStatus = 2 
+			AND a.platform = "wayfairnew"
+		GROUP BY
+			warehouseSku 
+		) a 
+	GROUP BY
+		warehouseSku 
+	) a 
+GROUP BY
+	is_growth;        
+        ');
+        $this->assign('growth_num', json_encode($growth_num));
 
         Session::set(Config::get('BACK_URL'), $this->request->url(), 'manage');
         return view();
