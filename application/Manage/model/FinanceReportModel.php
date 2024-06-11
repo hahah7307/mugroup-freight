@@ -1518,7 +1518,7 @@ FROM
 				FROM
 					(
 					SELECT DISTINCT
-						sku,
+						main_sku sku,
 						SUM( total ) total 
 					FROM
 						mu_finance_warehouse 
@@ -1527,7 +1527,7 @@ FROM
 						AND total > 0 
 						AND report_id = ' . $report_id . ' 
 					GROUP BY
-						sku 
+						main_sku 
 					) a
 					LEFT JOIN mu_ecang_sku_relation b ON a.sku = b.pcr_product_sku
 					LEFT JOIN mu_ecang_sku c ON b.sku_id = c.id
@@ -1541,13 +1541,12 @@ FROM
 					sku,
 					COUNT( sku ) qty 
 				FROM
-					( SELECT DISTINCT sku FROM mu_finance_warehouse WHERE is_sale = 0 AND total > 0 AND report_id = ' . $report_id . ' ) a
+					( SELECT DISTINCT main_sku sku FROM mu_finance_warehouse WHERE is_sale = 0 AND total > 0 AND report_id = ' . $report_id . ' ) a
 					LEFT JOIN mu_ecang_sku_relation b ON a.sku = b.pcr_product_sku
 					LEFT JOIN mu_ecang_sku c ON b.sku_id = c.id
 					LEFT JOIN mu_finance_table d ON c.user_account = d.userAccount 
 				WHERE
-					platform = "amazon" 
-					AND d.rid = ' . $report_id . ' 
+					d.rid = ' . $report_id . ' 
 				GROUP BY
 					sku 
 				) b ON a.sku = b.sku 
