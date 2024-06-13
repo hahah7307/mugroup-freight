@@ -271,8 +271,8 @@ FROM
 			LEFT JOIN mu_finance_table b ON a.table_id = b.id 
 		WHERE
 			report_id = ' . $report_id . ' 
-			AND description LIKE "%Coupon Redemption Fee%" 
-			OR description LIKE "%Vine Enrollment Fee%" UNION ALL
+			AND (description LIKE "%Coupon Redemption Fee%" 
+			OR description LIKE "%Vine Enrollment Fee%") UNION ALL
 		SELECT
 			b.platform,
 			b.userAccount,
@@ -836,6 +836,7 @@ FROM
 					AND b.platform = "amazon" 
 				) a
 				LEFT JOIN mu_finance_order_outbound b ON b.payment_id = a.payment_id
+				     AND b.report_id = ' . $report_id . ' 
 				LEFT JOIN mu_finance_store c ON b.store_id = c.id
 				LEFT JOIN mu_finance_report d ON b.report_id = d.id UNION ALL
 			SELECT
@@ -1130,6 +1131,7 @@ FROM
 		WHERE
 			d.fulfillmentType = 1 
 			AND a.report_id = ' . $report_id . '
+			AND b.platform = "amazon"
 		) a 
 	GROUP BY
 		platform,
@@ -1287,8 +1289,8 @@ FROM
 				WHERE
 					report_id = ' . $report_id . ' 
 					AND b.platform = "amazon" 
-					AND a.fulfillment = "Seller" 
-					OR a.fulfillment IS NULL 
+					AND (a.fulfillment = "Seller" 
+					OR a.fulfillment IS NULL)
 				) a
 				LEFT JOIN mu_finance_order_statistics b ON a.payment_id = b.payment_id
 				LEFT JOIN mu_ecang_order c ON b.saleOrderCode = c.saleOrderCode UNION ALL
@@ -1330,8 +1332,8 @@ FROM
 					report_id = ' . $report_id . ' 
 					AND b.platform = "amazon" 
 					AND b.country = "EUROPE"
-					AND a.fulfillment = "Seller" 
-					OR a.fulfillment IS NULL 
+					AND (a.fulfillment = "Seller" 
+					OR a.fulfillment IS NULL) 
 				) a
 				LEFT JOIN mu_finance_order_statistics b ON a.payment_id = b.payment_id
 				LEFT JOIN mu_ecang_order c ON b.saleOrderCode = c.saleOrderCode UNION ALL
@@ -1372,10 +1374,11 @@ FROM
 				WHERE
 					report_id = ' . $report_id . '
 					AND b.platform = "amazon" 
-					AND a.fulfillment = "Seller" 
-					OR a.fulfillment IS NULL 
+					AND (a.fulfillment = "Seller" 
+					OR a.fulfillment IS NULL)
 				) a
 				LEFT JOIN mu_finance_order_outbound b ON b.payment_id = a.payment_id
+				     AND b.report_id = ' . $report_id . ' 
 				LEFT JOIN mu_finance_store c ON b.store_id = c.id
 				LEFT JOIN mu_finance_report d ON b.report_id = d.id UNION ALL
 			SELECT
@@ -1411,8 +1414,8 @@ FROM
 			WHERE
 				report_id = ' . $report_id . '  
 				AND b.platform = "amazon"
-				AND a.fulfillment = "Seller" 
-				OR a.fulfillment IS NULL UNION ALL
+				AND (a.fulfillment = "Seller" 
+				OR a.fulfillment IS NULL) UNION ALL
 			SELECT
 				"amazon" AS platform,
 				userAccount userAccount,
@@ -1735,6 +1738,7 @@ FROM
 		WHERE
 			d.fulfillmentType = 0 
 			AND a.report_id = ' . $report_id . ' 
+			AND b.platform = "amazon"
 		) a 
 	GROUP BY
 		platform,

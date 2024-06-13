@@ -760,7 +760,7 @@ class FinanceController extends BaseController
         // 订单列表
         $order = new FinanceOrderOutboundModel();
         $where['report_id'] = $id;
-        $list = $order->with(['store'])->where($where)->order('id asc')->paginate($page_num, false, ['query' => ['keyword' => $keyword, 'page_num' => $page_num]]);
+        $list = $order->with(['store', 'saleOrderCode'])->where($where)->order('id asc')->paginate($page_num, false, ['query' => ['keyword' => $keyword, 'page_num' => $page_num]]);
         $this->assign('list', $list);
 
         return view();
