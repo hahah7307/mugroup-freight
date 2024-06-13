@@ -160,6 +160,7 @@
                 orient: 'vertical',
                 left: 'left'
             },
+            color: ['#FF6347', '#0000CD', '#90EE90'],
             series: [
                 {
                     type: 'pie',
@@ -198,6 +199,7 @@
                 orient: 'vertical',
                 left: 'left'
             },
+            color: ['#FF6347', '#0000CD'],
             series: [
                 {
                     type: 'pie',

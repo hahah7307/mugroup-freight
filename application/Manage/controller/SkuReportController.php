@@ -1128,8 +1128,8 @@ FROM
 		LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id
 		LEFT JOIN mu_ecang_product c ON b.warehouseSku = c.productSku 
 	WHERE
-		a.dateWarehouseShipping >= "' . $start . '" 
-		AND a.dateWarehouseShipping < "' . $end . '" 
+		a.datePaidPlatform >= "' . $start . '" 
+		AND a.datePaidPlatform < "' . $end . '" 
 		AND c.saleStatus = 2 
 		AND a.`status` = 4
 	GROUP BY
@@ -1145,8 +1145,8 @@ FROM
 		LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id
 		LEFT JOIN mu_ecang_product c ON b.warehouseSku = c.productSku 
 	WHERE
-		a.dateWarehouseShipping >= "' . $last_start . '" 
-		AND a.dateWarehouseShipping < "' . $last_end . '" 
+		a.datePaidPlatform >= "' . $last_start . '" 
+		AND a.datePaidPlatform < "' . $last_end . '" 
 		AND c.saleStatus = 2 
 		AND a.`status` = 4
 	GROUP BY
@@ -1189,8 +1189,8 @@ FROM
 			LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id
 			LEFT JOIN mu_ecang_product c ON b.warehouseSku = c.productSku 
 		WHERE
-			a.dateWarehouseShipping >= "' . $start . '" 
-			AND a.dateWarehouseShipping < "' . $end . '" 
+			a.datePaidPlatform >= "' . $start . '" 
+			AND a.datePaidPlatform < "' . $end . '" 
 			AND a.`status` = 4 
 			AND c.saleStatus = 2 
 		GROUP BY
@@ -1204,8 +1204,8 @@ FROM
 			LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id
 			LEFT JOIN mu_ecang_product c ON b.warehouseSku = c.productSku 
 		WHERE
-			a.dateWarehouseShipping >= "' . $last_start . '" 
-			AND a.dateWarehouseShipping < "' . $last_end . '" 
+			a.datePaidPlatform >= "' . $last_start . '" 
+			AND a.datePaidPlatform < "' . $last_end . '" 
 			AND a.`status` = 4 
 			AND c.saleStatus = 2 
 		GROUP BY
@@ -1215,7 +1215,9 @@ FROM
 		warehouseSku 
 	) a 
 GROUP BY
-	is_growth;
+	is_growth
+ORDER BY
+	`name`;
         ');
         $this->assign('is_growth', json_encode($is_growth));
 
@@ -1231,7 +1233,7 @@ FROM
 		SUM( current ) current,
 		SUM( last ) last,
 	IF
-		( SUM( current ) > SUM( last ), "增(销售)", "减(销售)" ) is_growth,
+		( SUM( current ) > SUM( last ), "增(销量)", "减(销量)" ) is_growth,
 		SUM( current ) - SUM( last ) growth_num 
 	FROM
 		(
@@ -1244,8 +1246,8 @@ FROM
 			LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id
 			LEFT JOIN mu_ecang_product c ON b.warehouseSku = c.productSku 
 		WHERE
-			a.dateWarehouseShipping >= "' . $start . '" 
-			AND a.dateWarehouseShipping < "' . $end . '" 
+			a.datePaidPlatform >= "' . $start . '" 
+			AND a.datePaidPlatform < "' . $end . '" 
 			AND a.`status` = 4 
 			AND c.saleStatus = 2 
 		GROUP BY
@@ -1259,8 +1261,8 @@ FROM
 			LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id
 			LEFT JOIN mu_ecang_product c ON b.warehouseSku = c.productSku 
 		WHERE
-			a.dateWarehouseShipping >= "' . $last_start . '" 
-			AND a.dateWarehouseShipping < "' . $last_end . '" 
+			a.datePaidPlatform >= "' . $last_start . '" 
+			AND a.datePaidPlatform < "' . $last_end . '" 
 			AND a.`status` = 4 
 			AND c.saleStatus = 2 
 		GROUP BY
@@ -1270,7 +1272,9 @@ FROM
 		warehouseSku 
 	) a 
 GROUP BY
-	is_growth;        
+	is_growth
+ORDER BY
+	`name`;        
         ');
         $this->assign('growth_num', json_encode($growth_num));
 
@@ -1330,8 +1334,8 @@ FROM
 		LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id
 		LEFT JOIN mu_ecang_product c ON b.warehouseSku = c.productSku 
 	WHERE
-		a.dateWarehouseShipping >= "' . $start . '" 
-		AND a.dateWarehouseShipping < "' . $end . '" 
+		a.datePaidPlatform >= "' . $start . '" 
+		AND a.datePaidPlatform < "' . $end . '" 
 		AND a.platform = "wayfairnew" 
 		AND c.saleStatus = 2 
 		AND a.`status` = 4
@@ -1348,8 +1352,8 @@ FROM
 		LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id
 		LEFT JOIN mu_ecang_product c ON b.warehouseSku = c.productSku 
 	WHERE
-		a.dateWarehouseShipping >= "' . $last_start . '" 
-		AND a.dateWarehouseShipping < "' . $last_end . '" 
+		a.datePaidPlatform >= "' . $last_start . '" 
+		AND a.datePaidPlatform < "' . $last_end . '" 
 		AND a.platform = "wayfairnew" 
 		AND c.saleStatus = 2 
 		AND a.`status` = 4
@@ -1385,8 +1389,8 @@ FROM
 		LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id
 		LEFT JOIN mu_ecang_product c ON b.warehouseSku = c.productSku 
 	WHERE
-		a.dateWarehouseShipping >= "' . $start . '" 
-		AND a.dateWarehouseShipping < "' . $end . '" 
+		a.datePaidPlatform >= "' . $start . '" 
+		AND a.datePaidPlatform < "' . $end . '" 
 		AND a.platform = "wayfairnew" 
 		AND c.saleStatus = 2 
 		AND a.`status` = 4
@@ -1403,8 +1407,8 @@ FROM
 		LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id
 		LEFT JOIN mu_ecang_product c ON b.warehouseSku = c.productSku 
 	WHERE
-		a.dateWarehouseShipping >= "' . $last2_start . '" 
-		AND a.dateWarehouseShipping < "' . $last2_end . '" 
+		a.datePaidPlatform >= "' . $last2_start . '" 
+		AND a.datePaidPlatform < "' . $last2_end . '" 
 		AND a.platform = "wayfairnew" 
 		AND c.saleStatus = 2 
 		AND a.`status` = 4
@@ -1440,8 +1444,8 @@ FROM
 		LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id
 		LEFT JOIN mu_ecang_product c ON b.warehouseSku = c.productSku 
 	WHERE
-		a.dateWarehouseShipping >= "' . $last_week . '" 
-		AND a.dateWarehouseShipping < "' . $end . '" 
+		a.datePaidPlatform >= "' . $last_week . '" 
+		AND a.datePaidPlatform < "' . $end . '" 
 		AND a.platform = "wayfairnew" 
 		AND c.saleStatus = 2 
 		AND a.`status` = 4
@@ -1458,8 +1462,8 @@ FROM
 		LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id
 		LEFT JOIN mu_ecang_product c ON b.warehouseSku = c.productSku 
 	WHERE
-		a.dateWarehouseShipping >= "' . $last2_week . '" 
-		AND a.dateWarehouseShipping < "' . $last_week . '" 
+		a.datePaidPlatform >= "' . $last2_week . '" 
+		AND a.datePaidPlatform < "' . $last_week . '" 
 		AND a.platform = "wayfairnew" 
 		AND c.saleStatus = 2 
 		AND a.`status` = 4
@@ -1503,8 +1507,8 @@ FROM
 			LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id
 			LEFT JOIN mu_ecang_product c ON b.warehouseSku = c.productSku 
 		WHERE
-			a.dateWarehouseShipping >= "' . $start . '" 
-			AND a.dateWarehouseShipping < "' . $end . '" 
+			a.datePaidPlatform >= "' . $start . '" 
+			AND a.datePaidPlatform < "' . $end . '" 
 			AND a.`status` = 4 
 			AND c.saleStatus = 2 
 			AND a.platform = "wayfairnew"
@@ -1519,8 +1523,8 @@ FROM
 			LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id
 			LEFT JOIN mu_ecang_product c ON b.warehouseSku = c.productSku 
 		WHERE
-			a.dateWarehouseShipping >= "' . $last_start . '" 
-			AND a.dateWarehouseShipping < "' . $last_end . '" 
+			a.datePaidPlatform >= "' . $last_start . '" 
+			AND a.datePaidPlatform < "' . $last_end . '" 
 			AND a.`status` = 4 
 			AND c.saleStatus = 2 
 			AND a.platform = "wayfairnew"
@@ -1531,7 +1535,9 @@ FROM
 		warehouseSku 
 	) a 
 GROUP BY
-	is_growth;
+	is_growth
+ORDER BY
+	`name`;
         ');
         $this->assign('is_growth', json_encode($is_growth));
 
@@ -1547,7 +1553,7 @@ FROM
 		SUM( current ) current,
 		SUM( last ) last,
 	IF
-		( SUM( current ) > SUM( last ), "增(销售)", "减(销售)" ) is_growth,
+		( SUM( current ) > SUM( last ), "增(销量)", "减(销量)" ) is_growth,
 		SUM( current ) - SUM( last ) growth_num 
 	FROM
 		(
@@ -1560,8 +1566,8 @@ FROM
 			LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id
 			LEFT JOIN mu_ecang_product c ON b.warehouseSku = c.productSku 
 		WHERE
-			a.dateWarehouseShipping >= "' . $start . '" 
-			AND a.dateWarehouseShipping < "' . $end . '" 
+			a.datePaidPlatform >= "' . $start . '" 
+			AND a.datePaidPlatform < "' . $end . '" 
 			AND a.`status` = 4 
 			AND c.saleStatus = 2 
 			AND a.platform = "wayfairnew"
@@ -1576,8 +1582,8 @@ FROM
 			LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id
 			LEFT JOIN mu_ecang_product c ON b.warehouseSku = c.productSku 
 		WHERE
-			a.dateWarehouseShipping >= "' . $last_start . '" 
-			AND a.dateWarehouseShipping < "' . $last_end . '" 
+			a.datePaidPlatform >= "' . $last_start . '" 
+			AND a.datePaidPlatform < "' . $last_end . '" 
 			AND a.`status` = 4 
 			AND c.saleStatus = 2 
 			AND a.platform = "wayfairnew"
@@ -1588,7 +1594,9 @@ FROM
 		warehouseSku 
 	) a 
 GROUP BY
-	is_growth;        
+	is_growth
+ORDER BY
+	`name`;        
         ');
         $this->assign('growth_num', json_encode($growth_num));
 
