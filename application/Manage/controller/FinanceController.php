@@ -483,6 +483,7 @@ class FinanceController extends BaseController
                 'rid'           =>  $rid,
                 'table_name'    =>  $origin,
                 'platform'      =>  $payment_type_new,
+                'country'       =>  strpos($payment_type, 'amazon') !== false && $payment_type == 'amazon_us' ? 'US' : 'EUROPE',
                 'created_at'    =>  date('Y-m-d H:i:s')
             ];
             $financeTableObj = new FinanceTableModel();
