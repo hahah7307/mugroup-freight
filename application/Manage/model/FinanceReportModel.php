@@ -626,6 +626,7 @@ SELECT
 	SUM( fba_sale_qty ) fba_sale_qty,
 	SUM( fba_refund_qty ) fba_refund_qty,
 	SUM( ROUND( fba_sale_amount, 7 ) ) fba_sale_amount,
+	SUM( ROUND( fba_sale_tax, 7 ) ) fba_sale_tax,
 	SUM( ROUND( fba_refund_amount, 7 ) ) fba_refund_amount,
 	SUM( ROUND( fba_sale_selling_fees, 7 ) ) fba_sale_selling_fees,
 	SUM( ROUND( fba_refund_selling_fees, 7 ) ) fba_refund_selling_fees,
@@ -673,6 +674,7 @@ FROM
 		SUM( fba_sale_qty ) fba_sale_qty,
 		SUM( fba_refund_qty ) * - 1 fba_refund_qty,
 		SUM( ROUND( fba_sale_amount, 7 ) ) fba_sale_amount,
+		SUM( ROUND( fba_sale_tax, 7 ) ) fba_sale_tax,
 		SUM( ROUND( fba_refund_amount, 7 ) ) fba_refund_amount,
 		SUM( ROUND( fba_sale_selling_fees, 7 ) ) * - 1 fba_sale_selling_fees,
 		SUM( ROUND( fba_refund_selling_fees, 7 ) ) fba_refund_selling_fees,
@@ -696,6 +698,7 @@ FROM
 			SUM( fba_sale_qty ) fba_sale_qty,
 			SUM( fba_refund_qty ) fba_refund_qty,
 			SUM( ROUND( fba_sale_amount, 7 ) ) fba_sale_amount,
+			SUM( ROUND( fba_sale_tax, 7 ) ) fba_sale_tax,
 			SUM( ROUND( fba_refund_amount, 7 ) ) fba_refund_amount,
 			SUM( ROUND( fba_sale_selling_fees, 7 ) ) fba_sale_selling_fees,
 			SUM( ROUND( fba_refund_selling_fees, 7 ) ) fba_refund_selling_fees,
@@ -723,6 +726,7 @@ FROM
 				b.qty fba_sale_qty,
 				NULL AS fba_refund_qty,
 				ROUND( b.sale_amount, 7 ) fba_sale_amount,
+				NULL AS fba_sale_tax,
 				NULL AS fba_refund_amount,
 				ROUND( b.selling_fee, 7 ) fba_sale_selling_fees,
 				NULL AS fba_refund_selling_fees,
@@ -750,8 +754,7 @@ FROM
 					AND a.fulfillment = "Amazon" 
 					AND b.platform = "amazon" 
 				) a
-				LEFT JOIN mu_finance_order_statistics b ON a.payment_id = b.payment_id
-				LEFT JOIN mu_ecang_order c ON b.saleOrderCode = c.saleOrderCode UNION ALL
+				LEFT JOIN mu_finance_order_statistics b ON a.payment_id = b.payment_id UNION ALL
 			SELECT
 				a.platform,
 				a.userAccount,
@@ -763,6 +766,48 @@ FROM
 				NULL AS fba_sale_qty,
 				NULL AS fba_refund_qty,
 				NULL AS fba_sale_amount,
+				ROUND( b.tax, 7) fba_sale_tax,
+				NULL AS fba_refund_amount,
+				NULL AS fba_sale_selling_fees,
+				NULL AS fba_refund_selling_fees,
+				NULL AS fba_fees,
+				NULL AS fba_refund_fees,
+				NULL AS fba_ddp,
+				NULL AS adCost,
+				NULL AS fba_inventory,
+				NULL AS adjustment,
+				NULL AS liquidation,
+				NULL AS promotion,
+				NULL AS shipping_service 
+			FROM
+				(
+				SELECT DISTINCT
+					report_id,
+					payment_id,
+					platform,
+					userAccount
+				FROM
+					mu_finance_order_sale a
+					LEFT JOIN mu_finance_table b ON a.table_id = b.id 
+				WHERE
+					report_id = ' . $report_id . '
+					AND a.fulfillment = "Amazon" 
+					AND b.platform = "amazon" 
+					AND b.country = "EUROPE"
+				) a
+				LEFT JOIN mu_finance_order_statistics b ON a.payment_id = b.payment_id UNION ALL
+			SELECT
+				a.platform,
+				a.userAccount,
+				a.payment_id payment,
+				b.payment_id,
+				b.saleOrderCode,
+				b.seller_sku,
+				b.warehouse_sku,
+				NULL AS fba_sale_qty,
+				NULL AS fba_refund_qty,
+				NULL AS fba_sale_amount,
+				NULL AS fba_sale_tax,
 				NULL AS fba_refund_amount,
 				NULL AS fba_sale_selling_fees,
 				NULL AS fba_refund_selling_fees,
@@ -804,6 +849,7 @@ FROM
 				NULL AS fba_sale_qty,
 				a.quantity * d.pcr_quantity fba_refund_qty,
 				NULL AS fba_sale_amount,
+				NULL AS fba_sale_tax,
 				ROUND( ( product_sales + shipping_credits + gift_wrap_credits + regulatory_fee + promotional_rebates ) * d.pcr_percent * d.pcr_quantity / 100, 7 ) fba_refund_amount,
 				NULL AS fba_sale_selling_fees,
 				ROUND( selling_fees * d.pcr_percent * d.pcr_quantity / 100, 7 ) fba_refund_selling_fees,
@@ -837,6 +883,7 @@ FROM
 				NULL AS fba_sale_qty,
 				NULL AS fba_refund_qty,
 				NULL AS fba_sale_amount,
+				NULL AS fba_sale_tax,
 				NULL AS fba_refund_amount,
 				NULL AS fba_sale_selling_fees,
 				NULL AS fba_refund_selling_fees,
@@ -868,6 +915,7 @@ FROM
 				NULL AS fba_sale_qty,
 				NULL AS fba_refund_qty,
 				NULL AS fba_sale_amount,
+				NULL AS fba_sale_tax,
 				NULL AS fba_refund_amount,
 				NULL AS fba_sale_selling_fees,
 				NULL AS fba_refund_selling_fees,
@@ -899,6 +947,7 @@ FROM
 				NULL AS fba_sale_qty,
 				NULL AS fba_refund_qty,
 				NULL AS fba_sale_amount,
+				NULL AS fba_sale_tax,
 				NULL AS fba_refund_amount,
 				NULL AS fba_sale_selling_fees,
 				NULL AS fba_refund_selling_fees,
@@ -930,6 +979,7 @@ FROM
 				NULL AS fba_sale_qty,
 				NULL AS fba_refund_qty,
 				NULL AS fba_sale_amount,
+				NULL AS fba_sale_tax,
 				NULL AS fba_refund_amount,
 				NULL AS fba_sale_selling_fees,
 				NULL AS fba_refund_selling_fees,
@@ -983,6 +1033,7 @@ FROM
 			NULL AS fba_sale_qty,
 			NULL AS fba_refund_qty,
 			NULL AS fba_sale_amount,
+            NULL AS fba_sale_tax,
 			NULL AS fba_refund_amount,
 			NULL AS fba_sale_selling_fees,
 			NULL AS fba_refund_selling_fees,
@@ -1018,6 +1069,7 @@ FROM
 			NULL AS fba_sale_qty,
 			NULL AS fba_refund_qty,
 			NULL AS fba_sale_amount,
+            NULL AS fba_sale_tax,
 			NULL AS fba_refund_amount,
 			NULL AS fba_sale_selling_fees,
 			NULL AS fba_refund_selling_fees,
@@ -1055,6 +1107,7 @@ FROM
 			NULL AS fba_sale_qty,
 			NULL AS fba_refund_qty,
 			NULL AS fba_sale_amount,
+            NULL AS fba_sale_tax,
 			NULL AS fba_refund_amount,
 			NULL AS fba_sale_selling_fees,
 			NULL AS fba_refund_selling_fees,
@@ -1105,6 +1158,7 @@ SELECT
 	SUM( fbm_sale_qty ) fbm_sale_qty,
 	SUM( fbm_refund_qty ) fbm_refund_qty,
 	SUM( ROUND( fbm_sale_amount, 7 ) ) fbm_sale_amount,
+	SUM( ROUND( fbm_sale_tax, 7 ) ) fbm_sale_tax,
 	SUM( ROUND( fbm_refund_amount, 7 ) ) fbm_refund_amount,
 	SUM( ROUND( fbm_sale_selling_fees, 7 ) ) fbm_sale_selling_fees,
 	SUM( ROUND( fbm_refund_selling_fees, 7 ) ) fbm_refund_selling_fees,
@@ -1153,6 +1207,7 @@ FROM
 		SUM( fbm_sale_qty ) fbm_sale_qty,
 		SUM( fbm_refund_qty ) fbm_refund_qty,
 		SUM( ROUND( fbm_sale_amount, 7 ) ) fbm_sale_amount,
+		SUM( ROUND( fbm_sale_tax, 7 ) ) fbm_sale_tax,
 		SUM( ROUND( fbm_refund_amount, 7 ) ) fbm_refund_amount,
 		SUM( ROUND( fbm_sale_selling_fees, 7 ) ) fbm_sale_selling_fees,
 		SUM( ROUND( fbm_refund_selling_fees, 7 ) ) fbm_refund_selling_fees,
@@ -1177,6 +1232,7 @@ FROM
 			SUM( fbm_sale_qty ) fbm_sale_qty,
 			SUM( fbm_refund_qty ) * - 1 fbm_refund_qty,
 			SUM( ROUND( fbm_sale_amount, 7 ) ) fbm_sale_amount,
+			SUM( ROUND( fbm_sale_tax, 7 ) ) fbm_sale_tax,
 			SUM( ROUND( fbm_refund_amount, 7 ) ) fbm_refund_amount,
 			SUM( ROUND( fbm_sale_selling_fees, 7 ) ) * - 1 fbm_sale_selling_fees,
 			SUM( ROUND( fbm_refund_selling_fees, 7 ) ) fbm_refund_selling_fees,
@@ -1205,6 +1261,7 @@ FROM
 				b.qty fbm_sale_qty,
 				NULL AS fbm_refund_qty,
 				ROUND( b.sale_amount, 7 ) fbm_sale_amount,
+				NULL AS fbm_sale_tax,
 				NULL AS fbm_refund_amount,
 				ROUND( b.selling_fee, 7 ) fbm_sale_selling_fees,
 				NULL AS fbm_refund_selling_fees,
@@ -1246,6 +1303,50 @@ FROM
 				NULL AS fbm_sale_qty,
 				NULL AS fbm_refund_qty,
 				NULL AS fbm_sale_amount,
+				ROUND( b.tax, 7) fbm_sale_tax,
+				NULL AS fbm_refund_amount,
+				NULL AS fbm_sale_selling_fees,
+				NULL AS fbm_refund_selling_fees,
+				NULL AS calcuRes,
+				NULL AS fbm_ddp,
+				NULL AS warehouse_rent,
+				NULL AS adjustment,
+				NULL AS liquidation,
+				NULL AS promotion,
+				NULL AS shipping_service,
+				NULL AS lc_adjustment,
+				NULL AS le_adjustment 
+			FROM
+				(
+				SELECT DISTINCT
+					report_id,
+					payment_id,
+					platform,
+					userAccount 
+				FROM
+					mu_finance_order_sale a
+					LEFT JOIN mu_finance_table b ON a.table_id = b.id 
+				WHERE
+					report_id = ' . $report_id . ' 
+					AND b.platform = "amazon" 
+					AND b.country = "EUROPE"
+					AND a.fulfillment = "Seller" 
+					OR a.fulfillment IS NULL 
+				) a
+				LEFT JOIN mu_finance_order_statistics b ON a.payment_id = b.payment_id
+				LEFT JOIN mu_ecang_order c ON b.saleOrderCode = c.saleOrderCode UNION ALL
+			SELECT
+				a.platform,
+				a.userAccount,
+				a.payment_id payment,
+				b.payment_id,
+				b.saleOrderCode,
+				b.seller_sku,
+				b.warehouse_sku,
+				NULL AS fbm_sale_qty,
+				NULL AS fbm_refund_qty,
+				NULL AS fbm_sale_amount,
+				NULL AS fbm_sale_tax,
 				NULL AS fbm_refund_amount,
 				NULL AS fbm_sale_selling_fees,
 				NULL AS fbm_refund_selling_fees,
@@ -1288,6 +1389,7 @@ FROM
 				NULL AS fbm_sale_qty,
 				a.quantity * d.pcr_quantity fbm_refund_qty,
 				NULL AS fbm_sale_amount,
+				NULL AS fbm_sale_tax,
 				ROUND( ( product_sales + shipping_credits + gift_wrap_credits + regulatory_fee + promotional_rebates ) * d.pcr_percent * d.pcr_quantity / 100, 7 ) fbm_refund_amount,
 				NULL AS fbm_sale_selling_fees,
 				ROUND( selling_fees * d.pcr_percent * d.pcr_quantity / 100, 7 ) fbm_refund_selling_fees,
@@ -1322,6 +1424,7 @@ FROM
 				NULL AS fbm_sale_qty,
 				NULL AS fbm_refund_qty,
 				NULL AS fbm_sale_amount,
+				NULL AS fbm_sale_tax,
 				NULL AS fbm_refund_amount,
 				NULL AS fbm_sale_selling_fees,
 				NULL AS fbm_refund_selling_fees,
@@ -1353,6 +1456,7 @@ FROM
 				NULL AS fbm_sale_qty,
 				NULL AS fbm_refund_qty,
 				NULL AS fbm_sale_amount,
+				NULL AS fbm_sale_tax,
 				NULL AS fbm_refund_amount,
 				NULL AS fbm_sale_selling_fees,
 				NULL AS fbm_refund_selling_fees,
@@ -1384,6 +1488,7 @@ FROM
 				NULL AS fbm_sale_qty,
 				NULL AS fbm_refund_qty,
 				NULL AS fbm_sale_amount,
+				NULL AS fbm_sale_tax,
 				NULL AS fbm_refund_amount,
 				NULL AS fbm_sale_selling_fees,
 				NULL AS fbm_refund_selling_fees,
@@ -1415,6 +1520,7 @@ FROM
 				NULL AS fbm_sale_qty,
 				NULL AS fbm_refund_qty,
 				NULL AS fbm_sale_amount,
+				NULL AS fbm_sale_tax,
 				NULL AS fbm_refund_amount,
 				NULL AS fbm_sale_selling_fees,
 				NULL AS fbm_refund_selling_fees,
@@ -1467,6 +1573,7 @@ FROM
 				NULL AS fbm_sale_qty,
 				NULL AS fbm_refund_qty,
 				NULL AS fbm_sale_amount,
+				NULL AS fbm_sale_tax,
 				NULL AS fbm_refund_amount,
 				NULL AS fbm_sale_selling_fees,
 				NULL AS fbm_refund_selling_fees,
@@ -1494,6 +1601,7 @@ FROM
 				NULL AS fbm_sale_qty,
 				NULL AS fbm_refund_qty,
 				NULL AS fbm_sale_amount,
+				NULL AS fbm_sale_tax,
 				NULL AS fbm_refund_amount,
 				NULL AS fbm_sale_selling_fees,
 				NULL AS fbm_refund_selling_fees,
@@ -1566,6 +1674,7 @@ FROM
 			NULL AS fbm_sale_qty,
 			NULL AS fbm_refund_qty,
 			NULL AS fbm_sale_amount,
+            NULL AS fbm_sale_tax,
 			NULL AS fbm_refund_amount,
 			NULL AS fbm_sale_selling_fees,
 			NULL AS fbm_refund_selling_fees,
@@ -1602,6 +1711,7 @@ FROM
 			NULL AS fbm_sale_qty,
 			NULL AS fbm_refund_qty,
 			NULL AS fbm_sale_amount,
+            NULL AS fbm_sale_tax,
 			NULL AS fbm_refund_amount,
 			NULL AS fbm_sale_selling_fees,
 			NULL AS fbm_refund_selling_fees,
