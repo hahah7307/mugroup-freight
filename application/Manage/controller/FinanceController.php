@@ -749,7 +749,7 @@ class FinanceController extends BaseController
         $keyword = $this->request->get('keyword', '', 'htmlspecialchars');
         $this->assign('keyword', $keyword);
         if ($keyword) {
-            $where['payment_id|saleOrderCode|id'] = ['like', '%' . $keyword . '%'];
+            $where['payment_id|saleOrderCode|id|warehouse_sku'] = ['like', '%' . $keyword . '%'];
         } else {
             $where = [];
         }
