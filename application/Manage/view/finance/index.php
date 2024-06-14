@@ -110,6 +110,9 @@
                 }
             }
             ,multiple: true
+            ,before: function (obj){
+                layer.load(1);
+            }
             ,done: function(res){
                 //上传完毕回调
                 console.log(res);

@@ -111,6 +111,9 @@
             ,url: '/Manage/upload/file_upload' //上传接口
             ,exts: 'xls|xlsx|csv'
             ,multiple: true
+            ,before: function (obj){
+                layer.load(1);
+            }
             ,done: function(res){
                 //上传完毕回调
                 if (res.code === 1) {
