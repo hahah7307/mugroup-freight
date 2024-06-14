@@ -4,17 +4,19 @@
 <!-- 主体内容 -->
 <div class="layui-body" id="LAY_app_body">
     <div class="right">
-        <a href="{:session('back_url', '', 'manage')}" class="layui-btn layui-btn-danger layui-btn-sm fr"><i class="layui-icon">&#xe603;</i>返回上一页</a>
         <div class="title">订单统计列表</div>
         <form class="layui-form search-form" method="get">
             <div class="layui-inline w200">
-                <input type="text" class="layui-input" name="keyword" value="{$keyword}" placeholder="SKU/外销合同/采购合同号">
+                <input type="text" class="layui-input" name="keyword" value="{$keyword}" placeholder="SKU/PAYMENT/参考号">
             </div>
             <div class="layui-inline w100">
                 <input type="text" class="layui-input" name="page_num" value="{$page_num}" placeholder="每页条数">
             </div>
             <div class="layui-inline">
                 <button class="layui-btn" lay-submit lay-filter="Search"><i class="layui-icon">&#xe615;</i> 查询</button>
+            </div>
+            <div class="layui-inline">
+                <a class="layui-btn layui-btn-normal" href="{:url('order_statistics')}"><i class="layui-icon">&#xe669;</i> 重置</a>
             </div>
         </form>
 
@@ -87,7 +89,7 @@
                     <td class="tr">{$v.fba_fee}</td>
                     <td class="tr">{$v.tax}</td>
                     <td class="tc">
-                        <a href="{:url('order_statistics_edit', ['id' => $v.id])}" class="layui-btn layui-btn-normal layui-btn-sm">编辑</a>
+                        <a href="{:url('order_statistics_edit', ['id' => $v.id])}" class="layui-btn layui-btn-normal layui-btn-sm">修正</a>
                     </td>
                 </tr>
                 {/foreach}
