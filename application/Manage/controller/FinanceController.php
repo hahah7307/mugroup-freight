@@ -22,6 +22,7 @@ use app\Manage\model\FinanceReportModel;
 use app\Manage\model\FinanceStoreModel;
 use app\Manage\model\FinanceTableModel;
 use app\Manage\model\FinanceWarehouseModel;
+use app\Manage\validate\FinanceOrderStatisticsValidate;
 use app\Manage\validate\FinanceReportValidate;
 use app\Manage\validate\FinanceTableValidate;
 use PHPExcel;
@@ -957,7 +958,38 @@ ORDER BY
         $list = $order->where($where)->order('id asc')->paginate($page_num, false, ['query' => ['keyword' => $keyword]]);
         $this->assign('list', $list);
 
+        Session::set(Config::get('BACK_URL'), $this->request->url(), 'manage');
+
         return view();
+    }
+
+    /**
+     * @throws DbException
+     */
+    public function order_statistics_edit($id)
+    {
+        if ($this->request->isPost()) {
+            $post = $this->request->post();
+            $dataValidate = new FinanceOrderStatisticsValidate();
+            if ($dataValidate->scene('edit')->check($post)) {
+                $model = new FinanceOrderStatisticsModel();
+                if ($model->allowField(true)->save($post, ['id' => $id])) {
+                    echo json_encode(['code' => 1, 'msg' => '修改成功']);
+                    exit;
+                } else {
+                    echo json_encode(['code' => 0, 'msg' => '修改失败，请重试']);
+                    exit;
+                }
+            } else {
+                echo json_encode(['code' => 0, 'msg' => $dataValidate->getError()]);
+                exit;
+            }
+        } else {
+            $info = FinanceOrderStatisticsModel::get(['id' => $id,]);
+            $this->assign('info', $info);
+
+            return view();
+        }
     }
 
     /**

@@ -35,22 +35,34 @@
                     <col>
                     <col>
                     <col>
+                    <col>
+                    <col>
+                    <col>
+                    <col>
+                    <col>
+                    <col>
                 </colgroup>
                 <thead>
                 <tr>
                     <th>平台</th>
                     <th>店铺</th>
-                    <th>付款时间</th>
                     <th>发货时间</th>
                     <th>订单状态</th>
+                    <th>仓库单号</th>
+                    <th>跟踪号</th>
+                    <th>发货批次号</th>
                     <th>Payment</th>
                     <th>参考号</th>
                     <th>平台sku</th>
                     <th>仓库sku</th>
                     <th>数量</th>
-                    <th>仓库单号</th>
-                    <th>跟踪号</th>
-                    <th>发货批次号</th>
+                    <th>单价</th>
+                    <th>总额</th>
+                    <th>运费</th>
+                    <th>佣金</th>
+                    <th>FBA尾程</th>
+                    <th>税</th>
+                    <th>操作</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -58,17 +70,25 @@
                 <tr>
                     <td>{$v.platform}</td>
                     <td>{$v.user_account}</td>
-                    <td>{$v.paid_time}</td>
                     <td>{$v.shipping_time}</td>
                     <td>{$v.order_status}</td>
+                    <td>{$v.warehouse_no}</td>
+                    <td>{$v.shipping_no}</td>
+                    <td>{$v.inventory_batch_no}</td>
                     <td>{$v.payment_id}</td>
                     <td>{$v.saleOrderCode}</td>
                     <td>{$v.platform_sku}</td>
                     <td>{$v.warehouse_sku}</td>
-                    <td>{$v.qty}</td>
-                    <td>{$v.warehouse_no}</td>
-                    <td>{$v.shipping_no}</td>
-                    <td>{$v.inventory_batch_no}</td>
+                    <td class="tr">{$v.qty}</td>
+                    <td class="tr">{$v.sale_unit}</td>
+                    <td class="tr">{$v.sale_amount}</td>
+                    <td class="tr">{$v.sale_shipping}</td>
+                    <td class="tr">{$v.selling_fee}</td>
+                    <td class="tr">{$v.fba_fee}</td>
+                    <td class="tr">{$v.tax}</td>
+                    <td class="tc">
+                        <a href="{:url('order_statistics_edit', ['id' => $v.id])}" class="layui-btn layui-btn-normal layui-btn-sm">编辑</a>
+                    </td>
                 </tr>
                 {/foreach}
                 </tbody>
