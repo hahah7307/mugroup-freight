@@ -1287,6 +1287,9 @@ ORDER BY
      */
     public function wayfair(): \think\response\View
     {
+        $platform = $this->request->get('platform', 'wayfairnew', 'htmlspecialchars');
+        $this->assign('platform', $platform);
+
         $start = $this->request->get('start', date('Y-m-01 00:00:00'), 'htmlspecialchars');
         $this->assign('start', $start);
         $end = $this->request->get('end', date('Y-m-d 00:00:00'), 'htmlspecialchars');
@@ -1336,7 +1339,7 @@ FROM
 	WHERE
 		a.datePaidPlatform >= "' . $start . '" 
 		AND a.datePaidPlatform < "' . $end . '" 
-		AND a.platform = "wayfairnew" 
+		AND a.platform = "' . $platform . '" 
 		AND c.saleStatus = 2 
 		AND a.`status` = 4
 	GROUP BY
@@ -1354,7 +1357,7 @@ FROM
 	WHERE
 		a.datePaidPlatform >= "' . $last_start . '" 
 		AND a.datePaidPlatform < "' . $last_end . '" 
-		AND a.platform = "wayfairnew" 
+		AND a.platform = "' . $platform . '" 
 		AND c.saleStatus = 2 
 		AND a.`status` = 4
 	GROUP BY
@@ -1391,7 +1394,7 @@ FROM
 	WHERE
 		a.datePaidPlatform >= "' . $start . '" 
 		AND a.datePaidPlatform < "' . $end . '" 
-		AND a.platform = "wayfairnew" 
+		AND a.platform = "' . $platform . '" 
 		AND c.saleStatus = 2 
 		AND a.`status` = 4
 	GROUP BY
@@ -1409,7 +1412,7 @@ FROM
 	WHERE
 		a.datePaidPlatform >= "' . $last2_start . '" 
 		AND a.datePaidPlatform < "' . $last2_end . '" 
-		AND a.platform = "wayfairnew" 
+		AND a.platform = "' . $platform . '" 
 		AND c.saleStatus = 2 
 		AND a.`status` = 4
 	GROUP BY
@@ -1446,7 +1449,7 @@ FROM
 	WHERE
 		a.datePaidPlatform >= "' . $last_week . '" 
 		AND a.datePaidPlatform < "' . $end . '" 
-		AND a.platform = "wayfairnew" 
+		AND a.platform = "' . $platform . '" 
 		AND c.saleStatus = 2 
 		AND a.`status` = 4
 	GROUP BY
@@ -1464,7 +1467,7 @@ FROM
 	WHERE
 		a.datePaidPlatform >= "' . $last2_week . '" 
 		AND a.datePaidPlatform < "' . $last_week . '" 
-		AND a.platform = "wayfairnew" 
+		AND a.platform = "' . $platform . '" 
 		AND c.saleStatus = 2 
 		AND a.`status` = 4
 	GROUP BY
@@ -1511,7 +1514,7 @@ FROM
 			AND a.datePaidPlatform < "' . $end . '" 
 			AND a.`status` = 4 
 			AND c.saleStatus = 2 
-			AND a.platform = "wayfairnew"
+			AND a.platform = "' . $platform . '"
 		GROUP BY
 			warehouseSku UNION ALL
 		SELECT
@@ -1527,7 +1530,7 @@ FROM
 			AND a.datePaidPlatform < "' . $last_end . '" 
 			AND a.`status` = 4 
 			AND c.saleStatus = 2 
-			AND a.platform = "wayfairnew"
+			AND a.platform = "' . $platform . '"
 		GROUP BY
 			warehouseSku 
 		) a 
@@ -1570,7 +1573,7 @@ FROM
 			AND a.datePaidPlatform < "' . $end . '" 
 			AND a.`status` = 4 
 			AND c.saleStatus = 2 
-			AND a.platform = "wayfairnew"
+			AND a.platform = "' . $platform . '"
 		GROUP BY
 			warehouseSku UNION ALL
 		SELECT
@@ -1586,7 +1589,7 @@ FROM
 			AND a.datePaidPlatform < "' . $last_end . '" 
 			AND a.`status` = 4 
 			AND c.saleStatus = 2 
-			AND a.platform = "wayfairnew"
+			AND a.platform = "' . $platform . '"
 		GROUP BY
 			warehouseSku 
 		) a 
@@ -1608,7 +1611,7 @@ ORDER BY
      * @throws PDOException
      * @throws BindParamException
      */
-    public function wayfair_growth($sku): \think\response\View
+    public function wayfair_growth($sku, $platform): \think\response\View
     {
         $sale_start = $this->request->get('sale_start', '2024-01-01 00:00:00', 'htmlspecialchars');
         $this->assign('sale_start', $sale_start);
@@ -1641,7 +1644,7 @@ FROM
 		AND createdDate >= "' . $sale_start . '" 
 		AND createdDate < "' . $sale_end . '" 
 		AND b.warehouseSku = "' . $sku . '" 
-		AND a.platform = "wayfairnew" 
+		AND a.platform = "' . $platform . '" 
 	GROUP BY
 		MONTH,
 	warehouseSku 

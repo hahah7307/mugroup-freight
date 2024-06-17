@@ -19,8 +19,21 @@
 <script src="/static/echarts/test/lib/jquery.min.js"></script>
 <div class="layui-body" id="LAY_app_body">
     <div class="right">
-        <div class="title">Wayfair环比销量增长率排行榜<span class="red">(销量有增长但增长率为0%表示上月无销量，销量增长为负且增长率为-100%表示本月无销量，上上月和上周同理)</span></div>
+        <div class="title">{$platform}环比销量增长率排行榜<span class="red">(销量有增长但增长率为0%表示上月无销量，销量增长为负且增长率为-100%表示本月无销量，上上月和上周同理)</span></div>
         <form class="layui-form" method="get">
+            平台：
+            <div class="layui-inline w120">
+                <select name="platform" lay-verify="">
+                    <option value="amazon" {if condition="$platform eq 'amazon'"}selected{/if}>Amazon</option>
+                    <option value="wayfairnew" {if condition="$platform eq 'wayfairnew'"}selected{/if}>Wayfair</option>
+                    <option value="walmart" {if condition="$platform eq 'walmart'"}selected{/if}>Walmart</option>
+                    <option value="shein" {if condition="$platform eq 'shein'"}selected{/if}>Shein</option>
+                    <option value="ebay" {if condition="$platform eq 'ebay'"}selected{/if}>Ebay</option>
+                    <option value="shopify" {if condition="$platform eq 'shopify'"}selected{/if}>Shopify</option>
+                    <option value="tiktok" {if condition="$platform eq 'tiktok'"}selected{/if}>Tiktok</option>
+                    <option value="semitemu" {if condition="$platform eq 'semitemu'"}selected{/if}>semitemu</option>
+                </select>
+            </div>
             <div class="layui-input-inline w200">
                 <input type="text" class="layui-input" id="start" name="start" value="{$start}" placeholder="开始时间">
             </div>
@@ -54,7 +67,7 @@
                     <option value="ASC" {if condition="$last2_order eq 'ASC'"}selected{/if}>从低到高</option>
                 </select>
             </div>
-            <span style="margin-left: 400px">
+            <span style="margin-left: 20px">
             环比上周排序：</span>
             <div class="layui-inline w100">
                 <select name="week_diff" lay-verify="">
@@ -334,7 +347,7 @@
 
         $(".sku-item").click(function(){
             let sku = $(this).data('sku');
-            location.href = "/Manage/SkuReport/wayfair_growth/sku/" + sku + ".html";
+            location.href = "/Manage/SkuReport/wayfair_growth/sku/" + sku + "/platform/" + {$platform} + ".html";
         });
     });
 </script>

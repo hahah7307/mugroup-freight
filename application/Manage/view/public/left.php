@@ -65,7 +65,7 @@
                         <dd><a layui-href="{:url('SkuReport/daily')}">日销报表</a></dd>
                         <dd><a layui-href="{:url('SkuReport/store')}">日库存报表</a></dd>
                         <dd><a layui-href="{:url('SkuReport/growth')}">销量月增长报表</a></dd>
-                        <dd><a layui-href="{:url('SkuReport/wayfair')}">Wayfair销量报表</a></dd>
+                        <dd><a layui-href="{:url('SkuReport/wayfair')}">各平台销量报表</a></dd>
                     </dl>
                 </li>
                 <li data-name="Product" class="layui-nav-item">
