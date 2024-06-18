@@ -36,7 +36,7 @@ class InventorySettlement extends Command
             $inventorySettlementObj = new InventoryBatchModel();
             $data = $inventorySettlementObj->where('is_settlement', 0)->order('id asc')->limit(Config::get('inventory_batch_num'))->select();
             foreach ($data as $item) {
-                $product = $productObj->where(['productSku' => $item['product_sku']])->find();
+                $product = $productObj->where(['productSku' => $item['productSku']])->find();
                 $volume = $product['productLength'] * $product['productWidth'] * $product['productHeight'] / 1000000;
                 $storageArea = StorageAreaModel::get(['storage_code' => $item['lcCode']]);
                 $storage_id = $storageArea['storage_id'];
