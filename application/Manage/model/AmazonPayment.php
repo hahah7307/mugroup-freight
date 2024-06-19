@@ -901,7 +901,7 @@ class AmazonPayment extends Model
                     "quantity"                  =>  $item[7],
                     "fulfillment"               =>  "Seller",
                     "postal"                    =>  $item[18],
-                    "product_sales"             =>  sprintf('%.2f', str_replace(',', '', $item[24])),
+                    "product_sales"             =>  sprintf('%.2f', str_replace(',', '', $item[25])),
                     "selling_fees"              =>  sprintf('%.2f', str_replace(',', '', $item[22])),
                     "fba_fees"                  =>  0,
                 ];
