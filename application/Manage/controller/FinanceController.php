@@ -22,6 +22,7 @@ use app\Manage\model\FinanceReportModel;
 use app\Manage\model\FinanceStoreModel;
 use app\Manage\model\FinanceTableModel;
 use app\Manage\model\FinanceWarehouseModel;
+use app\Manage\model\FinanceWayfairCoreModel;
 use app\Manage\validate\FinanceOrderStatisticsValidate;
 use app\Manage\validate\FinanceReportValidate;
 use app\Manage\validate\FinanceTableValidate;
@@ -1411,5 +1412,84 @@ ORDER BY
         $this->assign('report_id', $id);
 
         return view();
+    }
+
+    /**
+     * @throws DbException
+     */
+    public function wayfair_core(): \think\response\View
+    {
+        $keyword = $this->request->get('keyword', '', 'htmlspecialchars');
+        $this->assign('keyword', $keyword);
+        if ($keyword) {
+            $where['invoice_no|payment_id|user_account|calculate_month'] = ['like', '%' . $keyword . '%'];
+        } else {
+            $where = [];
+        }
+
+        $page_num = $this->request->get('page_num', Config::get('PAGE_NUM'));
+        $this->assign('page_num', $page_num);
+
+        // wayfair订单列表
+        $order = new FinanceWayfairCoreModel();
+        $list = $order->where($where)->order('id asc')->paginate($page_num, false, ['query' => ['keyword' => $keyword]]);
+        $this->assign('list', $list);
+
+        $this->assign('amount', $order->where($where)->sum('sale_amount'));
+        $this->assign('commission', $order->where($where)->sum('commission'));
+        $this->assign('collection', $order->where($where)->sum('collection'));
+
+        Session::set(Config::get('BACK_URL'), $this->request->url(), 'manage');
+
+        return view();
+    }
+
+    /**
+     * @throws PHPExcel_Reader_Exception
+     */
+    public function wayfair_import()
+    {
+        // phpexcel
+        require_once './static/classes/PHPExcel/Classes/PHPExcel.php';
+
+        $filename = input('filename');
+        $file= "./upload/excel/" . $filename;
+        $excelReader = PHPExcel_IOFactory::createReaderForFile($file);
+        $excelObj = $excelReader->load($file);
+        $worksheet = $excelObj->getSheet(0);
+        $data = $worksheet->toArray();
+        unset($data[0]);
+
+        Db::startTrans();
+        try {
+            $orderData = [];
+            $financeWayfairCoreObj = new FinanceWayfairCoreModel();
+            foreach ($data as $item) {
+                $order = $financeWayfairCoreObj->where(['payment_id' => $item[2]])->find();
+                if (!empty($order)) {
+                    continue;
+                }
+                $orderData[] = [
+                    "invoice_no"                =>  $item[0],
+                    "invoice_date"              =>  date('Y-m-d H:i:s', strtotime($item[1])),
+                    "payment_id"                =>  $item[2],
+                    "sale_amount"               =>  $item[4],
+                    "status"                    =>  FinanceWayfairCoreModel::formatExcelStatus($item[5]),
+                    "currency"                  =>  $item[6],
+                    "commission_rate"           =>  0.04,
+                    "commission"                =>  $item[8],
+                    "collection"                =>  $item[9],
+                    "calculate_month"           =>  $item[12],
+                    "user_account"              =>  FinanceWayfairCoreModel::formatExcelUserAccount($item[13])
+                ];
+            }
+            $financeWayfairCoreObj->insertAll($orderData);
+
+            Db::commit();
+        } catch (Exception $e) {
+            Db::rollback();
+            $this->error($e->getMessage(), url('wayfair_core'));
+        }
+        $this->redirect(url('wayfair_core'));
     }
 }
