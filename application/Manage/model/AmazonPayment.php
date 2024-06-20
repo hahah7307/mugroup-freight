@@ -881,6 +881,10 @@ class AmazonPayment extends Model
                     "postal"                    =>  $item[18],
                     "product_sales"             =>  sprintf('%.2f', str_replace(',', '', $item[24])),
                     "selling_fees"              =>  sprintf('%.2f', str_replace(',', '', $item[22])),
+                    "shipping_credits"          =>  0,
+                    "gift_wrap_credits"         =>  0,
+                    "regulatory_fee"            =>  0,
+                    "promotional_rebates"       =>  0,
                     "fba_fees"                  =>  0,
                 ];
                 if ($item[71]) {
@@ -903,6 +907,10 @@ class AmazonPayment extends Model
                     "postal"                    =>  $item[18],
                     "product_sales"             =>  sprintf('%.2f', str_replace(',', '', $item[25])),
                     "selling_fees"              =>  sprintf('%.2f', str_replace(',', '', $item[22])),
+                    "shipping_credits"          =>  0,
+                    "gift_wrap_credits"         =>  0,
+                    "regulatory_fee"            =>  0,
+                    "promotional_rebates"       =>  0,
                     "fba_fees"                  =>  0,
                 ];
                 if ($item[71]) {
@@ -952,13 +960,13 @@ class AmazonPayment extends Model
                 $this->userAccount = $order['userAccount'];
             }
 
-            if ($item[12] == 'Order') {
+            if ($item[11] == 'Order') {
                 $this->orderSaleNew[] = [
                     "report_id"                 =>  $reportId,
                     "table_id"                  =>  $tableId,
                     "payment_id"                =>  $item[1],
-                    "sku"                       =>  $item[13],
-                    "quantity"                  =>  $item[14],
+                    "sku"                       =>  $item[12],
+                    "quantity"                  =>  $item[13],
                     "fulfillment"               =>  "Seller",
                     "product_sales"             =>  sprintf('%.2f', str_replace(',', '', $item[3])),
                     "shipping_credits"          =>  0,
@@ -968,13 +976,13 @@ class AmazonPayment extends Model
                     "selling_fees"              =>  0,
                     "fba_fees"                  =>  0,
                 ];
-            } elseif ($item[12] == 'Return') {
+            } elseif ($item[11] == 'Return') {
                 $this->orderRefundNew[] = [
                     "report_id"                 =>  $reportId,
                     "table_id"                  =>  $tableId,
                     "payment_id"                =>  $item[1],
-                    "sku"                       =>  $item[13],
-                    "quantity"                  =>  $item[14],
+                    "sku"                       =>  $item[12],
+                    "quantity"                  =>  $item[13],
                     "fulfillment"               =>  "Seller",
                     "product_sales"             =>  sprintf('%.2f', str_replace(',', '', $item[3])),
                     "shipping_credits"          =>  0,

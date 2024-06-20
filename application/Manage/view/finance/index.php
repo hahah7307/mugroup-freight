@@ -33,6 +33,8 @@
                 </select>
             </div>
             <button type="button" class="layui-btn  layui-btn-normal" id="excel">导入</button>
+            <span class="total">销售合计：{$sale_amount}</span>
+            <span class="total">退款合计：{$refund_amount}</span>
             <span class="total">促销合计：{$promotion}</span>
             <span class="total">退运合计：{$shipping_service}</span>
             <span class="total">清算合计：{$liquidation}</span>
@@ -40,6 +42,8 @@
             <table class="layui-table" lay-size="sm">
                 <colgroup>
                     <col width="50">
+                    <col>
+                    <col>
                     <col>
                     <col>
                     <col>
@@ -58,6 +62,8 @@
                     <th>所属平台</th>
                     <th>所属店铺</th>
                     <th>所属国家</th>
+                    <th>销售</th>
+                    <th>退款</th>
                     <th>促销费</th>
                     <th>退运费</th>
                     <th>清算</th>
@@ -74,6 +80,8 @@
                     <td>{$v.platform}</td>
                     <td>{$v.userAccount}</td>
                     <td>{$v.country}</td>
+                    <td class="tr">{$v.sale_amount}</td>
+                    <td class="tr">{$v.refund_amount}</td>
                     <td class="tr">{$v.promotion}</td>
                     <td class="tr">{$v.shipping_service}</td>
                     <td class="tr">{$v.liquidation}</td>

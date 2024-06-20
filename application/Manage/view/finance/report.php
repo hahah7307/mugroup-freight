@@ -55,7 +55,7 @@
                         {/if}
                     </td>
                     <td class="tl">
-                        <a href="{:url('index', ['id' => $v.id])}" class="layui-btn layui-btn-sm">详情</a>
+                        <a href="{:url('index', ['id' => $v.id])}" class="layui-btn layui-btn-sm">账单</a>
                         <a href="{:url('warehouse', ['id' => $v.id])}" class="layui-btn layui-btn-sm">仓租</a>
                         <a href="{:url('additional', ['id' => $v.id])}" class="layui-btn layui-btn-sm">额外</a>
                         <a href="{:url('evaluation', ['id' => $v.id])}" class="layui-btn layui-btn-sm">测评</a>

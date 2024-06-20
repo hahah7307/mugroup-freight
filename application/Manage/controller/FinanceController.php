@@ -421,6 +421,8 @@ class FinanceController extends BaseController
         $order = new FinanceTableModel();
         $list = $order->where($where)->order('id asc')->paginate(Config::get('PAGE_NUM'), false, ['query' => ['keyword' => $keyword]]);
         $this->assign('list', $list);
+        $this->assign('sale_amount', $order->where($where)->sum('sale_amount'));
+        $this->assign('refund_amount', $order->where($where)->sum('refund_amount'));
         $this->assign('promotion', $order->where($where)->sum('promotion'));
         $this->assign('shipping_service', $order->where($where)->sum('shipping_service'));
         $this->assign('liquidation', $order->where($where)->sum('liquidation'));
@@ -501,11 +503,25 @@ class FinanceController extends BaseController
                     $financeOrderSaleObj = new FinanceOrderSaleModel();
                     if (!$financeOrderSaleObj->saveAll($paymentData['orderSaleNew'])) {
                         throw new \think\Exception('Payment导入失败！');
+                    } else {
+                        $productSale = $financeOrderSaleObj->where(['table_id' => $tableId])->sum('product_sales');
+                        $shipping = $financeOrderSaleObj->where(['table_id' => $tableId])->sum('shipping_credits');
+                        $gift = $financeOrderSaleObj->where(['table_id' => $tableId])->sum('gift_wrap_credits');
+                        $regulatory = $financeOrderSaleObj->where(['table_id' => $tableId])->sum('regulatory_fee');
+                        $promotional = $financeOrderSaleObj->where(['table_id' => $tableId])->sum('promotional_rebates');
+                        $sale_amount = round($productSale + $shipping + $gift + $regulatory + $promotional, 2);
                     }
 
                     $financeOrderRefundObj = new FinanceOrderRefundModel();
                     if (!$financeOrderRefundObj->saveAll($paymentData['orderRefundNew'])) {
                         throw new \think\Exception('Payment导入失败！');
+                    } else {
+                        $productSale = $financeOrderRefundObj->where(['table_id' => $tableId])->sum('product_sales');
+                        $shipping = $financeOrderRefundObj->where(['table_id' => $tableId])->sum('shipping_credits');
+                        $gift = $financeOrderRefundObj->where(['table_id' => $tableId])->sum('gift_wrap_credits');
+                        $regulatory = $financeOrderRefundObj->where(['table_id' => $tableId])->sum('regulatory_fee');
+                        $promotional = $financeOrderRefundObj->where(['table_id' => $tableId])->sum('promotional_rebates');
+                        $refund_amount = round($productSale + $shipping + $gift + $regulatory + $promotional, 2);
                     }
 
                     $financeOrderPromotionObj = new FinanceOrderPromotionModel();
@@ -546,7 +562,7 @@ class FinanceController extends BaseController
                         throw new \think\Exception('Payment导入失败！');
                     }
 
-                    if (!FinanceTableModel::update(['userAccount' => $paymentData['userAccount'], 'promotion' => $promotionSum, 'shipping_service' => $shippingServiceSum, 'liquidation' => $liquidationSum, 'adjustment' => $adjustmentSum], ['id' => $tableId])) {
+                    if (!FinanceTableModel::update(['userAccount' => $paymentData['userAccount'], 'sale_amount' => $sale_amount, 'refund_amount' => $refund_amount, 'promotion' => $promotionSum, 'shipping_service' => $shippingServiceSum, 'liquidation' => $liquidationSum, 'adjustment' => $adjustmentSum], ['id' => $tableId])) {
                         throw new \think\Exception('店铺号同步失败！');
                     }
                 } else {
