@@ -253,7 +253,11 @@
             layer.confirm('确定测算吗？',{icon:3,closeBtn:0,title:false,btnAlign:'c'},function(){
                 $('button').attr('disabled',true);
                 button.text('请稍候...');
-                axios.post("{:url('calculate')}", {id:data.field})
+                axios.post("{:url('calculate')}", {id:data.field}, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data' // 设置请求头，确保服务器正确解析 FormData
+                    }
+                })
                     .then(function (response) {
                         let res = response.data;
                         if (res.code === 1) {
@@ -282,7 +286,11 @@
             layer.prompt({title: '请输入易仓单号'}, function(value){
                 $('button').attr('disabled',true);
                 button.text('请稍候...');
-                axios.post("{:url('add')}", {data:value})
+                axios.post("{:url('add')}", {data:value}, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data' // 设置请求头，确保服务器正确解析 FormData
+                    }
+                })
                     .then(function (response) {
                         let res = response.data;
                         if (res.code === 1) {
@@ -312,7 +320,11 @@
                 $('button').attr('disabled',true);
                 button.text('请稍候...');
                 layer.load(2);
-                axios.post("{:url('update')}", {id:data.field})
+                axios.post("{:url('update')}", {id:data.field}, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data' // 设置请求头，确保服务器正确解析 FormData
+                    }
+                })
                     .then(function (response) {
                         let res = response.data;
                         if (res.code === 1) {

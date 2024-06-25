@@ -279,13 +279,12 @@ class OrderModel extends Model
         try {
             // update detail
             $orderDetail = $item['orderDetails'];
-            $detailItem = OrderDetailModel::all(['order_id' => $orderItem['id']]);
             foreach ($orderDetail as $key => $detail) {
                 $detail['warehouseSkuList'] = isset($detail['warehouseSkuList']) ? json_encode($detail['warehouseSkuList']) : json_encode([]);
                 $detail['promotionIdList'] = isset($detail['promotionIdList']) ? json_encode($detail['promotionIdList']) : json_encode([]);
-                if (count($detailItem)) {
-                    $detail['id'] = $detailItem[$key]['id'];
-                    OrderDetailModel::update($detail);
+                $detailItem = OrderDetailModel::get(['op_id' => $detail['op_id']]);
+                if ($detailItem) {
+                    OrderDetailModel::update($detail, ['op_id' => $detail['op_id']]);
                 } else {
                     $detail['order_id'] = $orderItem['id'];
                     OrderDetailModel::create($detail);
@@ -299,8 +298,10 @@ class OrderModel extends Model
 //            $address['id'] = $addressItem['id'];
 //            OrderAddressModel::update($address);
 
+            // 更新订单信息
             $order['id'] = $orderItem['id'];
             OrderModel::update($order);
+            // 更新后计算订单尾程并更新
             OrderModel::orderId2DeliverParams($orderItem['id']);
 
             Db::commit();

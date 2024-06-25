@@ -66,6 +66,7 @@ class OrderController extends BaseController
     {
         if ($this->request->isPost()) {
             $post = $this->request->post();
+            array_shift($post['id']);
             foreach ($post['id'] as $item) {
                 if (!OrderModel::orderId2DeliverParams($item)) {
                     continue;
@@ -96,7 +97,10 @@ class OrderController extends BaseController
                 }
                 $data = $apiRes['data'];
                 foreach ($data as $item) {
-                    OrderModel::orderSave(false, false, $item);
+                    // 获取新增订单ID
+                    $orderId = OrderModel::orderSave(false, false, $item);
+                    // 新增后计算订单尾程并更新
+                    OrderModel::orderId2DeliverParams($orderId);
                 }
                 Db::commit();
 
@@ -165,6 +169,7 @@ class OrderController extends BaseController
     {
         if ($this->request->isPost()) {
             $post = $this->request->post();
+            array_shift($post['id']);
             foreach ($post['id'] as $item) {
                 if ($orderItem = OrderModel::get($item)) {
                     $orderNew = OrderModel::saleOrderCodes2Order($orderItem['saleOrderCode']);
