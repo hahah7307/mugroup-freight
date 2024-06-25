@@ -33,7 +33,7 @@ class StorageOutboundModel extends Model
     /**
      * @throws DbException
      */
-    static public function getOutbound($storage, $product, $order)
+    static public function getOutbound($storage, $detail, $order)
     {
         $platform = $order['platform'];
         $storageOutbound = new StorageOutboundModel();
@@ -41,7 +41,7 @@ class StorageOutboundModel extends Model
         $condition['storage_id'] = $storage;
         $condition['platform_tag'] = $platform;
         // 命中生效区间
-        $shippingDate = empty($order['dateWarehouseShipping']) ? $order['createdDate'] : $order['dateWarehouseShipping'];
+        $shippingDate = empty($order['dateWarehouseShipping']) ? $order['datePaidPlatform'] : $order['dateWarehouseShipping'];
         $condition['start_at'] = ['lt', $shippingDate];
         $condition['end_at'] = ['egt', $shippingDate];
         $outboundList = $storageOutbound->where($condition)->order('level asc')->select();
@@ -51,9 +51,9 @@ class StorageOutboundModel extends Model
             $lbs = 0;
             // 出库费良仓取计费重，乐歌取实重
             if ($storage == StorageModel::LIANGCANGID) {
-                $lbs = StorageBaseModel::getProductLbs($storage, $product);
+                $lbs = StorageBaseModel::getProductLbs($storage, $detail);
             } elseif ($storage == StorageModel::LECANGID) {
-                $lbs = $product['productWeight'] * self::KG2LB;
+                $lbs = $detail['product']['productWeight'] * self::KG2LB;
             }
             if ($ruleCondition['max'] == 0 && $lbs > $ruleCondition['min']) {
                 $price = $rule['value'];

@@ -2,8 +2,6 @@
 
 namespace app\Manage\model;
 
-use think\db\exception\DataNotFoundException;
-use think\db\exception\ModelNotFoundException;
 use think\exception\DbException;
 use think\Model;
 
@@ -43,16 +41,16 @@ class StorageBaseModel extends Model
     }
 
     //获取计费重
-    static public function getProductLbs($storage, $product)
+    static public function getProductLbs($storage, $detail)
     {
         $lbs = 0;
         if ($storage == StorageModel::LIANGCANGID) {
-            $volume_lbs = ceil(ceil($product['productLength'] / self::INCH2CM) * ceil($product['productWidth'] / self::INCH2CM) * ceil($product['productHeight'] / self::INCH2CM) / self::LB2INCH);
-            $weight_lbs = $product['productWeight'] * self::KG2LB;
+            $volume_lbs = ceil(ceil($detail['product']['productLength'] / self::INCH2CM) * ceil($detail['product']['productWidth'] / self::INCH2CM) * ceil($detail['product']['productHeight'] / self::INCH2CM) / self::LB2INCH);
+            $weight_lbs = $detail['product']['productWeight'] * self::KG2LB;
             $lbs = max($volume_lbs, $weight_lbs);
         } elseif ($storage == StorageModel::LECANGID) {
-            $volume_kg = $product['productLength'] * $product['productWidth'] * $product['productHeight'] / self::KG2CM3;
-            $lbs = max($volume_kg, $product['productWeight']) * self::KG2LB;
+            $volume_kg = $detail['product']['productLength'] * $detail['product']['productWidth'] * $detail['product']['productHeight'] / self::KG2CM3;
+            $lbs = max($volume_kg, $detail['product']['productWeight']) * self::KG2LB;
         }
 
         return ceil($lbs);

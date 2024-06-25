@@ -31,18 +31,22 @@ class OrderCapture extends Command
     {
         // 加载自定义配置
         Config::load(APP_PATH . 'storage.php');
+        Config::load(APP_PATH . 'storage.php');
 
         // 订单查询当前页数
-        $data = OrderPageModel::find()->toArray();
-        $page = $data['page'];
-
-        $orders = self::getOrderList($page, Config::get('order_page_num'));
+        $orderObj = new OrderPageModel();
+        $data = $orderObj->find(1);
+        $orders = self::getOrderList($data['page'], Config::get('order_page_num'));
         $count = 0;
         foreach ($orders as $key => $item) {
             $count++;
             $isLast = $count == count($orders) ? $key + 1 : 0;
             $isPageUp = $count == Config::get('order_page_num');
-            OrderModel::orderSave($isLast, $isPageUp, $item);
+
+            // 获取新增订单ID
+            $orderId = OrderModel::orderSave($isLast, $isPageUp, $item);
+            // 新增后计算订单尾程并更新
+            OrderModel::orderId2DeliverParams($orderId);
         }
 
         $output->writeln("success");
@@ -53,13 +57,7 @@ class OrderCapture extends Command
      */
     protected function getOrderList($page = 1, $num = 50): array
     {
-        // 加载自定义配置
-        Config::load(APP_PATH . 'storage.php');
-
         $apiRes = ApiClient::EcWarehouseApi(Config::get("ec_eb_uri"), "getOrderList", '{"page":' . intval($page) . ',"pageSize":' . intval($num) . ',"getDetail":1,"getAddress":1,"getCustomOrderType":1}');
-        if ($apiRes['code'] == 0) {
-            return [];
-        }
-        return $apiRes['data'];
+        return $apiRes['code'] == 0 ? [] :  $apiRes['data'];
     }
 }

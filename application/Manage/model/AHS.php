@@ -2,10 +2,8 @@
 
 namespace app\Manage\model;
 
-use think\Config;
 use think\exception\DbException;
 use think\Model;
-use think\Session;
 
 class AHS extends Model
 {
@@ -31,13 +29,13 @@ class AHS extends Model
     /**
      * @throws DbException
      */
-    static public function getAHSFee($storage, $zone, $product, $order)
+    static public function getAHSFee($storage, $zone, $detail, $order)
     {
         $ahsFee = 0;
         if ($storage == StorageModel::LIANGCANGID) {
-            $ahsFee = self::AHSFeeLiang($product['productWeight'], $zone, $product['productLength'], $product['productWidth'], $product['productHeight'], $order);
+            $ahsFee = self::AHSFeeLiang($detail['product']['productWeight'], $zone, $detail['product']['productLength'], $detail['product']['productWidth'], $detail['product']['productHeight'], $order);
         } elseif ($storage == StorageModel::LECANGID) {
-            $ahsFee = self::AHSFeeLoctek($product['productWeight'], $zone, $product['productLength'], $product['productWidth'], $product['productHeight'], $order);
+            $ahsFee = self::AHSFeeLoctek($detail['product']['productWeight'], $zone, $detail['product']['productLength'], $detail['product']['productWidth'], $detail['product']['productHeight'], $order);
         }
         return $ahsFee;
     }

@@ -2,6 +2,7 @@
 
 namespace app\Manage\model;
 
+use SoapFault;
 use think\Config;
 use think\Db;
 use think\db\exception\DataNotFoundException;
@@ -16,14 +17,11 @@ class OrderModel extends Model
 
     protected $resultSetType = 'collection';
 
-    protected function setCreatedAtAttr()
+    public function __construct($data = [])
     {
-        return date('Y-m-d H:i:s');
-    }
+        Config::load(APP_PATH . 'storage.php');
 
-    protected function setUpdatedAtAttr()
-    {
-        return date('Y-m-d H:i:s');
+        parent::__construct($data);
     }
 
     public function details(): \think\model\relation\HasMany
@@ -53,42 +51,39 @@ class OrderModel extends Model
     {
         $order = new OrderModel();
         $orderInfo = $order->with(['details.product', 'address', 'area'])->where(['id'=>$orderId])->find();
+
+        if (!in_array($orderInfo['status'], [4, 5])) {
+            return false; // 订单未发货跳过
+        }
+
         $storage_id = $orderInfo['area']['storage_id'];
         if (empty($storage_id)) {
             return false; // 匹配不到仓库跳过
         }
-        $storage_type = $orderInfo['area']['type'];
+
         $zip_code = $orderInfo['address']['postalCode'];
         if (empty($zip_code)) {
             return false; // 空邮编跳过
         }
-        $product = [
-            'productWeight'     =>  $orderInfo['details'][0]['product']['productWeight'],
-            'productLength'     =>  $orderInfo['details'][0]['product']['productLength'],
-            'productWidth'      =>  $orderInfo['details'][0]['product']['productWidth'],
-            'productHeight'     =>  $orderInfo['details'][0]['product']['productHeight'],
-            'productQty'        =>  $orderInfo['details'][0]['qty']
-        ];
 
         // 计算运费和公式
-        $deliverInfo = self::calculateDeliver($storage_id, $storage_type, $zip_code, $product, $orderInfo);
-        if (empty($deliverInfo)) {
-            return false; // 空zone跳过
+        $tail = self::calculateDeliver($orderInfo);
+        if ($tail) {
+            $orderInfo['postalFormat'] = $tail[0]['postal_format'];
+            $orderInfo['zoneFormat'] = $tail[0]['zone_format'];
+            $orderInfo['charged_weight'] = array_sum(array_column($tail, 'charged_weight'));
+            $orderInfo['outbound'] = array_sum(array_column($tail, 'outbound'));
+            $orderInfo['base'] = array_sum(array_column($tail, 'base'));
+            $orderInfo['ahs'] = array_sum(array_column($tail, 'ahs'));
+            $orderInfo['ahsds'] = array_sum(array_column($tail, 'ahs_pss'));
+            $orderInfo['das'] = array_sum(array_column($tail, 'das'));
+            $orderInfo['rdcFee'] = array_sum(array_column($tail, 'residential'));
+            $orderInfo['drdcFee'] = array_sum(array_column($tail, 'residential_pss'));
+            $orderInfo['fuelCost'] = array_sum(array_column($tail, 'fuel_cost'));
+            $orderInfo['commission'] = array_sum(array_column($tail, 'commission'));
+            $orderInfo['calcuRes'] = array_sum(array_column($tail, 'tail_course'));
+            $orderInfo['calcuInfo'] = $orderInfo['outbound'] . "(出库) + " . $orderInfo['base'] . "(基础) + " . $orderInfo['ahs'] . "(AHS) + " . $orderInfo['das'] . "(偏远) + " . $orderInfo['rdcFee'] . "(住宅) + " . $orderInfo['ahsds'] . "(AHS旺季) + " . $orderInfo['drdcFee'] . "(住宅旺季) + "  .$orderInfo['fuelCost'] . "(燃油) + "  .$orderInfo['commission'] . "(过路费)";
         }
-        $orderInfo['calcuInfo'] = $deliverInfo['label'];
-        $orderInfo['calcuRes'] = $deliverInfo['fee'] * $orderInfo['details'][0]['qty'];
-        $orderInfo['postalFormat'] = $deliverInfo['postalCode'];
-        $orderInfo['zoneFormat'] = $deliverInfo['zone'];
-        $orderInfo['charged_weight'] = $deliverInfo['charged_weight'];
-        $orderInfo['base'] = $deliverInfo['base'];
-        $orderInfo['ahs'] = $deliverInfo['ahs'];
-        $orderInfo['ahsds'] = $deliverInfo['ahsds'];
-        $orderInfo['das'] = $deliverInfo['das'];
-        $orderInfo['rdcFee'] = $deliverInfo['rdcFee'];
-        $orderInfo['drdcFee'] = $deliverInfo['drdcFee'];
-        $orderInfo['outbound'] = $deliverInfo['outbound'];
-        $orderInfo['fuelCost'] = $deliverInfo['fuelCost'];
-        $orderInfo['commission'] = $deliverInfo['commission'];
 
         // 更新数据
         unset($orderInfo['details']);
@@ -100,95 +95,104 @@ class OrderModel extends Model
     }
 
     // 计算运费
-
     /**
      * @throws ModelNotFoundException
      * @throws DbException
      * @throws DataNotFoundException
      */
-    static public function calculateDeliver($storage, $type, $postalCode, $product, $order)
+    static public function calculateDeliver($order): array
     {
-        Config::load(APP_PATH . 'storage.php');
+        $storage_id = $order['area']['storage_id'];
+        $type = $order['area']['type'];
 
-        $postalCode = self::postalFormat($postalCode);
-        // 获取计费重（不同仓库在同一值上会使用不同的重量）
-        $lbs = StorageBaseModel::getProductLbs($storage, $product);
+        $postalCode = self::postalFormat($order['address']['postalCode']);
 
-        // 出库费运算
-        $platform = StorageOutboundModel::outboundPlatform();
-        $outbound = StorageOutboundModel::getOutbound($storage, $product, $order);
-        if (in_array($order['platform'], $platform) || empty($order['dateWarehouseShipping']) || $order['dateWarehouseShipping'] == '0000-00-00 00:00:00') {
-            return [
-                'label'             =>  "",
-                'fee'               =>  $outbound,
+        $orderDetailObj = new OrderDetailModel();
+        $tail = [];
+        foreach ($order['details'] as $key => $detail) {
+            // 获取计费重（不同仓库在同一值上会使用不同的重量）
+            $lbs = StorageBaseModel::getProductLbs($storage_id, $detail);
+
+            // 出库费运算
+            $outbound = StorageOutboundModel::getOutbound($storage_id, $detail, $order);
+            $platform = StorageOutboundModel::outboundPlatform();
+            if (in_array($order['platform'], $platform) || empty($order['dateWarehouseShipping']) || $order['dateWarehouseShipping'] == '0000-00-00 00:00:00') {
+                $tailData = [
+                    'postal_format'     =>  $postalCode,
+                    'zone_format'       =>  0,
+                    'charged_weight'    =>  $lbs,
+                    'outbound'          =>  $outbound,
+                    'base'              =>  0,
+                    'ahs'               =>  0,
+                    'ahs_pss'           =>  0,
+                    'das'               =>  0,
+                    'residential'       =>  0,
+                    'residential_pss'   =>  0,
+                    'fuel_cost'         =>  0,
+                    'commission'        =>  0,
+                    'tail_course'       =>  $outbound
+                ];
+                $orderDetailObj->update($tailData, ['id' => $detail['id']]);
+                $tail[] = $tailData;
+                continue;
+            }
+
+            // 基础费运算
+            $customerZone = StorageZoneModel::getCustomZone($storage_id, $type, $postalCode);
+            if ($customerZone == 0) {
+                continue;
+            }
+            $baseInfo = StorageBaseModel::getBase($storage_id, $lbs, $customerZone, $order);
+            $base = $baseInfo ? $baseInfo['value'] : 0;
+
+            // AHS运算 & AHS旺季附加费
+            $ahs = AHS::getAHSFee($storage_id, $customerZone, $detail, $order);
+            $AHSPeakSurcharge = $ahs ? AHS::AHSPeakSurcharge($storage_id, $order) : 0;
+
+            // 偏远地址附加费
+            $dasType = StorageDasModel::getDASType($storage_id, $postalCode, $order);
+            $dasFee = !empty($dasType) ? StorageDasFeeModel::getDasFee($storage_id, $dasType, $order) : 0;
+
+            // 住宅地址附加费 & 住宅旺季附加费
+            $ResidentialFee = StorageResidentialModel::getResidential($storage_id, $order);
+            $ResidentialPeakSurcharge = $ResidentialFee ? StorageResidentialModel::ResidentialPeakSurcharge($storage_id, $order) : 0;
+
+            // 燃油费运算
+            $fuel_cost = round(($base + $ahs + $dasFee + $ResidentialFee + $AHSPeakSurcharge + $ResidentialPeakSurcharge) * Config::get('fuel_cost') * 0.01, 2);
+
+            // 佣金（过路费）
+            if ($storage_id == StorageModel::LIANGCANGID) {
+                $commission_rate = Config::get('lc_commission');
+            } elseif ($storage_id == StorageModel::LECANGID) {
+                $commission_rate = Config::get('le_commission');
+            } else {
+                $commission_rate = 0;
+            }
+            $commission = round(($base + $ahs + $dasFee + $ResidentialFee + $AHSPeakSurcharge + $ResidentialPeakSurcharge + $fuel_cost) * $commission_rate * 0.01, 2);
+
+            // 运费总计
+            $price = round($outbound + $base + $ahs + $dasFee + $ResidentialFee + $AHSPeakSurcharge + $ResidentialPeakSurcharge + $fuel_cost + $commission, 2);
+
+            $tailData = [
+                'postal_format'     =>  $postalCode,
+                'zone_format'       =>  $customerZone,
                 'charged_weight'    =>  $lbs,
-                'postalCode'        =>  $postalCode,
-                'zone'              =>  0,
-                'base'              =>  0,
-                'ahs'               =>  0,
-                'ahsds'             =>  0,
-                'das'               =>  0,
-                'rdcFee'            =>  0,
-                'drdcFee'           =>  0,
                 'outbound'          =>  $outbound,
-                'fuelCost'          =>  0,
-                'commission'        =>  0
+                'base'              =>  $base,
+                'ahs'               =>  $ahs,
+                'ahs_pss'           =>  $AHSPeakSurcharge,
+                'das'               =>  $dasFee,
+                'residential'       =>  $ResidentialFee,
+                'residential_pss'   =>  $ResidentialPeakSurcharge,
+                'fuel_cost'         =>  $fuel_cost,
+                'commission'        =>  $commission,
+                'tail_course'       =>  $price * $detail['qty']
             ];
+            $orderDetailObj->update($tailData, ['id' => $detail['id']]);
+            $tail[] = $tailData;
         }
 
-        // 基础费运算
-        $customerZone = StorageZoneModel::getCustomZone($storage, $type, $postalCode);
-        if ($customerZone == 0) {
-            return false;
-        }
-        $baseInfo = StorageBaseModel::getBase($storage, $lbs, $customerZone, $order);
-        $base = $baseInfo ? $baseInfo['value'] : 0;
-
-        // AHS运算 & AHS旺季附加费
-        $ahs = AHS::getAHSFee($storage, $customerZone, $product, $order);
-        $AHSPeakSurcharge = $ahs ? AHS::AHSPeakSurcharge($storage, $order) : 0;
-
-        // 偏远地址附加费
-        $dasType = StorageDasModel::getDASType($storage, $postalCode, $order);
-        $dasFee = !empty($dasType) ? StorageDasFeeModel::getDasFee($storage, $dasType, $order) : 0;
-
-        // 住宅地址附加费 & 住宅旺季附加费
-        $ResidentialFee = StorageResidentialModel::getResidential($storage, $order);
-        $ResidentialPeakSurcharge = $ResidentialFee ? StorageResidentialModel::ResidentialPeakSurcharge($storage, $order) : 0;
-
-        // 燃油费运算
-        $fuel_cost = round(($base + $ahs + $dasFee + $ResidentialFee + $AHSPeakSurcharge + $ResidentialPeakSurcharge) * Config::get('fuel_cost') * 0.01, 2);
-
-        // 佣金（过路费）
-        if ($storage == StorageModel::LIANGCANGID) {
-            $commission_rate = Config::get('lc_commission');
-        } elseif ($storage == StorageModel::LECANGID) {
-            $commission_rate = Config::get('le_commission');
-        } else {
-            $commission_rate = 0;
-        }
-        $commission = round(($base + $ahs + $dasFee + $ResidentialFee + $AHSPeakSurcharge + $ResidentialPeakSurcharge + $fuel_cost) * $commission_rate * 0.01, 2);
-
-        // 运费总计
-        $label = $outbound . "(出库) + " . $base . "(基础) + " . $ahs . "(AHS) + " . $dasFee . "(偏远) + " . $ResidentialFee . "(住宅) + " . $AHSPeakSurcharge . "(AHS旺季) + " . $ResidentialPeakSurcharge . "(住宅旺季) + "  .$fuel_cost . "(燃油) + "  .$commission . "(过路费)";
-        $price = round($outbound + $base + $ahs + $dasFee + $ResidentialFee + $AHSPeakSurcharge + $ResidentialPeakSurcharge + $fuel_cost + $commission, 2);
-
-        return [
-            'label'             =>  $label,
-            'fee'               =>  $price,
-            'charged_weight'    =>  $lbs,
-            'postalCode'        =>  $postalCode,
-            'zone'              =>  $customerZone,
-            'base'              =>  $base,
-            'ahs'               =>  $ahs,
-            'ahsds'             =>  $AHSPeakSurcharge,
-            'das'               =>  $dasFee,
-            'rdcFee'            =>  $ResidentialFee,
-            'drdcFee'           =>  $ResidentialPeakSurcharge,
-            'outbound'          =>  $outbound,
-            'fuelCost'          =>  $fuel_cost,
-            'commission'        =>  $commission
-        ];
+        return $tail;
     }
 
     /**
@@ -197,10 +201,10 @@ class OrderModel extends Model
      * @throws ModelNotFoundException
      * @throws Exception
      */
-    static public function orderSave($isLast, $isPageUp, $item): bool
+    static public function orderSave($isLast, $isPageUp, $item): int
     {
         $orderPage = new OrderPageModel();
-        $orderPageData = $orderPage->where('id', 1)->find();
+        $orderPageData = $orderPage->find(1);
         $page = $orderPageData['page'] + 1;
 
         if ($isPageUp) {
@@ -212,43 +216,48 @@ class OrderModel extends Model
         $order = $item;
         unset($order['orderDetails']);
         unset($order['orderAddress']);
-        if (OrderModel::get(['saleOrderCode' => $item['saleOrderCode']])) {
-            return false;
+
+        // 校验订单是否存在 存在即跳过
+        $model = new OrderModel();
+        $orderExist = $model->where(['order_id' => $item['order_id']])->find();
+        if ($orderExist) {
+            return $orderExist['id'];
         }
 
         Db::startTrans();
         try {
-            $newId = OrderModel::create($order)->getLastInsID();
+            // 新增订单数据
+            $newId = $model->insertGetId($order);
             if ($newId) {
+                // 新增订单详情
+                $detailModel = new OrderDetailModel();
                 $orderDetail = $item['orderDetails'];
                 foreach ($orderDetail as $detail) {
                     $detail['warehouseSkuList'] = json_encode($detail['warehouseSkuList']);
                     $detail['promotionIdList'] = json_encode($detail['promotionIdList']);
                     $detail['order_id'] = $newId;
-                    $detailId = OrderDetailModel::create($detail)->getLastInsID();
-                    if (empty($detailId)) {
+                    if (!$detailModel->insert($detail)) {
                         throw new Exception("订单详情插入失败！");
                     }
                 }
 
+                // 新增订单地址
+                $addressModel = new OrderAddressModel();
                 $address = $item['orderAddress'];
                 $address['order_id'] = $newId;
-                $addressId = OrderAddressModel::create($address)->getLastInsID();
-                if (empty($addressId)) {
+                if (!$addressModel->insert($address)) {
                     throw new Exception("订单地址插入失败！");
                 }
-
-                OrderModel::orderId2DeliverParams($newId);
             } else {
                 throw new Exception("订单插入失败！");
             }
 
             Db::commit();
-            return true;
+            return $newId;
         } catch (\Exception $e) {
             dump($e->getMessage());
             Db::rollback();
-            return false;
+            return 0;
         }
     }
 
@@ -309,17 +318,11 @@ class OrderModel extends Model
     }
 
     /**
-     * @throws \SoapFault
+     * @throws SoapFault
      */
     static public function saleOrderCodes2Order($code)
     {
-        // 加载自定义配置
-        Config::load(APP_PATH . 'storage.php');
-
         $apiRes = ApiClient::EcWarehouseApi(Config::get("ec_eb_uri"), "getOrderList", '{"getDetail":1,"getAddress":1,"getCustomOrderType":1,"condition":{"saleOrderCodes":["' . $code . '"]}}');
-        if ($apiRes['code'] == 0) {
-            return [];
-        }
-        return $apiRes['data'];
+        return $apiRes['code'] == 0 ? [] : $apiRes['data'];
     }
 }
