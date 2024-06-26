@@ -9,6 +9,7 @@ use app\Manage\model\FinanceOrderShareModel;
 use app\Manage\model\FinanceOrderShippingServiceModel;
 use app\Manage\model\FinanceOrderStatisticsModel;
 use app\Manage\model\FinanceTableModel;
+use app\Manage\model\OrderDetailModel;
 use app\Manage\model\OrderModel;
 use app\Manage\model\SkuModel;
 use Exception;
@@ -155,8 +156,8 @@ class FinanceOrderShare extends Command
                     $fulfillment = $order['fulfillmentType'] == 1 ? 'FBA' : 'FBM';
                     $shareCode = self::generateRandomCode(16);
                     $statistic = $orderStatisticObj->where(['payment_id' => $item['payment_id']])->select();
+                    $shareItem = [];
                     if (count($statistic)) {
-                        $shareItem = [];
                         $amountSum = 0;
                         foreach ($statistic as $value) {
                             $amount = $item['total'];
@@ -178,12 +179,29 @@ class FinanceOrderShare extends Command
                             ];
                             $amountSum += $total;
                         }
-                        if ($financeOrderShareObj->insertAll($shareItem)) {
-                            $financeOrderShippingObj->update(['share_code' => $shareCode], ['id' => $item['id']]);
-                        }
                     } else {
-                        // 无出库 TODO
-                        continue;
+                        // 无出库
+                        $orderDetailObj = new OrderDetailModel();
+                        $orderDetail = $orderDetailObj->where(['order_id' => $order['id']])->find();
+                        if ($orderDetail) {
+                            $amount = $item['total'];
+                            $shareItem[] = [
+                                'report_id'     => $item['report_id'],
+                                'table_id'      => $item['table_id'],
+                                'fulfillment'   => 'FBM',
+                                'cost_type'     => 'SHIPPING',
+                                'share_code'    => $shareCode,
+                                'payment'       => $item['payment_id'],
+                                'seller_sku'    => $item['sku'],
+                                'warehouse_sku' => $orderDetail['warehouseSku'],
+                                'amount'        => $amount,
+                                'percent'       => 1,
+                                'total'         => $amount
+                            ];
+                        }
+                    }
+                    if ($financeOrderShareObj->insertAll($shareItem)) {
+                        $financeOrderShippingObj->update(['share_code' => $shareCode], ['id' => $item['id']]);
                     }
                 }
             }
@@ -193,10 +211,10 @@ class FinanceOrderShare extends Command
             $adjustment = $financeOrderAdjustmentObj->where('share_code', null)->order('id asc')->limit(100)->select();
             if (count($adjustment)) {
                 $orderModel = new OrderModel();
-                $order = $orderModel->where(['saleOrderCode' => $item['payment_id']])->find();
-                $fulfillment = $order['fulfillmentType'] == 1 ? 'FBA' : 'FBM';
                 $orderStatisticObj = new FinanceOrderStatisticsModel();
                 foreach ($adjustment as $item) {
+                    $order = $orderModel->where(['saleOrderCode' => $item['payment_id']])->find();
+                    $fulfillment = $order['fulfillmentType'] == 1 ? 'FBA' : 'FBM';
                     $shareCode = self::generateRandomCode(16);
                     $statistic = $orderStatisticObj->where(['payment_id' => $item['payment_id']])->select();
                     if (count($statistic)) {
@@ -235,22 +253,19 @@ class FinanceOrderShare extends Command
                             $shareItem = [];
                             foreach ($skuRelation['warehouse_sku'] as $value) {
                                 $amount = $item['total'];
-                                $fulfillmentData = FinanceOrderShareModel::getWarehouseSkuFulfillment($value['pcr_product_sku'], $item['report_id']);
-                                foreach ($fulfillmentData as $k => $v) {
-                                    $shareItem[] = [
-                                        'report_id'     =>  $item['report_id'],
-                                        'table_id'      =>  $item['table_id'],
-                                        'fulfillment'   =>  $k == 1 ? 'FBA' : 'FBM',
-                                        'cost_type'     =>  'ADJUSTMENT',
-                                        'share_code'    =>  $shareCode,
-                                        'payment'       =>  $item['payment_id'],
-                                        'seller_sku'    =>  $item['sku'],
-                                        'warehouse_sku' =>  $value['pcr_product_sku'],
-                                        'amount'        =>  $amount,
-                                        'percent'       =>  $value['pcr_percent'] / 100 * $v,
-                                        'total'         =>  $amount * $value['pcr_percent'] / 100 * $v
-                                    ];
-                                }
+                                $shareItem[] = [
+                                    'report_id'     =>  $item['report_id'],
+                                    'table_id'      =>  $item['table_id'],
+                                    'fulfillment'   =>  'FBM',
+                                    'cost_type'     =>  'ADJUSTMENT',
+                                    'share_code'    =>  $shareCode,
+                                    'payment'       =>  $item['payment_id'],
+                                    'seller_sku'    =>  $item['sku'],
+                                    'warehouse_sku' =>  $value['pcr_product_sku'],
+                                    'amount'        =>  $amount,
+                                    'percent'       =>  $value['pcr_percent'] / 100,
+                                    'total'         =>  $amount * $value['pcr_percent'] / 100
+                                ];
                             }
                         } else {
                             // 无sku映射分摊到所有产品*********************************************************
