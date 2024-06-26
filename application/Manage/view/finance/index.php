@@ -33,6 +33,7 @@
                 </select>
             </div>
             <button type="button" class="layui-btn  layui-btn-normal" id="excel">导入</button>
+            <button type="button" class="layui-btn  layui-btn-{if condition='$edit'}disabled{else/}normal{/if}" lay-submit lay-filter="Edit">修正</button>
             <span class="total">销售合计：{$sale_amount}</span>
             <span class="total">退款合计：{$refund_amount}</span>
             <span class="total">促销合计：{$promotion}</span>
@@ -146,6 +147,36 @@
                 $('button').attr('disabled',true);
                 button.text('请稍候...');
                 axios.post("{:url('table_delete')}", {id:id})
+                    .then(function (response) {
+                        var res = response.data;
+                        if (res.code === 1) {
+                            layer.alert(res.msg,{icon:1,closeBtn:0,title:false,btnAlign:'c',},function(){
+                                location.reload();
+                            });
+                        } else {
+                            layer.alert(res.msg,{icon:2,closeBtn:0,title:false,btnAlign:'c'},function(){
+                                layer.closeAll();
+                                $('button').attr('disabled',false);
+                                button.text(text);
+                            });
+                        }
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    });
+                return false;
+            });
+        });
+
+        // 修正
+        form.on('submit(Edit)', function(data){
+            var text = $(this).text(),
+                button = $(this),
+                id = {$report_id};
+            layer.confirm('确认修正吗？请先确保销售金额已核对',{icon:3,closeBtn:0,title:false,btnAlign:'c'},function(){
+                $('button').attr('disabled',true);
+                button.text('请稍候...');
+                axios.post("{:url('order_statistics_edit_auto')}", {id:id})
                     .then(function (response) {
                         var res = response.data;
                         if (res.code === 1) {

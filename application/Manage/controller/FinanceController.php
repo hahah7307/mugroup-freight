@@ -16,6 +16,7 @@ use app\Manage\model\FinanceOrderSaleModel;
 use app\Manage\model\FinanceOrderOutboundModel;
 use app\Manage\model\FinanceOrderShareModel;
 use app\Manage\model\FinanceOrderShippingServiceModel;
+use app\Manage\model\FinanceOrderStatisticsEditModel;
 use app\Manage\model\FinanceOrderStatisticsModel;
 use app\Manage\model\FinanceOrderTransferModel;
 use app\Manage\model\FinanceReportModel;
@@ -31,10 +32,12 @@ use PHPExcel_IOFactory;
 use PHPExcel_Reader_Exception;
 use PHPExcel_Style_Fill;
 use think\Db;
+use think\db\exception\BindParamException;
 use think\db\exception\DataNotFoundException;
 use think\db\exception\ModelNotFoundException;
 use think\Exception;
 use think\exception\DbException;
+use think\exception\PDOException;
 use think\Session;
 use think\Config;
 
@@ -405,6 +408,7 @@ class FinanceController extends BaseController
 
     /**
      * @throws DbException
+     * @throws Exception
      */
     public function index($id): \think\response\View
     {
@@ -428,6 +432,10 @@ class FinanceController extends BaseController
         $this->assign('liquidation', $order->where($where)->sum('liquidation'));
         $this->assign('adjustment', $order->where($where)->sum('adjustment'));
 
+        $editObj = new FinanceOrderStatisticsEditModel();
+        $this->assign('edit', $editObj->where(['is_finished' => 0])->count());
+
+        $this->assign('report_id', $id);
         Session::set(Config::get('BACK_URL'), $this->request->url(), 'manage');
         return view();
     }
@@ -1087,6 +1095,155 @@ ORDER BY
             $this->error($e->getMessage(), url('order_statistics'));
         }
         $this->redirect(url('order_statistics'));
+    }
+
+    /**
+     * @throws PDOException
+     * @throws BindParamException
+     */
+    public function order_statistics_edit_auto()
+    {
+        if ($this->request->isPost()) {
+            $post = $this->request->post();
+            $reportId = $post['id'];
+
+            $editObj = new FinanceOrderStatisticsEditModel();
+            $dataSelling = $editObj->query('
+SELECT
+    ' . $reportId . ' AS report_id,
+    "SELLING_FEE" AS type,
+	a.*,
+	b.id order_statistics_id,
+	b.saleOrderCode,
+	b.sale_amount,
+	b.selling_fee,
+	b.fba_fee,
+	b.seller_sku,
+	b.warehouse_sku 
+FROM
+	(
+	SELECT DISTINCT
+		order_statistic_user_account,
+		payment,
+		payment_sale_amount,
+		payment_selling_fees,
+		payment_fba_fees 
+	FROM
+		(
+		SELECT
+			a.payment_id order_statistic_payment,
+			a.userAccount order_statistic_user_account,
+			ROUND( SUM( b.sale_amount ), 7 ) order_statistic_sale_amount,
+			ROUND( SUM( b.selling_fee ), 7 ) order_statistic_selling_fees,
+			ROUND( SUM( b.fba_fee ), 7 ) order_statistic_fba_fees 
+		FROM
+			(
+			SELECT DISTINCT
+				report_id,
+				payment_id,
+				platform,
+				userAccount 
+			FROM
+				mu_finance_order_sale a
+				LEFT JOIN mu_finance_table b ON a.table_id = b.id 
+			WHERE
+				report_id = ' . $reportId . ' 
+				AND b.platform = "amazon"
+			) a
+			LEFT JOIN mu_finance_order_statistics b ON a.payment_id = b.payment_id 
+		GROUP BY
+			order_statistic_payment,
+			order_statistic_user_account 
+		) a
+		LEFT JOIN (
+		SELECT
+			payment_id payment,
+			SUM( product_sales + shipping_credits + gift_wrap_credits + regulatory_fee + promotional_rebates ) payment_sale_amount,
+			SUM( selling_fees ) payment_selling_fees,
+			SUM( fba_fees ) payment_fba_fees 
+		FROM
+			mu_finance_order_sale
+		GROUP BY
+			payment 
+		) b ON a.order_statistic_payment = b.payment 
+	WHERE
+		a.order_statistic_selling_fees != b.payment_selling_fees * - 1
+	) a
+	LEFT JOIN mu_finance_order_statistics b ON a.payment = b.payment_id;
+            ');
+
+            $dataFba = $editObj->query('
+SELECT
+	' . $reportId . ' AS report_id,
+	"FBA_FEE" AS type,
+	a.*,
+	b.id order_statistics_id,
+	b.saleOrderCode,
+	b.sale_amount,
+	b.selling_fee,
+	b.fba_fee,
+	b.seller_sku,
+	b.warehouse_sku 
+FROM
+	(
+	SELECT DISTINCT
+		order_statistic_user_account,
+		payment,
+		payment_sale_amount,
+		payment_selling_fees,
+		payment_fba_fees 
+	FROM
+		(
+		SELECT
+			a.payment_id order_statistic_payment,
+			a.userAccount order_statistic_user_account,
+			ROUND( SUM( b.sale_amount ), 7 ) order_statistic_sale_amount,
+			ROUND( SUM( b.selling_fee ), 7 ) order_statistic_selling_fees,
+			ROUND( SUM( b.fba_fee ), 7 ) order_statistic_fba_fees 
+		FROM
+			(
+			SELECT DISTINCT
+				report_id,
+				payment_id,
+				platform,
+				userAccount 
+			FROM
+				mu_finance_order_sale a
+				LEFT JOIN mu_finance_table b ON a.table_id = b.id 
+			WHERE
+				report_id = ' . $reportId . '
+				AND b.platform = "amazon"
+			) a
+			LEFT JOIN mu_finance_order_statistics b ON a.payment_id = b.payment_id 
+		GROUP BY
+			order_statistic_payment,
+			order_statistic_user_account 
+		) a
+		LEFT JOIN (
+		SELECT
+			payment_id payment,
+			SUM( product_sales + shipping_credits + gift_wrap_credits + regulatory_fee + promotional_rebates ) payment_sale_amount,
+			SUM( selling_fees ) payment_selling_fees,
+			SUM( fba_fees ) payment_fba_fees 
+		FROM
+			mu_finance_order_sale
+		GROUP BY
+			payment 
+		) b ON a.order_statistic_payment = b.payment 
+	WHERE
+		a.order_statistic_fba_fees != b.payment_fba_fees * -1
+	) a
+	LEFT JOIN mu_finance_order_statistics b ON a.payment = b.payment_id
+            ');
+            if ($editObj->insertAll($dataSelling) && $editObj->insertAll($dataFba)) {
+                echo json_encode(['code' => 1, 'msg' => '操作完成']);
+            } else {
+                echo json_encode(['code' => 0, 'msg' => '操作失败，请重试']);
+            }
+        } else {
+            echo json_encode(['code' => 0, 'msg' => '异常操作']);
+        }
+        exit;
     }
 
     /**

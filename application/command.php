@@ -41,4 +41,5 @@ return [
     'app\Manage\command\OrderCaptureMore', //
     'app\Manage\command\FinanceOrderShare', //
     'app\Manage\command\FinanceWarehouseNotify', //
+    'app\Manage\command\FinanceOrderStatisticsEdit', //
 ];
