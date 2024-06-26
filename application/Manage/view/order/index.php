@@ -78,6 +78,7 @@
                     <col width="120">
                     <col>
                     <col>
+                    <col>
                     <col width="60">
                     <col>
                     <col>
@@ -105,6 +106,7 @@
                     <th class="tc">跟踪号</th>
                     <th class="tc">仓库代码</th>
                     <th class="tc">平台</th>
+                    <th class="tc">店铺</th>
                     <th class="tc">Sku</th>
                     <th class="tc">计费重</th>
                     <th class="tc">邮编</th>
@@ -137,6 +139,7 @@
                     <td>{$v.shippingMethodNo}</td>
                     <td>{$v.warehouseCode}</td>
                     <td>{$v.platform}</td>
+                    <td>{$v.userAccount}</td>
                     <td>{$v.details.0.product.productSku}</td>
                     <td class="tr">{$v.charged_weight}</td>
                     <td>{$v.postalFormat}</td>
