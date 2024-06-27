@@ -10,7 +10,7 @@
         <div class="title">配置中心</div>
         <div>
             <div class="layui-form-item">
-                <div class="layui-inline layui-col-md3">
+                <div class="layui-inline layui-col-md5">
                     <label class="layui-form-label">燃油费率(%)</label>
                     <div class="layui-input-inline">
                         <input type="text" class="layui-input w300" name="fuel_cost" value="{$config['fuel_cost']}">
@@ -20,13 +20,13 @@
         </div>
         <div>
             <div class="layui-form-item">
-                <div class="layui-inline layui-col-md3">
+                <div class="layui-inline layui-col-md5">
                     <label class="layui-form-label">尾程佣金（良仓%）</label>
                     <div class="layui-input-inline">
                         <input type="text" class="layui-input w300" name="lc_commission" value="{$config['lc_commission']}">
                     </div>
                 </div>
-                <div class="layui-inline layui-col-md3">
+                <div class="layui-inline layui-col-md5">
                     <label class="layui-form-label">尾程佣金（乐歌%）</label>
                     <div class="layui-input-inline">
                         <input type="text" class="layui-input w300" name="le_commission" value="{$config['le_commission']}">
@@ -36,7 +36,7 @@
         </div>
         <div>
             <div class="layui-form-item">
-                <div class="layui-inline layui-col-md3">
+                <div class="layui-inline layui-col-md5">
                     <label class="layui-form-label">仅出库费平台（Json）</label>
                     <div class="layui-input-inline">
                         <textarea name="outbound_platform" class="layui-textarea w300">{$config['outbound_platform']}</textarea>
@@ -46,7 +46,7 @@
         </div>
         <div>
             <div class="layui-form-item">
-                <div class="layui-inline layui-col-md3">
+                <div class="layui-inline layui-col-md5">
                     <label class="layui-form-label">库存期初日期</label>
                     <div class="layui-input-inline">
                         <input type="text" class="layui-input w300" name="stock_date" value="{$config['stock_date']}">
@@ -57,7 +57,7 @@
         <div class="title">自动任务中心</div>
         <div>
             <div class="layui-form-item">
-                <div class="layui-inline layui-col-md3">
+                <div class="layui-inline layui-col-md5">
                     <label class="layui-form-label">订单抓取数/分钟</label>
                     <div class="layui-input-inline">
                         <input type="text" class="layui-input w300" name="order_page_num" value="{$config['order_page_num']}">
@@ -67,7 +67,7 @@
         </div>
         <div>
             <div class="layui-form-item">
-                <div class="layui-inline layui-col-md3">
+                <div class="layui-inline layui-col-md5">
                     <label class="layui-form-label">订单关联尾程数/分钟</label>
                     <div class="layui-input-inline">
                         <input type="text" class="layui-input w300" name="finance_notify_num" value="{$config['finance_notify_num']}">
@@ -77,7 +77,7 @@
         </div>
         <div>
             <div class="layui-form-item">
-                <div class="layui-inline layui-col-md3">
+                <div class="layui-inline layui-col-md5">
                     <label class="layui-form-label">邮编更新数/分钟</label>
                     <div class="layui-input-inline">
                         <input type="text" class="layui-input w300" name="postal_update_num" value="{$config['postal_update_num']}">
@@ -87,7 +87,7 @@
         </div>
         <div>
             <div class="layui-form-item">
-                <div class="layui-inline layui-col-md3">
+                <div class="layui-inline layui-col-md5">
                     <label class="layui-form-label">仓储费运算数/分钟</label>
                     <div class="layui-input-inline">
                         <input type="text" class="layui-input w300" name="inventory_batch_num" value="{$config['inventory_batch_num']}">
@@ -98,17 +98,13 @@
         <div class="title">账号中心</div>
         <div>
             <div class="layui-form-item">
-                <div class="layui-inline layui-col-md3">
+                <div class="layui-inline layui-col-md5">
                     <label class="layui-form-label">易仓WMS地址</label>
                     <div class="layui-input-inline">
                         <input type="text" class="layui-input w300" name="ec_wms_uri" value="{$config['ec_wms_uri']}">
                     </div>
                 </div>
-            </div>
-        </div>
-        <div>
-            <div class="layui-form-item">
-                <div class="layui-inline layui-col-md3">
+                <div class="layui-inline layui-col-md5">
                     <label class="layui-form-label">易仓EB地址</label>
                     <div class="layui-input-inline">
                         <input type="text" class="layui-input w300" name="ec_eb_uri" value="{$config['ec_eb_uri']}">
@@ -118,17 +114,13 @@
         </div>
         <div>
             <div class="layui-form-item">
-                <div class="layui-inline layui-col-md3">
+                <div class="layui-inline layui-col-md5">
                     <label class="layui-form-label">易仓账户</label>
                     <div class="layui-input-inline">
                         <input type="text" class="layui-input w300" name="ec_warehouse_username" value="{$config['ec_warehouse_username']}">
                     </div>
                 </div>
-            </div>
-        </div>
-        <div>
-            <div class="layui-form-item">
-                <div class="layui-inline layui-col-md3">
+                <div class="layui-inline layui-col-md5">
                     <label class="layui-form-label">易仓密码</label>
                     <div class="layui-input-inline">
                         <input type="text" class="layui-input w300" name="ec_warehouse_userpass" value="{$config['ec_warehouse_userpass']}">
@@ -138,7 +130,7 @@
         </div>
         <div>
             <div class="layui-form-item">
-                <div class="layui-inline layui-col-md3">
+                <div class="layui-inline layui-col-md5">
                     <label class="layui-form-label">良仓Api地址</label>
                     <div class="layui-input-inline">
                         <input type="text" class="layui-input w300" name="lc_api_uri" value="{$config['lc_api_uri']}">
@@ -148,17 +140,13 @@
         </div>
         <div>
             <div class="layui-form-item">
-                <div class="layui-inline layui-col-md3">
+                <div class="layui-inline layui-col-md5">
                     <label class="layui-form-label">良仓AppToken</label>
                     <div class="layui-input-inline">
                         <input type="text" class="layui-input w300" name="lc_app_token" value="{$config['lc_app_token']}">
                     </div>
                 </div>
-            </div>
-        </div>
-        <div>
-            <div class="layui-form-item">
-                <div class="layui-inline layui-col-md3">
+                <div class="layui-inline layui-col-md5">
                     <label class="layui-form-label">良仓AppKey</label>
                     <div class="layui-input-inline">
                         <input type="text" class="layui-input w300" name="lc_app_key" value="{$config['lc_app_key']}">
@@ -168,17 +156,13 @@
         </div>
         <div>
             <div class="layui-form-item">
-                <div class="layui-inline layui-col-md3">
+                <div class="layui-inline layui-col-md5">
                     <label class="layui-form-label">乐仓AccessKey</label>
                     <div class="layui-input-inline">
                         <input type="text" class="layui-input w300" name="le_access_key" value="{$config['le_access_key']}">
                     </div>
                 </div>
-            </div>
-        </div>
-        <div>
-            <div class="layui-form-item">
-                <div class="layui-inline layui-col-md3">
+                <div class="layui-inline layui-col-md5">
                     <label class="layui-form-label">乐仓SecretKey</label>
                     <div class="layui-input-inline">
                         <input type="text" class="layui-input w300" name="le_secret_key" value="{$config['le_secret_key']}">
@@ -188,7 +172,7 @@
         </div>
         <div>
             <div class="layui-form-item">
-                <div class="layui-inline layui-col-md3">
+                <div class="layui-inline layui-col-md5">
                     <label class="layui-form-label">领星API地址</label>
                     <div class="layui-input-inline">
                         <input type="text" class="layui-input w300" name="ak_openapi_uri" value="{$config['ak_openapi_uri']}">
@@ -198,22 +182,55 @@
         </div>
         <div>
             <div class="layui-form-item">
-                <div class="layui-inline layui-col-md3">
+                <div class="layui-inline layui-col-md5">
                     <label class="layui-form-label">领星AppId</label>
                     <div class="layui-input-inline">
                         <input type="text" class="layui-input w300" name="ak_app_id" value="{$config['ak_app_id']}">
+                    </div>
+                </div>
+                <div class="layui-inline layui-col-md5">
+                    <label class="layui-form-label">领星AccessToken</label>
+                    <div class="layui-input-inline">
+                        <input type="text" class="layui-input w300" name="ak_access_token" value="{$config['ak_access_token']}">
                     </div>
                 </div>
             </div>
         </div>
         <div>
             <div class="layui-form-item">
-                <div class="layui-inline layui-col-md3">
-                    <label class="layui-form-label">领星AccessToken</label>
+                <div class="layui-inline layui-col-md5">
+                    <label class="layui-form-label">阿里云AccessKeyId</label>
                     <div class="layui-input-inline">
-                        <input type="text" class="layui-input w300" name="ak_access_token" value="{$config['ak_access_token']}">
+                        <input type="text" class="layui-input w300" name="ALIBABA_CLOUD_ACCESS_KEY_ID" value="{$config['ALIBABA_CLOUD_ACCESS_KEY_ID']}">
                     </div>
                 </div>
+                <div class="layui-inline layui-col-md5">
+                    <label class="layui-form-label">阿里云AccessKeySecret</label>
+                    <div class="layui-input-inline">
+                        <input type="text" class="layui-input w300" name="ALIBABA_CLOUD_ACCESS_KEY_SECRET" value="{$config['ALIBABA_CLOUD_ACCESS_KEY_SECRET']}">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="title">短信服务</div>
+        <div>
+            <div class="layui-form-item">
+                <div class="layui-inline layui-col-md5">
+                    <label class="layui-form-label">签名名称</label>
+                    <div class="layui-input-inline">
+                        <input type="text" class="layui-input w300" name="sign_name" value="{$config['sign_name']}">
+                    </div>
+                </div>
+                <div class="layui-inline layui-col-md5">
+                    <label class="layui-form-label">模板Code</label>
+                    <div class="layui-input-inline">
+                        <input type="text" class="layui-input w300" name="template_code" value="{$config['template_code']}">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div>
+            <div class="layui-form-item">
             </div>
         </div>
         <div class="layui-form-item">

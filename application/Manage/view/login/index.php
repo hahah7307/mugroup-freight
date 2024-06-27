@@ -25,18 +25,18 @@
                     <input type="text" name="username" id="LAY-user-login-username" lay-verify="required" placeholder="用户名" class="layui-input">
                 </div>
                 <div class="layui-form-item">
-                    <label class="layadmin-user-login-icon layui-icon layui-icon-password" for="LAY-user-login-password"></label>
-                    <input type="password" name="password" id="LAY-user-login-password" lay-verify="required" placeholder="密码" class="layui-input">
+                    <label class="layadmin-user-login-icon layui-icon layui-icon-cellphone" for="LAY-user-login-password"></label>
+                    <input type="text" name="phone" id="LAY-user-login-phone" lay-verify="required" placeholder="手机号码" class="layui-input">
                 </div>
                 <div class="layui-form-item">
                     <div class="layui-row">
                         <div class="layui-col-xs7">
                             <label class="layadmin-user-login-icon layui-icon layui-icon-vercode" for="LAY-user-login-vercode"></label>
-                            <input type="text" name="vercode" id="LAY-user-login-vercode" lay-verify="required" placeholder="图形验证码" class="layui-input">
+                            <input type="text" name="vercode" id="LAY-user-login-vercode" placeholder="手机验证码" class="layui-input">
                         </div>
                         <div class="layui-col-xs5">
-                            <div style="margin-left: 10px;">
-                                <img src="/Manage/Login/captcha.html" class="user-login-codeimg">
+                            <div style="margin-left: 34px;">
+                                <button type="button" class="layui-btn" lay-submit lay-filter="Verify">获取验证码</button>
                             </div>
                         </div>
                     </div>
@@ -70,8 +70,51 @@ layui.config({
 
     form.render();
 
-    $(".user-login-codeimg").click(function(){
-        $(this).attr('src', "/Manage/Login/captcha.html");
+    // $(".user-login-codeimg").click(function(){
+    //     $(this).attr('src', "/Manage/Login/captcha.html");
+    // });
+
+    // 获取手机验证码
+    form.on('submit(Verify)', function(data){
+        let text = $(this).text(),
+            phone = $('#LAY-user-login-phone').val(),
+            button = $(this);
+        button.attr('disabled',true);
+        button.text('请稍候...');
+        axios.post("{:url('get_phone_verify')}", {phone:phone})
+            .then(function (response) {
+                let res = response.data;
+                if (res.code === 1) {
+                    layer.alert(res.msg,{icon:1,closeBtn:0,title:false,btnAlign:'c',},function(){
+                        layer.closeAll();
+                        button.addClass("layui-btn-disabled");
+                        let countdown = 60; // 倒计时时间（秒）
+                        let timer = setInterval(function(){
+                            let minutes = parseInt(countdown / 60, 10);
+                            let seconds = parseInt(countdown % 60, 10);
+                            seconds = seconds < 10 ? "0" + seconds : seconds;
+                            button.text(seconds + "秒后获取");
+                            if (--countdown < 0) {
+                                clearInterval(timer);
+                                button.text(text);
+                                $('button').attr('disabled',false);
+                                button.removeClass("layui-btn-disabled");
+                            }
+                        }, 1000);
+                        button.text(text);
+                    });
+                } else {
+                    layer.alert(res.msg,{icon:2,closeBtn:0,title:false,btnAlign:'c'},function(){
+                        layer.closeAll();
+                        $('button').attr('disabled',false);
+                        button.text(text);
+                    });
+                }
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+        return false;
     });
 
     //提交

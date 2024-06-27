@@ -20,4 +20,6 @@
     'ak_openapi_uri'  =>  'https://openapi.lingxing.com',
     'ak_app_id'  =>  'ak_UZUGiDBfkC65V',
     'ak_access_token'  =>  'sBm7dkhym0QKqb2S6u9aDw==',
+    'sign_name'  =>  '宁波探路者国贸',
+    'template_code'  =>  'SMS_468675149',
 ]; ?>

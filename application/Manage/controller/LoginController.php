@@ -3,14 +3,26 @@ namespace app\Manage\controller;
 
 use app\Manage\model\AccountModel;
 use app\Manage\model\AdminLoginModel;
+use app\Manage\model\AdminUserSmsModel;
+use app\Manage\model\AliyunSms;
 use app\Manage\validate\AdminLoginValidate;
 use think\Controller;
+use think\db\exception\DataNotFoundException;
+use think\db\exception\ModelNotFoundException;
+use think\Exception;
+use think\exception\DbException;
 use think\Session;
 use think\Config;
 use think\Db;
 
 class LoginController extends Controller
 {
+    /**
+     * @throws DbException
+     * @throws ModelNotFoundException
+     * @throws DataNotFoundException
+     * @throws Exception
+     */
     public function index()
     {
         if ($this->request->isPost()) {
@@ -19,47 +31,48 @@ class LoginController extends Controller
             if (empty($post['username'])) {
                 return json(['code' => 0, 'msg' => '请输入账号！']);
             }
-            // 验证密码
-            if (empty($post['password'])) {
-                return json(['code' => 0, 'msg' => '请输入密码！']);
-            }
             // 验证码
-            if ($post['vercode']) {
-                if ($post['vercode'] != session::get('captch_code')) {
-                    return json(['code' => 0, 'msg' => '验证码错误！']);
-                }
-            } else {
+            if (empty($post['vercode'])) {
                 return json(['code' => 0, 'msg' => '请输入验证码！']);
             }
 
             $account = Db::name('admin_user')->where(['username' => $post['username'], 'status' => AccountModel::STATUS_ACTIVE])->find();
             if ($account) {
-                if (encPass($post['password'], $account['password_hash']) == $account['password']) {
-                    Session::set(Config::get('USER_LOGIN_FLAG'), $account['id']);
-                    Session::set(Config::get('USER_LOGIN_TIME'), time());
+                $smsObj = new AdminUserSmsModel();
+                $sms = $smsObj->where(['account_id' => $account['id'], 'date' => date('Ymd')])->order('created_at desc')->find();
+                if ($sms) {
+                    if (time() - strtotime($sms['created_at']) >= 5 * 60){
+                        return json(['code' => 0, 'msg' => '验证码无效！']);
+                    }
+                    if ($sms['sms_code'] == $post['vercode']) {
+                        Session::set(Config::get('USER_LOGIN_FLAG'), $account['id']);
+                        Session::set(Config::get('USER_LOGIN_TIME'), time());
 
-                    // 获取权限列表
-                    $access = AccountModel::account_access($account['id']);
-                    Session::set('access', $access, 'access');
+                        // 获取权限列表
+                        $access = AccountModel::account_access($account['id']);
+                        Session::set('access', $access, 'access');
 
-                    // 登录记录
-                    $dataLogin = [
-                        'aid'       =>  $account['id'],
-                        'login_ip'  =>  ip2long($this->request->ip()),
-                    ];
-                    $dataValidate = new AdminLoginValidate();
-                    if ($dataValidate->scene('add')->check($dataLogin)) {
-                        $model = new AdminLoginModel();
-                        if ($model->allowField(true)->save($dataLogin)) {
-                            return json(['code' => 1, 'msg' => '登录成功！']);
+                        // 登录记录
+                        $dataLogin = [
+                            'aid'       =>  $account['id'],
+                            'login_ip'  =>  ip2long($this->request->ip()),
+                        ];
+                        $dataValidate = new AdminLoginValidate();
+                        if ($dataValidate->scene('add')->check($dataLogin)) {
+                            $model = new AdminLoginModel();
+                            if ($model->allowField(true)->save($dataLogin)) {
+                                return json(['code' => 1, 'msg' => '登录成功！']);
+                            } else {
+                                return json(['code' => 0, 'msg' => '登录失败！']);
+                            }
                         } else {
                             return json(['code' => 0, 'msg' => '登录失败！']);
                         }
                     } else {
-                        return json(['code' => 0, 'msg' => '登录失败！']);
+                        return json(['code' => 0, 'msg' => '验证码错误！']);
                     }
                 } else {
-                    return json(['code' => 0, 'msg' => '账号或密码有误！']);
+                    return json(['code' => 0, 'msg' => '验证码不存在！']);
                 }
             } else {
                 return json(['code' => 0, 'msg' => '账号或密码有误！']);
@@ -170,5 +183,45 @@ class LoginController extends Controller
 
         //销毁
         imagedestroy($image);
+    }
+
+    /**
+     * @throws ModelNotFoundException
+     * @throws DbException
+     * @throws DataNotFoundException
+     * @throws Exception
+     */
+    public function get_phone_verify()
+    {
+        if ($this->request->isPost()) {
+            $post = $this->request->post();
+
+            $accountObj = new AccountModel();
+            $account = $accountObj->where(['phone' => $post['phone'], 'status' => AccountModel::STATUS_ACTIVE])->find();
+            if ($account) {
+                // 发送短信
+                $smsObj = new AdminUserSmsModel();
+                $count = $smsObj->where(['account_id' => $account['id'], 'date' => date('Ymd')])->count();
+                if ($count >= 10) {
+                    return json(['code' => 0, 'msg' => '您的号码今日获取验证码次数已达到上限']);
+                }
+                $code =  mt_rand(100000, 999999);
+                AliyunSms::main($account['phone'], ['code' => $code]);
+                $data = [
+                    'account_id'    =>  $account['id'],
+                    'sms_code'      =>  $code,
+                    'date'          =>  date('Ymd'),
+                    'created_at'    =>  date('Y-m-d H:i:s')
+                ];
+                if ($smsObj->insert($data)) {
+                    echo json_encode(['code' => 1, 'msg' => '发送成功']);
+                } else {
+                    echo json_encode(['code' => 0, 'msg' => '发送失败，请重试']);
+                }
+            } else {
+                echo json_encode(['code' => 0, 'msg' => '请重新确认您的手机号码']);
+            }
+            exit;
+        }
     }
 }

@@ -20,7 +20,8 @@
         "topthink/framework": "5.0.*",
       "ext-json": "*",
       "ext-soap": "*",
-      "ext-curl": "*"
+      "ext-curl": "*",
+        "alibabacloud/dysmsapi-20170525": "3.0.0"
     },
     "autoload": {
         "psr-4": {
@@ -32,6 +33,9 @@
         "think-path": "thinkphp"
     },
     "config": {
-        "preferred-install": "dist"
+        "preferred-install": "dist",
+        "allow-plugins": {
+            "topthink/think-installer": true
+        }
     }
 }
