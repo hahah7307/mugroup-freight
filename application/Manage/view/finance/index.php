@@ -103,6 +103,7 @@
     </div>
 </div>
 <script>
+    console.log(encodeURIComponent("wayfair调整&退款一店.xlsx"));
     layui.use(['form', 'jquery', 'upload', 'laydate'], function(){
         let $ = layui.jquery,
             form = layui.form,
@@ -126,7 +127,7 @@
                 //上传完毕回调
                 console.log(res);
                 if (res.code === 1) {
-                    location.href = "/Manage/Finance/import/rid/{$rid}/filename/" + res.data + "/origin/" + res.origin + "/payment_type/" + res.payment_type;
+                    location.href = "/Manage/Finance/import/rid/{$rid}/filename/" + encodeURIComponent(res.data) + "/origin/" + res.origin + "/payment_type/" + res.payment_type;
                 } else {
                     layer.alert(res.msg,{icon:2,closeBtn:0,title:false,btnAlign:'c'},function(){
                         layer.closeAll();

@@ -880,7 +880,7 @@ class AmazonPayment extends Model
                     "fulfillment"               =>  "Seller",
                     "postal"                    =>  $item[18],
                     "product_sales"             =>  sprintf('%.2f', str_replace(',', '', $item[24])),
-                    "selling_fees"              =>  sprintf('%.2f', str_replace(',', '', $item[22])),
+                    "selling_fees"              =>  sprintf('%.2f', str_replace(',', '', $item[22])) * -1,
                     "shipping_credits"          =>  0,
                     "gift_wrap_credits"         =>  0,
                     "regulatory_fee"            =>  0,
@@ -906,7 +906,7 @@ class AmazonPayment extends Model
                     "fulfillment"               =>  "Seller",
                     "postal"                    =>  $item[18],
                     "product_sales"             =>  sprintf('%.2f', str_replace(',', '', $item[25])),
-                    "selling_fees"              =>  sprintf('%.2f', str_replace(',', '', $item[22])),
+                    "selling_fees"              =>  sprintf('%.2f', str_replace(',', '', $item[22])) * -1,
                     "shipping_credits"          =>  0,
                     "gift_wrap_credits"         =>  0,
                     "regulatory_fee"            =>  0,
@@ -955,51 +955,59 @@ class AmazonPayment extends Model
     {
         foreach ($excel as $item) {
             $orderObj = new OrderModel();
-            $order = $orderObj->with(['details'])->where(['refNo|saleOrderCode' => $item[1]])->find();
+            $order = $orderObj->with(['details'])->where(['refNo|saleOrderCode' => $item[2]])->find();
             if ($order && $order['userAccount'] != $this->userAccount) {
                 $this->userAccount = $order['userAccount'];
             }
+            $orderRefund = $orderObj->with(['details'])->where(['refNo|saleOrderCode' => $item[0]])->find();
+            if ($orderRefund && $orderRefund['userAccount'] != $this->userAccount) {
+                $this->userAccount = $orderRefund['userAccount'];
+            }
 
-            if ($item[11] == 'Order') {
+            if ($item[5] == 'PENDING PAYMENT' && !strpos($item['0'], '_CM')) {
                 $this->orderSaleNew[] = [
                     "report_id"                 =>  $reportId,
                     "table_id"                  =>  $tableId,
-                    "payment_id"                =>  $item[1],
-                    "sku"                       =>  $item[12],
-                    "quantity"                  =>  $item[13],
+                    "payment_id"                =>  $item[2],
+                    "quantity"                  =>  '',
                     "fulfillment"               =>  "Seller",
-                    "product_sales"             =>  sprintf('%.2f', str_replace(',', '', $item[3])),
+                    "product_sales"             =>  sprintf('%.2f', str_replace(',', '', $item[4])),
                     "shipping_credits"          =>  0,
                     "gift_wrap_credits"         =>  0,
                     "regulatory_fee"            =>  0,
                     "promotional_rebates"       =>  0,
-                    "selling_fees"              =>  0,
+                    "selling_fees"              =>  round(sprintf('%.2f', str_replace(',', '', $item[4])) * 0.04 * -1, 2),
                     "fba_fees"                  =>  0,
                 ];
-            } elseif ($item[11] == 'Return') {
-                $this->orderRefundNew[] = [
-                    "report_id"                 =>  $reportId,
-                    "table_id"                  =>  $tableId,
-                    "payment_id"                =>  $item[1],
-                    "sku"                       =>  $item[12],
-                    "quantity"                  =>  $item[13],
-                    "fulfillment"               =>  "Seller",
-                    "product_sales"             =>  sprintf('%.2f', str_replace(',', '', $item[3])),
-                    "shipping_credits"          =>  0,
-                    "gift_wrap_credits"         =>  0,
-                    "regulatory_fee"            =>  0,
-                    "promotional_rebates"       =>  0,
-                    "selling_fees"              =>  0,
-                    "fba_fees"                  =>  0,
-                ];
-            } else {
-                $this->orderAdjustmentNew[] = [
-                    "report_id"                 =>  $reportId,
-                    "table_id"                  =>  $tableId,
-                    "payment_id"                =>  $item[1],
-                    "sku"                       =>  $item[13],
-                    "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[3])),
-                ];
+            } elseif ($item[2] == 'Return') {
+                if (is_numeric($item[9])) {
+                    $count = FinanceOrderRefundModel::wayfairPaymentSkuCount($item[5]);
+                    $this->orderRefundNew[] = [
+                        "report_id"             =>  $reportId,
+                        "table_id"              =>  $tableId,
+                        "payment_id"            =>  substr($item[0], 0 , 11),
+                        "sku"                   =>  $item[5],
+                        "quantity"              =>  $count,
+                        "fulfillment"           =>  "Seller",
+                        "product_sales"         =>  sprintf('%.2f', str_replace(',', '', $item[9])),
+                        "shipping_credits"      =>  0,
+                        "gift_wrap_credits"     =>  0,
+                        "regulatory_fee"        =>  0,
+                        "promotional_rebates"   =>  0,
+                        "selling_fees"          =>  0,
+                        "fba_fees"              =>  0,
+                    ];
+                }
+            } elseif ($item[2] != 'Return') {
+                if (is_numeric($item[9])) {
+                    $this->orderAdjustmentNew[] = [
+                        "report_id"                 =>  $reportId,
+                        "table_id"                  =>  $tableId,
+                        "payment_id"                =>  substr($item[0], 0, 11),
+                        "sku"                       =>  $item[5],
+                        "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[9])),
+                    ];
+                }
             }
         }
 

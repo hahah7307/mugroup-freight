@@ -146,6 +146,8 @@ class FinanceController extends BaseController
         $paymentNoOutbound = $financeReportObj->query(FinanceReportModel::getPaymentNoOutboundSql($report_id));
         $fbaWarehouseSku = $financeReportObj->query(FinanceReportModel::getFbaWarehouseSkuSql($report_id, $report['month']));
         $fbmWarehouseSku = $financeReportObj->query(FinanceReportModel::getFbmWarehouseSkuSql($report_id, $report['month']));
+        $walmartWarehouseSku = $financeReportObj->query(FinanceReportModel::getWalmartWarehouseSkuSql($report_id));
+        $wayfairWarehouseSku = $financeReportObj->query(FinanceReportModel::getWayfairWarehouseSkuSql($report_id));
 
         // phpexcel
         require_once './static/classes/PHPExcel/Classes/PHPExcel.php';
@@ -354,10 +356,148 @@ class FinanceController extends BaseController
         $objPHPExcel->createSheet();
 
         // Set name sheet
-        $objPHPExcel->setActiveSheetIndex(3)->setTitle('Payment未出库');
+        $objPHPExcel->setActiveSheetIndex(3)->setTitle('Walmart');
 
         // Add some data
         $objPHPExcel->setActiveSheetIndex(3)
+            ->setCellValue('A1', '平台')
+            ->setCellValue('B1', '店铺')
+            ->setCellValue('C1', '仓库Sku')
+            ->setCellValue('D1', '销售量')
+            ->setCellValue('E1', '退款量')
+            ->setCellValue('F1', '销售额')
+            ->setCellValue('G1', '退款额')
+            ->setCellValue('H1', '平台佣金')
+            ->setCellValue('I1', '平台佣金退款')
+            ->setCellValue('J1', 'FBM尾程')
+            ->setCellValue('K1', 'DDP')
+            ->setCellValue('L1', '广告费')
+            ->setCellValue('M1', '仓储费')
+            ->setCellValue('N1', '调整费用')
+            ->setCellValue('O1', '良仓调整费用')
+            ->setCellValue('P1', '乐歌调整费用')
+            ->setCellValue('Q1', '广告费占比')
+            ->setCellValue('R1', '仓储费占比')
+            ->setCellValue('S1', '尾程占比')
+            ->setCellValue('T1', 'DDP占比')
+            ->setCellValue('U1', '毛利')
+            ->setCellValue('V1', '毛利率')
+            ->setCellValue('W1', '测评数量')
+            ->setCellValue('X1', '测评金额')
+            ->setCellValue('Y1', '含测评毛利')
+            ->setCellValue('Z1', '含测评毛利率')
+        ;
+
+        $walmartIndex = 1;
+        foreach ($walmartWarehouseSku as $walmartItem) {
+            $walmartIndex ++;
+            $objPHPExcel->setActiveSheetIndex(3)
+                ->setCellValue('A' . $walmartIndex, $walmartItem['platform'])
+                ->setCellValue('B' . $walmartIndex, $walmartItem['userAccount'])
+                ->setCellValue('C' . $walmartIndex, $walmartItem['warehouse_sku'])
+                ->setCellValue('D' . $walmartIndex, $walmartItem['sale_qty'])
+                ->setCellValue('E' . $walmartIndex, $walmartItem['refund_qty'])
+                ->setCellValue('F' . $walmartIndex, $walmartItem['sale_amount'])
+                ->setCellValue('G' . $walmartIndex, $walmartItem['refund_amount'])
+                ->setCellValue('H' . $walmartIndex, $walmartItem['sale_selling_fees'])
+                ->setCellValue('I' . $walmartIndex, $walmartItem['refund_selling_fees'])
+                ->setCellValue('J' . $walmartIndex, $walmartItem['calcuRes'])
+                ->setCellValue('K' . $walmartIndex, $walmartItem['ddp'])
+                ->setCellValue('L' . $walmartIndex, $walmartItem['adCost'])
+                ->setCellValue('M' . $walmartIndex, $walmartItem['warehouse_rent'])
+                ->setCellValue('N' . $walmartIndex, $walmartItem['adjustment'])
+                ->setCellValue('O' . $walmartIndex, $walmartItem['lc_adjustment'])
+                ->setCellValue('P' . $walmartIndex, $walmartItem['le_adjustment'])
+                ->setCellValue('Q' . $walmartIndex, $walmartItem['ad_percent'])
+                ->setCellValue('R' . $walmartIndex, $walmartItem['warehouse_percent'])
+                ->setCellValue('S' . $walmartIndex, $walmartItem['tail_percent'])
+                ->setCellValue('T' . $walmartIndex, $walmartItem['ddp_percent'])
+                ->setCellValue('U' . $walmartIndex, $walmartItem['profit'])
+                ->setCellValue('V' . $walmartIndex, $walmartItem['gross_profit_margin'])
+                ->setCellValue('W' . $walmartIndex, $walmartItem['evaluation_qty'])
+                ->setCellValue('X' . $walmartIndex, $walmartItem['evaluation_amount'])
+                ->setCellValue('Y' . $walmartIndex, $walmartItem['profit_include_evaluation'])
+                ->setCellValue('Z' . $walmartIndex, $walmartItem['gross_profit_margin_include_evaluation'])
+            ;
+        }
+
+        // create new sheet
+        $objPHPExcel->createSheet();
+
+        // Set name sheet
+        $objPHPExcel->setActiveSheetIndex(4)->setTitle('Wayfair');
+
+        // Add some data
+        $objPHPExcel->setActiveSheetIndex(4)
+            ->setCellValue('A1', '平台')
+            ->setCellValue('B1', '店铺')
+            ->setCellValue('C1', '仓库Sku')
+            ->setCellValue('D1', '销售量')
+            ->setCellValue('E1', '退款量')
+            ->setCellValue('F1', '销售额')
+            ->setCellValue('G1', '退款额')
+            ->setCellValue('H1', '平台佣金')
+            ->setCellValue('I1', '平台佣金退款')
+            ->setCellValue('J1', 'FBM尾程')
+            ->setCellValue('K1', 'DDP')
+            ->setCellValue('L1', '广告费')
+            ->setCellValue('M1', '仓储费')
+            ->setCellValue('N1', '调整费用')
+            ->setCellValue('O1', '良仓调整费用')
+            ->setCellValue('P1', '乐歌调整费用')
+            ->setCellValue('Q1', '广告费占比')
+            ->setCellValue('R1', '仓储费占比')
+            ->setCellValue('S1', '尾程占比')
+            ->setCellValue('T1', 'DDP占比')
+            ->setCellValue('U1', '毛利')
+            ->setCellValue('V1', '毛利率')
+            ->setCellValue('W1', '测评数量')
+            ->setCellValue('X1', '测评金额')
+            ->setCellValue('Y1', '含测评毛利')
+            ->setCellValue('Z1', '含测评毛利率')
+        ;
+
+        $wayfairIndex = 1;
+        foreach ($wayfairWarehouseSku as $wayfairItem) {
+            $wayfairIndex ++;
+            $objPHPExcel->setActiveSheetIndex(4)
+                ->setCellValue('A' . $wayfairIndex, $wayfairItem['platform'])
+                ->setCellValue('B' . $wayfairIndex, $wayfairItem['userAccount'])
+                ->setCellValue('C' . $wayfairIndex, $wayfairItem['warehouse_sku'])
+                ->setCellValue('D' . $wayfairIndex, $wayfairItem['sale_qty'])
+                ->setCellValue('E' . $wayfairIndex, $wayfairItem['refund_qty'])
+                ->setCellValue('F' . $wayfairIndex, $wayfairItem['sale_amount'])
+                ->setCellValue('G' . $wayfairIndex, $wayfairItem['refund_amount'])
+                ->setCellValue('H' . $wayfairIndex, $wayfairItem['sale_selling_fees'])
+                ->setCellValue('I' . $wayfairIndex, $wayfairItem['refund_selling_fees'])
+                ->setCellValue('J' . $wayfairIndex, $wayfairItem['calcuRes'])
+                ->setCellValue('K' . $wayfairIndex, $wayfairItem['ddp'])
+                ->setCellValue('L' . $wayfairIndex, $wayfairItem['adCost'])
+                ->setCellValue('M' . $wayfairIndex, $wayfairItem['warehouse_rent'])
+                ->setCellValue('N' . $wayfairIndex, $wayfairItem['adjustment'])
+                ->setCellValue('O' . $wayfairIndex, $wayfairItem['lc_adjustment'])
+                ->setCellValue('P' . $wayfairIndex, $wayfairItem['le_adjustment'])
+                ->setCellValue('Q' . $wayfairIndex, $wayfairItem['ad_percent'])
+                ->setCellValue('R' . $wayfairIndex, $wayfairItem['warehouse_percent'])
+                ->setCellValue('S' . $wayfairIndex, $wayfairItem['tail_percent'])
+                ->setCellValue('T' . $wayfairIndex, $wayfairItem['ddp_percent'])
+                ->setCellValue('U' . $wayfairIndex, $wayfairItem['profit'])
+                ->setCellValue('V' . $wayfairIndex, $wayfairItem['gross_profit_margin'])
+                ->setCellValue('W' . $wayfairIndex, $wayfairItem['evaluation_qty'])
+                ->setCellValue('X' . $wayfairIndex, $wayfairItem['evaluation_amount'])
+                ->setCellValue('Y' . $wayfairIndex, $wayfairItem['profit_include_evaluation'])
+                ->setCellValue('Z' . $wayfairIndex, $wayfairItem['gross_profit_margin_include_evaluation'])
+            ;
+        }
+
+        // create new sheet
+        $objPHPExcel->createSheet();
+
+        // Set name sheet
+        $objPHPExcel->setActiveSheetIndex(5)->setTitle('Payment未出库');
+
+        // Add some data
+        $objPHPExcel->setActiveSheetIndex(5)
             ->setCellValue('A1', '平台')
             ->setCellValue('B1', '店铺')
             ->setCellValue('C1', '账单Payment')
@@ -376,7 +516,7 @@ class FinanceController extends BaseController
         $paymentNoOutboundIndex = 1;
         foreach ($paymentNoOutbound as $paymentNoOutboundItem) {
             $paymentNoOutboundIndex ++;
-            $objPHPExcel->setActiveSheetIndex(3)
+            $objPHPExcel->setActiveSheetIndex(5)
                 ->setCellValue('A' . $paymentNoOutboundIndex, $paymentNoOutboundItem['platform'])
                 ->setCellValue('B' . $paymentNoOutboundIndex, $paymentNoOutboundItem['userAccount'])
                 ->setCellValue('C' . $paymentNoOutboundIndex, $paymentNoOutboundItem['payment_id'])
@@ -1148,7 +1288,6 @@ FROM
 				LEFT JOIN mu_finance_table b ON a.table_id = b.id 
 			WHERE
 				report_id = ' . $reportId . ' 
-				AND b.platform = "amazon"
 			) a
 			LEFT JOIN mu_finance_order_statistics b ON a.payment_id = b.payment_id 
 		GROUP BY
@@ -1163,6 +1302,8 @@ FROM
 			SUM( fba_fees ) payment_fba_fees 
 		FROM
 			mu_finance_order_sale
+        WHERE
+            report_id = ' . $reportId . ' 
 		GROUP BY
 			payment 
 		) b ON a.order_statistic_payment = b.payment 

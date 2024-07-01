@@ -83,38 +83,43 @@ class FinanceNotify extends Command
                     }
 
                     // 检测分摊是否完成
-                    $financeOrderRefundObj = new FinanceOrderRefundModel();
-                    $refund = $financeOrderRefundObj->where(['report_id' => $report['id']])->where('share_code', null)->order('id asc')->select();
-                    if (count($refund) > 0) {
-                        continue;
-                    }
+//                    $financeOrderRefundObj = new FinanceOrderRefundModel();
+//                    $refund = $financeOrderRefundObj->where(['report_id' => $report['id']])->where('share_code', null)->order('id asc')->select();
+//                    if (count($refund) > 0) {
+//                        continue;
+//                    }
 
                     $financeOrderShippingObj = new FinanceOrderShippingServiceModel();
                     $shipping = $financeOrderShippingObj->where(['report_id' => $report['id']])->where('share_code', null)->order('id asc')->select();
                     if (count($shipping) > 0) {
+                        dump(111);
                         continue;
                     }
 
                     $financeOrderAdjustmentObj = new FinanceOrderAdjustmentModel();
                     $adjustment = $financeOrderAdjustmentObj->where(['report_id' => $report['id']])->where('share_code', null)->order('id asc')->select();
                     if (count($adjustment) > 0) {
+                        dump(222);
                         continue;
                     }
 
                     $financeOrderLiquidationObj = new FinanceOrderLiquidationModel();
                     $liquidation = $financeOrderLiquidationObj->where(['report_id' => $report['id']])->where('total', 'neq', 0)->where('share_code', null)->order('id asc')->select();
                     if (count($liquidation) > 0) {
+                        dump(333);
                         continue;
                     }
 
                     $additional = $additionalObj->where(['report_id' => $report['id']])->where('share_code', null)->where('promotion', 'not null')->order('id asc')->select();
                     if (count($additional) > 0) {
+                        dump(444);
                         continue;
                     }
 
                     // 检测无销售的sku仓储费是否归类主件
                     $noSaleWarehouse = $warehouseObj->where(['is_sale' => 0])->where('main_sku', null)->order('id asc')->select();
                     if (count($noSaleWarehouse) > 0) {
+                        dump(555);
                         continue;
                     }
 

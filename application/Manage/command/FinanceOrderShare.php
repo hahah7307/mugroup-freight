@@ -269,7 +269,8 @@ class FinanceOrderShare extends Command
                             }
                         } else {
                             // 无sku映射分摊到所有产品*********************************************************
-                            $skuPercent = self::generateSkuPercent($item['table_id']);
+                            $table = $tableObj->find($item['table_id']);
+                            $skuPercent = self::generateSkuPercent($table);
                             $shareItem = [];
                             $percentSum = 0;
                             foreach ($skuPercent as $key => $value) {
@@ -416,7 +417,7 @@ LIMIT 20;
                     $shareCode = self::generateRandomCode(16);
                     $tableObj = new FinanceTableModel();
                     $table = $tableObj->where(['rid' => $item['report_id'], 'userAccount' => $item['user_account']])->find();
-                    $skuPercent = self::generateSkuPercent($table['id']);
+                    $skuPercent = self::generateSkuPercent($table);
                     $shareItem = [];
                     $percentSum = 0;
                     foreach ($skuPercent as $key => $value) {
@@ -486,10 +487,11 @@ LIMIT 20;
      * @throws PDOException
      * @throws BindParamException
      */
-    static protected function generateSkuPercent($table_id)
+    static protected function generateSkuPercent($table)
     {
         $model = new FinanceOrderShareModel();
-        return $model->query('
+        if ($table['platform'] == "wayfair") {
+            return $model->query('
 SELECT
 	warehouse_sku,
 	SUM( qty ) qty,
@@ -497,20 +499,45 @@ SELECT
 	SELECT
 		SUM( qty ) 
 	FROM
-		( SELECT DISTINCT payment_id FROM mu_finance_order_sale WHERE table_id = ' . $table_id . ' ) a
+		( SELECT DISTINCT payment_id FROM mu_finance_order_sale WHERE table_id in (SELECT id FROM mu_finance_table WHERE rid = ' . $table['rid'] . ' AND platform = "wayfair")) a
 		LEFT JOIN mu_finance_order_statistics b ON a.payment_id = b.payment_id
 		LEFT JOIN mu_ecang_product c ON b.warehouse_sku = c.productSku 
 	WHERE
 		c.saleStatus = 2 
 	) , 4) percent
 FROM
-	( SELECT DISTINCT payment_id FROM mu_finance_order_sale WHERE table_id = ' . $table_id . ' ) a
+	( SELECT DISTINCT payment_id FROM mu_finance_order_sale WHERE table_id in (SELECT id FROM mu_finance_table WHERE rid = ' . $table['rid'] . ' AND platform = "wayfair")) a
 	LEFT JOIN mu_finance_order_statistics b ON a.payment_id = b.payment_id
 	LEFT JOIN mu_ecang_product c ON b.warehouse_sku = c.productSku 
 WHERE
 	c.saleStatus = 2 
 GROUP BY
 	warehouse_sku;
-        ');
+            ');
+        } else {
+            return $model->query('
+SELECT
+	warehouse_sku,
+	SUM( qty ) qty,
+	ROUND(SUM( qty ) / (
+	SELECT
+		SUM( qty ) 
+	FROM
+		( SELECT DISTINCT payment_id FROM mu_finance_order_sale WHERE table_id = ' . $table['id'] . ' ) a
+		LEFT JOIN mu_finance_order_statistics b ON a.payment_id = b.payment_id
+		LEFT JOIN mu_ecang_product c ON b.warehouse_sku = c.productSku 
+	WHERE
+		c.saleStatus = 2 
+	) , 4) percent
+FROM
+	( SELECT DISTINCT payment_id FROM mu_finance_order_sale WHERE table_id = ' . $table['id'] . ' ) a
+	LEFT JOIN mu_finance_order_statistics b ON a.payment_id = b.payment_id
+	LEFT JOIN mu_ecang_product c ON b.warehouse_sku = c.productSku 
+WHERE
+	c.saleStatus = 2 
+GROUP BY
+	warehouse_sku;
+            ');
+        }
     }
 }

@@ -1756,4 +1756,734 @@ GROUP BY
 	fbm_sale_amount
         ';
     }
+
+    static public function getWalmartWarehouseSkuSql($report_id): string
+    {
+        return '
+SELECT
+	platform,
+	userAccount,
+	warehouse_sku,
+	SUM( sale_qty ) sale_qty,
+	SUM( refund_qty ) refund_qty,
+	SUM( ROUND( sale_amount, 7 ) ) sale_amount,
+	SUM( ROUND( refund_amount, 7 ) ) refund_amount,
+	SUM( ROUND( sale_selling_fees, 7 ) ) sale_selling_fees,
+	SUM( ROUND( refund_selling_fees, 7 ) ) refund_selling_fees,
+	SUM( ROUND( calcuRes, 7 ) ) calcuRes,
+	SUM( ROUND( ddp, 2 ) ) ddp,
+	SUM( ROUND( adCost, 7 ) ) adCost,
+	SUM( ROUND( warehouse_rent, 4 ) ) warehouse_rent,
+	SUM( ROUND( adjustment, 6 ) ) adjustment,
+	SUM( ROUND( lc_adjustment, 2 ) ) lc_adjustment,
+	SUM( ROUND( le_adjustment, 2 ) ) le_adjustment,
+	ROUND( SUM( IFNULL( adCost, 0 ) ) / SUM( IFNULL( sale_amount, 0 ) ) * - 1, 4 ) ad_percent,
+	ROUND( SUM( IFNULL( warehouse_rent, 0 ) ) / SUM( IFNULL( sale_amount, 0 ) ) * - 1, 4 ) warehouse_percent,
+	ROUND( SUM( IFNULL( calcuRes, 0 ) ) / SUM( IFNULL( sale_amount, 0 ) ) * - 1, 4 ) tail_percent,
+	ROUND( SUM( IFNULL( ddp, 0 ) ) / SUM( IFNULL( sale_amount, 0 ) ) * - 1, 4 ) ddp_percent,
+	ROUND(
+		SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( lc_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ),
+		2 
+	) profit,
+	ROUND(
+		(
+			SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( lc_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) 
+		) / SUM( IFNULL( sale_amount, 0 ) ),
+		4 
+	) gross_profit_margin,
+	SUM( ROUND( evaluation_qty, 3 ) ) evaluation_qty,
+	SUM( ROUND( evaluation_amount, 2 ) ) evaluation_amount,
+	ROUND(
+		SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( lc_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) - SUM( IFNULL( evaluation_amount, 0 ) ),
+		2 
+	) profit_include_evaluation,
+	ROUND(
+		(
+			SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( lc_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) - SUM( IFNULL( evaluation_amount, 0 ) ) 
+		) / SUM( IFNULL( sale_amount, 0 ) ),
+		2 
+	) gross_profit_margin_include_evaluation 
+FROM
+	(
+	SELECT
+		platform,
+		userAccount,
+		warehouse_sku,
+		SUM( sale_qty ) sale_qty,
+		SUM( refund_qty ) * - 1 refund_qty,
+		SUM( ROUND( sale_amount, 7 ) ) sale_amount,
+		SUM( ROUND( refund_amount, 7 ) ) refund_amount,
+		SUM( ROUND( sale_selling_fees, 7 ) ) * - 1 sale_selling_fees,
+		SUM( ROUND( refund_selling_fees, 7 ) ) refund_selling_fees,
+		SUM( ROUND( calcuRes, 7 ) ) * - 1 calcuRes,
+		SUM( ROUND( ddp, 2 ) ) * - 1 ddp,
+		SUM( ROUND( adCost, 7 ) ) adCost,
+		SUM( ROUND( warehouse_rent, 4 ) ) warehouse_rent,
+		SUM( ROUND( adjustment, 6 ) ) adjustment,
+		SUM( ROUND( lc_adjustment, 6 ) ) lc_adjustment,
+		SUM( ROUND( le_adjustment, 6 ) ) le_adjustment,
+		SUM( ROUND( evaluation_qty, 3 ) ) evaluation_qty,
+		SUM( ROUND( evaluation_amount, 2 ) ) evaluation_amount 
+	FROM
+		(
+		SELECT
+			platform,
+			userAccount,
+			warehouse_sku,
+			SUM( sale_qty ) sale_qty,
+			SUM( refund_qty ) refund_qty,
+			SUM( ROUND( sale_amount, 7 ) ) sale_amount,
+			SUM( ROUND( refund_amount, 7 ) ) refund_amount,
+			SUM( ROUND( sale_selling_fees, 7 ) ) sale_selling_fees,
+			SUM( ROUND( refund_selling_fees, 7 ) ) refund_selling_fees,
+			SUM( ROUND( calcuRes, 7 ) ) calcuRes,
+			SUM( ROUND( ddp, 2 ) ) ddp,
+			NULL AS adCost,
+			SUM( ROUND( warehouse_rent, 4 ) ) warehouse_rent,
+			SUM( ROUND( adjustment, 6 ) ) adjustment,
+			SUM( ROUND( lc_adjustment, 6 ) ) lc_adjustment,
+			SUM( ROUND( le_adjustment, 6 ) ) le_adjustment,
+			NULL AS evaluation_qty,
+			NULL AS evaluation_amount 
+		FROM
+			(
+			SELECT
+				a.platform,
+				a.userAccount,
+				a.payment_id,
+				b.saleOrderCode,
+				b.platform_sku seller_sku,
+				b.warehouse_sku,
+				b.qty sale_qty,
+				NULL AS refund_qty,
+				ROUND( b.sale_amount, 7 ) sale_amount,
+				NULL AS refund_amount,
+				ROUND( b.selling_fee, 7 ) sale_selling_fees,
+				NULL AS refund_selling_fees,
+				c.calcuRes calcuRes,
+				NULL AS ddp,
+				NULL AS adCost,
+				NULL AS warehouse_rent,
+				NULL AS adjustment,
+				NULL AS lc_adjustment,
+				NULL AS le_adjustment 
+			FROM
+				(
+				SELECT DISTINCT
+					report_id,
+					payment_id,
+					platform,
+					userAccount 
+				FROM
+					mu_finance_order_sale a
+					LEFT JOIN mu_finance_table b ON a.table_id = b.id 
+				WHERE
+					report_id = ' . $report_id . ' 
+					AND b.platform = "walmart" 
+				) a
+				LEFT JOIN mu_finance_order_statistics b ON a.payment_id = b.payment_id
+				LEFT JOIN mu_ecang_order c ON b.saleOrderCode = c.saleOrderCode UNION ALL
+			SELECT
+				a.platform,
+				a.userAccount,
+				a.payment_id,
+				b.saleOrderCode,
+				b.seller_sku,
+				b.warehouse_sku,
+				NULL AS sale_qty,
+				NULL AS refund_qty,
+				NULL AS sale_amount,
+				NULL AS refund_amount,
+				NULL AS sale_selling_fees,
+				NULL AS refund_selling_fees,
+				NULL AS calcuRes,
+				c.sku_ddp_unit * b.qty / d.USD ddp,
+				NULL AS adCost,
+				b.warehouse_rent,
+				NULL AS adjustment,
+				NULL AS lc_adjustment,
+				NULL AS le_adjustment 
+			FROM
+				(
+				SELECT DISTINCT
+					report_id,
+					payment_id,
+					platform,
+					userAccount 
+				FROM
+					mu_finance_order_sale a
+					LEFT JOIN mu_finance_table b ON a.table_id = b.id 
+				WHERE
+					report_id = ' . $report_id . ' 
+					AND b.platform = "walmart" 
+				) a
+				LEFT JOIN mu_finance_order_outbound b ON b.payment_id = a.payment_id 
+				AND b.report_id = ' . $report_id . ' 
+				LEFT JOIN mu_finance_store c ON b.store_id = c.id
+				LEFT JOIN mu_finance_report d ON b.report_id = d.id UNION ALL
+			SELECT
+				b.platform,
+				b.userAccount,
+				a.payment_id,
+				NULL AS saleOrderCode,
+				a.sku seller_sku,
+				d.pcr_product_sku warehouse_sku,
+				NULL AS sale_qty,
+				a.quantity * d.pcr_quantity refund_qty,
+				NULL AS sale_amount,
+				ROUND( ( product_sales ) * d.pcr_percent * d.pcr_quantity / 100, 7 ) refund_amount,
+				NULL AS sale_selling_fees,
+				ROUND( selling_fees * d.pcr_percent * d.pcr_quantity / 100, 7 ) refund_selling_fees,
+				NULL AS calcuRes,
+				NULL AS ddp,
+				NULL AS adCost,
+				NULL AS warehouse_rent,
+				NULL AS adjustment,
+				NULL AS lc_adjustment,
+				NULL AS le_adjustment 
+			FROM
+				mu_finance_order_refund a
+				LEFT JOIN mu_finance_table b ON a.table_id = b.id
+				LEFT JOIN mu_ecang_sku c ON a.sku = c.product_sku 
+				AND b.userAccount = c.user_account
+				LEFT JOIN mu_ecang_sku_relation d ON c.id = d.sku_id 
+			WHERE
+				report_id = ' . $report_id . ' 
+				AND b.platform = "walmart" UNION ALL
+			SELECT
+				b.platform,
+				b.userAccount,
+				a.payment_id,
+				NULL AS saleOrderCode,
+				a.sku seller_sku,
+				c.warehouse_sku warehouse_sku,
+				NULL AS sale_qty,
+				NULL AS refund_qty,
+				NULL AS sale_amount,
+				NULL AS refund_amount,
+				NULL AS sale_selling_fees,
+				NULL AS refund_selling_fees,
+				NULL AS calcuRes,
+				NULL AS ddp,
+				NULL AS adCost,
+				NULL AS warehouse_rent,
+				c.total adjustment,
+				NULL AS lc_adjustment,
+				NULL AS le_adjustment 
+			FROM
+				mu_finance_order_adjustment a
+				LEFT JOIN mu_finance_table b ON a.table_id = b.id
+				LEFT JOIN mu_finance_order_share c ON a.share_code = c.share_code 
+			WHERE
+				a.report_id = ' . $report_id . ' 
+				AND b.platform = "walmart" UNION ALL
+			SELECT
+				"walmart" AS platform,
+				user_account userAccount,
+				NULL AS payment,
+				NULL AS payment_id,
+				NULL AS saleOrderCode,
+				NULL AS seller_sku,
+				warehouse_sku warehouse_sku,
+				NULL AS sale_qty,
+				NULL AS refund_qty,
+				NULL AS sale_amount,
+				NULL AS refund_amount,
+				NULL AS sale_selling_fees,
+				NULL AS refund_selling_fees,
+				NULL AS calcuRes,
+				NULL AS ddp,
+				NULL AS warehouse_rent,
+				NULL AS adjustment,
+				lc_adjustment lc_adjustment,
+				le_adjustment le_adjustment 
+			FROM
+				mu_finance_order_additional a
+				LEFT JOIN ( SELECT DISTINCT platform, userAccount FROM mu_finance_table WHERE rid = ' . $report_id . '  ) b ON a.user_account = b.userAccount 
+			WHERE
+				report_id = ' . $report_id . ' 
+				AND b.platform = "walmart" UNION ALL
+			SELECT
+				a.platform,
+				a.user_account userAccount,
+				NULL AS payment_id,
+				NULL AS saleOrderCode,
+				NULL AS seller_sku,
+				a.sku warehouse_sku,
+				NULL AS sale_qty,
+				NULL AS refund_qty,
+				NULL AS sale_amount,
+				NULL AS refund_amount,
+				NULL AS sale_selling_fees,
+				NULL AS refund_selling_fees,
+				NULL AS calcuRes,
+				NULL AS ddp,
+				NULL AS adCost,
+				ROUND( SUM( a.total / b.qty ), 7 ) warehouse_rent,
+				NULL AS adjustment,
+				NULL AS lc_adjustment,
+				NULL AS le_adjustment 
+			FROM
+				(
+				SELECT
+					sku,
+					pcr_product_sku,
+					sku_id,
+					user_account,
+					platform,
+					total 
+				FROM
+					(
+					SELECT DISTINCT
+						main_sku sku,
+						SUM( total ) total 
+					FROM
+						mu_finance_warehouse 
+					WHERE
+						is_sale = 0 
+						AND total > 0 
+						AND report_id = ' . $report_id . ' 
+					GROUP BY
+						main_sku 
+					) a
+					LEFT JOIN mu_ecang_sku_relation b ON a.sku = b.pcr_product_sku
+					LEFT JOIN mu_ecang_sku c ON b.sku_id = c.id
+					LEFT JOIN mu_finance_table d ON c.user_account = d.userAccount 
+				WHERE
+					platform = "walmart" 
+					AND d.rid = ' . $report_id . ' 
+				) a
+				LEFT JOIN (
+				SELECT
+					sku,
+					COUNT( sku ) qty 
+				FROM
+					( SELECT DISTINCT main_sku sku FROM mu_finance_warehouse WHERE is_sale = 0 AND total > 0 AND report_id = ' . $report_id . '  ) a
+					LEFT JOIN mu_ecang_sku_relation b ON a.sku = b.pcr_product_sku
+					LEFT JOIN mu_ecang_sku c ON b.sku_id = c.id
+					LEFT JOIN mu_finance_table d ON c.user_account = d.userAccount 
+				WHERE
+					d.rid = ' . $report_id . ' 
+				GROUP BY
+					sku 
+				) b ON a.sku = b.sku 
+			GROUP BY
+				platform,
+				userAccount,
+				warehouse_sku 
+			) a 
+		GROUP BY
+			platform,
+			userAccount,
+			warehouse_sku UNION ALL
+		SELECT
+			"walmart" AS platform,
+			d.userAccount userAccount,
+			a.warehouse_sku warehouse_sku,
+			NULL AS sale_qty,
+			NULL AS refund_qty,
+			NULL AS sale_amount,
+			NULL AS refund_amount,
+			NULL AS sale_selling_fees,
+			NULL AS refund_selling_fees,
+			NULL AS calcuRes,
+			NULL AS ddp,
+			NULL AS adCost,
+			NULL AS warehouse_rent,
+			NULL AS adjustment,
+			NULL AS lc_adjustment,
+			NULL AS le_adjustment,
+			b.qty evaluation_qty,
+			ROUND( a.cny_actual_paid / c.USD, 2 ) evaluation_amount 
+		FROM
+			mu_finance_evaluation a
+			LEFT JOIN mu_finance_order_statistics b ON a.payment = b.saleOrderCode
+			LEFT JOIN mu_finance_report c ON a.report_id = c.id
+			LEFT JOIN mu_ecang_order d ON a.payment = d.saleOrderCode 
+		WHERE
+			d.fulfillmentType = 1 
+			AND a.report_id = ' . $report_id . ' 
+			AND b.platform = "walmart" 
+		) a 
+	GROUP BY
+		platform,
+		userAccount,
+		warehouse_sku 
+	ORDER BY
+		platform,
+		userAccount,
+		warehouse_sku 
+	) a 
+GROUP BY
+	platform,
+	userAccount,
+	warehouse_sku,
+	sale_amount;
+        ';
+    }
+
+    static public function getWayfairWarehouseSkuSql($report_id): string
+    {
+        return '
+SELECT
+	platform,
+	userAccount,
+	warehouse_sku,
+	SUM( sale_qty ) sale_qty,
+	SUM( refund_qty ) refund_qty,
+	SUM( ROUND( sale_amount, 7 ) ) sale_amount,
+	SUM( ROUND( refund_amount, 7 ) ) refund_amount,
+	SUM( ROUND( sale_selling_fees, 7 ) ) sale_selling_fees,
+	SUM( ROUND( refund_selling_fees, 7 ) ) refund_selling_fees,
+	SUM( ROUND( calcuRes, 7 ) ) calcuRes,
+	SUM( ROUND( ddp, 2 ) ) ddp,
+	SUM( ROUND( adCost, 7 ) ) adCost,
+	SUM( ROUND( warehouse_rent, 4 ) ) warehouse_rent,
+	SUM( ROUND( adjustment, 6 ) ) adjustment,
+	SUM( ROUND( lc_adjustment, 2 ) ) lc_adjustment,
+	SUM( ROUND( le_adjustment, 2 ) ) le_adjustment,
+	ROUND( SUM( IFNULL( adCost, 0 ) ) / SUM( IFNULL( sale_amount, 0 ) ) * - 1, 4 ) ad_percent,
+	ROUND( SUM( IFNULL( warehouse_rent, 0 ) ) / SUM( IFNULL( sale_amount, 0 ) ) * - 1, 4 ) warehouse_percent,
+	ROUND( SUM( IFNULL( calcuRes, 0 ) ) / SUM( IFNULL( sale_amount, 0 ) ) * - 1, 4 ) tail_percent,
+	ROUND( SUM( IFNULL( ddp, 0 ) ) / SUM( IFNULL( sale_amount, 0 ) ) * - 1, 4 ) ddp_percent,
+	ROUND(
+		SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( lc_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ),
+		2 
+	) profit,
+	ROUND(
+		(
+			SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( lc_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) 
+		) / SUM( IFNULL( sale_amount, 0 ) ),
+		4 
+	) gross_profit_margin,
+	SUM( ROUND( evaluation_qty, 3 ) ) evaluation_qty,
+	SUM( ROUND( evaluation_amount, 2 ) ) evaluation_amount,
+	ROUND(
+		SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( lc_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) - SUM( IFNULL( evaluation_amount, 0 ) ),
+		2 
+	) profit_include_evaluation,
+	ROUND(
+		(
+			SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( lc_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) - SUM( IFNULL( evaluation_amount, 0 ) ) 
+		) / SUM( IFNULL( sale_amount, 0 ) ),
+		2 
+	) gross_profit_margin_include_evaluation 
+FROM
+	(
+	SELECT
+		platform,
+		userAccount,
+		warehouse_sku,
+		SUM( sale_qty ) sale_qty,
+		SUM( refund_qty ) * - 1 refund_qty,
+		SUM( ROUND( sale_amount, 7 ) ) sale_amount,
+		SUM( ROUND( refund_amount, 7 ) ) refund_amount,
+		SUM( ROUND( sale_selling_fees, 7 ) ) * - 1 sale_selling_fees,
+		SUM( ROUND( refund_selling_fees, 7 ) ) refund_selling_fees,
+		SUM( ROUND( calcuRes, 7 ) ) * - 1 calcuRes,
+		SUM( ROUND( ddp, 2 ) ) * - 1 ddp,
+		SUM( ROUND( adCost, 7 ) ) adCost,
+		SUM( ROUND( warehouse_rent, 4 ) ) warehouse_rent,
+		SUM( ROUND( adjustment, 6 ) ) adjustment,
+		SUM( ROUND( lc_adjustment, 6 ) ) lc_adjustment,
+		SUM( ROUND( le_adjustment, 6 ) ) le_adjustment,
+		SUM( ROUND( evaluation_qty, 3 ) ) evaluation_qty,
+		SUM( ROUND( evaluation_amount, 2 ) ) evaluation_amount 
+	FROM
+		(
+		SELECT
+			platform,
+			userAccount,
+			warehouse_sku,
+			SUM( sale_qty ) sale_qty,
+			SUM( refund_qty ) refund_qty,
+			SUM( ROUND( sale_amount, 7 ) ) sale_amount,
+			SUM( ROUND( refund_amount, 7 ) ) refund_amount,
+			SUM( ROUND( sale_selling_fees, 7 ) ) sale_selling_fees,
+			SUM( ROUND( refund_selling_fees, 7 ) ) refund_selling_fees,
+			SUM( ROUND( calcuRes, 7 ) ) calcuRes,
+			SUM( ROUND( ddp, 2 ) ) ddp,
+			NULL AS adCost,
+			SUM( ROUND( warehouse_rent, 4 ) ) warehouse_rent,
+			SUM( ROUND( adjustment, 6 ) ) adjustment,
+			SUM( ROUND( lc_adjustment, 6 ) ) lc_adjustment,
+			SUM( ROUND( le_adjustment, 6 ) ) le_adjustment,
+			NULL AS evaluation_qty,
+			NULL AS evaluation_amount 
+		FROM
+			(
+			SELECT
+				a.platform,
+				a.userAccount,
+				a.payment_id,
+				b.saleOrderCode,
+				b.platform_sku seller_sku,
+				b.warehouse_sku,
+				b.qty sale_qty,
+				NULL AS refund_qty,
+				ROUND( b.sale_amount, 7 ) sale_amount,
+				NULL AS refund_amount,
+				ROUND( b.selling_fee, 7 ) sale_selling_fees,
+				NULL AS refund_selling_fees,
+				c.calcuRes calcuRes,
+				NULL AS ddp,
+				NULL AS adCost,
+				NULL AS warehouse_rent,
+				NULL AS adjustment,
+				NULL AS lc_adjustment,
+				NULL AS le_adjustment 
+			FROM
+				(
+				SELECT DISTINCT
+					report_id,
+					payment_id,
+					platform,
+					userAccount 
+				FROM
+					mu_finance_order_sale a
+					LEFT JOIN mu_finance_table b ON a.table_id = b.id 
+				WHERE
+					report_id = ' . $report_id . '
+					AND b.platform = "wayfair" 
+				) a
+				LEFT JOIN mu_finance_order_statistics b ON a.payment_id = b.payment_id
+				LEFT JOIN mu_ecang_order c ON b.saleOrderCode = c.saleOrderCode UNION ALL
+			SELECT
+				a.platform,
+				a.userAccount,
+				a.payment_id,
+				b.saleOrderCode,
+				b.seller_sku,
+				b.warehouse_sku,
+				NULL AS sale_qty,
+				NULL AS refund_qty,
+				NULL AS sale_amount,
+				NULL AS refund_amount,
+				NULL AS sale_selling_fees,
+				NULL AS refund_selling_fees,
+				NULL AS calcuRes,
+				c.sku_ddp_unit * b.qty / d.USD ddp,
+				NULL AS adCost,
+				b.warehouse_rent,
+				NULL AS adjustment,
+				NULL AS lc_adjustment,
+				NULL AS le_adjustment 
+			FROM
+				(
+				SELECT DISTINCT
+					report_id,
+					payment_id,
+					platform,
+					userAccount 
+				FROM
+					mu_finance_order_sale a
+					LEFT JOIN mu_finance_table b ON a.table_id = b.id 
+				WHERE
+					report_id = ' . $report_id . ' 
+					AND b.platform = "wayfair" 
+				) a
+				LEFT JOIN mu_finance_order_outbound b ON b.payment_id = a.payment_id 
+				AND b.report_id = ' . $report_id . '
+				LEFT JOIN mu_finance_store c ON b.store_id = c.id
+				LEFT JOIN mu_finance_report d ON b.report_id = d.id UNION ALL
+			SELECT
+				b.platform,
+				b.userAccount,
+				a.payment_id,
+				NULL AS saleOrderCode,
+				a.sku seller_sku,
+				d.pcr_product_sku warehouse_sku,
+				NULL AS sale_qty,
+				a.quantity * d.pcr_quantity refund_qty,
+				NULL AS sale_amount,
+				ROUND( ( product_sales ) * d.pcr_percent * d.pcr_quantity / 100, 7 ) refund_amount,
+				NULL AS sale_selling_fees,
+				ROUND( selling_fees * d.pcr_percent * d.pcr_quantity / 100, 7 ) refund_selling_fees,
+				NULL AS calcuRes,
+				NULL AS ddp,
+				NULL AS adCost,
+				NULL AS warehouse_rent,
+				NULL AS adjustment,
+				NULL AS lc_adjustment,
+				NULL AS le_adjustment 
+			FROM
+				mu_finance_order_refund a
+				LEFT JOIN mu_finance_table b ON a.table_id = b.id
+				LEFT JOIN mu_ecang_sku c ON a.sku = c.product_sku 
+				AND b.userAccount = c.user_account
+				LEFT JOIN mu_ecang_sku_relation d ON c.id = d.sku_id 
+			WHERE
+				report_id = ' . $report_id . ' 
+				AND b.platform = "wayfair" UNION ALL
+			SELECT
+				b.platform,
+				b.userAccount,
+				a.payment_id,
+				NULL AS saleOrderCode,
+				a.sku seller_sku,
+				c.warehouse_sku warehouse_sku,
+				NULL AS sale_qty,
+				NULL AS refund_qty,
+				NULL AS sale_amount,
+				NULL AS refund_amount,
+				NULL AS sale_selling_fees,
+				NULL AS refund_selling_fees,
+				NULL AS calcuRes,
+				NULL AS ddp,
+				NULL AS adCost,
+				NULL AS warehouse_rent,
+				c.total adjustment,
+				NULL AS lc_adjustment,
+				NULL AS le_adjustment 
+			FROM
+				mu_finance_order_adjustment a
+				LEFT JOIN mu_finance_table b ON a.table_id = b.id
+				LEFT JOIN mu_finance_order_share c ON a.share_code = c.share_code 
+			WHERE
+				a.report_id = ' . $report_id . ' 
+				AND b.platform = "wayfair" UNION ALL
+			SELECT
+				"wayfair" AS platform,
+				user_account userAccount,
+				NULL AS payment,
+				NULL AS payment_id,
+				NULL AS saleOrderCode,
+				NULL AS seller_sku,
+				warehouse_sku warehouse_sku,
+				NULL AS sale_qty,
+				NULL AS refund_qty,
+				NULL AS sale_amount,
+				NULL AS refund_amount,
+				NULL AS sale_selling_fees,
+				NULL AS refund_selling_fees,
+				NULL AS calcuRes,
+				NULL AS ddp,
+				NULL AS warehouse_rent,
+				NULL AS adjustment,
+				lc_adjustment lc_adjustment,
+				le_adjustment le_adjustment 
+			FROM
+				mu_finance_order_additional a
+				LEFT JOIN ( SELECT DISTINCT platform, userAccount FROM mu_finance_table WHERE rid = ' . $report_id . ' ) b ON a.user_account = b.userAccount 
+			WHERE
+				report_id = ' . $report_id . ' 
+				AND b.platform = "wayfair" UNION ALL
+			SELECT
+				a.platform,
+				a.user_account userAccount,
+				NULL AS payment_id,
+				NULL AS saleOrderCode,
+				NULL AS seller_sku,
+				a.sku warehouse_sku,
+				NULL AS sale_qty,
+				NULL AS refund_qty,
+				NULL AS sale_amount,
+				NULL AS refund_amount,
+				NULL AS sale_selling_fees,
+				NULL AS refund_selling_fees,
+				NULL AS calcuRes,
+				NULL AS ddp,
+				NULL AS adCost,
+				ROUND( SUM( a.total / b.qty ), 7 ) warehouse_rent,
+				NULL AS adjustment,
+				NULL AS lc_adjustment,
+				NULL AS le_adjustment 
+			FROM
+				(
+				SELECT
+					sku,
+					pcr_product_sku,
+					sku_id,
+					user_account,
+					platform,
+					total 
+				FROM
+					(
+					SELECT DISTINCT
+						main_sku sku,
+						SUM( total ) total 
+					FROM
+						mu_finance_warehouse 
+					WHERE
+						is_sale = 0 
+						AND total > 0 
+						AND report_id = ' . $report_id . ' 
+					GROUP BY
+						main_sku 
+					) a
+					LEFT JOIN mu_ecang_sku_relation b ON a.sku = b.pcr_product_sku
+					LEFT JOIN mu_ecang_sku c ON b.sku_id = c.id
+					LEFT JOIN mu_finance_table d ON c.user_account = d.userAccount 
+				WHERE
+					platform = "wayfair" 
+					AND d.rid = ' . $report_id . ' 
+				) a
+				LEFT JOIN (
+				SELECT
+					sku,
+					COUNT( sku ) qty 
+				FROM
+					( SELECT DISTINCT main_sku sku FROM mu_finance_warehouse WHERE is_sale = 0 AND total > 0 AND report_id = ' . $report_id . ' ) a
+					LEFT JOIN mu_ecang_sku_relation b ON a.sku = b.pcr_product_sku
+					LEFT JOIN mu_ecang_sku c ON b.sku_id = c.id
+					LEFT JOIN mu_finance_table d ON c.user_account = d.userAccount 
+				WHERE
+					d.rid = ' . $report_id . ' 
+				GROUP BY
+					sku 
+				) b ON a.sku = b.sku 
+			GROUP BY
+				platform,
+				userAccount,
+				warehouse_sku 
+			) a 
+		GROUP BY
+			platform,
+			userAccount,
+			warehouse_sku UNION ALL
+		SELECT
+			"wayfair" AS platform,
+			d.userAccount userAccount,
+			a.warehouse_sku warehouse_sku,
+			NULL AS sale_qty,
+			NULL AS refund_qty,
+			NULL AS sale_amount,
+			NULL AS refund_amount,
+			NULL AS sale_selling_fees,
+			NULL AS refund_selling_fees,
+			NULL AS calcuRes,
+			NULL AS ddp,
+			NULL AS adCost,
+			NULL AS warehouse_rent,
+			NULL AS adjustment,
+			NULL AS lc_adjustment,
+			NULL AS le_adjustment,
+			b.qty evaluation_qty,
+			ROUND( a.cny_actual_paid / c.USD, 2 ) evaluation_amount 
+		FROM
+			mu_finance_evaluation a
+			LEFT JOIN mu_finance_order_statistics b ON a.payment = b.saleOrderCode
+			LEFT JOIN mu_finance_report c ON a.report_id = c.id
+			LEFT JOIN mu_ecang_order d ON a.payment = d.saleOrderCode 
+		WHERE
+			d.fulfillmentType = 1 
+			AND a.report_id = ' . $report_id . ' 
+			AND b.platform = "wayfair" 
+		) a 
+	GROUP BY
+		platform,
+		userAccount,
+		warehouse_sku 
+	ORDER BY
+		platform,
+		userAccount,
+		warehouse_sku 
+	) a 
+GROUP BY
+	platform,
+	userAccount,
+	warehouse_sku,
+	sale_amount;
+        ';
+    }
 }
