@@ -34,7 +34,6 @@ return [
     'app\Manage\command\AkSeller', //
     'app\Manage\command\AkAdCost', //
     'app\Manage\command\SkuRelationUpdate', //
-    'app\Manage\command\FinanceWayfairProduct', //
     'app\Manage\command\FinanceOutboundNotify', //
     'app\Manage\command\ApiProductCategory', //
     'app\Manage\command\ListingUpdate', //
@@ -42,4 +41,5 @@ return [
     'app\Manage\command\FinanceOrderShare', //
     'app\Manage\command\FinanceWarehouseNotify', //
     'app\Manage\command\FinanceOrderStatisticsEdit', //
+    'app\Manage\command\FinanceWayfairOrder', //
 ];

@@ -31,6 +31,7 @@ use PHPExcel;
 use PHPExcel_IOFactory;
 use PHPExcel_Reader_Exception;
 use PHPExcel_Style_Fill;
+use think\Cache;
 use think\Db;
 use think\db\exception\BindParamException;
 use think\db\exception\DataNotFoundException;
@@ -649,15 +650,21 @@ class FinanceController extends BaseController
                     $paymentData = $paymentObj->$payment_type($data, $tableId, $rid);
 
                     $financeOrderSaleObj = new FinanceOrderSaleModel();
-                    if (!$financeOrderSaleObj->saveAll($paymentData['orderSaleNew'])) {
-                        throw new \think\Exception('Payment导入失败！');
+                    if ($payment_type == "wayfair") {
+                        $wayfairOrder = Cache::get('wayfairOrder');
+                        Cache::set('wayfairOrder', array_merge($wayfairOrder, $paymentData['orderSaleNew']), 24 * 60 * 60);
+                        $sale_amount = 0;
                     } else {
-                        $productSale = $financeOrderSaleObj->where(['table_id' => $tableId])->sum('product_sales');
-                        $shipping = $financeOrderSaleObj->where(['table_id' => $tableId])->sum('shipping_credits');
-                        $gift = $financeOrderSaleObj->where(['table_id' => $tableId])->sum('gift_wrap_credits');
-                        $regulatory = $financeOrderSaleObj->where(['table_id' => $tableId])->sum('regulatory_fee');
-                        $promotional = $financeOrderSaleObj->where(['table_id' => $tableId])->sum('promotional_rebates');
-                        $sale_amount = round($productSale + $shipping + $gift + $regulatory + $promotional, 2);
+                        if (!$financeOrderSaleObj->saveAll($paymentData['orderSaleNew'])) {
+                            throw new \think\Exception('Payment导入失败！');
+                        } else {
+                            $productSale = $financeOrderSaleObj->where(['table_id' => $tableId])->sum('product_sales');
+                            $shipping = $financeOrderSaleObj->where(['table_id' => $tableId])->sum('shipping_credits');
+                            $gift = $financeOrderSaleObj->where(['table_id' => $tableId])->sum('gift_wrap_credits');
+                            $regulatory = $financeOrderSaleObj->where(['table_id' => $tableId])->sum('regulatory_fee');
+                            $promotional = $financeOrderSaleObj->where(['table_id' => $tableId])->sum('promotional_rebates');
+                            $sale_amount = round($productSale + $shipping + $gift + $regulatory + $promotional, 2);
+                        }
                     }
 
                     $financeOrderRefundObj = new FinanceOrderRefundModel();

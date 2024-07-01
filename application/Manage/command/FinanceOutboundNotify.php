@@ -5,6 +5,7 @@ use app\Manage\model\FinanceOrderOutboundModel;
 use app\Manage\model\FinanceStoreModel;
 use app\Manage\model\FinanceWarehouseModel;
 use Exception;
+use think\Cache;
 use think\Config;
 use think\console\Command;
 use think\console\Input;
@@ -25,6 +26,12 @@ class FinanceOutboundNotify extends Command
     {
         // 加载自定义配置
         Config::load(APP_PATH . 'storage.php');
+
+        // 检测wayfair订单是否校验完毕
+        $wayfairOrder = Cache::get('wayfairOrder');
+        if (!empty($wayfairOrder)) {
+            $output->writeln("Wayfair Unready");exit();
+        }
 
         Db::startTrans();
         try {

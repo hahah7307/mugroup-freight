@@ -4,6 +4,7 @@ namespace app\Manage\command;
 use app\Manage\model\FinanceOrderStatisticsEditModel;
 use app\Manage\model\FinanceOrderStatisticsModel;
 use Exception;
+use think\Cache;
 use think\console\Command;
 use think\console\Input;
 use think\console\Output;
@@ -21,6 +22,12 @@ class FinanceOrderStatisticsEdit extends Command
      */
     protected function execute(Input $input, Output $output)
     {
+        // 检测wayfair订单是否校验完毕
+        $wayfairOrder = Cache::get('wayfairOrder');
+        if (!empty($wayfairOrder)) {
+            $output->writeln("Wayfair Unready");exit();
+        }
+
         Db::startTrans();
         try {
             $editObj = new FinanceOrderStatisticsEditModel();

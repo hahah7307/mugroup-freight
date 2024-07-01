@@ -6,6 +6,7 @@ use app\Manage\model\FinanceStoreModel;
 use app\Manage\model\FinanceWarehouseModel;
 use app\Manage\model\ProductModel;
 use Exception;
+use think\Cache;
 use think\Config;
 use think\console\Command;
 use think\console\Input;
@@ -30,11 +31,17 @@ class FinanceWarehouseNotify extends Command
         // 加载自定义配置
         Config::load(APP_PATH . 'storage.php');
 
+        // 检测wayfair订单是否校验完毕
+        $wayfairOrder = Cache::get('wayfairOrder');
+        if (!empty($wayfairOrder)) {
+            $output->writeln("Wayfair Unready");exit();
+        }
+
         $financeOutboundObj = new FinanceOrderOutboundModel();
         $financeWarehouseObj = new FinanceWarehouseModel();
         $outbound = $financeOutboundObj->where(['is_notify' => 0])->select();
         if (count($outbound) > 0) {
-            echo "Not started";
+            $output->writeln("OutboundNotify Unready");exit();
         } else {
             Db::startTrans();
             try {
