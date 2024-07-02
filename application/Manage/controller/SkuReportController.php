@@ -1003,8 +1003,8 @@ FROM
 	LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id 
 WHERE
 	a.`status` = 4 
-	AND a.dateWarehouseShipping >= "' . date('Y-m-d H:i:s', strtotime('-1 month', strtotime($sale_day_num))) . '" 
-	AND a.dateWarehouseShipping < "' . date('Y-m-d H:i:s', strtotime($sale_day_num)) . ' ";      
+	AND a.datePaidPlatform >= "' . date('Y-m-d H:i:s', strtotime('-1 month', strtotime($sale_day_num))) . '" 
+	AND a.datePaidPlatform < "' . date('Y-m-d H:i:s', strtotime($sale_day_num)) . ' ";      
         ');
         $this->assign('monthQty', $monthQty);
 
@@ -1086,6 +1086,28 @@ ORDER BY
 	sellable_quantity DESC;
         ');
         $this->assign('lcList', $lcList);
+
+        Session::set(Config::get('BACK_URL'), $this->request->url(), 'manage');
+        return view();
+    }
+
+    /**
+     * @throws PDOException
+     * @throws BindParamException
+     */
+    public function inventory_turnover(): \think\response\View
+    {
+        $model = new ProductModel();
+        $data = $model->query('
+SELECT
+	* 
+FROM
+	( SELECT turnover, DATE_FORMAT(date,"%Y-%m-%d") date FROM mu_ecang_inventory_turnover ORDER BY date DESC LIMIT 14 ) a 
+ORDER BY
+	date ASC;
+        ');
+        $this->assign('turnover', json_encode(array_column($data, 'turnover')));
+        $this->assign('date', json_encode(array_column($data, 'date')));
 
         return view();
     }

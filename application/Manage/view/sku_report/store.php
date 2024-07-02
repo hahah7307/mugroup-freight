@@ -37,13 +37,13 @@
             </tr>
             </thead>
             <tbody>
-            <tr>
-                <td class="tr">{$last_sum.0.value|number_format}</td>
-                <td class="tr">{$sum.0.value|number_format}</td>
-                <td class="tr">{$monthQty.0.qty|number_format}</td>
-                <td class="tr">{$monthQty.0.qty / (($last_sum.0.value + $sum.0.value) / 2)|round=###,2}</td>
-                <td class="tr">{$monthQty.0.qty / (($last_sum.0.value + $sum.0.value) / 2) * 12|round=###,2}</td>
-            </tr>
+                <tr>
+                    <td class="tr">{$last_sum.0.value|number_format}</td>
+                    <td class="tr">{$sum.0.value|number_format}</td>
+                    <td class="tr">{$monthQty.0.qty|number_format}</td>
+                    <td class="tr">{$monthQty.0.qty / (($last_sum.0.value + $sum.0.value) / 2)|round=###,2}</td>
+                    <td class="tr"><a href="{:url('inventory_turnover')}">{$monthQty.0.qty / (($last_sum.0.value + $sum.0.value) / 2) * 12|round=###,2}</a></td>
+                </tr>
             </tbody>
         </table>
 

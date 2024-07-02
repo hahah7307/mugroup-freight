@@ -42,4 +42,5 @@ return [
     'app\Manage\command\FinanceWarehouseNotify', //
     'app\Manage\command\FinanceOrderStatisticsEdit', //
     'app\Manage\command\FinanceWayfairOrder', //
+    'app\Manage\command\InventoryTurnover', //
 ];
