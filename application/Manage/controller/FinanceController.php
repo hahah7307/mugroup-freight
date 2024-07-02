@@ -652,7 +652,7 @@ class FinanceController extends BaseController
                     $financeOrderSaleObj = new FinanceOrderSaleModel();
                     if ($payment_type == "wayfair") {
                         $wayfairOrder = Cache::get('wayfairOrder');
-                        Cache::set('wayfairOrder', array_merge($wayfairOrder, $paymentData['orderSaleNew']), 24 * 60 * 60);
+                        Cache::set('wayfairOrder', array_merge((array)$wayfairOrder, (array)$paymentData['orderSaleNew']), 24 * 60 * 60);
                         $sale_amount = 0;
                     } else {
                         if (!$financeOrderSaleObj->saveAll($paymentData['orderSaleNew'])) {
