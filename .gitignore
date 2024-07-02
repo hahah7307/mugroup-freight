@@ -1,3 +1,4 @@
 .idea
 runtime/*
 public/static/*
+application/storage.php
