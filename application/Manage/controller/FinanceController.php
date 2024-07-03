@@ -160,44 +160,46 @@ class FinanceController extends BaseController
 
         // Add some data
         $objPHPExcel->setActiveSheetIndex(0)
-            ->setCellValue('A1', '平台')
-            ->setCellValue('B1', '店铺')
-            ->setCellValue('C1', '账单Payment')
-            ->setCellValue('D1', '销售Payment')
-            ->setCellValue('E1', '易仓订单号')
-            ->setCellValue('F1', '店铺Seller Sku')
-            ->setCellValue('G1', '仓库Sku')
-            ->setCellValue('H1', '销售量')
-            ->setCellValue('I1', '退款量')
-            ->setCellValue('J1', '销售额')
-            ->setCellValue('K1', '退款额')
-            ->setCellValue('L1', '平台佣金')
-            ->setCellValue('M1', '平台佣金退款')
-            ->setCellValue('N1', '亚马逊尾程')
-            ->setCellValue('O1', '海外仓尾程')
-            ->setCellValue('P1', 'DDP')
+            ->setCellValue('A1', '类型')
+            ->setCellValue('B1', '平台')
+            ->setCellValue('C1', '店铺')
+            ->setCellValue('D1', '账单Payment')
+            ->setCellValue('E1', '销售Payment')
+            ->setCellValue('F1', '易仓订单号')
+            ->setCellValue('G1', '店铺Seller Sku')
+            ->setCellValue('H1', '仓库Sku')
+            ->setCellValue('I1', '销售量')
+            ->setCellValue('J1', '退款量')
+            ->setCellValue('K1', '销售额')
+            ->setCellValue('L1', '退款额')
+            ->setCellValue('M1', '平台佣金')
+            ->setCellValue('N1', '平台佣金退款')
+            ->setCellValue('O1', '亚马逊尾程')
+            ->setCellValue('P1', '海外仓尾程')
+            ->setCellValue('Q1', 'DDP')
         ;
 
         $saleRefundIndex = 1;
         foreach ($saleRefund as $saleRefundItem) {
             $saleRefundIndex ++;
             $objPHPExcel->setActiveSheetIndex(0)
-                ->setCellValue('A' . $saleRefundIndex, $saleRefundItem['platform'])
-                ->setCellValue('B' . $saleRefundIndex, $saleRefundItem['userAccount'])
-                ->setCellValue('C' . $saleRefundIndex, $saleRefundItem['payment'])
-                ->setCellValue('D' . $saleRefundIndex, $saleRefundItem['payment_id'])
-                ->setCellValue('E' . $saleRefundIndex, $saleRefundItem['saleOrderCode'])
-                ->setCellValue('F' . $saleRefundIndex, $saleRefundItem['seller_sku'])
-                ->setCellValue('G' . $saleRefundIndex, $saleRefundItem['warehouse_sku'])
-                ->setCellValue('H' . $saleRefundIndex, $saleRefundItem['sale_qty'])
-                ->setCellValue('I' . $saleRefundIndex, $saleRefundItem['refund_qty'])
-                ->setCellValue('J' . $saleRefundIndex, $saleRefundItem['sale_amount'])
-                ->setCellValue('K' . $saleRefundIndex, $saleRefundItem['refund_amount'])
-                ->setCellValue('L' . $saleRefundIndex, $saleRefundItem['sale_selling_fees'])
-                ->setCellValue('M' . $saleRefundIndex, $saleRefundItem['refund_selling_fees'])
-                ->setCellValue('N' . $saleRefundIndex, $saleRefundItem['fba_fees'])
-                ->setCellValue('O' . $saleRefundIndex, $saleRefundItem['calcuRes'])
-                ->setCellValue('P' . $saleRefundIndex, $saleRefundItem['ddp'])
+                ->setCellValue('A' . $saleRefundIndex, $saleRefundItem['type'])
+                ->setCellValue('B' . $saleRefundIndex, $saleRefundItem['platform'])
+                ->setCellValue('C' . $saleRefundIndex, $saleRefundItem['userAccount'])
+                ->setCellValue('D' . $saleRefundIndex, $saleRefundItem['payment'])
+                ->setCellValue('E' . $saleRefundIndex, $saleRefundItem['payment_id'])
+                ->setCellValue('F' . $saleRefundIndex, $saleRefundItem['saleOrderCode'])
+                ->setCellValue('G' . $saleRefundIndex, $saleRefundItem['seller_sku'])
+                ->setCellValue('H' . $saleRefundIndex, $saleRefundItem['warehouse_sku'])
+                ->setCellValue('I' . $saleRefundIndex, $saleRefundItem['sale_qty'])
+                ->setCellValue('J' . $saleRefundIndex, $saleRefundItem['refund_qty'])
+                ->setCellValue('K' . $saleRefundIndex, $saleRefundItem['sale_amount'])
+                ->setCellValue('L' . $saleRefundIndex, $saleRefundItem['refund_amount'])
+                ->setCellValue('M' . $saleRefundIndex, $saleRefundItem['sale_selling_fees'])
+                ->setCellValue('N' . $saleRefundIndex, $saleRefundItem['refund_selling_fees'])
+                ->setCellValue('O' . $saleRefundIndex, $saleRefundItem['fba_fees'])
+                ->setCellValue('P' . $saleRefundIndex, $saleRefundItem['tail'])
+                ->setCellValue('Q' . $saleRefundIndex, $saleRefundItem['ddp'])
             ;
         }
 
@@ -495,7 +497,7 @@ class FinanceController extends BaseController
         $objPHPExcel->createSheet();
 
         // Set name sheet
-        $objPHPExcel->setActiveSheetIndex(5)->setTitle('Payment未出库');
+        $objPHPExcel->setActiveSheetIndex(5)->setTitle('账单未出库统计');
 
         // Add some data
         $objPHPExcel->setActiveSheetIndex(5)

@@ -30,6 +30,7 @@ class FinanceReportModel extends Model
     {
         return '
 SELECT
+	type,
 	platform,
 	userAccount,
 	payment,
@@ -44,11 +45,12 @@ SELECT
 	SUM( sale_selling_fees ) sale_selling_fees,
 	SUM( refund_selling_fees ) refund_selling_fees,
 	SUM( fba_fees ) fba_fees,
-	SUM( calcuRes ) calcuRes,
-	SUM( ddp ) ddp 
+	SUM( ddp ) ddp,
+	SUM( tail ) tail 
 FROM
 	(
 	SELECT
+		"Order" AS type,
 		a.platform,
 		a.userAccount,
 		a.payment_id payment,
@@ -63,8 +65,8 @@ FROM
 		ROUND( b.selling_fee, 7 ) sale_selling_fees,
 		NULL AS refund_selling_fees,
 		ROUND( b.fba_fee, 7 ) fba_fees,
-		c.calcuRes calcuRes,
-		f.sku_ddp_unit * b.qty ddp 
+		f.sku_ddp_unit * b.qty ddp,
+		NULL AS tail 
 	FROM
 		(
 		SELECT DISTINCT
@@ -78,10 +80,52 @@ FROM
 			report_id = ' . $report_id . ' 
 		) a
 		LEFT JOIN mu_finance_order_statistics b ON a.payment_id = b.payment_id
-		LEFT JOIN mu_ecang_order c ON b.saleOrderCode = c.saleOrderCode
-		LEFT JOIN mu_finance_order_outbound e ON b.saleOrderCode = e.saleOrderCode
+		LEFT JOIN mu_finance_order_outbound e ON b.saleOrderCode = e.saleOrderCode 
+		AND b.warehouse_sku = e.warehouse_sku
 		LEFT JOIN mu_finance_store f ON e.store_id = f.id UNION ALL
 	SELECT
+		"Order" AS type,
+		a.platform,
+		a.userAccount,
+		a.payment_id payment,
+		b.payment_id,
+		b.saleOrderCode,
+		b.platform_sku seller_sku,
+		b.warehouse_sku,
+		NULL AS sale_qty,
+		NULL AS refund_qty,
+		NULL AS sale_amount,
+		NULL AS refund_amount,
+		NULL AS sale_selling_fees,
+		NULL AS refund_selling_fees,
+		NULL AS fba_fees,
+		NULL AS ddp,
+		c.calcuRes tail 
+	FROM
+		(
+		SELECT DISTINCT
+			payment_id,
+			platform,
+			userAccount 
+		FROM
+			mu_finance_order_sale a
+			LEFT JOIN mu_finance_table b ON a.table_id = b.id 
+		WHERE
+			report_id = ' . $report_id . ' 
+		) a
+		LEFT JOIN mu_finance_order_statistics b ON a.payment_id = b.payment_id
+		LEFT JOIN (
+		SELECT
+			a.saleOrderCode,
+			a.calcuRes,
+			b.warehouseSku 
+		FROM
+			mu_ecang_order a
+			LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id 
+		) c ON b.saleOrderCode = c.saleOrderCode 
+		AND b.warehouse_sku = c.warehouseSku UNION ALL
+	SELECT
+		"Refund" AS type,
 		b.platform,
 		b.userAccount,
 		a.payment_id payment,
@@ -96,8 +140,8 @@ FROM
 		NULL AS sale_selling_fees,
 		ROUND( selling_fees * d.pcr_percent * d.pcr_quantity / 100, 7 ) refund_selling_fees,
 		ROUND( fba_fees * d.pcr_percent * d.pcr_quantity / 100, 7 ) fba_fees,
-		NULL AS calcuRes,
-		NULL AS ddp 
+		NULL AS ddp,
+		NULL AS tail 
 	FROM
 		mu_finance_order_refund a
 		LEFT JOIN mu_finance_table b ON a.table_id = b.id
@@ -108,6 +152,7 @@ FROM
 		report_id = ' . $report_id . ' 
 	) a 
 GROUP BY
+	type,
 	platform,
 	userAccount,
 	payment,
@@ -592,19 +637,38 @@ FROM
 		a.sku,
 		a.quantity,
 		b.warehouse_sku,
-		( product_sales + shipping_credits + gift_wrap_credits + regulatory_fee + promotional_rebates ) payment_amount,
+		a.payment_amount,
 		a.selling_fees payment_selling_fees,
 		a.fba_fees payment_fba_fees,
 		b.sale_amount * - 1 outbound_amount,
 		b.selling_fee outbound_selling_fee,
 		b.fba_fee outbound_fba_fee 
 	FROM
-		mu_finance_order_sale a
-		LEFT JOIN mu_finance_order_statistics b ON a.payment_id = b.payment_id
+		(
+		SELECT
+			report_id,
+			table_id,
+			payment_id,
+			fulfillment,
+			sku,
+			SUM( quantity ) quantity,
+			SUM( product_sales + shipping_credits + gift_wrap_credits + regulatory_fee + promotional_rebates ) payment_amount,
+			SUM( selling_fees ) selling_fees,
+			SUM( fba_fees ) fba_fees 
+		FROM
+			mu_finance_order_sale 
+		WHERE
+			report_id = ' . $report_id . ' 
+		GROUP BY
+			report_id,
+			table_id,
+			payment_id,
+			fulfillment,
+			sku 
+		) a
+		LEFT JOIN mu_finance_order_statistics b ON a.payment_id = b.payment_id 
 		AND a.sku = b.platform_sku
 		LEFT JOIN mu_finance_table c ON a.table_id = c.id 
-	WHERE
-		a.report_id = ' . $report_id . ' 
 	) a
 	LEFT JOIN mu_ecang_sku b ON a.sku = b.product_sku 
 	AND a.userAccount = b.user_account
@@ -612,7 +676,7 @@ FROM
 WHERE
 	a.warehouse_sku IS NULL 
 	OR a.payment_amount = 0 
-	AND payment_amount != outbound_amount;  
+	AND payment_amount != outbound_amount;
         ';
     }
 
@@ -674,7 +738,7 @@ FROM
 		SUM( fba_sale_qty ) fba_sale_qty,
 		SUM( fba_refund_qty ) * - 1 fba_refund_qty,
 		SUM( ROUND( fba_sale_amount, 7 ) ) fba_sale_amount,
-		SUM( ROUND( fba_sale_tax, 7 ) ) fba_sale_tax,
+		SUM( ROUND( fba_sale_tax, 7 ) ) * -1 fba_sale_tax,
 		SUM( ROUND( fba_refund_amount, 7 ) ) fba_refund_amount,
 		SUM( ROUND( fba_sale_selling_fees, 7 ) ) * - 1 fba_sale_selling_fees,
 		SUM( ROUND( fba_refund_selling_fees, 7 ) ) fba_refund_selling_fees,
