@@ -150,6 +150,7 @@ class FinanceController extends BaseController
         $walmartWarehouseSku = $financeReportObj->query(FinanceReportModel::getWalmartWarehouseSkuSql($report_id));
         $wayfairWarehouseSku = $financeReportObj->query(FinanceReportModel::getWayfairWarehouseSkuSql($report_id));
         $userAccountTransfer = $financeReportObj->query(FinanceReportModel::getUserAccountTransfer($report_id));
+        $userAccountSubscription = $financeReportObj->query(FinanceReportModel::getUserAccountSubscription($report_id));
 
         // phpexcel
         require_once './static/classes/PHPExcel/Classes/PHPExcel.php';
@@ -547,7 +548,7 @@ class FinanceController extends BaseController
         $objPHPExcel->setActiveSheetIndex(6)
             ->setCellValue('A1', '平台')
             ->setCellValue('B1', '店铺')
-            ->setCellValue('C1', '账单Payment')
+            ->setCellValue('C1', '合计')
         ;
 
         $userAccountTransferIndex = 1;
@@ -559,6 +560,30 @@ class FinanceController extends BaseController
                 ->setCellValue('C' . $userAccountTransferIndex, $userAccountTransferItem['total'])
             ;
         }
+
+        // create new sheet
+        $objPHPExcel->createSheet();
+
+        // Set name sheet
+        $objPHPExcel->setActiveSheetIndex(7)->setTitle('订阅');
+
+        // Add some data
+        $objPHPExcel->setActiveSheetIndex(7)
+            ->setCellValue('A1', '平台')
+            ->setCellValue('B1', '店铺')
+            ->setCellValue('C1', '合计')
+        ;
+
+        $userAccountSubscriptionIndex = 1;
+        foreach ($userAccountSubscription as $userAccountSubscriptionItem) {
+            $userAccountSubscriptionIndex ++;
+            $objPHPExcel->setActiveSheetIndex(7)
+                ->setCellValue('A' . $userAccountSubscriptionIndex, $userAccountSubscriptionItem['platform'])
+                ->setCellValue('B' . $userAccountSubscriptionIndex, $userAccountSubscriptionItem['userAccount'])
+                ->setCellValue('C' . $userAccountSubscriptionIndex, $userAccountSubscriptionItem['total'])
+            ;
+        }
+
 
 
 
