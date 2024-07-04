@@ -149,6 +149,7 @@ class FinanceController extends BaseController
         $fbmWarehouseSku = $financeReportObj->query(FinanceReportModel::getFbmWarehouseSkuSql($report_id, $report['month']));
         $walmartWarehouseSku = $financeReportObj->query(FinanceReportModel::getWalmartWarehouseSkuSql($report_id));
         $wayfairWarehouseSku = $financeReportObj->query(FinanceReportModel::getWayfairWarehouseSkuSql($report_id));
+        $userAccountTransfer = $financeReportObj->query(FinanceReportModel::getUserAccountTransfer($report_id));
 
         // phpexcel
         require_once './static/classes/PHPExcel/Classes/PHPExcel.php';
@@ -533,6 +534,29 @@ class FinanceController extends BaseController
                 ->setCellValue('K' . $paymentNoOutboundIndex, $paymentNoOutboundItem['outbound_amount'])
                 ->setCellValue('L' . $paymentNoOutboundIndex, $paymentNoOutboundItem['outbound_selling_fee'])
                 ->setCellValue('M' . $paymentNoOutboundIndex, $paymentNoOutboundItem['outbound_fba_fee'])
+            ;
+        }
+
+        // create new sheet
+        $objPHPExcel->createSheet();
+
+        // Set name sheet
+        $objPHPExcel->setActiveSheetIndex(6)->setTitle('回款统计');
+
+        // Add some data
+        $objPHPExcel->setActiveSheetIndex(6)
+            ->setCellValue('A1', '平台')
+            ->setCellValue('B1', '店铺')
+            ->setCellValue('C1', '账单Payment')
+        ;
+
+        $userAccountTransferIndex = 1;
+        foreach ($userAccountTransfer as $userAccountTransferItem) {
+            $userAccountTransferIndex ++;
+            $objPHPExcel->setActiveSheetIndex(6)
+                ->setCellValue('A' . $userAccountTransferIndex, $userAccountTransferItem['platform'])
+                ->setCellValue('B' . $userAccountTransferIndex, $userAccountTransferItem['userAccount'])
+                ->setCellValue('C' . $userAccountTransferIndex, $userAccountTransferItem['total'])
             ;
         }
 

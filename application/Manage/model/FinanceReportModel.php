@@ -2550,4 +2550,22 @@ GROUP BY
 	sale_amount;
         ';
     }
+
+    static public function getUserAccountTransfer($report_id): string
+    {
+        return '
+SELECT
+	a.platform,
+	a.userAccount,
+	SUM( b.total ) total 
+FROM
+	mu_finance_table a
+	LEFT JOIN mu_finance_order_transfer b ON a.id = b.table_id 
+WHERE
+	rid = ' . $report_id . ' 
+GROUP BY
+	platform,
+	userAccount; 
+        ';
+    }
 }
