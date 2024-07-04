@@ -734,7 +734,7 @@ class FinanceController extends BaseController
                     if (!$financeOrderPromotionObj->saveAll($paymentData['orderPromotionNew'])) {
                         throw new \think\Exception('Payment导入失败！');
                     } else {
-                        $promotionSum = $financeOrderPromotionObj->where(['table_id' => $tableId, 'description' => [['like', '%Coupon Redemption Fee%'], ['like', '%Vine Enrollment Fee%'], ['like', '%秒杀%'], 'or']])->sum('total');
+                        $promotionSum = $financeOrderPromotionObj->where(['table_id' => $tableId, 'description' => [['like', '%Coupon Redemption Fee%'], ['like', '%Vine Enrollment Fee%'], ['like', '%秒杀%'], ['like', '%促销%'], 'or']])->sum('total');
                     }
 
                     $financeOrderShippingServiceObj = new FinanceOrderShippingServiceModel();
