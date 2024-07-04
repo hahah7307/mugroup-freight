@@ -2,7 +2,9 @@
 namespace app\Manage\controller;
 
 use app\Manage\model\ApiClient;
+use app\Manage\model\OrderAddressModel;
 use app\Manage\model\OrderAddressPostalModel;
+use app\Manage\model\OrderDetailModel;
 use app\Manage\model\OrderModel;
 use PHPExcel;
 use PHPExcel_IOFactory;
@@ -181,6 +183,41 @@ class OrderController extends BaseController
             echo json_encode(['code' => 1, 'msg' => '更新完成']);
         } else {
             echo json_encode(['code' => 0, 'msg' => '更新失败']);
+        }
+        exit;
+    }
+
+    public function delete()
+    {
+        if ($this->request->isPost()) {
+            $post = $this->request->post();
+            array_shift($post['id']);
+            Db::startTrans();
+            try {
+                foreach ($post['id'] as $item) {
+                    if ($orderItem = OrderModel::get($item)) {
+                        if (OrderModel::destroy($orderItem['id'])) {
+                            OrderAddressModel::destroy(['order_id' => $orderItem['id']]);
+                            OrderDetailModel::destroy(['order_id' => $orderItem['id']]);
+                        } else {
+                            throw new Exception("删除失败");
+                        }
+
+                        Db::commit();
+                    } else {
+                        continue;
+                    }
+                }
+            } catch (\SoapFault $e) {
+                Db::rollback();
+                echo json_encode(['code' => 0, 'msg' => $e->getMessage()]);
+            } catch (\Exception $e) {
+                Db::rollback();
+                echo json_encode(['code' => 0, 'msg' => $e->getMessage()]);
+            }
+            echo json_encode(['code' => 1, 'msg' => '删除完成']);
+        } else {
+            echo json_encode(['code' => 0, 'msg' => '删除失败']);
         }
         exit;
     }

@@ -65,8 +65,9 @@
             <a class="layui-btn layui-btn-normal" lay-submit lay-filter="Calculate">测算</a>
             <a class="layui-btn layui-btn-normal" lay-submit lay-filter="Add">新增</a>
             <button type="button" class="layui-btn  layui-btn-normal" id="excel">导入</button>
-            <a class="layui-btn layui-btn-normal" lay-submit lay-filter="Update">批量更新</a>
-            <a class="layui-btn layui-btn-normal" lay-submit lay-filter="Audit">批量审核</a>
+            <a class="layui-btn layui-btn-normal" lay-submit lay-filter="Update">更新</a>
+            <a class="layui-btn layui-btn-normal layui-btn-disabled" lay-submit lay-filter="Audit">审核</a>
+            <a class="layui-btn layui-btn-danger" lay-submit lay-filter="Delete">删除</a>
             <table class="layui-table" lay-size="sm">
                 <colgroup>
                     <col width="50">
@@ -315,7 +316,7 @@
             });
         });
 
-        // 批量更新
+        // 更新
         form.on('submit(Update)', function(data){
             let text = $(this).text(),
                 button = $(this);
@@ -350,7 +351,7 @@
             });
         });
 
-        // 批量审核
+        // 审核
         form.on('submit(Audit)', function(data){
             let text = $(this).text(),
                 button = $(this);
@@ -404,10 +405,45 @@
                 },
                 cancel: function(index) {
                     $('button').attr('disabled',false);
-                    button.text('批量审核');
+                    button.text('审核');
                 }
             });
             return false;
+        });
+
+        // 删除
+        form.on('submit(Delete)', function(data){
+            let text = $(this).text(),
+                button = $(this);
+            layer.confirm('确定删除吗？',{icon:3,closeBtn:0,title:false,btnAlign:'c'},function(){
+                $('button').attr('disabled',true);
+                button.text('请稍候...');
+                layer.load(2);
+                axios.post("{:url('delete')}", {id:data.field}, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data' // 设置请求头，确保服务器正确解析 FormData
+                    }
+                })
+                    .then(function (response) {
+                        let res = response.data;
+                        if (res.code === 1) {
+                            layer.alert(res.msg,{icon:1,closeBtn:0,title:false,btnAlign:'c',},function(){
+                                layer.closeAll();
+                                location.reload();
+                            });
+                        } else {
+                            layer.alert(res.msg,{icon:2,closeBtn:0,title:false,btnAlign:'c'},function(){
+                                layer.closeAll();
+                                $('button').attr('disabled',false);
+                                button.text(text);
+                            });
+                        }
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    });
+                return false;
+            });
         });
 
         // 显示费用详情特效
