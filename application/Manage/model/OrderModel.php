@@ -270,7 +270,23 @@ class OrderModel extends Model
         $order = $item;
         unset($order['orderDetails']);
         unset($order['orderAddress']);
-        $orderItem = OrderModel::get(['saleOrderCode' => $item['saleOrderCode']]);
+        $model = new OrderModel();
+        $orders = $model->where(['saleOrderCode' => $item['saleOrderCode']])->select();
+        if (empty($orders)) {
+            return false;
+        }
+
+        $orderItem = [];
+        foreach ($orders as $v) {
+            if ($v['order_id'] != $item['order_id']) {
+                if (OrderModel::destroy($v['id'])) {
+                    OrderAddressModel::destroy(['order_id' => $v['id']]);
+                    OrderDetailModel::destroy(['order_id' => $v['id']]);
+                }
+            } else {
+                $orderItem = $v;
+            }
+        }
         if (empty($orderItem)) {
             return false;
         }

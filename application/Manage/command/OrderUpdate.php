@@ -49,7 +49,7 @@ class OrderUpdate extends Command
             }
         }
         $data['offset'] = count($orders) < $data['page_num'] ? 0 : $data['offset'] + count($orders);
-        OrderUpdateModel::update($data, ['id' => 1]);
+        OrderUpdateModel::update($data->toArray(), ['id' => 1]);
 
         $output->writeln("success");
     }
