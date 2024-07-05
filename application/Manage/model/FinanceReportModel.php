@@ -696,6 +696,7 @@ SELECT
 	SUM( ROUND( fba_refund_selling_fees, 7 ) ) fba_refund_selling_fees,
 	SUM( ROUND( fba_fees, 7 ) ) fba_fees,
 	SUM( ROUND( fba_refund_fees, 7 ) ) fba_refund_fees,
+	SUM( ROUND( fba_refund_other, 7 ) ) fba_refund_other,
 	SUM( ROUND( fba_ddp, 2 ) ) fba_ddp,
 	SUM( ROUND( fba_adCost, 7 ) ) fba_adCost,
 	SUM( ROUND( fba_inventory, 4 ) ) fba_inventory,
@@ -738,12 +739,13 @@ FROM
 		SUM( fba_sale_qty ) fba_sale_qty,
 		SUM( fba_refund_qty ) * - 1 fba_refund_qty,
 		SUM( ROUND( fba_sale_amount, 7 ) ) fba_sale_amount,
-		SUM( ROUND( fba_sale_tax, 7 ) ) * -1 fba_sale_tax,
+		SUM( ROUND( fba_sale_tax, 7 ) ) * - 1 fba_sale_tax,
 		SUM( ROUND( fba_refund_amount, 7 ) ) fba_refund_amount,
 		SUM( ROUND( fba_sale_selling_fees, 7 ) ) * - 1 fba_sale_selling_fees,
 		SUM( ROUND( fba_refund_selling_fees, 7 ) ) fba_refund_selling_fees,
 		SUM( ROUND( fba_fees, 7 ) ) * - 1 fba_fees,
 		SUM( ROUND( fba_refund_fees, 7 ) ) fba_refund_fees,
+		SUM( ROUND( fba_refund_other, 7 ) ) fba_refund_other,
 		SUM( ROUND( fba_ddp, 2 ) ) * - 1 fba_ddp,
 		SUM( ROUND( fba_adCost, 7 ) ) fba_adCost,
 		SUM( ROUND( fba_inventory, 4 ) ) fba_inventory,
@@ -768,6 +770,7 @@ FROM
 			SUM( ROUND( fba_refund_selling_fees, 7 ) ) fba_refund_selling_fees,
 			SUM( ROUND( fba_fees, 7 ) ) fba_fees,
 			SUM( ROUND( fba_refund_fees, 7 ) ) fba_refund_fees,
+			SUM( ROUND( fba_refund_other, 7 ) ) fba_refund_other,
 			SUM( ROUND( fba_ddp, 2 ) ) fba_ddp,
 			NULL AS fba_adCost,
 			SUM( ROUND( fba_inventory, 4 ) ) fba_inventory,
@@ -796,6 +799,7 @@ FROM
 				NULL AS fba_refund_selling_fees,
 				ROUND( b.fba_fee, 7 ) fba_fees,
 				NULL AS fba_refund_fees,
+				NULL AS fba_refund_other,
 				NULL AS fba_ddp,
 				NULL AS adCost,
 				NULL AS fba_inventory,
@@ -830,12 +834,13 @@ FROM
 				NULL AS fba_sale_qty,
 				NULL AS fba_refund_qty,
 				NULL AS fba_sale_amount,
-				ROUND( b.tax, 7) fba_sale_tax,
+				ROUND( b.tax, 7 ) fba_sale_tax,
 				NULL AS fba_refund_amount,
 				NULL AS fba_sale_selling_fees,
 				NULL AS fba_refund_selling_fees,
 				NULL AS fba_fees,
 				NULL AS fba_refund_fees,
+				NULL AS fba_refund_other,
 				NULL AS fba_ddp,
 				NULL AS adCost,
 				NULL AS fba_inventory,
@@ -849,15 +854,15 @@ FROM
 					report_id,
 					payment_id,
 					platform,
-					userAccount
+					userAccount 
 				FROM
 					mu_finance_order_sale a
 					LEFT JOIN mu_finance_table b ON a.table_id = b.id 
 				WHERE
-					report_id = ' . $report_id . '
+					report_id = ' . $report_id . ' 
 					AND a.fulfillment = "Amazon" 
 					AND b.platform = "amazon" 
-					AND b.country = "EUROPE"
+					AND b.country = "EUROPE" 
 				) a
 				LEFT JOIN mu_finance_order_statistics b ON a.payment_id = b.payment_id UNION ALL
 			SELECT
@@ -877,6 +882,7 @@ FROM
 				NULL AS fba_refund_selling_fees,
 				NULL AS fba_fees,
 				NULL AS fba_refund_fees,
+				NULL AS fba_refund_other,
 				c.sku_ddp_unit * b.qty / d.USD fba_ddp,
 				NULL AS adCost,
 				NULL AS fba_inventory,
@@ -899,8 +905,8 @@ FROM
 					AND a.fulfillment = "Amazon" 
 					AND b.platform = "amazon" 
 				) a
-				LEFT JOIN mu_finance_order_outbound b ON b.payment_id = a.payment_id
-				     AND b.report_id = ' . $report_id . ' 
+				LEFT JOIN mu_finance_order_outbound b ON b.payment_id = a.payment_id 
+				AND b.report_id = ' . $report_id . '
 				LEFT JOIN mu_finance_store c ON b.store_id = c.id
 				LEFT JOIN mu_finance_report d ON b.report_id = d.id UNION ALL
 			SELECT
@@ -920,6 +926,7 @@ FROM
 				ROUND( selling_fees * d.pcr_percent * d.pcr_quantity / 100, 7 ) fba_refund_selling_fees,
 				NULL AS fba_fees,
 				ROUND( fba_fees * d.pcr_percent * d.pcr_quantity / 100, 7 ) fba_refund_fees,
+				ROUND( other * d.pcr_percent * d.pcr_quantity / 100, 7 ) fba_refund_other,
 				NULL AS fba_ddp,
 				NULL AS adCost,
 				NULL AS fba_inventory,
@@ -955,6 +962,7 @@ FROM
 				NULL AS fba_fees,
 				NULL AS fba_ddp,
 				NULL AS fba_refund_fees,
+				NULL AS fba_refund_other,
 				NULL AS adCost,
 				NULL AS fba_inventory,
 				NULL AS adjustment,
@@ -967,7 +975,7 @@ FROM
 				LEFT JOIN mu_finance_order_share c ON a.share_code = c.share_code 
 			WHERE
 				a.report_id = ' . $report_id . ' 
-				AND c.fulfillment = "FBA"
+				AND c.fulfillment = "FBA" 
 				AND b.platform = "amazon" UNION ALL
 			SELECT
 				b.platform,
@@ -986,6 +994,7 @@ FROM
 				NULL AS fba_refund_selling_fees,
 				NULL AS fba_fees,
 				NULL AS fba_refund_fees,
+				NULL AS fba_refund_other,
 				NULL AS fba_ddp,
 				NULL AS adCost,
 				NULL AS fba_inventory,
@@ -999,7 +1008,7 @@ FROM
 				LEFT JOIN mu_finance_order_share c ON a.share_code = c.share_code 
 			WHERE
 				a.report_id = ' . $report_id . ' 
-				AND c.fulfillment = "FBA"
+				AND c.fulfillment = "FBA" 
 				AND b.platform = "amazon" UNION ALL
 			SELECT
 				b.platform,
@@ -1018,6 +1027,7 @@ FROM
 				NULL AS fba_refund_selling_fees,
 				NULL AS fba_fees,
 				NULL AS fba_refund_fees,
+				NULL AS fba_refund_other,
 				NULL AS fba_ddp,
 				NULL AS adCost,
 				NULL AS fba_inventory,
@@ -1031,7 +1041,7 @@ FROM
 				LEFT JOIN mu_finance_order_share c ON a.share_code = c.share_code 
 			WHERE
 				a.report_id = ' . $report_id . ' 
-				AND c.fulfillment = "FBA"
+				AND c.fulfillment = "FBA" 
 				AND b.platform = "amazon" UNION ALL
 			SELECT
 				"amazon" AS platform,
@@ -1051,6 +1061,7 @@ FROM
 				NULL AS fba_fees,
 				NULL AS fba_ddp,
 				NULL AS fba_refund_fees,
+				NULL AS fba_refund_other,
 				NULL AS adCost,
 				NULL AS fba_inventory,
 				NULL AS adjustment,
@@ -1083,9 +1094,9 @@ FROM
 				) a
 				LEFT JOIN mu_finance_order_share b ON a.share_code = b.share_code 
 			WHERE
-				a.report_id = ' . $report_id . '
-				AND b.report_id = ' . $report_id . '
-				AND b.fulfillment = "FBA"
+				a.report_id = ' . $report_id . ' 
+				AND b.report_id = ' . $report_id . ' 
+				AND b.fulfillment = "FBA" 
 			) a 
 		GROUP BY
 			platform,
@@ -1098,12 +1109,13 @@ FROM
 			NULL AS fba_sale_qty,
 			NULL AS fba_refund_qty,
 			NULL AS fba_sale_amount,
-            NULL AS fba_sale_tax,
+			NULL AS fba_sale_tax,
 			NULL AS fba_refund_amount,
 			NULL AS fba_sale_selling_fees,
 			NULL AS fba_refund_selling_fees,
 			NULL AS fba_fees,
 			NULL AS fba_refund_fees,
+			NULL AS fba_refund_other,
 			NULL AS fba_ddp,
 			SUM( a.totalAdsCost * e.pcr_percent * e.pcr_quantity ) * 0.01 fba_adCost,
 			NULL AS fba_inventory,
@@ -1121,7 +1133,7 @@ FROM
 			AND a.msku = d.product_sku
 			LEFT JOIN mu_ecang_sku_relation e ON e.sku_id = d.id 
 		WHERE
-			reportDateMonth = "' . $month . '" 
+			reportDateMonth = " ' . $month . ' " 
 			AND is_fba = 1 
 		GROUP BY
 			platform,
@@ -1134,12 +1146,13 @@ FROM
 			NULL AS fba_sale_qty,
 			NULL AS fba_refund_qty,
 			NULL AS fba_sale_amount,
-            NULL AS fba_sale_tax,
+			NULL AS fba_sale_tax,
 			NULL AS fba_refund_amount,
 			NULL AS fba_sale_selling_fees,
 			NULL AS fba_refund_selling_fees,
 			NULL AS fba_fees,
 			NULL AS fba_refund_fees,
+			NULL AS fba_refund_other,
 			NULL AS fba_ddp,
 			NULL AS fba_adCost,
 			SUM(
@@ -1159,8 +1172,8 @@ FROM
 			AND a.msku = d.product_sku
 			LEFT JOIN mu_ecang_sku_relation e ON e.sku_id = d.id 
 		WHERE
-			reportDateMonth = "' . $month . '" 
-			AND a.fbaStorageFee + a.longTermStorageFee + a.sharedFbaDisposalFee + a.sharedAmazonPartneredCarrierShipmentFee + a.sharedFbaInboundConvenienceFee != 0
+			reportDateMonth = " ' . $month . ' " 
+			AND a.fbaStorageFee + a.longTermStorageFee + a.sharedFbaDisposalFee + a.sharedAmazonPartneredCarrierShipmentFee + a.sharedFbaInboundConvenienceFee != 0 
 		GROUP BY
 			platform,
 			userAccount,
@@ -1172,12 +1185,13 @@ FROM
 			NULL AS fba_sale_qty,
 			NULL AS fba_refund_qty,
 			NULL AS fba_sale_amount,
-            NULL AS fba_sale_tax,
+			NULL AS fba_sale_tax,
 			NULL AS fba_refund_amount,
 			NULL AS fba_sale_selling_fees,
 			NULL AS fba_refund_selling_fees,
 			NULL AS fba_fees,
 			NULL AS fba_refund_fees,
+			NULL AS fba_refund_other,
 			NULL AS fba_ddp,
 			NULL AS fba_adCost,
 			NULL AS fba_inventory,
@@ -1194,8 +1208,8 @@ FROM
 			LEFT JOIN mu_ecang_order d ON a.payment = d.saleOrderCode 
 		WHERE
 			d.fulfillmentType = 1 
-			AND a.report_id = ' . $report_id . '
-			AND b.platform = "amazon"
+			AND a.report_id = ' . $report_id . ' 
+			AND b.platform = "amazon" 
 		) a 
 	GROUP BY
 		platform,
@@ -1228,6 +1242,7 @@ SELECT
 	SUM( ROUND( fbm_refund_amount, 7 ) ) fbm_refund_amount,
 	SUM( ROUND( fbm_sale_selling_fees, 7 ) ) fbm_sale_selling_fees,
 	SUM( ROUND( fbm_refund_selling_fees, 7 ) ) fbm_refund_selling_fees,
+	SUM( ROUND( fbm_refund_other, 7 ) ) fbm_refund_other,
 	SUM( ROUND( calcuRes, 2 ) ) calcuRes,
 	SUM( ROUND( fbm_ddp, 2 ) ) fbm_ddp,
 	SUM( ROUND( fbm_adCost, 7 ) ) fbm_adCost,
@@ -1238,10 +1253,10 @@ SELECT
 	SUM( ROUND( shipping_service, 6 ) ) shipping_service,
 	SUM( ROUND( lc_adjustment, 2 ) ) lc_adjustment,
 	SUM( ROUND( le_adjustment, 2 ) ) le_adjustment,
-	ROUND( SUM( IFNULL( fbm_adCost, 0 ) ) / SUM( IFNULL( fbm_sale_amount, 0 ) ) * - 1, 2 ) ad_percent,
-	ROUND( SUM( IFNULL( warehouse_rent, 0 ) ) / SUM( IFNULL( fbm_sale_amount, 0 ) ) * - 1, 2 ) inventory_percent,
-	ROUND( SUM( IFNULL( calcuRes, 0 ) ) / SUM( IFNULL( fbm_sale_amount, 0 ) ) * - 1, 2 ) tail_percent,
-	ROUND( SUM( IFNULL( fbm_ddp, 0 ) ) / SUM( IFNULL( fbm_sale_amount, 0 ) ) * - 1, 2 ) ddp_percent,
+	ROUND( SUM( IFNULL( fbm_adCost, 0 ) ) / SUM( IFNULL( fbm_sale_amount, 0 ) ) * - 1, 4 ) ad_percent,
+	ROUND( SUM( IFNULL( warehouse_rent, 0 ) ) / SUM( IFNULL( fbm_sale_amount, 0 ) ) * - 1, 4 ) inventory_percent,
+	ROUND( SUM( IFNULL( calcuRes, 0 ) ) / SUM( IFNULL( fbm_sale_amount, 0 ) ) * - 1, 4 ) tail_percent,
+	ROUND( SUM( IFNULL( fbm_ddp, 0 ) ) / SUM( IFNULL( fbm_sale_amount, 0 ) ) * - 1, 4 ) ddp_percent,
 	ROUND(
 		SUM( IFNULL( fbm_sale_amount, 0 ) ) + SUM( IFNULL( fbm_refund_amount, 0 ) ) + SUM( IFNULL( fbm_sale_selling_fees, 0 ) ) + SUM( IFNULL( fbm_refund_selling_fees, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( fbm_ddp, 0 ) ) + SUM( IFNULL( fbm_adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( lc_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ),
 		2 
@@ -1250,7 +1265,7 @@ SELECT
 		(
 			SUM( IFNULL( fbm_sale_amount, 0 ) ) + SUM( IFNULL( fbm_refund_amount, 0 ) ) + SUM( IFNULL( fbm_sale_selling_fees, 0 ) ) + SUM( IFNULL( fbm_refund_selling_fees, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( fbm_ddp, 0 ) ) + SUM( IFNULL( fbm_adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( lc_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) 
 		) / SUM( IFNULL( fbm_sale_amount, 0 ) ),
-		2 
+		4 
 	) gross_profit_margin,
 	SUM( ROUND( evaluation_qty, 3 ) ) evaluation_qty,
 	SUM( ROUND( evaluation_amount, 2 ) ) evaluation_amount,
@@ -1262,7 +1277,7 @@ SELECT
 		(
 			SUM( IFNULL( fbm_sale_amount, 0 ) ) + SUM( IFNULL( fbm_refund_amount, 0 ) ) + SUM( IFNULL( fbm_sale_selling_fees, 0 ) ) + SUM( IFNULL( fbm_refund_selling_fees, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( fbm_ddp, 0 ) ) + SUM( IFNULL( fbm_adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( liquidation, 0 ) ) + SUM( IFNULL( promotion, 0 ) ) + SUM( IFNULL( shipping_service, 0 ) ) + SUM( IFNULL( lc_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) - SUM( IFNULL( evaluation_amount, 0 ) ) 
 		) / SUM( IFNULL( fbm_sale_amount, 0 ) ),
-		2 
+		4 
 	) gross_profit_margin_include_evaluation 
 FROM
 	(
@@ -1277,6 +1292,7 @@ FROM
 		SUM( ROUND( fbm_refund_amount, 7 ) ) fbm_refund_amount,
 		SUM( ROUND( fbm_sale_selling_fees, 7 ) ) fbm_sale_selling_fees,
 		SUM( ROUND( fbm_refund_selling_fees, 7 ) ) fbm_refund_selling_fees,
+		SUM( ROUND( fbm_refund_other, 7 ) ) fbm_refund_other,
 		SUM( ROUND( calcuRes, 2 ) ) calcuRes,
 		SUM( ROUND( fbm_ddp, 2 ) ) fbm_ddp,
 		SUM( ROUND( fbm_adCost, 7 ) ) fbm_adCost,
@@ -1302,6 +1318,7 @@ FROM
 			SUM( ROUND( fbm_refund_amount, 7 ) ) fbm_refund_amount,
 			SUM( ROUND( fbm_sale_selling_fees, 7 ) ) * - 1 fbm_sale_selling_fees,
 			SUM( ROUND( fbm_refund_selling_fees, 7 ) ) fbm_refund_selling_fees,
+			SUM( ROUND( fbm_refund_other, 7 ) ) fbm_refund_other,
 			SUM( ROUND( calcuRes, 2 ) ) * - 1 calcuRes,
 			SUM( ROUND( fbm_ddp, 2 ) ) * - 1 fbm_ddp,
 			NULL AS fbm_adCost,
@@ -1331,6 +1348,7 @@ FROM
 				NULL AS fbm_refund_amount,
 				ROUND( b.selling_fee, 7 ) fbm_sale_selling_fees,
 				NULL AS fbm_refund_selling_fees,
+				NULL AS fbm_refund_other,
 				c.calcuRes calcuRes,
 				NULL AS fbm_ddp,
 				NULL AS warehouse_rent,
@@ -1353,8 +1371,7 @@ FROM
 				WHERE
 					report_id = ' . $report_id . ' 
 					AND b.platform = "amazon" 
-					AND (a.fulfillment = "Seller" 
-					OR a.fulfillment IS NULL)
+					AND ( a.fulfillment = "Seller" OR a.fulfillment IS NULL ) 
 				) a
 				LEFT JOIN mu_finance_order_statistics b ON a.payment_id = b.payment_id
 				LEFT JOIN mu_ecang_order c ON b.saleOrderCode = c.saleOrderCode UNION ALL
@@ -1369,10 +1386,11 @@ FROM
 				NULL AS fbm_sale_qty,
 				NULL AS fbm_refund_qty,
 				NULL AS fbm_sale_amount,
-				ROUND( b.tax, 7) fbm_sale_tax,
+				ROUND( b.tax, 7 ) fbm_sale_tax,
 				NULL AS fbm_refund_amount,
 				NULL AS fbm_sale_selling_fees,
 				NULL AS fbm_refund_selling_fees,
+				NULL AS fbm_refund_other,
 				NULL AS calcuRes,
 				NULL AS fbm_ddp,
 				NULL AS warehouse_rent,
@@ -1395,9 +1413,8 @@ FROM
 				WHERE
 					report_id = ' . $report_id . ' 
 					AND b.platform = "amazon" 
-					AND b.country = "EUROPE"
-					AND (a.fulfillment = "Seller" 
-					OR a.fulfillment IS NULL) 
+					AND b.country = "EUROPE" 
+					AND ( a.fulfillment = "Seller" OR a.fulfillment IS NULL ) 
 				) a
 				LEFT JOIN mu_finance_order_statistics b ON a.payment_id = b.payment_id
 				LEFT JOIN mu_ecang_order c ON b.saleOrderCode = c.saleOrderCode UNION ALL
@@ -1416,6 +1433,7 @@ FROM
 				NULL AS fbm_refund_amount,
 				NULL AS fbm_sale_selling_fees,
 				NULL AS fbm_refund_selling_fees,
+				NULL AS fbm_refund_other,
 				NULL AS calcuRes,
 				c.sku_ddp_unit * b.qty / d.USD fbm_ddp,
 				b.warehouse_rent,
@@ -1436,13 +1454,12 @@ FROM
 					mu_finance_order_sale a
 					LEFT JOIN mu_finance_table b ON a.table_id = b.id 
 				WHERE
-					report_id = ' . $report_id . '
+					report_id = ' . $report_id . ' 
 					AND b.platform = "amazon" 
-					AND (a.fulfillment = "Seller" 
-					OR a.fulfillment IS NULL)
+					AND ( a.fulfillment = "Seller" OR a.fulfillment IS NULL ) 
 				) a
-				LEFT JOIN mu_finance_order_outbound b ON b.payment_id = a.payment_id
-				     AND b.report_id = ' . $report_id . ' 
+				LEFT JOIN mu_finance_order_outbound b ON b.payment_id = a.payment_id 
+				AND b.report_id = ' . $report_id . '
 				LEFT JOIN mu_finance_store c ON b.store_id = c.id
 				LEFT JOIN mu_finance_report d ON b.report_id = d.id UNION ALL
 			SELECT
@@ -1460,6 +1477,7 @@ FROM
 				ROUND( ( product_sales + shipping_credits + gift_wrap_credits + regulatory_fee + promotional_rebates ) * d.pcr_percent * d.pcr_quantity / 100, 7 ) fbm_refund_amount,
 				NULL AS fbm_sale_selling_fees,
 				ROUND( selling_fees * d.pcr_percent * d.pcr_quantity / 100, 7 ) fbm_refund_selling_fees,
+				ROUND( other * d.pcr_percent * d.pcr_quantity / 100, 7 ) fbm_refund_other,
 				NULL AS calcuRes,
 				NULL AS fbm_ddp,
 				NULL AS warehouse_rent,
@@ -1476,10 +1494,9 @@ FROM
 				AND b.userAccount = c.user_account
 				LEFT JOIN mu_ecang_sku_relation d ON c.id = d.sku_id 
 			WHERE
-				report_id = ' . $report_id . '  
-				AND b.platform = "amazon"
-				AND (a.fulfillment = "Seller" 
-				OR a.fulfillment IS NULL) UNION ALL
+				report_id = ' . $report_id . ' 
+				AND b.platform = "amazon" 
+				AND ( a.fulfillment = "Seller" OR a.fulfillment IS NULL ) UNION ALL
 			SELECT
 				"amazon" AS platform,
 				userAccount userAccount,
@@ -1495,6 +1512,7 @@ FROM
 				NULL AS fbm_refund_amount,
 				NULL AS fbm_sale_selling_fees,
 				NULL AS fbm_refund_selling_fees,
+				NULL AS fbm_refund_other,
 				NULL AS calcuRes,
 				NULL AS fbm_ddp,
 				NULL AS warehouse_rent,
@@ -1527,6 +1545,7 @@ FROM
 				NULL AS fbm_refund_amount,
 				NULL AS fbm_sale_selling_fees,
 				NULL AS fbm_refund_selling_fees,
+				NULL AS fbm_refund_other,
 				NULL AS calcuRes,
 				NULL AS fbm_ddp,
 				NULL AS warehouse_rent,
@@ -1541,8 +1560,8 @@ FROM
 				LEFT JOIN mu_finance_table b ON a.table_id = b.id
 				LEFT JOIN mu_finance_order_share c ON a.share_code = c.share_code 
 			WHERE
-				a.report_id = ' . $report_id . '  
-				AND c.fulfillment = "FBM"
+				a.report_id = ' . $report_id . ' 
+				AND c.fulfillment = "FBM" 
 				AND b.platform = "amazon" UNION ALL
 			SELECT
 				"amazon" AS platform,
@@ -1559,6 +1578,7 @@ FROM
 				NULL AS fbm_refund_amount,
 				NULL AS fbm_sale_selling_fees,
 				NULL AS fbm_refund_selling_fees,
+				NULL AS fbm_refund_other,
 				NULL AS calcuRes,
 				NULL AS fbm_ddp,
 				NULL AS warehouse_rent,
@@ -1591,6 +1611,7 @@ FROM
 				NULL AS fbm_refund_amount,
 				NULL AS fbm_sale_selling_fees,
 				NULL AS fbm_refund_selling_fees,
+				NULL AS fbm_refund_other,
 				NULL AS calcuRes,
 				NULL AS fbm_ddp,
 				NULL AS warehouse_rent,
@@ -1612,7 +1633,7 @@ FROM
 					mu_finance_order_additional 
 				WHERE
 					promotion IS NOT NULL 
-					AND report_id = ' . $report_id . '
+					AND report_id = ' . $report_id . ' 
 				GROUP BY
 					report_id,
 					user_account,
@@ -1626,8 +1647,8 @@ FROM
 				) a
 				LEFT JOIN mu_finance_order_share b ON a.share_code = b.share_code 
 			WHERE
-				b.fulfillment = "FBM"
-				AND a.report_id = ' . $report_id . '
+				b.fulfillment = "FBM" 
+				AND a.report_id = ' . $report_id . ' 
 				AND b.report_id = ' . $report_id . ' UNION ALL
 			SELECT
 				"amazon" AS platform,
@@ -1644,6 +1665,7 @@ FROM
 				NULL AS fbm_refund_amount,
 				NULL AS fbm_sale_selling_fees,
 				NULL AS fbm_refund_selling_fees,
+				NULL AS fbm_refund_other,
 				NULL AS calcuRes,
 				NULL AS fbm_ddp,
 				NULL AS warehouse_rent,
@@ -1672,6 +1694,7 @@ FROM
 				NULL AS fbm_refund_amount,
 				NULL AS fbm_sale_selling_fees,
 				NULL AS fbm_refund_selling_fees,
+				NULL AS fbm_refund_other,
 				NULL AS calcuRes,
 				NULL AS fbm_ddp,
 				ROUND( SUM( a.total / b.qty ), 7 ) warehouse_rent,
@@ -1728,7 +1751,7 @@ FROM
 			GROUP BY
 				platform,
 				userAccount,
-				warehouse_sku
+				warehouse_sku 
 			) a 
 		GROUP BY
 			platform,
@@ -1741,10 +1764,11 @@ FROM
 			NULL AS fbm_sale_qty,
 			NULL AS fbm_refund_qty,
 			NULL AS fbm_sale_amount,
-            NULL AS fbm_sale_tax,
+			NULL AS fbm_sale_tax,
 			NULL AS fbm_refund_amount,
 			NULL AS fbm_sale_selling_fees,
 			NULL AS fbm_refund_selling_fees,
+			NULL AS fbm_refund_other,
 			NULL AS calcuRes,
 			NULL AS fbm_ddp,
 			SUM( a.totalAdsCost * e.pcr_percent * e.pcr_quantity ) * 0.01 fbm_adCost,
@@ -1765,7 +1789,7 @@ FROM
 			AND a.msku = d.product_sku
 			LEFT JOIN mu_ecang_sku_relation e ON e.sku_id = d.id 
 		WHERE
-			reportDateMonth = "' . $month . '" 
+			reportDateMonth = " ' . $month . ' " 
 			AND is_fba = 0 
 		GROUP BY
 			platform,
@@ -1778,10 +1802,11 @@ FROM
 			NULL AS fbm_sale_qty,
 			NULL AS fbm_refund_qty,
 			NULL AS fbm_sale_amount,
-            NULL AS fbm_sale_tax,
+			NULL AS fbm_sale_tax,
 			NULL AS fbm_refund_amount,
 			NULL AS fbm_sale_selling_fees,
 			NULL AS fbm_refund_selling_fees,
+			NULL AS fbm_refund_other,
 			NULL AS calcuRes,
 			NULL AS fbm_ddp,
 			NULL AS fbm_adCost,
@@ -1802,7 +1827,7 @@ FROM
 		WHERE
 			d.fulfillmentType = 0 
 			AND a.report_id = ' . $report_id . ' 
-			AND b.platform = "amazon"
+			AND b.platform = "amazon" 
 		) a 
 	GROUP BY
 		platform,
@@ -1817,7 +1842,7 @@ GROUP BY
 	platform,
 	userAccount,
 	warehouse_sku,
-	fbm_sale_amount
+	fbm_sale_amount;
         ';
     }
 
