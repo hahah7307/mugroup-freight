@@ -1133,7 +1133,7 @@ FROM
 			AND a.msku = d.product_sku
 			LEFT JOIN mu_ecang_sku_relation e ON e.sku_id = d.id 
 		WHERE
-			reportDateMonth = " ' . $month . ' " 
+			reportDateMonth = "' . $month . '" 
 			AND is_fba = 1 
 		GROUP BY
 			platform,
@@ -1172,7 +1172,7 @@ FROM
 			AND a.msku = d.product_sku
 			LEFT JOIN mu_ecang_sku_relation e ON e.sku_id = d.id 
 		WHERE
-			reportDateMonth = " ' . $month . ' " 
+			reportDateMonth = "' . $month . '" 
 			AND a.fbaStorageFee + a.longTermStorageFee + a.sharedFbaDisposalFee + a.sharedAmazonPartneredCarrierShipmentFee + a.sharedFbaInboundConvenienceFee != 0 
 		GROUP BY
 			platform,
@@ -1789,7 +1789,7 @@ FROM
 			AND a.msku = d.product_sku
 			LEFT JOIN mu_ecang_sku_relation e ON e.sku_id = d.id 
 		WHERE
-			reportDateMonth = " ' . $month . ' " 
+			reportDateMonth = "' . $month . '" 
 			AND is_fba = 0 
 		GROUP BY
 			platform,
