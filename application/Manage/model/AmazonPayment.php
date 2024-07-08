@@ -893,7 +893,7 @@ class AmazonPayment extends Model
                         "table_id"                  =>  $tableId,
                         "payment_id"                =>  number_format($item[2], 0, '', ''),
                         "sku"                       =>  $item[8],
-                        "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[71])),
+                        "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[71])) * -1,
                     ];
                 }
             } elseif ($item[5] == 'REFUNDED') {
@@ -919,7 +919,7 @@ class AmazonPayment extends Model
                         "table_id"                  =>  $tableId,
                         "payment_id"                =>  number_format($item[2], 0, '', ''),
                         "sku"                       =>  $item[8],
-                        "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[71])),
+                        "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[71])) * -1,
                     ];
                 }
             } elseif ($item[5] == 'ADJMNT') {
