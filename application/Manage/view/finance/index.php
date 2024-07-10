@@ -125,7 +125,6 @@
             }
             ,done: function(res){
                 //上传完毕回调
-                console.log(res);
                 if (res.code === 1) {
                     location.href = "/Manage/Finance/import/rid/{$rid}/filename/" + encodeURIComponent(res.data) + "/origin/" + res.origin + "/payment_type/" + res.payment_type;
                 } else {

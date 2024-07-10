@@ -1729,9 +1729,9 @@ FROM
 					) a
 					LEFT JOIN mu_ecang_sku_relation b ON a.sku = b.pcr_product_sku
 					LEFT JOIN mu_ecang_sku c ON b.sku_id = c.id
-					LEFT JOIN mu_finance_table d ON c.user_account = d.userAccount 
+					LEFT JOIN ( SELECT DISTINCT rid, platform, userAccount FROM mu_finance_table ) d ON c.user_account = d.userAccount 
 				WHERE
-					platform = "amazon" 
+					c.user_account != "" 
 					AND d.rid = ' . $report_id . ' 
 				) a
 				LEFT JOIN (
@@ -1742,12 +1742,15 @@ FROM
 					( SELECT DISTINCT main_sku sku FROM mu_finance_warehouse WHERE is_sale = 0 AND total > 0 AND report_id = ' . $report_id . ' ) a
 					LEFT JOIN mu_ecang_sku_relation b ON a.sku = b.pcr_product_sku
 					LEFT JOIN mu_ecang_sku c ON b.sku_id = c.id
-					LEFT JOIN mu_finance_table d ON c.user_account = d.userAccount 
+					LEFT JOIN ( SELECT DISTINCT rid, platform, userAccount FROM mu_finance_table ) d ON c.user_account = d.userAccount 
 				WHERE
-					d.rid = ' . $report_id . ' 
+					c.user_account != "" 
+					AND d.rid = ' . $report_id . ' 
 				GROUP BY
 					sku 
 				) b ON a.sku = b.sku 
+			WHERE
+				platform = "amazon" 
 			GROUP BY
 				platform,
 				userAccount,
@@ -2137,9 +2140,9 @@ FROM
 					) a
 					LEFT JOIN mu_ecang_sku_relation b ON a.sku = b.pcr_product_sku
 					LEFT JOIN mu_ecang_sku c ON b.sku_id = c.id
-					LEFT JOIN mu_finance_table d ON c.user_account = d.userAccount 
+					LEFT JOIN ( SELECT DISTINCT rid, platform, userAccount FROM mu_finance_table ) d ON c.user_account = d.userAccount 
 				WHERE
-					platform = "walmart" 
+					c.user_account != "" 
 					AND d.rid = ' . $report_id . ' 
 				) a
 				LEFT JOIN (
@@ -2150,12 +2153,15 @@ FROM
 					( SELECT DISTINCT main_sku sku FROM mu_finance_warehouse WHERE is_sale = 0 AND total > 0 AND report_id = ' . $report_id . '  ) a
 					LEFT JOIN mu_ecang_sku_relation b ON a.sku = b.pcr_product_sku
 					LEFT JOIN mu_ecang_sku c ON b.sku_id = c.id
-					LEFT JOIN mu_finance_table d ON c.user_account = d.userAccount 
+					LEFT JOIN ( SELECT DISTINCT rid, platform, userAccount FROM mu_finance_table ) d ON c.user_account = d.userAccount 
 				WHERE
-					d.rid = ' . $report_id . ' 
+					c.user_account != "" 
+					AND d.rid = ' . $report_id . ' 
 				GROUP BY
 					sku 
 				) b ON a.sku = b.sku 
+			WHERE
+				platform = "walmart" 
 			GROUP BY
 				platform,
 				userAccount,
@@ -2502,9 +2508,9 @@ FROM
 					) a
 					LEFT JOIN mu_ecang_sku_relation b ON a.sku = b.pcr_product_sku
 					LEFT JOIN mu_ecang_sku c ON b.sku_id = c.id
-					LEFT JOIN mu_finance_table d ON c.user_account = d.userAccount 
+					LEFT JOIN ( SELECT DISTINCT rid, platform, userAccount FROM mu_finance_table ) d ON c.user_account = d.userAccount 
 				WHERE
-					platform = "wayfair" 
+					c.user_account != "" 
 					AND d.rid = ' . $report_id . ' 
 				) a
 				LEFT JOIN (
@@ -2515,12 +2521,15 @@ FROM
 					( SELECT DISTINCT main_sku sku FROM mu_finance_warehouse WHERE is_sale = 0 AND total > 0 AND report_id = ' . $report_id . ' ) a
 					LEFT JOIN mu_ecang_sku_relation b ON a.sku = b.pcr_product_sku
 					LEFT JOIN mu_ecang_sku c ON b.sku_id = c.id
-					LEFT JOIN mu_finance_table d ON c.user_account = d.userAccount 
+					LEFT JOIN ( SELECT DISTINCT rid, platform, userAccount FROM mu_finance_table ) d ON c.user_account = d.userAccount 
 				WHERE
-					d.rid = ' . $report_id . ' 
+					c.user_account != "" 
+					AND d.rid = ' . $report_id . ' 
 				GROUP BY
 					sku 
 				) b ON a.sku = b.sku 
+			WHERE
+				platform = "wayfair" 
 			GROUP BY
 				platform,
 				userAccount,

@@ -1475,6 +1475,7 @@ FROM
         $sum = $order->where($where)->sum('total');
         $this->assign('sum', $sum);
 
+        Session::set(Config::get('BACK_URL'), $this->request->url(), 'manage');
         return view();
     }
 
