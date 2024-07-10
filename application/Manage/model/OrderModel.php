@@ -295,7 +295,7 @@ class OrderModel extends Model
         try {
             // update detail
             $orderDetail = $item['orderDetails'];
-            foreach ($orderDetail as $key => $detail) {
+            foreach ($orderDetail as $detail) {
                 $detail['warehouseSkuList'] = isset($detail['warehouseSkuList']) ? json_encode($detail['warehouseSkuList']) : json_encode([]);
                 $detail['promotionIdList'] = isset($detail['promotionIdList']) ? json_encode($detail['promotionIdList']) : json_encode([]);
                 $detailItem = OrderDetailModel::get(['op_id' => $detail['op_id']]);
@@ -309,10 +309,16 @@ class OrderModel extends Model
 
             // 保留地址数据保留邮编，用于就算尾程
             // update address
-//            $address = $item['orderAddress'];
-//            $addressItem = OrderAddressModel::get(['order_id' => $orderItem['id']]);
-//            $address['id'] = $addressItem['id'];
-//            OrderAddressModel::update($address);
+            $address = $item['orderAddress'];
+            $address = array_filter($address);
+            $addressItem = OrderAddressModel::get(['order_id' => $orderItem['id']]);
+            if ($addressItem) {
+                $address['id'] = $addressItem['id'];
+                OrderAddressModel::update($address);
+            } else {
+                $address['order_id'] = $orderItem['id'];
+                OrderAddressModel::create($address);
+            }
 
             // 更新订单信息
             $order['id'] = $orderItem['id'];
