@@ -79,10 +79,11 @@ class OrderModel extends Model
             $orderInfo['das'] = array_sum(array_column($tail, 'das'));
             $orderInfo['rdcFee'] = array_sum(array_column($tail, 'residential'));
             $orderInfo['drdcFee'] = array_sum(array_column($tail, 'residential_pss'));
+            $orderInfo['signature'] = array_sum(array_column($tail, 'signature'));
             $orderInfo['fuelCost'] = array_sum(array_column($tail, 'fuel_cost'));
             $orderInfo['commission'] = array_sum(array_column($tail, 'commission'));
             $orderInfo['calcuRes'] = array_sum(array_column($tail, 'tail_course'));
-            $orderInfo['calcuInfo'] = $orderInfo['outbound'] . "(出库) + " . $orderInfo['base'] . "(基础) + " . $orderInfo['ahs'] . "(AHS) + " . $orderInfo['das'] . "(偏远) + " . $orderInfo['rdcFee'] . "(住宅) + " . $orderInfo['ahsds'] . "(AHS旺季) + " . $orderInfo['drdcFee'] . "(住宅旺季) + "  .$orderInfo['fuelCost'] . "(燃油) + "  .$orderInfo['commission'] . "(过路费)";
+            $orderInfo['calcuInfo'] = $orderInfo['outbound'] . "(出库) + " . $orderInfo['base'] . "(基础) + " . $orderInfo['ahs'] . "(AHS) + " . $orderInfo['das'] . "(偏远) + " . $orderInfo['rdcFee'] . "(住宅) + " . $orderInfo['ahsds'] . "(AHS旺季) + " . $orderInfo['drdcFee'] . "(住宅旺季) + "  . $orderInfo['signature'] . "(签名) + "  . $orderInfo['fuelCost'] . "(燃油) + "  .$orderInfo['commission'] . "(过路费)";
         }
 
         // 更新数据
@@ -128,6 +129,7 @@ class OrderModel extends Model
                     'das'               =>  0,
                     'residential'       =>  0,
                     'residential_pss'   =>  0,
+                    'signature'         =>  0,
                     'fuel_cost'         =>  0,
                     'commission'        =>  0,
                     'tail_course'       =>  $outbound
@@ -157,8 +159,16 @@ class OrderModel extends Model
             $ResidentialFee = StorageResidentialModel::getResidential($storage_id, $order);
             $ResidentialPeakSurcharge = $ResidentialFee ? StorageResidentialModel::ResidentialPeakSurcharge($storage_id, $order) : 0;
 
+            // 签名费
+            if (!strpos($order['shippingMethod'], "-QIANMING") && !strpos($order['shippingMethod'], "-QM")) {
+                $signature = 0;
+            } else {
+                $signatureData = StorageSignatureModel::getSignature($storage_id, $order);
+                $signature = $signatureData ? $signatureData['value'] : 0;
+            }
+
             // 燃油费运算
-            $fuel_cost = round(($base + $ahs + $dasFee + $ResidentialFee + $AHSPeakSurcharge + $ResidentialPeakSurcharge) * Config::get('fuel_cost') * 0.01, 2);
+            $fuel_cost = round(($base + $ahs + $dasFee + $ResidentialFee + $AHSPeakSurcharge + $ResidentialPeakSurcharge + $signature) * Config::get('fuel_cost') * 0.01, 2);
 
             // 佣金（过路费）
             if ($storage_id == StorageModel::LIANGCANGID) {
@@ -168,10 +178,10 @@ class OrderModel extends Model
             } else {
                 $commission_rate = 0;
             }
-            $commission = round(($base + $ahs + $dasFee + $ResidentialFee + $AHSPeakSurcharge + $ResidentialPeakSurcharge + $fuel_cost) * $commission_rate * 0.01, 2);
+            $commission = round(($base + $ahs + $dasFee + $ResidentialFee + $AHSPeakSurcharge + $ResidentialPeakSurcharge + $signature + $fuel_cost) * $commission_rate * 0.01, 2);
 
             // 运费总计
-            $price = round($outbound + $base + $ahs + $dasFee + $ResidentialFee + $AHSPeakSurcharge + $ResidentialPeakSurcharge + $fuel_cost + $commission, 2);
+            $price = round($outbound + $base + $ahs + $dasFee + $ResidentialFee + $AHSPeakSurcharge + $ResidentialPeakSurcharge + $signature + $fuel_cost + $commission, 2);
 
             $tailData = [
                 'postal_format'     =>  $postalCode,
@@ -184,6 +194,7 @@ class OrderModel extends Model
                 'das'               =>  $dasFee,
                 'residential'       =>  $ResidentialFee,
                 'residential_pss'   =>  $ResidentialPeakSurcharge,
+                'signature'         =>  $signature,
                 'fuel_cost'         =>  $fuel_cost,
                 'commission'        =>  $commission,
                 'tail_course'       =>  $price * $detail['qty']
