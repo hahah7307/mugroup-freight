@@ -27,6 +27,8 @@ class AmazonPayment extends Model
 
     public $orderTransferNew = [];
 
+    public $orderWayfairCoreRefundAdjust = [];
+
     /**
      * @throws DbException
      * @throws ModelNotFoundException
@@ -954,6 +956,7 @@ class AmazonPayment extends Model
     public function wayfair($excel, $tableId, $reportId): array
     {
         foreach ($excel as $item) {
+            $report = FinanceReportModel::get($reportId);
             $orderObj = new OrderModel();
             $order = $orderObj->with(['details'])->where(['refNo|saleOrderCode' => $item[2]])->find();
             if ($order && $order['userAccount'] != $this->userAccount) {
@@ -976,7 +979,7 @@ class AmazonPayment extends Model
                     "gift_wrap_credits"         =>  0,
                     "regulatory_fee"            =>  0,
                     "promotional_rebates"       =>  0,
-                    "selling_fees"              =>  round(sprintf('%.2f', str_replace(',', '', $item[4])) * 0.04 * -1, 2),
+                    "selling_fees"              =>  round(sprintf('%.4f', str_replace(',', '', $item[4])) * 0.04 * -1, 2),
                     "fba_fees"                  =>  0,
                 ];
             } elseif ($item[2] == 'Return') {
@@ -997,6 +1000,20 @@ class AmazonPayment extends Model
                         "selling_fees"          =>  0,
                         "fba_fees"              =>  0,
                     ];
+                    $this->orderWayfairCoreRefundAdjust[] = [
+                        'table_id'              =>  $tableId,
+                        'invoice_no'            =>  substr($item[0], 0 , 11),
+                        'invoice_date'          =>  $item[1],
+                        'payment_id'            =>  substr($item[0], 0 , 11),
+                        'sale_amount'           =>  0,
+                        'status'                =>  2,
+                        'currency'              =>  'USD',
+                        'commission_rate'       =>  0,
+                        'commission'            =>  0,
+                        'collection'            =>  sprintf('%.2f', str_replace(',', '', $item[9])),
+                        'calculate_month'       =>  date('Ym', strtotime($report['month'] . "-00")),
+                        'user_account'          =>  $this->userAccount
+                    ];
                 }
             } elseif ($item[2] != 'Return') {
                 if (is_numeric($item[9])) {
@@ -1006,6 +1023,20 @@ class AmazonPayment extends Model
                         "payment_id"                =>  substr($item[0], 0, 11),
                         "sku"                       =>  $item[5],
                         "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[9])),
+                    ];
+                    $this->orderWayfairCoreRefundAdjust[] = [
+                        'table_id'              =>  $tableId,
+                        'invoice_no'            =>  substr($item[0], 0 , 11),
+                        'invoice_date'          =>  $item[1],
+                        'payment_id'            =>  substr($item[0], 0 , 11),
+                        'sale_amount'           =>  0,
+                        'status'                =>  3,
+                        'currency'              =>  'USD',
+                        'commission_rate'       =>  0,
+                        'commission'            =>  0,
+                        'collection'            =>  sprintf('%.2f', str_replace(',', '', $item[9])),
+                        'calculate_month'       =>  date('Ym', strtotime($report['month'] . "-00")),
+                        'user_account'          =>  $this->userAccount
                     ];
                 }
             }
@@ -1020,7 +1051,8 @@ class AmazonPayment extends Model
             'orderLiquidationNew'       =>  $this->orderLiquidationNew,
             'orderAdjustmentNew'        =>  $this->orderAdjustmentNew,
             'orderFbaInventory'         =>  $this->orderFbaInventory,
-            'orderTransferNew'          =>  $this->orderTransferNew
+            'orderTransferNew'          =>  $this->orderTransferNew,
+            'orderWayfairCore'          =>  $this->orderWayfairCoreRefundAdjust
         ];
     }
 }

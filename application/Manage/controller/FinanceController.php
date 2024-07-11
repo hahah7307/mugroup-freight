@@ -706,9 +706,16 @@ class FinanceController extends BaseController
 
                     $financeOrderSaleObj = new FinanceOrderSaleModel();
                     if ($payment_type == "wayfair") {
+                        // 将wayfair销售数据添加到缓存队列
                         $wayfairOrder = Cache::get('wayfairOrder');
                         Cache::set('wayfairOrder', array_merge((array)$wayfairOrder, (array)$paymentData['orderSaleNew']), 24 * 60 * 60);
                         $sale_amount = 0;
+
+                        // 更新wayfair退款和调整到核心库
+                        if ($paymentData['orderWayfairCore']) {
+                            $wayfairCoreObj = new FinanceWayfairCoreModel();
+                            $wayfairCoreObj->insertAll($paymentData['orderWayfairCore']);
+                        }
                     } else {
                         if (!$financeOrderSaleObj->saveAll($paymentData['orderSaleNew'])) {
                             throw new \think\Exception('Payment导入失败！');
@@ -825,6 +832,9 @@ class FinanceController extends BaseController
 
                 $financeOrderAdjustmentObj = new FinanceOrderTransferModel();
                 $financeOrderAdjustmentObj->where('table_id', $post['id'])->delete();
+
+                $financeWayfairCoreObj = new FinanceWayfairCoreModel();
+                $financeWayfairCoreObj->where('table_id', $post['id'])->delete();
 
                 Db::commit();
                 echo json_encode(['code' => 1, 'msg' => '删除成功']);
@@ -1854,10 +1864,10 @@ FROM
                     "status"                    =>  FinanceWayfairCoreModel::formatExcelStatus($item[5]),
                     "currency"                  =>  $item[6],
                     "commission_rate"           =>  0.04,
-                    "commission"                =>  $item[8],
-                    "collection"                =>  $item[9],
+                    "commission"                =>  $item[4] * 0.04,
+                    "collection"                =>  $item[4] * 0.96,
                     "calculate_month"           =>  $item[12],
-                    "user_account"              =>  FinanceWayfairCoreModel::formatExcelUserAccount($item[13])
+                    "user_account"              =>  FinanceWayfairCoreModel::formatExcelUserAccount($item[15])
                 ];
             }
             $financeWayfairCoreObj->insertAll($orderData);
