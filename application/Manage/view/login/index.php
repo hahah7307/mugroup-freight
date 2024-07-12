@@ -25,10 +25,6 @@
                     <input type="text" name="username" id="LAY-user-login-username" lay-verify="required" placeholder="用户名" class="layui-input">
                 </div>
                 <div class="layui-form-item">
-                    <label class="layadmin-user-login-icon layui-icon layui-icon-cellphone" for="LAY-user-login-password"></label>
-                    <input type="text" name="phone" id="LAY-user-login-phone" lay-verify="required" placeholder="手机号码" class="layui-input">
-                </div>
-                <div class="layui-form-item">
                     <div class="layui-row">
                         <div class="layui-col-xs7">
                             <label class="layadmin-user-login-icon layui-icon layui-icon-vercode" for="LAY-user-login-vercode"></label>
@@ -77,11 +73,11 @@ layui.config({
     // 获取手机验证码
     form.on('submit(Verify)', function(data){
         let text = $(this).text(),
-            phone = $('#LAY-user-login-phone').val(),
+            username = $('#LAY-user-login-username').val(),
             button = $(this);
         button.attr('disabled',true);
         button.text('请稍候...');
-        axios.post("{:url('get_phone_verify')}", {phone:phone})
+        axios.post("{:url('get_phone_verify')}", {username:username})
             .then(function (response) {
                 let res = response.data;
                 if (res.code === 1) {

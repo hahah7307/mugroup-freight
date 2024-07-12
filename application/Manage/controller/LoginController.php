@@ -197,7 +197,7 @@ class LoginController extends Controller
             $post = $this->request->post();
 
             $accountObj = new AccountModel();
-            $account = $accountObj->where(['phone' => $post['phone'], 'status' => AccountModel::STATUS_ACTIVE])->find();
+            $account = $accountObj->where(['username' => $post['username'], 'status' => AccountModel::STATUS_ACTIVE])->find();
             if ($account) {
                 // 发送短信
                 $smsObj = new AdminUserSmsModel();
