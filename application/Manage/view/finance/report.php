@@ -59,6 +59,7 @@
                         <a href="{:url('warehouse', ['id' => $v.id])}" class="layui-btn layui-btn-sm">仓租</a>
                         <a href="{:url('additional', ['id' => $v.id])}" class="layui-btn layui-btn-sm">额外</a>
                         <a href="{:url('evaluation', ['id' => $v.id])}" class="layui-btn layui-btn-sm">测评</a>
+                        <a href="{:url('ad_cost', ['id' => $v.id])}" class="layui-btn layui-btn-sm">广告</a>
                         <a href="{:url('store', ['id' => $v.id])}" class="layui-btn layui-btn-sm">库存</a>
                         <a href="{:url('outbound', ['id' => $v.id])}" class="layui-btn layui-btn-sm">出库</a>
                         <a href="{:url('share', ['id' => $v.id])}" class="layui-btn layui-btn-sm">分摊</a>

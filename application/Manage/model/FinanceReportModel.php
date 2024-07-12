@@ -2198,7 +2198,31 @@ FROM
 		WHERE
 			d.fulfillmentType = 1 
 			AND a.report_id = ' . $report_id . ' 
-			AND b.platform = "walmart" 
+			AND b.platform = "walmart" UNION ALL
+		SELECT
+			"walmart" AS platform,
+			user_account userAccount,
+			warehouse_sku warehouse_sku,
+			NULL AS sale_qty,
+			NULL AS refund_qty,
+			NULL AS sale_amount,
+			NULL AS refund_amount,
+			NULL AS sale_selling_fees,
+			NULL AS refund_selling_fees,
+			NULL AS calcuRes,
+			NULL AS ddp,
+			total adCost,
+			NULL AS warehouse_rent,
+			NULL AS adjustment,
+			NULL AS lc_adjustment,
+			NULL AS le_adjustment,
+			NULL AS evaluation_qty,
+			NULL AS evaluation_amount 
+		FROM
+			mu_finance_ad_cost 
+		WHERE
+			report_id = ' . $report_id . ' 
+			AND platform = "walmart" 
 		) a 
 	GROUP BY
 		platform,
@@ -2566,7 +2590,31 @@ FROM
 		WHERE
 			d.fulfillmentType = 1 
 			AND a.report_id = ' . $report_id . ' 
-			AND b.platform = "wayfair" 
+			AND b.platform = "wayfair"  UNION ALL
+		SELECT
+			"wayfair" AS platform,
+			user_account userAccount,
+			warehouse_sku,
+			NULL AS sale_qty,
+			NULL AS refund_qty,
+			NULL AS sale_amount,
+			NULL AS refund_amount,
+			NULL AS sale_selling_fees,
+			NULL AS refund_selling_fees,
+			NULL AS calcuRes,
+			NULL AS ddp,
+			total adCost,
+			NULL AS warehouse_rent,
+			NULL AS adjustment,
+			NULL AS lc_adjustment,
+			NULL AS le_adjustment,
+			NULL AS evaluation_qty,
+			NULL AS evaluation_amount 
+		FROM
+			mu_finance_ad_cost 
+		WHERE
+			report_id = ' . $report_id . ' 
+			AND platform = "wayfair" 
 		) a 
 	GROUP BY
 		platform,

@@ -68,6 +68,13 @@ class FinanceNotify extends Command
                         $output->writeln("Evaluation Unready");exit();
                     }
 
+                    // 检测测评订单是否导入
+                    $adCostObj = new FinanceEvaluationModel();
+                    $adCost = $adCostObj->where(['report_id' => $report['id']])->order('id asc')->select();
+                    if (count($adCost) == 0) {
+                        $output->writeln("AdCost Unready");exit();
+                    }
+
                     // 检测期初库存是否导入
                     $financeStoreObj = new FinanceStoreModel();
                     $store = $financeStoreObj->where(['report_id' => $report['id']])->order('entering_date asc')->select();

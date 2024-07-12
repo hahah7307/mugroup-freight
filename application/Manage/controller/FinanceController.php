@@ -5,6 +5,7 @@ use app\Manage\command\FinanceNotify;
 use app\Manage\command\FinanceOrderShare;
 use app\Manage\model\AkAdCostCreateModel;
 use app\Manage\model\AmazonPayment;
+use app\Manage\model\FinanceAdCostModel;
 use app\Manage\model\FinanceEvaluationModel;
 use app\Manage\model\FinanceOrderAdditionalModel;
 use app\Manage\model\FinanceOrderAdjustmentModel;
@@ -1930,6 +1931,93 @@ FROM
             $reportId = $post['id'];
             $evaluationObj = new FinanceEvaluationModel();
             if ($evaluationObj->where('report_id', $reportId)->delete()) {
+                $financeReportObj = new FinanceReportModel();
+                $financeReportObj->save(['is_notify' => 0], ['id' => $reportId]);
+
+                echo json_encode(['code' => 1, 'msg' => '清空完成']);
+            } else {
+                echo json_encode(['code' => 0, 'msg' => '清空失败，请重试']);
+            }
+        } else {
+            echo json_encode(['code' => 0, 'msg' => '异常操作']);
+        }
+        exit;
+    }
+
+    /**
+     * @throws DbException
+     */
+    public function ad_cost($id): \think\response\View
+    {
+        $keyword = $this->request->get('keyword', '', 'htmlspecialchars');
+        $this->assign('keyword', $keyword);
+        if ($keyword) {
+            $where['platform|user_account|warehouse_sku'] = ['like', '%' . $keyword . '%'];
+        } else {
+            $where = [];
+        }
+
+        $page_num = $this->request->get('page_num', Config::get('PAGE_NUM'));
+        $this->assign('page_num', $page_num);
+
+        // 列表
+        $order = new FinanceAdCostModel();
+        $where['report_id'] = $id;
+        $list = $order->where($where)->order('id asc')->paginate($page_num, false, ['query' => ['keyword' => $keyword]]);
+        $this->assign('list', $list);
+        $this->assign('ad_cost', $order->where($where)->sum('total'));
+        $this->assign('report_id', $id);
+
+        return view();
+    }
+
+    /**
+     * @throws PHPExcel_Reader_Exception
+     */
+    public function ad_cost_import()
+    {
+        // phpexcel
+        require_once './static/classes/PHPExcel/Classes/PHPExcel.php';
+
+        $filename = input('filename');
+        $report_id = input('id');
+        $file= "./upload/excel/" . $filename;
+        $excelReader = PHPExcel_IOFactory::createReaderForFile($file);
+        $excelObj = $excelReader->load($file);
+        $worksheet = $excelObj->getSheet(0);
+        $data = $worksheet->toArray();
+        unset($data[0]);
+
+        Db::startTrans();
+        try {
+            $adCostData = [];
+            $financeAdCostObj = new FinanceAdCostModel();
+            foreach ($data as $item) {
+                $adCostData[] = [
+                    "report_id"                 =>  $report_id,
+                    "platform"                  =>  $item[0],
+                    "user_account"              =>  $item[1],
+                    "warehouse_sku"             =>  $item[2],
+                    "total"                     =>  $item[3]
+                ];
+            }
+            $financeAdCostObj->insertAll($adCostData);
+
+            Db::commit();
+        } catch (Exception $e) {
+            Db::rollback();
+            $this->error($e->getMessage(), url('ad_cost'));
+        }
+        $this->redirect(url('ad_cost', ['id' => $report_id]));
+    }
+
+    public function ad_cost_empty()
+    {
+        if ($this->request->isPost()) {
+            $post = $this->request->post();
+            $reportId = $post['id'];
+            $adCostObj = new FinanceAdCostModel();
+            if ($adCostObj->where('report_id', $reportId)->delete()) {
                 $financeReportObj = new FinanceReportModel();
                 $financeReportObj->save(['is_notify' => 0], ['id' => $reportId]);
 
