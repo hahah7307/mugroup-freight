@@ -2655,4 +2655,51 @@ GROUP BY
 	a.collection;
         ';
     }
+
+    static public function getOrderResend($month): string
+    {
+        return '
+SELECT
+	warehouse_sku,
+	SUM( qty ) qty,
+	order_status,
+	SUM( b.calcuRes ) tail,
+	NULL AS platform,
+	NULL AS user_account 
+FROM
+	mu_finance_order_statistics a
+	LEFT JOIN mu_ecang_order b ON a.saleOrderCode = b.saleOrderCode 
+WHERE
+	paid_time >= "' . $month . '-01 00:00:00" 
+	AND paid_time < "' . date('Y-m', strtotime('+1 month', strtotime($month . '-01'))) . '-01 00:00:00" 
+	AND order_type = "resend" 
+	AND order_status = "已发货" 
+GROUP BY
+	warehouse_sku,
+	order_status,
+	platform,
+	user_account UNION ALL
+SELECT
+	warehouse_sku,
+	qty,
+	order_status,
+	SUM( b.calcuRes ) tail,
+	a.platform,
+	a.user_account 
+FROM
+	mu_finance_order_statistics a
+	LEFT JOIN mu_ecang_order b ON a.saleOrderCode = b.saleOrderCode 
+WHERE
+	paid_time >= "' . $month . '-01 00:00:00" 
+	AND paid_time < "' . date('Y-m', strtotime('+1 month', strtotime($month . '-01'))) . '-01 00:00:00" 
+	AND order_type = "resend" 
+	AND order_status != "已发货" 
+GROUP BY
+	warehouse_sku,
+	qty,
+	order_status,
+	platform,
+	user_account;
+        ';
+    }
 }
