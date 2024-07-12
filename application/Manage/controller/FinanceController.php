@@ -19,6 +19,7 @@ use app\Manage\model\FinanceOrderShippingServiceModel;
 use app\Manage\model\FinanceOrderStatisticsEditModel;
 use app\Manage\model\FinanceOrderStatisticsModel;
 use app\Manage\model\FinanceOrderTransferModel;
+use app\Manage\model\FinanceOrderWayfairModel;
 use app\Manage\model\FinanceReportModel;
 use app\Manage\model\FinanceStoreModel;
 use app\Manage\model\FinanceTableModel;
@@ -151,6 +152,7 @@ class FinanceController extends BaseController
         $wayfairWarehouseSku = $financeReportObj->query(FinanceReportModel::getWayfairWarehouseSkuSql($report_id));
         $userAccountTransfer = $financeReportObj->query(FinanceReportModel::getUserAccountTransfer($report_id));
         $userAccountSubscription = $financeReportObj->query(FinanceReportModel::getUserAccountSubscription($report_id));
+        $orderWayfair = $financeReportObj->query(FinanceReportModel::getOrderWayfair($report_id));
 
         // phpexcel
         require_once './static/classes/PHPExcel/Classes/PHPExcel.php';
@@ -588,6 +590,47 @@ class FinanceController extends BaseController
             ;
         }
 
+        // create new sheet
+        $objPHPExcel->createSheet();
+
+        // Set name sheet
+        $objPHPExcel->setActiveSheetIndex(8)->setTitle('Wayfair账单销售');
+
+        // Add some data
+        $objPHPExcel->setActiveSheetIndex(8)
+            ->setCellValue('A1', '发票号')
+            ->setCellValue('B1', '订单号')
+            ->setCellValue('C1', '发票时间')
+            ->setCellValue('D1', '账单销售')
+            ->setCellValue('E1', '账单佣金')
+            ->setCellValue('F1', '账单运费')
+            ->setCellValue('G1', '账单其他费用')
+            ->setCellValue('H1', '账单税费')
+            ->setCellValue('I1', '账单应收')
+            ->setCellValue('J1', '发票销售')
+            ->setCellValue('K1', '发票佣金')
+            ->setCellValue('L1', '发票应收')
+        ;
+
+        $orderWayfairIndex = 1;
+        foreach ($orderWayfair as $orderWayfairItem) {
+            $orderWayfairIndex ++;
+            $objPHPExcel->setActiveSheetIndex(8)
+                ->setCellValue('A' . $orderWayfairIndex, $orderWayfairItem['invoice_no'])
+                ->setCellValue('B' . $orderWayfairIndex, $orderWayfairItem['order_no'])
+                ->setCellValue('C' . $orderWayfairIndex, $orderWayfairItem['invoice_date'])
+                ->setCellValue('D' . $orderWayfairIndex, $orderWayfairItem['amount'])
+                ->setCellValue('E' . $orderWayfairIndex, $orderWayfairItem['commission'])
+                ->setCellValue('F' . $orderWayfairIndex, $orderWayfairItem['shipping'])
+                ->setCellValue('G' . $orderWayfairIndex, $orderWayfairItem['other'])
+                ->setCellValue('H' . $orderWayfairIndex, $orderWayfairItem['tax'])
+                ->setCellValue('I' . $orderWayfairIndex, $orderWayfairItem['collection'])
+                ->setCellValue('J' . $orderWayfairIndex, $orderWayfairItem['sale_amount_core'])
+                ->setCellValue('K' . $orderWayfairIndex, $orderWayfairItem['commission_core'])
+                ->setCellValue('L' . $orderWayfairIndex, $orderWayfairItem['collection_core'])
+            ;
+        }
+
 
 
 
@@ -634,6 +677,101 @@ class FinanceController extends BaseController
         $this->assign('report_id', $id);
         Session::set(Config::get('BACK_URL'), $this->request->url(), 'manage');
         return view();
+    }
+
+    /**
+     * @throws DbException
+     */
+    public function index_wayfair($id): \think\response\View
+    {
+        $keyword = $this->request->get('keyword', '', 'htmlspecialchars');
+        $this->assign('keyword', $keyword);
+        if ($keyword) {
+            $where['invoice_no'] = ['like', '%' . $keyword . '%'];
+        } else {
+            $where = [];
+        }
+
+        $page_num = $this->request->get('page_num', Config::get('PAGE_NUM'));
+        $this->assign('page_num', $page_num);
+
+        $order = new FinanceOrderWayfairModel();
+        $where['report_id'] = $id;
+        $list = $order->with('wayfairCore')->where($where)->order('id asc')->paginate($page_num, false, ['query' => ['keyword' => $keyword]]);
+        $this->assign('list', $list);
+        $this->assign('sale_amount', $order->where($where)->sum('amount'));
+        $this->assign('commission', $order->where($where)->sum('commission'));
+        $this->assign('collection', $order->where($where)->sum('collection'));
+
+        $this->assign('report_id', $id);
+        return view();
+    }
+
+    /**
+     * @throws PHPExcel_Reader_Exception
+     */
+    public function index_wayfair_import()
+    {
+        // phpexcel
+        require_once './static/classes/PHPExcel/Classes/PHPExcel.php';
+
+        $filename = input('filename');
+        $report_id = input('id');
+        $file= "./upload/excel/" . $filename;
+        $excelReader = PHPExcel_IOFactory::createReaderForFile($file);
+        $excelObj = $excelReader->load($file);
+        $worksheet = $excelObj->getSheet(0);
+        $data = $worksheet->toArray();
+        unset($data[0]);
+
+        Db::startTrans();
+        try {
+            $wayfairData = [];
+            $financeOrderWayfairObj = new FinanceOrderWayfairModel();
+            foreach ($data as $key => $item) {
+                if ($key == 0 || $key == 1) {
+                    continue;
+                }
+                $wayfairData[] = [
+                    "report_id"             =>  $report_id,
+                    "invoice_no"            =>  $item[0],
+                    "order_no"              =>  $item[1],
+                    "invoice_date"          =>  date('Y-m-d H:i:s', strtotime($item[2])),
+                    "amount"                =>  $item[3],
+                    "commission"            =>  $item[4],
+                    "shipping"              =>  $item[5],
+                    "other"                 =>  $item[6],
+                    "tax"                   =>  $item[7],
+                    "collection"            =>  $item[8],
+                    "business"              =>  $item[9],
+                    "order_type"            =>  $item[10]
+                ];
+            }
+            $financeOrderWayfairObj->insertAll($wayfairData);
+
+            Db::commit();
+        } catch (Exception $e) {
+            Db::rollback();
+            $this->error($e->getMessage(), session('back_url', '', 'manage'));
+        }
+        $this->redirect(session('back_url', '', 'manage'));
+    }
+
+    public function index_wayfair_empty()
+    {
+        if ($this->request->isPost()) {
+            $post = $this->request->post();
+            $reportId = $post['id'];
+            $financeOrderWayfairObj = new FinanceOrderWayfairModel();
+            if ($financeOrderWayfairObj->where('report_id', $reportId)->delete()) {
+                echo json_encode(['code' => 1, 'msg' => '清空完成']);
+            } else {
+                echo json_encode(['code' => 0, 'msg' => '清空失败，请重试']);
+            }
+        } else {
+            echo json_encode(['code' => 0, 'msg' => '异常操作']);
+        }
+        exit;
     }
 
     // 编辑

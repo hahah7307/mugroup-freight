@@ -32,7 +32,8 @@
                     <option value="walmart">walmart</option>
                 </select>
             </div>
-            <button type="button" class="layui-btn  layui-btn-normal" id="excel">导入</button>
+            <button type="button" class="layui-btn  layui-btn-normal" id="excel">导入</button><br><br>
+            <a href="{:url('index_wayfair', ['id' => $report_id])}" class="layui-btn">Wayfair</a>
             <button type="button" class="layui-btn  layui-btn-{if condition='$edit'}disabled{else/}normal{/if}" lay-submit lay-filter="Edit">修正</button>
             <span class="total">销售合计：{$sale_amount}</span>
             <span class="total">退款合计：{$refund_amount}</span>

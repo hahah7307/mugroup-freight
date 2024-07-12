@@ -2621,4 +2621,38 @@ GROUP BY
 	userAccount;
         ';
     }
+
+    static public function getOrderWayfair($report_id): string
+    {
+        return '
+SELECT
+	a.invoice_no,
+	a.order_no,
+	a.invoice_date,
+	a.amount,
+	a.commission,
+	a.shipping,
+	a.other,
+	a.tax,
+	a.collection,
+	SUM( b.sale_amount ) sale_amount_core,
+	SUM( b.commission ) commission_core,
+	SUM( b.collection ) collection_core 
+FROM
+	mu_finance_order_wayfair a
+	LEFT JOIN mu_finance_wayfair_core b ON a.invoice_no = b.invoice_no 
+WHERE
+	a.report_id = ' . $report_id . ' 
+GROUP BY
+	a.invoice_no,
+	a.order_no,
+	a.invoice_date,
+	a.amount,
+	a.commission,
+	a.shipping,
+	a.other,
+	a.tax,
+	a.collection;
+        ';
+    }
 }
