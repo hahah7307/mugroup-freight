@@ -1,6 +1,10 @@
 
 {include file="public/header" /}
 
+<style>
+    .layui-form-label {width: 120px!important;}
+    .layui-input-block {margin-left: 150px!important;}
+</style>
 <!-- 主体内容 -->
 <div class="layui-body" id="LAY_app_body">
     <div class="right">
@@ -20,19 +24,25 @@
                 </div>
             </div>
             <div class="layui-form-item">
-                <label class="layui-form-label">美元汇率</label>
+                <label class="layui-form-label">美元汇率(USD)</label>
                 <div class="layui-input-inline w300">
                     <input type="text" class="layui-input" name="USD" value="{$info.USD}" placeholder="请选择美元汇率">
                 </div>
             </div>
             <div class="layui-form-item">
-                <label class="layui-form-label">欧元汇率</label>
+                <label class="layui-form-label">英镑汇率(GBP)</label>
+                <div class="layui-input-inline w300">
+                    <input type="text" class="layui-input" name="GBP" value="{$info.GBP}" placeholder="请选择英镑汇率">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">欧元汇率(EUR)</label>
                 <div class="layui-input-inline w300">
                     <input type="text" class="layui-input" name="EUR" value="{$info.EUR}" placeholder="请选择欧元汇率">
                 </div>
             </div>
             <div class="layui-form-item">
-                <label class="layui-form-label">澳元汇率</label>
+                <label class="layui-form-label">澳元汇率(AUD)</label>
                 <div class="layui-input-inline w300">
                     <input type="text" class="layui-input" name="AUD" value="{$info.AUD}" placeholder="请选择澳元汇率">
                 </div>

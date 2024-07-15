@@ -26,6 +26,12 @@
                 </div>
             </div>
             <div class="layui-form-item">
+                <label class="layui-form-label">英镑汇率</label>
+                <div class="layui-input-inline w300">
+                    <input type="text" class="layui-input" name="GBP" placeholder="请选择英镑汇率">
+                </div>
+            </div>
+            <div class="layui-form-item">
                 <label class="layui-form-label">欧元汇率</label>
                 <div class="layui-input-inline w300">
                     <input type="text" class="layui-input" name="EUR" placeholder="请选择欧元汇率">
