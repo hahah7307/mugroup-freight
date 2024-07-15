@@ -50,13 +50,18 @@
                     <th>发票号</th>
                     <th>发票时间</th>
                     <th>订单号</th>
-                    <th>订单状态</th>
+                    <th>类型</th>
                     <th>订单金额</th>
                     <th>佣金比例</th>
-                    <th>佣金</th>
-                    <th>回款金额</th>
+                    <th>发票佣金</th>
+                    <th>发票应收</th>
                     <th>币种</th>
                     <th>核算月份</th>
+                    <th>回款金额</th>
+                    <th>回款日期</th>
+                    <th>回款批次</th>
+                    <th>回款周期</th>
+                    <th>操作</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -70,10 +75,10 @@
                     <td>
                         {if condition="$v.status eq 1"}
                         已发货
-                        {elseif condition="$v.status eq 0"/}
-                        未发货
+                        {elseif condition="$v.status eq 2"/}
+                        退款
                         {else/}
-                        部分发货
+                        调整
                         {/if}
                     </td>
                     <td class="tr">{$v.sale_amount}</td>
@@ -82,6 +87,13 @@
                     <td class="tr">{$v.collection}</td>
                     <td>{$v.currency}</td>
                     <td class="tr">{$v.calculate_month}</td>
+                    <td class="tr">{$v.payment_collection}</td>
+                    <td>{$v.payment_date}</td>
+                    <td>{$v.payment_batch}</td>
+                    <td class="tr">{$v.payment_cycle}</td>
+                    <td class="tc">
+                        <a href="{:url('wayfair_core_edit', ['id' => $v.id])}" class="layui-btn layui-btn-normal layui-btn-sm">修正</a>
+                    </td>
                 </tr>
                 {/foreach}
                 </tbody>

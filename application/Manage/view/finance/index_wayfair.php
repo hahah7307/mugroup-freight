@@ -44,16 +44,20 @@
                     <th>订单号</th>
                     <th>发票时间</th>
                     <th>总销售</th>
+                    <th>CA佣金</th>
+                    <th>AM佣金</th>
                     <th>佣金</th>
                     <th>运费</th>
                     <th>其他</th>
                     <th>税费</th>
                     <th>应收</th>
+                    <th>商业</th>
+                    <th>订单类型</th>
+                    <th>回款批次</th>
+                    <th>回款日期</th>
                     <th>发票总销售</th>
                     <th>发票佣金</th>
                     <th>发票应收</th>
-                    <th>商业</th>
-                    <th>订单类型</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -62,17 +66,21 @@
                     <td>{$v.invoice_no}</td>
                     <td>{$v.order_no}</td>
                     <td>{$v.invoice_date}</td>
-                    <td>{$v.amount}</td>
-                    <td>{$v.commission}</td>
-                    <td>{$v.shipping}</td>
-                    <td>{$v.other}</td>
-                    <td>{$v.tax}</td>
-                    <td>{$v.collection}</td>
-                    <td>{$v.wayfair_core.0.sale_amount}</td>
-                    <td>{$v.wayfair_core.0.commission}</td>
-                    <td>{$v.wayfair_core.0.collection}</td>
+                    <td class="tr">{$v.amount}</td>
+                    <td class="tr">{$v.ca_commission}</td>
+                    <td class="tr">{$v.am_commission}</td>
+                    <td class="tr">{$v.commission}</td>
+                    <td class="tr">{$v.shipping}</td>
+                    <td class="tr">{$v.other}</td>
+                    <td class="tr">{$v.tax}</td>
+                    <td class="tr">{$v.collection}</td>
                     <td>{$v.business}</td>
                     <td>{$v.order_type}</td>
+                    <td>{$v.payment_batch}</td>
+                    <td>{$v.payment_date}</td>
+                    <td class="tr">{$v.wayfair_core.0.sale_amount}</td>
+                    <td class="tr">{$v.wayfair_core.0.commission}</td>
+                    <td class="tr">{$v.wayfair_core.0.collection}</td>
                 </tr>
                 {/foreach}
                 </tbody>

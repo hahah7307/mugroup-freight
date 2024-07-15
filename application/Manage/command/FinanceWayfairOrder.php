@@ -94,5 +94,33 @@ class FinanceWayfairOrder extends Command
             Db::rollback();
             $output->writeln($e->getMessage());
         }
+
+        Db::startTrans();
+        try {
+            $cache = Cache::get('wayfairPayment');
+            $list = array_slice($cache, 0, 200);
+            if (count($list)) {
+                $wayfairCoreObj = new FinanceWayfairCoreModel();
+                foreach ($list as $item) {
+                    if ($item) {
+                        $wayfairOrder = $wayfairCoreObj->where(['payment_id' => $item['order_no'], 'status' => 1])->find();
+                        if (!empty($wayfairOrder)) {
+                            $wayfairOrder['payment_collection'] = $item['amount'] + $item['ca_commission'] + $item['am_commission'] + $item['commission'];
+                            $wayfairOrder['payment_date'] = $item['payment_date'];
+                            $wayfairOrder['payment_batch'] = $item['payment_batch'];
+                            $wayfairOrder['payment_cycle'] = ceil((strtotime($item['payment_date']) - strtotime($wayfairOrder['invoice_date']))/ 86400);
+                            $wayfairCoreObj->update($wayfairOrder->toArray(), ['id' => $wayfairOrder['id']]);
+                        }
+                    }
+                }
+            }
+            Cache::set('wayfairPayment', array_slice($cache, 200), 24 * 60 * 60);
+
+            Db::commit();
+            $output->writeln("success");
+        } catch (\Exception $e) {
+            Db::rollback();
+            $output->writeln($e->getMessage());
+        }
     }
 }

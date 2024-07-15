@@ -29,6 +29,8 @@ use app\Manage\model\FinanceWayfairCoreModel;
 use app\Manage\validate\FinanceOrderStatisticsValidate;
 use app\Manage\validate\FinanceReportValidate;
 use app\Manage\validate\FinanceTableValidate;
+use app\Manage\validate\FinanceWayfairCoreValidate;
+use DateTime;
 use PHPExcel;
 use PHPExcel_IOFactory;
 use PHPExcel_Reader_Exception;
@@ -760,24 +762,32 @@ class FinanceController extends BaseController
             $wayfairData = [];
             $financeOrderWayfairObj = new FinanceOrderWayfairModel();
             foreach ($data as $key => $item) {
-                if ($key == 0 || $key == 1) {
+                if ($key == 0) {
                     continue;
                 }
                 $wayfairData[] = [
                     "report_id"             =>  $report_id,
                     "invoice_no"            =>  $item[0],
                     "order_no"              =>  $item[1],
-                    "invoice_date"          =>  date('Y-m-d H:i:s', strtotime($item[2])),
+                    "invoice_date"          =>  DateTime::createFromFormat('m-d-y', $item[2])->format('Y-m-d 00:00:00'),
                     "amount"                =>  $item[3],
-                    "commission"            =>  $item[4],
-                    "shipping"              =>  $item[5],
-                    "other"                 =>  $item[6],
-                    "tax"                   =>  $item[7],
-                    "collection"            =>  $item[8],
-                    "business"              =>  $item[9],
-                    "order_type"            =>  $item[10]
+                    "ca_commission"         =>  $item[4],
+                    "am_commission"         =>  $item[5],
+                    "commission"            =>  $item[6],
+                    "shipping"              =>  $item[7],
+                    "other"                 =>  $item[8],
+                    "tax"                   =>  $item[9],
+                    "collection"            =>  $item[10],
+                    "business"              =>  $item[11],
+                    "order_type"            =>  $item[12],
+                    "payment_batch"         =>  $item[13],
+                    "payment_date"          =>  DateTime::createFromFormat('m-d-y', $item[14])->format('Y-m-d 00:00:00'),
                 ];
             }
+
+            // 将wayfair账单添加到缓存队列
+            $wayfairOrder = Cache::get('wayfairPayment');
+            Cache::set('wayfairPayment', array_merge((array)$wayfairOrder, $wayfairData), 24 * 60 * 60);
             $financeOrderWayfairObj->insertAll($wayfairData);
 
             Db::commit();
@@ -2134,5 +2144,34 @@ FROM
             $this->error($e->getMessage(), url('wayfair_core'));
         }
         $this->redirect(url('wayfair_core'));
+    }
+
+    /**
+     * @throws DbException
+     */
+    public function wayfair_core_edit($id)
+    {
+        if ($this->request->isPost()) {
+            $post = $this->request->post();
+            $dataValidate = new FinanceWayfairCoreValidate();
+            if ($dataValidate->scene('edit')->check($post)) {
+                $model = new FinanceWayfairCoreModel();
+                if ($model->allowField(true)->save($post, ['id' => $id])) {
+                    echo json_encode(['code' => 1, 'msg' => '修改成功']);
+                    exit;
+                } else {
+                    echo json_encode(['code' => 0, 'msg' => '修改失败，请重试']);
+                    exit;
+                }
+            } else {
+                echo json_encode(['code' => 0, 'msg' => $dataValidate->getError()]);
+                exit;
+            }
+        } else {
+            $info = FinanceWayfairCoreModel::get(['id' => $id,]);
+            $this->assign('info', $info);
+
+            return view();
+        }
     }
 }
