@@ -1156,7 +1156,7 @@ FROM
 			NULL AS fba_ddp,
 			NULL AS fba_adCost,
 			SUM(
-				( a.fbaStorageFee + a.longTermStorageFee + a.sharedFbaDisposalFee + a.sharedAmazonPartneredCarrierShipmentFee + a.sharedFbaInboundConvenienceFee ) * e.pcr_percent * e.pcr_quantity 
+				( a.sharedLabelingFee + a.fbaStorageFee + a.longTermStorageFee + a.sharedFbaDisposalFee + a.sharedAmazonPartneredCarrierShipmentFee + a.sharedFbaInboundConvenienceFee ) * e.pcr_percent * e.pcr_quantity 
 			) * 0.01 fba_inventory,
 			NULL AS adjustment,
 			NULL AS liquidation,
