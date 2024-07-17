@@ -153,6 +153,7 @@ class FinanceController extends BaseController
         $fbmWarehouseSku = $financeReportObj->query(FinanceReportModel::getFbmWarehouseSkuSql($report_id, $report['month']));
         $walmartWarehouseSku = $financeReportObj->query(FinanceReportModel::getWalmartWarehouseSkuSql($report_id));
         $wayfairWarehouseSku = $financeReportObj->query(FinanceReportModel::getWayfairWarehouseSkuSql($report_id));
+        $sheinWarehouseSku = $financeReportObj->query(FinanceReportModel::getSheinWarehouseSkuSql($report_id));
         $userAccountTransfer = $financeReportObj->query(FinanceReportModel::getUserAccountTransfer($report_id));
         $userAccountSubscription = $financeReportObj->query(FinanceReportModel::getUserAccountSubscription($report_id));
         $orderWayfair = $financeReportObj->query(FinanceReportModel::getOrderWayfair($report_id));
@@ -509,10 +510,79 @@ class FinanceController extends BaseController
         $objPHPExcel->createSheet();
 
         // Set name sheet
-        $objPHPExcel->setActiveSheetIndex(5)->setTitle('账单未出库统计');
+        $objPHPExcel->setActiveSheetIndex(5)->setTitle('Shein');
 
         // Add some data
         $objPHPExcel->setActiveSheetIndex(5)
+            ->setCellValue('A1', '平台')
+            ->setCellValue('B1', '店铺')
+            ->setCellValue('C1', '仓库Sku')
+            ->setCellValue('D1', '销售量')
+            ->setCellValue('E1', '退款量')
+            ->setCellValue('F1', '销售额')
+            ->setCellValue('G1', '退款额')
+            ->setCellValue('H1', '平台佣金')
+            ->setCellValue('I1', '平台佣金退款')
+            ->setCellValue('J1', 'FBM尾程')
+            ->setCellValue('K1', 'DDP')
+            ->setCellValue('L1', '广告费')
+            ->setCellValue('M1', '仓储费')
+            ->setCellValue('N1', '调整费用')
+            ->setCellValue('O1', '良仓调整费用')
+            ->setCellValue('P1', '乐歌调整费用')
+            ->setCellValue('Q1', '广告费占比')
+            ->setCellValue('R1', '仓储费占比')
+            ->setCellValue('S1', '尾程占比')
+            ->setCellValue('T1', 'DDP占比')
+            ->setCellValue('U1', '毛利')
+            ->setCellValue('V1', '毛利率')
+            ->setCellValue('W1', '测评数量')
+            ->setCellValue('X1', '测评金额')
+            ->setCellValue('Y1', '含测评毛利')
+            ->setCellValue('Z1', '含测评毛利率')
+        ;
+
+        $sheinIndex = 1;
+        foreach ($sheinWarehouseSku as $sheinItem) {
+            $sheinIndex ++;
+            $objPHPExcel->setActiveSheetIndex(5)
+                ->setCellValue('A' . $sheinIndex, $sheinItem['platform'])
+                ->setCellValue('B' . $sheinIndex, $sheinItem['userAccount'])
+                ->setCellValue('C' . $sheinIndex, $sheinItem['warehouse_sku'])
+                ->setCellValue('D' . $sheinIndex, $sheinItem['sale_qty'])
+                ->setCellValue('E' . $sheinIndex, $sheinItem['refund_qty'])
+                ->setCellValue('F' . $sheinIndex, $sheinItem['sale_amount'])
+                ->setCellValue('G' . $sheinIndex, $sheinItem['refund_amount'])
+                ->setCellValue('H' . $sheinIndex, $sheinItem['sale_selling_fees'])
+                ->setCellValue('I' . $sheinIndex, $sheinItem['refund_selling_fees'])
+                ->setCellValue('J' . $sheinIndex, $sheinItem['calcuRes'])
+                ->setCellValue('K' . $sheinIndex, $sheinItem['ddp'])
+                ->setCellValue('L' . $sheinIndex, $sheinItem['adCost'])
+                ->setCellValue('M' . $sheinIndex, $sheinItem['warehouse_rent'])
+                ->setCellValue('N' . $sheinIndex, $sheinItem['adjustment'])
+                ->setCellValue('O' . $sheinIndex, $sheinItem['lc_adjustment'])
+                ->setCellValue('P' . $sheinIndex, $sheinItem['le_adjustment'])
+                ->setCellValue('Q' . $sheinIndex, $sheinItem['ad_percent'])
+                ->setCellValue('R' . $sheinIndex, $sheinItem['warehouse_percent'])
+                ->setCellValue('S' . $sheinIndex, $sheinItem['tail_percent'])
+                ->setCellValue('T' . $sheinIndex, $sheinItem['ddp_percent'])
+                ->setCellValue('U' . $sheinIndex, $sheinItem['profit'])
+                ->setCellValue('V' . $sheinIndex, $sheinItem['gross_profit_margin'])
+                ->setCellValue('W' . $sheinIndex, $sheinItem['evaluation_qty'])
+                ->setCellValue('X' . $sheinIndex, $sheinItem['evaluation_amount'])
+                ->setCellValue('Y' . $sheinIndex, $sheinItem['profit_include_evaluation'])
+                ->setCellValue('Z' . $sheinIndex, $sheinItem['gross_profit_margin_include_evaluation'])
+            ;
+        }
+
+        // create new sheet
+        $objPHPExcel->createSheet();
+
+        // Set name sheet
+        $objPHPExcel->setActiveSheetIndex(6)->setTitle('账单未出库统计');
+
+        // Add some data
+        $objPHPExcel->setActiveSheetIndex(6)
             ->setCellValue('A1', '平台')
             ->setCellValue('B1', '店铺')
             ->setCellValue('C1', '账单Payment')
@@ -531,7 +601,7 @@ class FinanceController extends BaseController
         $paymentNoOutboundIndex = 1;
         foreach ($paymentNoOutbound as $paymentNoOutboundItem) {
             $paymentNoOutboundIndex ++;
-            $objPHPExcel->setActiveSheetIndex(5)
+            $objPHPExcel->setActiveSheetIndex(6)
                 ->setCellValue('A' . $paymentNoOutboundIndex, $paymentNoOutboundItem['platform'])
                 ->setCellValue('B' . $paymentNoOutboundIndex, $paymentNoOutboundItem['userAccount'])
                 ->setCellValue('C' . $paymentNoOutboundIndex, $paymentNoOutboundItem['payment_id'])
@@ -552,10 +622,10 @@ class FinanceController extends BaseController
         $objPHPExcel->createSheet();
 
         // Set name sheet
-        $objPHPExcel->setActiveSheetIndex(6)->setTitle('回款统计');
+        $objPHPExcel->setActiveSheetIndex(7)->setTitle('回款统计');
 
         // Add some data
-        $objPHPExcel->setActiveSheetIndex(6)
+        $objPHPExcel->setActiveSheetIndex(7)
             ->setCellValue('A1', '平台')
             ->setCellValue('B1', '店铺')
             ->setCellValue('C1', '合计')
@@ -564,7 +634,7 @@ class FinanceController extends BaseController
         $userAccountTransferIndex = 1;
         foreach ($userAccountTransfer as $userAccountTransferItem) {
             $userAccountTransferIndex ++;
-            $objPHPExcel->setActiveSheetIndex(6)
+            $objPHPExcel->setActiveSheetIndex(7)
                 ->setCellValue('A' . $userAccountTransferIndex, $userAccountTransferItem['platform'])
                 ->setCellValue('B' . $userAccountTransferIndex, $userAccountTransferItem['userAccount'])
                 ->setCellValue('C' . $userAccountTransferIndex, $userAccountTransferItem['total'])
@@ -575,10 +645,10 @@ class FinanceController extends BaseController
         $objPHPExcel->createSheet();
 
         // Set name sheet
-        $objPHPExcel->setActiveSheetIndex(7)->setTitle('订阅');
+        $objPHPExcel->setActiveSheetIndex(8)->setTitle('订阅');
 
         // Add some data
-        $objPHPExcel->setActiveSheetIndex(7)
+        $objPHPExcel->setActiveSheetIndex(8)
             ->setCellValue('A1', '平台')
             ->setCellValue('B1', '店铺')
             ->setCellValue('C1', '合计')
@@ -587,7 +657,7 @@ class FinanceController extends BaseController
         $userAccountSubscriptionIndex = 1;
         foreach ($userAccountSubscription as $userAccountSubscriptionItem) {
             $userAccountSubscriptionIndex ++;
-            $objPHPExcel->setActiveSheetIndex(7)
+            $objPHPExcel->setActiveSheetIndex(8)
                 ->setCellValue('A' . $userAccountSubscriptionIndex, $userAccountSubscriptionItem['platform'])
                 ->setCellValue('B' . $userAccountSubscriptionIndex, $userAccountSubscriptionItem['userAccount'])
                 ->setCellValue('C' . $userAccountSubscriptionIndex, $userAccountSubscriptionItem['total'])
@@ -598,10 +668,10 @@ class FinanceController extends BaseController
         $objPHPExcel->createSheet();
 
         // Set name sheet
-        $objPHPExcel->setActiveSheetIndex(8)->setTitle('Wayfair账单销售');
+        $objPHPExcel->setActiveSheetIndex(9)->setTitle('Wayfair账单销售');
 
         // Add some data
-        $objPHPExcel->setActiveSheetIndex(8)
+        $objPHPExcel->setActiveSheetIndex(9)
             ->setCellValue('A1', '发票号')
             ->setCellValue('B1', '订单号')
             ->setCellValue('C1', '发票时间')
@@ -619,7 +689,7 @@ class FinanceController extends BaseController
         $orderWayfairIndex = 1;
         foreach ($orderWayfair as $orderWayfairItem) {
             $orderWayfairIndex ++;
-            $objPHPExcel->setActiveSheetIndex(8)
+            $objPHPExcel->setActiveSheetIndex(9)
                 ->setCellValue('A' . $orderWayfairIndex, $orderWayfairItem['invoice_no'])
                 ->setCellValue('B' . $orderWayfairIndex, $orderWayfairItem['order_no'])
                 ->setCellValue('C' . $orderWayfairIndex, $orderWayfairItem['invoice_date'])
@@ -639,10 +709,10 @@ class FinanceController extends BaseController
         $objPHPExcel->createSheet();
 
         // Set name sheet
-        $objPHPExcel->setActiveSheetIndex(9)->setTitle('Resend');
+        $objPHPExcel->setActiveSheetIndex(10)->setTitle('Resend');
 
         // Add some data
-        $objPHPExcel->setActiveSheetIndex(9)
+        $objPHPExcel->setActiveSheetIndex(10)
             ->setCellValue('A1', '仓库SKU')
             ->setCellValue('B1', '数量')
             ->setCellValue('C1', '订单状态')
@@ -654,7 +724,7 @@ class FinanceController extends BaseController
         $orderResendIndex = 1;
         foreach ($orderResend as $orderResendItem) {
             $orderResendIndex ++;
-            $objPHPExcel->setActiveSheetIndex(9)
+            $objPHPExcel->setActiveSheetIndex(10)
                 ->setCellValue('A' . $orderResendIndex, $orderResendItem['warehouse_sku'])
                 ->setCellValue('B' . $orderResendIndex, $orderResendItem['qty'])
                 ->setCellValue('C' . $orderResendIndex, $orderResendItem['order_status'])
