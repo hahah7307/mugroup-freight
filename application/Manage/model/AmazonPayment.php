@@ -1055,4 +1055,78 @@ class AmazonPayment extends Model
             'orderWayfairCore'          =>  $this->orderWayfairCoreRefundAdjust
         ];
     }
+
+    /**
+     * @throws DbException
+     * @throws ModelNotFoundException
+     * @throws DataNotFoundException
+     */
+    public function shein($excel, $tableId, $reportId): array
+    {
+        foreach ($excel as $item) {
+            $orderObj = new OrderModel();
+            $order = $orderObj->with(['details'])->where(['refNo|saleOrderCode' => $item[1]])->find();
+            if ($order && $order['userAccount'] != $this->userAccount) {
+                $this->userAccount = $order['userAccount'];
+            }
+
+            if ($item[2] == '订单收入') {
+                $this->orderSaleNew[] = [
+                    "report_id"                 =>  $reportId,
+                    "table_id"                  =>  $tableId,
+                    "payment_id"                =>  $item[1],
+                    "quantity"                  =>  $item[8],
+                    "fulfillment"               =>  "Seller",
+                    "product_sales"             =>  FinanceOrderSaleModel::sheinNumberFormat($item[9]),
+                    "promotional_rebates"       =>  FinanceOrderSaleModel::sheinNumberFormat($item[10]) + FinanceOrderSaleModel::sheinNumberFormat($item[11]),
+                    "selling_fees"              =>  FinanceOrderSaleModel::sheinNumberFormat($item[12]),
+                    "shipping_credits"          =>  0,
+                    "gift_wrap_credits"         =>  0,
+                    "regulatory_fee"            =>  0,
+                    "fba_fees"                  =>  0,
+                ];
+            } elseif ($item[2] == '订单退货') {
+                $this->orderRefundNew[] = [
+                    "report_id"                 =>  $reportId,
+                    "table_id"                  =>  $tableId,
+                    "payment_id"                =>  $item[1],
+                    "quantity"                  =>  $item[8],
+                    "fulfillment"               =>  "Seller",
+                    "product_sales"             =>  FinanceOrderSaleModel::sheinNumberFormat($item[9]),
+                    "selling_fees"              =>  FinanceOrderSaleModel::sheinNumberFormat($item[12]),
+                    "shipping_credits"          =>  0,
+                    "gift_wrap_credits"         =>  0,
+                    "regulatory_fee"            =>  0,
+                    "promotional_rebates"       =>  0,
+                    "fba_fees"                  =>  0,
+                ];
+            } elseif ($item[2] == '违规处罚扣款') {
+                $this->orderAdjustmentNew[] = [
+                    "report_id"                 =>  $reportId,
+                    "table_id"                  =>  $tableId,
+                    "payment_id"                =>  $item[1],
+                    "total"                     =>  FinanceOrderSaleModel::sheinNumberFormat($item[18]),
+                ];
+            } elseif ($item[2] == '退货履约服务费') {
+                $this->orderAdjustmentNew[] = [
+                    "report_id"                 =>  $reportId,
+                    "table_id"                  =>  $tableId,
+                    "payment_id"                =>  $item[1],
+                    "total"                     =>  FinanceOrderSaleModel::sheinNumberFormat($item[13]),
+                ];
+            }
+        }
+
+        return [
+            'userAccount'               =>  $this->userAccount,
+            'orderSaleNew'              =>  $this->orderSaleNew,
+            'orderRefundNew'            =>  $this->orderRefundNew,
+            'orderPromotionNew'         =>  $this->orderPromotionNew,
+            'orderShippingServiceNew'   =>  $this->orderShippingServiceNew,
+            'orderLiquidationNew'       =>  $this->orderLiquidationNew,
+            'orderAdjustmentNew'        =>  $this->orderAdjustmentNew,
+            'orderFbaInventory'         =>  $this->orderFbaInventory,
+            'orderTransferNew'          =>  $this->orderTransferNew
+        ];
+    }
 }

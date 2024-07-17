@@ -30,6 +30,7 @@
                     <option value="amazon_it">amazon_it</option>
                     <option value="wayfair">wayfair</option>
                     <option value="walmart">walmart</option>
+                    <option value="shein">shein</option>
                 </select>
             </div>
             <button type="button" class="layui-btn  layui-btn-normal" id="excel">导入</button><br><br>
