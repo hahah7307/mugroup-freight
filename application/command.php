@@ -44,4 +44,5 @@ return [
     'app\Manage\command\FinanceWayfairOrder', //
     'app\Manage\command\InventoryTurnover', //
     'app\Manage\command\AkAdCostDeliveryMethod', //
+    'app\Manage\command\FinanceSheinOrder', //
 ];

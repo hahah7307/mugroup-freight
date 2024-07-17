@@ -47,6 +47,17 @@ class FinanceNotify extends Command
                         $output->writeln("Wayfair Unready");exit();
                     }
 
+                    // 检测shein订单是否校验完毕
+                    $orderSaleObj = new FinanceOrderSaleModel();
+                    $sheinOrder = $orderSaleObj->where('sku', null)->where(['payment_id' => [['like', 'GSUN%']]])->select();
+                    $financeOrderRefundObj = new FinanceOrderRefundModel();
+                    $sheinRefund = $financeOrderRefundObj->where('sku', null)->where(['payment_id' => [['like', 'GSUN%']]])->select();
+                    $financeOrderAdjustmentObj = new FinanceOrderAdjustmentModel();
+                    $sheinAdjustment = $financeOrderAdjustmentObj->where('sku', null)->where(['payment_id' => [['like', 'GSUN%']]])->select();
+                    if (count($sheinOrder) + count($sheinRefund) + count($sheinAdjustment) > 0) {
+                        $output->writeln("Shein Unready");exit();
+                    }
+
                     // 检测仓租费是否导入
                     $warehouseObj = new FinanceWarehouseModel();
                     $warehouse = $warehouseObj->where(['report_id' => $report['id']])->order('id asc')->select();
@@ -90,7 +101,6 @@ class FinanceNotify extends Command
                     }
 
                     // 检测分摊是否完成
-                    $financeOrderRefundObj = new FinanceOrderRefundModel();
                     $refund = $financeOrderRefundObj->where(['report_id' => $report['id']])->where('share_code', null)->order('id asc')->select();
                     if (count($refund) > 0) {
                         $output->writeln("RefundShare Unready");exit();
@@ -102,7 +112,6 @@ class FinanceNotify extends Command
                         $output->writeln("ShippingServiceShare Unready");exit();
                     }
 
-                    $financeOrderAdjustmentObj = new FinanceOrderAdjustmentModel();
                     $adjustment = $financeOrderAdjustmentObj->where(['report_id' => $report['id']])->where('share_code', null)->order('id asc')->select();
                     if (count($adjustment) > 0) {
                         $output->writeln("AdjustmentShare Unready");exit();

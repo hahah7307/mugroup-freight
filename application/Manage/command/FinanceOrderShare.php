@@ -5,6 +5,7 @@ use app\Manage\model\FinanceOrderAdditionalModel;
 use app\Manage\model\FinanceOrderAdjustmentModel;
 use app\Manage\model\FinanceOrderLiquidationModel;
 use app\Manage\model\FinanceOrderRefundModel;
+use app\Manage\model\FinanceOrderSaleModel;
 use app\Manage\model\FinanceOrderShareModel;
 use app\Manage\model\FinanceOrderShippingServiceModel;
 use app\Manage\model\FinanceOrderStatisticsModel;
@@ -41,6 +42,17 @@ class FinanceOrderShare extends Command
         $wayfairOrder = Cache::get('wayfairOrder');
         if (!empty($wayfairOrder)) {
             $output->writeln("Wayfair Unready");exit();
+        }
+
+        // 检测shein订单是否校验完毕
+        $orderSaleObj = new FinanceOrderSaleModel();
+        $sheinOrder = $orderSaleObj->where('sku', null)->where(['payment_id' => [['like', 'GSUN%']]])->select();
+        $financeOrderRefundObj = new FinanceOrderRefundModel();
+        $sheinRefund = $financeOrderRefundObj->where('sku', null)->where(['payment_id' => [['like', 'GSUN%']]])->select();
+        $financeOrderAdjustmentObj = new FinanceOrderAdjustmentModel();
+        $sheinAdjustment = $financeOrderAdjustmentObj->where('sku', null)->where(['payment_id' => [['like', 'GSUN%']]])->select();
+        if (count($sheinOrder) + count($sheinRefund) + count($sheinAdjustment) > 0) {
+            $output->writeln("Shein Unready");exit();
         }
 
         Db::startTrans();
