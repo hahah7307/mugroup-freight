@@ -1078,11 +1078,11 @@ class AmazonPayment extends Model
                     "quantity"                  =>  $item[8],
                     "fulfillment"               =>  "Seller",
                     "product_sales"             =>  FinanceOrderSaleModel::sheinNumberFormat($item[9]),
-                    "promotional_rebates"       =>  FinanceOrderSaleModel::sheinNumberFormat($item[10]) + FinanceOrderSaleModel::sheinNumberFormat($item[11]),
-                    "selling_fees"              =>  FinanceOrderSaleModel::sheinNumberFormat($item[12]),
+                    "selling_fees"              =>  FinanceOrderSaleModel::sheinNumberFormat($item[10]) + FinanceOrderSaleModel::sheinNumberFormat($item[11]) + FinanceOrderSaleModel::sheinNumberFormat($item[12]) + FinanceOrderSaleModel::sheinNumberFormat($item[13]) + FinanceOrderSaleModel::sheinNumberFormat($item[14]) + FinanceOrderSaleModel::sheinNumberFormat($item[15]) + FinanceOrderSaleModel::sheinNumberFormat($item[16]),
                     "shipping_credits"          =>  0,
                     "gift_wrap_credits"         =>  0,
                     "regulatory_fee"            =>  0,
+                    "promotional_rebates"       =>  0,
                     "fba_fees"                  =>  0,
                 ];
             } elseif ($item[2] == '订单退货') {
@@ -1093,14 +1093,15 @@ class AmazonPayment extends Model
                     "quantity"                  =>  $item[8],
                     "fulfillment"               =>  "Seller",
                     "product_sales"             =>  FinanceOrderSaleModel::sheinNumberFormat($item[9]),
-                    "selling_fees"              =>  FinanceOrderSaleModel::sheinNumberFormat($item[12]),
+                    "selling_fees"              =>  0,
                     "shipping_credits"          =>  0,
                     "gift_wrap_credits"         =>  0,
                     "regulatory_fee"            =>  0,
                     "promotional_rebates"       =>  0,
                     "fba_fees"                  =>  0,
                 ];
-            } elseif ($item[2] == '违规处罚扣款') {
+            } elseif ($item[2] == '违规处罚扣款'
+            || $item[2] == '订单调整') {
                 $this->orderAdjustmentNew[] = [
                     "report_id"                 =>  $reportId,
                     "table_id"                  =>  $tableId,
@@ -1112,7 +1113,7 @@ class AmazonPayment extends Model
                     "report_id"                 =>  $reportId,
                     "table_id"                  =>  $tableId,
                     "payment_id"                =>  $item[1],
-                    "total"                     =>  FinanceOrderSaleModel::sheinNumberFormat($item[13]),
+                    "total"                     =>  FinanceOrderSaleModel::sheinNumberFormat($item[10]) + FinanceOrderSaleModel::sheinNumberFormat($item[11]) + FinanceOrderSaleModel::sheinNumberFormat($item[12]) + FinanceOrderSaleModel::sheinNumberFormat($item[13]) + FinanceOrderSaleModel::sheinNumberFormat($item[14]) + FinanceOrderSaleModel::sheinNumberFormat($item[15]) + FinanceOrderSaleModel::sheinNumberFormat($item[16]),
                 ];
             }
         }
