@@ -930,6 +930,7 @@ class AmazonPayment extends Model
                     "table_id"                  =>  $tableId,
                     "payment_id"                =>  number_format($item[2], 0, '', ''),
                     "sku"                       =>  $item[8],
+                    "is_wfs_tail"               =>  $item[66] == "Walmart-fulfilled(WFS)" ? 1 : 0,
                     "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[21])),
                 ];
             }

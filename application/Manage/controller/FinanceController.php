@@ -25,6 +25,7 @@ use app\Manage\model\FinanceReportModel;
 use app\Manage\model\FinanceStoreModel;
 use app\Manage\model\FinanceTableModel;
 use app\Manage\model\FinanceWarehouseModel;
+use app\Manage\model\FinanceWarehouseWFSModel;
 use app\Manage\model\FinanceWayfairCoreModel;
 use app\Manage\validate\FinanceOrderStatisticsValidate;
 use app\Manage\validate\FinanceReportValidate;
@@ -386,22 +387,25 @@ class FinanceController extends BaseController
             ->setCellValue('H1', '平台佣金')
             ->setCellValue('I1', '平台佣金退款')
             ->setCellValue('J1', 'FBM尾程')
-            ->setCellValue('K1', 'DDP')
-            ->setCellValue('L1', '广告费')
-            ->setCellValue('M1', '仓储费')
-            ->setCellValue('N1', '调整费用')
-            ->setCellValue('O1', '良仓调整费用')
-            ->setCellValue('P1', '乐歌调整费用')
-            ->setCellValue('Q1', '广告费占比')
-            ->setCellValue('R1', '仓储费占比')
-            ->setCellValue('S1', '尾程占比')
-            ->setCellValue('T1', 'DDP占比')
-            ->setCellValue('U1', '毛利')
-            ->setCellValue('V1', '毛利率')
-            ->setCellValue('W1', '测评数量')
-            ->setCellValue('X1', '测评金额')
-            ->setCellValue('Y1', '含测评毛利')
-            ->setCellValue('Z1', '含测评毛利率')
+            ->setCellValue('K1', 'WFS尾程')
+            ->setCellValue('L1', 'DDP')
+            ->setCellValue('M1', '广告费')
+            ->setCellValue('N1', '仓储费')
+            ->setCellValue('O1', 'WFS仓储费')
+            ->setCellValue('P1', '调整费用')
+            ->setCellValue('Q1', '良仓调整费用')
+            ->setCellValue('R1', '乐歌调整费用')
+            ->setCellValue('S1', 'WFS调整费用')
+            ->setCellValue('T1', '广告费占比')
+            ->setCellValue('U1', '仓储费占比')
+            ->setCellValue('V1', '尾程占比')
+            ->setCellValue('W1', 'DDP占比')
+            ->setCellValue('X1', '毛利')
+            ->setCellValue('Y1', '毛利率')
+            ->setCellValue('Z1', '测评数量')
+            ->setCellValue('AA1', '测评金额')
+            ->setCellValue('AB1', '含测评毛利')
+            ->setCellValue('AC1', '含测评毛利率')
         ;
 
         $walmartIndex = 1;
@@ -418,22 +422,25 @@ class FinanceController extends BaseController
                 ->setCellValue('H' . $walmartIndex, $walmartItem['sale_selling_fees'])
                 ->setCellValue('I' . $walmartIndex, $walmartItem['refund_selling_fees'])
                 ->setCellValue('J' . $walmartIndex, $walmartItem['calcuRes'])
-                ->setCellValue('K' . $walmartIndex, $walmartItem['ddp'])
-                ->setCellValue('L' . $walmartIndex, $walmartItem['adCost'])
-                ->setCellValue('M' . $walmartIndex, $walmartItem['warehouse_rent'])
-                ->setCellValue('N' . $walmartIndex, $walmartItem['adjustment'])
-                ->setCellValue('O' . $walmartIndex, $walmartItem['lc_adjustment'])
-                ->setCellValue('P' . $walmartIndex, $walmartItem['le_adjustment'])
-                ->setCellValue('Q' . $walmartIndex, $walmartItem['ad_percent'])
-                ->setCellValue('R' . $walmartIndex, $walmartItem['warehouse_percent'])
-                ->setCellValue('S' . $walmartIndex, $walmartItem['tail_percent'])
-                ->setCellValue('T' . $walmartIndex, $walmartItem['ddp_percent'])
-                ->setCellValue('U' . $walmartIndex, $walmartItem['profit'])
-                ->setCellValue('V' . $walmartIndex, $walmartItem['gross_profit_margin'])
-                ->setCellValue('W' . $walmartIndex, $walmartItem['evaluation_qty'])
-                ->setCellValue('X' . $walmartIndex, $walmartItem['evaluation_amount'])
-                ->setCellValue('Y' . $walmartIndex, $walmartItem['profit_include_evaluation'])
-                ->setCellValue('Z' . $walmartIndex, $walmartItem['gross_profit_margin_include_evaluation'])
+                ->setCellValue('K' . $walmartIndex, $walmartItem['wfs_tail'])
+                ->setCellValue('L' . $walmartIndex, $walmartItem['ddp'])
+                ->setCellValue('M' . $walmartIndex, $walmartItem['adCost'])
+                ->setCellValue('N' . $walmartIndex, $walmartItem['warehouse_rent'])
+                ->setCellValue('O' . $walmartIndex, $walmartItem['wfs_warehouse'])
+                ->setCellValue('P' . $walmartIndex, $walmartItem['adjustment'])
+                ->setCellValue('Q' . $walmartIndex, $walmartItem['lc_adjustment'])
+                ->setCellValue('R' . $walmartIndex, $walmartItem['le_adjustment'])
+                ->setCellValue('S' . $walmartIndex, $walmartItem['wfs_adjustment'])
+                ->setCellValue('T' . $walmartIndex, $walmartItem['ad_percent'])
+                ->setCellValue('U' . $walmartIndex, $walmartItem['warehouse_percent'])
+                ->setCellValue('V' . $walmartIndex, $walmartItem['tail_percent'])
+                ->setCellValue('W' . $walmartIndex, $walmartItem['ddp_percent'])
+                ->setCellValue('X' . $walmartIndex, $walmartItem['profit'])
+                ->setCellValue('Y' . $walmartIndex, $walmartItem['gross_profit_margin'])
+                ->setCellValue('Z' . $walmartIndex, $walmartItem['evaluation_qty'])
+                ->setCellValue('AA' . $walmartIndex, $walmartItem['evaluation_amount'])
+                ->setCellValue('AB' . $walmartIndex, $walmartItem['profit_include_evaluation'])
+                ->setCellValue('AC' . $walmartIndex, $walmartItem['gross_profit_margin_include_evaluation'])
             ;
         }
 
@@ -760,7 +767,7 @@ class FinanceController extends BaseController
         $keyword = $this->request->get('keyword', '', 'htmlspecialchars');
         $this->assign('keyword', $keyword);
         if ($keyword) {
-            $where['table_name'] = ['like', '%' . $keyword . '%'];
+            $where['table_name|platform|userAccount|country'] = ['like', '%' . $keyword . '%'];
         }
 
         // 表格列表
@@ -1835,6 +1842,106 @@ FROM
     /**
      * @throws DbException
      */
+    public function warehouse_wfs($id): \think\response\View
+    {
+        $keyword = $this->request->get('keyword', '', 'htmlspecialchars');
+        $this->assign('keyword', $keyword);
+        if ($keyword) {
+            $where['vendor_sku'] = ['like', '%' . $keyword . '%'];
+        } else {
+            $where = [];
+        }
+
+        $page_num = $this->request->get('page_num', Config::get('PAGE_NUM'));
+        $this->assign('page_num', $page_num);
+
+        $order = new FinanceWarehouseWFSModel();
+        $where['report_id'] = $id;
+        $list = $order->where($where)->order('id asc')->paginate($page_num, false, ['query' => ['keyword' => $keyword]]);
+        $this->assign('list', $list);
+        $this->assign('total', $order->where($where)->sum('total'));
+
+        $this->assign('report_id', $id);
+        return view();
+    }
+
+    /**
+     * @throws PHPExcel_Reader_Exception
+     */
+    public function warehouse_wfs_import()
+    {
+        // phpexcel
+        require_once './static/classes/PHPExcel/Classes/PHPExcel.php';
+
+        $filename = input('filename');
+        $report_id = input('id');
+        $user_account = input('user_account');
+        $file= "./upload/excel/" . $filename;
+        $excelReader = PHPExcel_IOFactory::createReaderForFile($file);
+        $excelObj = $excelReader->load($file);
+        $worksheet = $excelObj->getSheet(0);
+        $data = $worksheet->toArray();
+        unset($data[0]);
+
+        Db::startTrans();
+        try {
+            $wfs = [];
+            $warehouseWFSObj = new FinanceWarehouseWFSModel();
+            foreach ($data as $key => $item) {
+                if ($key <= 3) {
+                    continue;
+                }
+                $wfs[] = [
+                    "report_id"                 =>  $report_id,
+                    "user_account"              =>  $user_account,
+                    "partner_gtin"              =>  $item[0],
+                    "vendor_sku"                =>  $item[1],
+                    "walmart_item_id"           =>  $item[2],
+                    "item_name"                 =>  $item[3],
+                    "length"                    =>  $item[4],
+                    "width"                     =>  $item[5],
+                    "height"                    =>  $item[6],
+                    "volume"                    =>  $item[7],
+                    "weight"                    =>  $item[8],
+                    "standard_daily_storage"    =>  $item[9],
+                    "peak_daily_storage"        =>  $item[10],
+                    "long_term_daily_storage"   =>  $item[11],
+                    "average"                   =>  $item[12],
+                    "ending"                    =>  $item[13],
+                    "total"                     =>  $item[14]
+                ];
+            }
+
+            $warehouseWFSObj->insertAll($wfs);
+
+            Db::commit();
+        } catch (Exception $e) {
+            Db::rollback();
+            $this->error($e->getMessage(), session('back_url', '', 'manage'));
+        }
+        $this->redirect(session('back_url', '', 'manage'));
+    }
+
+    public function warehouse_wfs_empty()
+    {
+        if ($this->request->isPost()) {
+            $post = $this->request->post();
+            $reportId = $post['id'];
+            $warehouseWFSObj = new FinanceWarehouseWFSModel();
+            if ($warehouseWFSObj->where('report_id', $reportId)->delete()) {
+                echo json_encode(['code' => 1, 'msg' => '清空完成']);
+            } else {
+                echo json_encode(['code' => 0, 'msg' => '清空失败，请重试']);
+            }
+        } else {
+            echo json_encode(['code' => 0, 'msg' => '异常操作']);
+        }
+        exit;
+    }
+
+    /**
+     * @throws DbException
+     */
     public function additional($id): \think\response\View
     {
         $keyword = $this->request->get('keyword', '', 'htmlspecialchars');
@@ -1899,6 +2006,7 @@ FROM
                     "shipping_service"      =>  $item[5],
                     "lc_adjustment"         =>  $item[6],
                     "le_adjustment"         =>  $item[7],
+                    "wfs_adjustment"        =>  $item[8]
                 ];
             }
             $financeAdditionalObj->insertAll($additionalData);
