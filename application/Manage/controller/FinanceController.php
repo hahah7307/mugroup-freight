@@ -1999,15 +1999,16 @@ FROM
                 }
                 $additionalData[] = [
                     "report_id"             =>  $report_id,
-                    "user_account"          =>  $item[0],
-                    "warehouse_sku"         =>  $item[1],
-                    "claimant"              =>  $item[2],
-                    "liquidation"           =>  $item[3],
-                    "promotion"             =>  $item[4],
-                    "shipping_service"      =>  $item[5],
-                    "lc_adjustment"         =>  $item[6],
-                    "le_adjustment"         =>  $item[7],
-                    "wfs_adjustment"        =>  $item[8]
+                    "platform"              =>  $item[0],
+                    "user_account"          =>  $item[1],
+                    "warehouse_sku"         =>  $item[2],
+                    "claimant"              =>  $item[3],
+                    "liquidation"           =>  $item[4],
+                    "promotion"             =>  $item[5],
+                    "shipping_service"      =>  $item[6],
+                    "lc_adjustment"         =>  $item[7],
+                    "le_adjustment"         =>  $item[8],
+                    "wfs_adjustment"        =>  $item[9]
                 ];
             }
             $financeAdditionalObj->insertAll($additionalData);

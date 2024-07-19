@@ -44,6 +44,7 @@
                 </colgroup>
                 <thead>
                 <tr>
+                    <th>平台</th>
                     <th>店铺</th>
                     <th>仓库SKU</th>
                     <th>索赔(调整)费用</th>
@@ -58,6 +59,7 @@
                 <tbody>
                 {foreach name="list" item="v"}
                 <tr>
+                    <td>{$v.platform}</td>
                     <td>{$v.user_account}</td>
                     <td>{$v.warehouse_sku}</td>
                     <td class="tr">{$v.claimant}</td>
