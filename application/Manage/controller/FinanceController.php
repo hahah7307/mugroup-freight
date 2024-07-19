@@ -1968,6 +1968,7 @@ FROM
         $this->assign('shipping_service', $order->where($where)->sum('shipping_service'));
         $this->assign('lc_adjustment', $order->where($where)->sum('lc_adjustment'));
         $this->assign('le_adjustment', $order->where($where)->sum('le_adjustment'));
+        $this->assign('wfs_adjustment', $order->where($where)->sum('wfs_adjustment'));
 
         return view();
     }

@@ -28,8 +28,9 @@
             <span class="total">清算合计：{$liquidation|number_format=###,2}</span>
             <span class="total">促销合计：{$promotion|number_format=###,2}</span>
             <span class="total">退运合计：{$shipping_service|number_format=###,2}</span>
-            <span class="total">良仓合计：{$lc_adjustment|number_format=###,2}</span>
-            <span class="total">乐歌合计：{$le_adjustment|number_format=###,2}</span>
+            <span class="total">良仓调整合计：{$lc_adjustment|number_format=###,2}</span>
+            <span class="total">乐歌调整合计：{$le_adjustment|number_format=###,2}</span>
+            <span class="total">WFS调整合计：{$wfs_adjustment|number_format=###,2}</span>
             <table class="layui-table" lay-size="sm">
                 <colgroup>
                     <col>
@@ -51,6 +52,7 @@
                     <th>退运费用</th>
                     <th>良仓调整费用</th>
                     <th>乐歌调整费用</th>
+                    <th>WFS调整费用</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -58,12 +60,13 @@
                 <tr>
                     <td>{$v.user_account}</td>
                     <td>{$v.warehouse_sku}</td>
-                    <td>{$v.claimant}</td>
-                    <td>{$v.liquidation}</td>
-                    <td>{$v.promotion}</td>
-                    <td>{$v.shipping_service}</td>
-                    <td>{$v.lc_adjustment}</td>
-                    <td>{$v.le_adjustment}</td>
+                    <td class="tr">{$v.claimant}</td>
+                    <td class="tr">{$v.liquidation}</td>
+                    <td class="tr">{$v.promotion}</td>
+                    <td class="tr">{$v.shipping_service}</td>
+                    <td class="tr">{$v.lc_adjustment}</td>
+                    <td class="tr">{$v.le_adjustment}</td>
+                    <td class="tr">{$v.wfs_adjustment}</td>
                 </tr>
                 {/foreach}
                 </tbody>
