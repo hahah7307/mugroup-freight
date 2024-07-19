@@ -1411,6 +1411,8 @@ ORDER BY
 
                 $promotionObj = new FinanceOrderAdditionalModel();
                 $promotionObj->where(['report_id' => $reportId])->where('promotion', 'not null')->update(['share_code' => null]);
+                $promotionObj->where(['report_id' => $reportId])->where('lc_adjustment', 'not null')->update(['share_code' => null]);
+                $promotionObj->where(['report_id' => $reportId])->where('le_adjustment', 'not null')->update(['share_code' => null]);
 
                 $financeReportObj = new FinanceReportModel();
                 $financeReportObj->save(['is_notify' => 0], ['id' => $reportId]);
@@ -2028,6 +2030,11 @@ FROM
             $reportId = $post['id'];
             $additionalObj = new FinanceOrderAdditionalModel();
             if ($additionalObj->where('report_id', $reportId)->delete()) {
+                $promotionObj = new FinanceOrderAdditionalModel();
+                $promotionObj->where(['report_id' => $reportId])->where('promotion', 'not null')->update(['share_code' => null]);
+                $promotionObj->where(['report_id' => $reportId])->where('lc_adjustment', 'not null')->update(['share_code' => null]);
+                $promotionObj->where(['report_id' => $reportId])->where('le_adjustment', 'not null')->update(['share_code' => null]);
+
                 $financeReportObj = new FinanceReportModel();
                 $financeReportObj->save(['is_notify' => 0], ['id' => $reportId]);
 

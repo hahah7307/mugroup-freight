@@ -1652,12 +1652,12 @@ FROM
 				AND b.report_id = ' . $report_id . ' UNION ALL
 			SELECT
 				"amazon" AS platform,
-				user_account userAccount,
+				b.user_account userAccount,
 				NULL AS payment,
 				NULL AS payment_id,
 				NULL AS saleOrderCode,
 				NULL AS seller_sku,
-				warehouse_sku warehouse_sku,
+				b.warehouse_sku warehouse_sku,
 				NULL AS fbm_sale_qty,
 				NULL AS fbm_refund_qty,
 				NULL AS fbm_sale_amount,
@@ -1673,12 +1673,51 @@ FROM
 				NULL AS liquidation,
 				NULL AS promotion,
 				NULL AS shipping_service,
-				lc_adjustment lc_adjustment,
-				le_adjustment le_adjustment 
+				b.total lc_adjustment,
+				NULL AS le_adjustment 
 			FROM
-				mu_finance_order_additional 
+				mu_finance_order_additional a
+				LEFT JOIN mu_finance_order_share b ON a.share_code = b.share_code 
+				AND a.report_id = b.report_id
+				LEFT JOIN ( SELECT DISTINCT platform, userAccount FROM mu_finance_table WHERE rid = ' . $report_id . ' ) c ON b.user_account = c.userAccount 
 			WHERE
-				report_id = ' . $report_id . ' UNION ALL
+				a.report_id = ' . $report_id . ' 
+				AND c.platform = "amazon" 
+				AND lc_adjustment IS NOT NULL UNION ALL
+			SELECT
+				"amazon" AS platform,
+				b.user_account userAccount,
+				NULL AS payment,
+				NULL AS payment_id,
+				NULL AS saleOrderCode,
+				NULL AS seller_sku,
+				b.warehouse_sku warehouse_sku,
+				NULL AS fbm_sale_qty,
+				NULL AS fbm_refund_qty,
+				NULL AS fbm_sale_amount,
+				NULL AS fbm_sale_tax,
+				NULL AS fbm_refund_amount,
+				NULL AS fbm_sale_selling_fees,
+				NULL AS fbm_refund_selling_fees,
+				NULL AS fbm_refund_other,
+				NULL AS calcuRes,
+				NULL AS fbm_ddp,
+				NULL AS warehouse_rent,
+				NULL AS adjustment,
+				NULL AS liquidation,
+				NULL AS promotion,
+				NULL AS shipping_service,
+				NULL AS lc_adjustment,
+				b.total le_adjustment 
+			FROM
+				mu_finance_order_additional a
+				LEFT JOIN mu_finance_order_share b ON a.share_code = b.share_code 
+				AND a.report_id = b.report_id
+				LEFT JOIN ( SELECT DISTINCT platform, userAccount FROM mu_finance_table WHERE rid = ' . $report_id . ' ) c ON b.user_account = c.userAccount 
+			WHERE
+				a.report_id = ' . $report_id . ' 
+				AND c.platform = "amazon" 
+				AND le_adjustment IS NOT NULL UNION ALL
 			SELECT
 				a.platform,
 				a.user_account userAccount,
@@ -2124,6 +2163,70 @@ FROM
 				AND b.platform = "walmart" UNION ALL
 			SELECT
 				"walmart" AS platform,
+				b.user_account userAccount,
+				NULL AS payment_id,
+				NULL AS saleOrderCode,
+				NULL AS seller_sku,
+				b.warehouse_sku warehouse_sku,
+				NULL AS sale_qty,
+				NULL AS refund_qty,
+				NULL AS sale_amount,
+				NULL AS refund_amount,
+				NULL AS sale_selling_fees,
+				NULL AS refund_selling_fees,
+				NULL AS calcuRes,
+				NULL AS wfs_tail,
+				NULL AS ddp,
+				NULL AS adCost,
+				NULL AS warehouse_rent,
+				NULL AS wfs_warehouse,
+				NULL AS adjustment,
+				b.total lc_adjustment,
+				NULL AS le_adjustment,
+				NULL AS wfs_adjustment 
+			FROM
+				mu_finance_order_additional a
+				LEFT JOIN mu_finance_order_share b ON a.share_code = b.share_code 
+				AND a.report_id = b.report_id
+				LEFT JOIN ( SELECT DISTINCT platform, userAccount FROM mu_finance_table WHERE rid = ' . $report_id . ' ) c ON b.user_account = c.userAccount 
+			WHERE
+				a.report_id = ' . $report_id . ' 
+				AND c.platform = "walmart" 
+				AND lc_adjustment IS NOT NULL UNION ALL
+			SELECT
+				"walmart" AS platform,
+				b.user_account userAccount,
+				NULL AS payment_id,
+				NULL AS saleOrderCode,
+				NULL AS seller_sku,
+				b.warehouse_sku warehouse_sku,
+				NULL AS sale_qty,
+				NULL AS refund_qty,
+				NULL AS sale_amount,
+				NULL AS refund_amount,
+				NULL AS sale_selling_fees,
+				NULL AS refund_selling_fees,
+				NULL AS calcuRes,
+				NULL AS wfs_tail,
+				NULL AS ddp,
+				NULL AS adCost,
+				NULL AS warehouse_rent,
+				NULL AS wfs_warehouse,
+				NULL AS adjustment,
+				NULL AS lc_adjustment,
+				b.total le_adjustment,
+				NULL AS wfs_adjustment 
+			FROM
+				mu_finance_order_additional a
+				LEFT JOIN mu_finance_order_share b ON a.share_code = b.share_code 
+				AND a.report_id = b.report_id
+				LEFT JOIN ( SELECT DISTINCT platform, userAccount FROM mu_finance_table WHERE rid = ' . $report_id . ' ) c ON b.user_account = c.userAccount 
+			WHERE
+				a.report_id = ' . $report_id . ' 
+				AND c.platform = "walmart" 
+				AND le_adjustment IS NOT NULL UNION ALL
+			SELECT
+				"walmart" AS platform,
 				user_account userAccount,
 				NULL AS payment_id,
 				NULL AS saleOrderCode,
@@ -2142,8 +2245,8 @@ FROM
 				NULL AS warehouse_rent,
 				NULL AS wfs_warehouse,
 				NULL AS adjustment,
-				lc_adjustment lc_adjustment,
-				le_adjustment le_adjustment,
+				NULL AS lc_adjustment,
+				NULL AS le_adjustment,
 				wfs_adjustment wfs_adjustment 
 			FROM
 				mu_finance_order_additional a
@@ -2558,12 +2661,11 @@ FROM
 				AND b.platform = "wayfair" UNION ALL
 			SELECT
 				"wayfair" AS platform,
-				user_account userAccount,
-				NULL AS payment,
+				b.user_account userAccount,
 				NULL AS payment_id,
 				NULL AS saleOrderCode,
 				NULL AS seller_sku,
-				warehouse_sku warehouse_sku,
+				b.warehouse_sku warehouse_sku,
 				NULL AS sale_qty,
 				NULL AS refund_qty,
 				NULL AS sale_amount,
@@ -2572,16 +2674,49 @@ FROM
 				NULL AS refund_selling_fees,
 				NULL AS calcuRes,
 				NULL AS ddp,
+				NULL AS adCost,
 				NULL AS warehouse_rent,
 				NULL AS adjustment,
-				lc_adjustment lc_adjustment,
-				le_adjustment le_adjustment 
+				b.total lc_adjustment,
+				NULL AS le_adjustment 
 			FROM
 				mu_finance_order_additional a
-				LEFT JOIN ( SELECT DISTINCT platform, userAccount FROM mu_finance_table WHERE rid = ' . $report_id . ' ) b ON a.user_account = b.userAccount 
+				LEFT JOIN mu_finance_order_share b ON a.share_code = b.share_code 
+				AND a.report_id = b.report_id
+				LEFT JOIN ( SELECT DISTINCT platform, userAccount FROM mu_finance_table WHERE rid = ' . $report_id . ' ) c ON b.user_account = c.userAccount 
 			WHERE
-				report_id = ' . $report_id . ' 
-				AND b.platform = "wayfair" UNION ALL
+				a.report_id = ' . $report_id . ' 
+				AND c.platform = "wayfair" 
+				AND lc_adjustment IS NOT NULL UNION ALL
+			SELECT
+				"wayfair" AS platform,
+				b.user_account userAccount,
+				NULL AS payment_id,
+				NULL AS saleOrderCode,
+				NULL AS seller_sku,
+				b.warehouse_sku warehouse_sku,
+				NULL AS sale_qty,
+				NULL AS refund_qty,
+				NULL AS sale_amount,
+				NULL AS refund_amount,
+				NULL AS sale_selling_fees,
+				NULL AS refund_selling_fees,
+				NULL AS calcuRes,
+				NULL AS ddp,
+				NULL AS adCost,
+				NULL AS warehouse_rent,
+				NULL AS adjustment,
+				NULL AS lc_adjustment,
+				b.total le_adjustment 
+			FROM
+				mu_finance_order_additional a
+				LEFT JOIN mu_finance_order_share b ON a.share_code = b.share_code 
+				AND a.report_id = b.report_id
+				LEFT JOIN ( SELECT DISTINCT platform, userAccount FROM mu_finance_table WHERE rid = ' . $report_id . ' ) c ON b.user_account = c.userAccount 
+			WHERE
+				a.report_id = ' . $report_id . ' 
+				AND c.platform = "wayfair" 
+				AND le_adjustment IS NOT NULL UNION ALL
 			SELECT
 				a.platform,
 				a.user_account userAccount,
@@ -2950,12 +3085,11 @@ FROM
 				AND b.platform = "shein" UNION ALL
 			SELECT
 				"shein" AS platform,
-				user_account userAccount,
-				NULL AS payment,
+				b.user_account userAccount,
 				NULL AS payment_id,
 				NULL AS saleOrderCode,
 				NULL AS seller_sku,
-				warehouse_sku warehouse_sku,
+				b.warehouse_sku warehouse_sku,
 				NULL AS sale_qty,
 				NULL AS refund_qty,
 				NULL AS sale_amount,
@@ -2964,16 +3098,49 @@ FROM
 				NULL AS refund_selling_fees,
 				NULL AS calcuRes,
 				NULL AS ddp,
+				NULL AS adCost,
 				NULL AS warehouse_rent,
 				NULL AS adjustment,
-				lc_adjustment lc_adjustment,
-				le_adjustment le_adjustment 
+				b.total lc_adjustment,
+				NULL AS le_adjustment 
 			FROM
 				mu_finance_order_additional a
-				LEFT JOIN ( SELECT DISTINCT platform, userAccount FROM mu_finance_table WHERE rid = ' . $report_id . ' ) b ON a.user_account = b.userAccount 
+				LEFT JOIN mu_finance_order_share b ON a.share_code = b.share_code 
+				AND a.report_id = b.report_id
+				LEFT JOIN ( SELECT DISTINCT platform, userAccount FROM mu_finance_table WHERE rid = ' . $report_id . ' ) c ON b.user_account = c.userAccount 
 			WHERE
-				report_id = ' . $report_id . ' 
-				AND b.platform = "shein" UNION ALL
+				a.report_id = ' . $report_id . ' 
+				AND c.platform = "shein" 
+				AND lc_adjustment IS NOT NULL UNION ALL
+			SELECT
+				"shein" AS platform,
+				b.user_account userAccount,
+				NULL AS payment_id,
+				NULL AS saleOrderCode,
+				NULL AS seller_sku,
+				b.warehouse_sku warehouse_sku,
+				NULL AS sale_qty,
+				NULL AS refund_qty,
+				NULL AS sale_amount,
+				NULL AS refund_amount,
+				NULL AS sale_selling_fees,
+				NULL AS refund_selling_fees,
+				NULL AS calcuRes,
+				NULL AS ddp,
+				NULL AS adCost,
+				NULL AS warehouse_rent,
+				NULL AS adjustment,
+				NULL AS lc_adjustment,
+				b.total le_adjustment 
+			FROM
+				mu_finance_order_additional a
+				LEFT JOIN mu_finance_order_share b ON a.share_code = b.share_code 
+				AND a.report_id = b.report_id
+				LEFT JOIN ( SELECT DISTINCT platform, userAccount FROM mu_finance_table WHERE rid = ' . $report_id . ' ) c ON b.user_account = c.userAccount 
+			WHERE
+				a.report_id = ' . $report_id . ' 
+				AND c.platform = "shein" 
+				AND le_adjustment IS NOT NULL UNION ALL
 			SELECT
 				a.platform,
 				a.user_account userAccount,

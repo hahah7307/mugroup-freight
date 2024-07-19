@@ -459,8 +459,19 @@ LIMIT 50;
                             ];
                         }
                     } else {
-                        // 无listing TODO
-                        continue;
+                        $shareItem[] = [
+                            'report_id'     =>  $item['report_id'],
+                            'table_id'      =>  $table['id'],
+                            'fulfillment'   =>  'FBM',
+                            'cost_type'     =>  'PROMOTION',
+                            'share_code'    =>  $shareCode,
+                            'payment'       =>  '',
+                            'seller_sku'    =>  '',
+                            'warehouse_sku' =>  $item['warehouse_sku'],
+                            'amount'        =>  $item['total'],
+                            'percent'       =>  1,
+                            'total'         =>  $item['total']
+                        ];
                     }
 
                     if ($financeOrderShareObj->insertAll($shareItem)) {
@@ -488,7 +499,7 @@ LIMIT 50;
                                     'share_code'    =>  $shareCode,
                                     'payment'       =>  '',
                                     'seller_sku'    =>  '',
-                                    'warehouse_sku' =>  $item['warehouse_sku'],
+                                    'warehouse_sku' =>  $sku,
                                     'amount'        =>  $item['le_adjustment'],
                                     'percent'       =>  $percent,
                                     'total'         =>  $item['le_adjustment'] * $percent
@@ -574,7 +585,7 @@ WHERE
                                     'share_code'    =>  $shareCode,
                                     'payment'       =>  '',
                                     'seller_sku'    =>  '',
-                                    'warehouse_sku' =>  $item['warehouse_sku'],
+                                    'warehouse_sku' =>  $sku,
                                     'amount'        =>  $item['lc_adjustment'],
                                     'percent'       =>  $percent,
                                     'total'         =>  $item['lc_adjustment'] * $percent
@@ -607,7 +618,7 @@ WHERE
                                         'share_code'    =>  $shareCode,
                                         'payment'       =>  '',
                                         'seller_sku'    =>  '',
-                                        'warehouse_sku' =>  $value['pcr_product_sku'],
+                                        'warehouse_sku' =>  $sku,
                                         'amount'        =>  $amount,
                                         'percent'       =>  1 - $init_percent,
                                         'total'         =>  $amount * (1 - $init_percent)
@@ -621,7 +632,7 @@ WHERE
                                         'share_code'    =>  $shareCode,
                                         'payment'       =>  '',
                                         'seller_sku'    =>  '',
-                                        'warehouse_sku' =>  $value['pcr_product_sku'],
+                                        'warehouse_sku' =>  $sku,
                                         'amount'        =>  $amount,
                                         'percent'       =>  round(1 / count($skuRelation), 4),
                                         'total'         =>  $amount * round(1 / count($skuRelation), 4)
