@@ -1094,9 +1094,7 @@ FROM
 				) a
 				LEFT JOIN mu_finance_order_share b ON a.share_code = b.share_code 
 			WHERE
-				a.report_id = ' . $report_id . ' 
-				AND b.report_id = ' . $report_id . ' 
-				AND b.fulfillment = "FBA" 
+				b.fulfillment = "FBA" 
 			) a 
 		GROUP BY
 			platform,
@@ -1647,9 +1645,7 @@ FROM
 				) a
 				LEFT JOIN mu_finance_order_share b ON a.share_code = b.share_code 
 			WHERE
-				b.fulfillment = "FBM" 
-				AND a.report_id = ' . $report_id . ' 
-				AND b.report_id = ' . $report_id . ' UNION ALL
+				b.fulfillment = "FBM" UNION ALL
 			SELECT
 				"amazon" AS platform,
 				b.user_account userAccount,

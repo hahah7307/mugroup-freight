@@ -441,6 +441,7 @@ LIMIT 50;
                     $tableObj = new FinanceTableModel();
                     $table = $tableObj->where(['rid' => $item['report_id'], 'userAccount' => $item['user_account']])->find();
                     $shareItem = [];
+                    $amount = $item['total'];
                     $fulfillmentData = FinanceOrderShareModel::getWarehouseSkuFulfillment($item['warehouse_sku'], $item['report_id']);
                     if ($fulfillmentData) {
                         foreach ($fulfillmentData as $k => $v) {
@@ -453,12 +454,13 @@ LIMIT 50;
                                 'payment'       =>  '',
                                 'seller_sku'    =>  '',
                                 'warehouse_sku' =>  $item['warehouse_sku'],
-                                'amount'        =>  $item['total'],
+                                'amount'        =>  $amount,
                                 'percent'       =>  $v,
-                                'total'         =>  $item['total'] * $v
+                                'total'         =>  $amount * $v
                             ];
                         }
                     } else {
+                        // 无listing
                         $shareItem[] = [
                             'report_id'     =>  $item['report_id'],
                             'table_id'      =>  $table['id'],
@@ -468,9 +470,9 @@ LIMIT 50;
                             'payment'       =>  '',
                             'seller_sku'    =>  '',
                             'warehouse_sku' =>  $item['warehouse_sku'],
-                            'amount'        =>  $item['total'],
+                            'amount'        =>  $amount,
                             'percent'       =>  1,
-                            'total'         =>  $item['total']
+                            'total'         =>  $amount
                         ];
                     }
 
