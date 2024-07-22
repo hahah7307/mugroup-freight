@@ -899,6 +899,15 @@ class AmazonPayment extends Model
                         "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[71])) * -1,
                     ];
                 }
+                if ($item[31]) {
+                    $this->orderAdjustmentNew[] = [
+                        "report_id"                 =>  $reportId,
+                        "table_id"                  =>  $tableId,
+                        "payment_id"                =>  number_format($item[2], 0, '', ''),
+                        "sku"                       =>  $item[8],
+                        "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[31])),
+                    ];
+                }
             } elseif ($item[5] == 'REFUNDED') {
                 $this->orderRefundNew[] = [
                     "report_id"                 =>  $reportId,
