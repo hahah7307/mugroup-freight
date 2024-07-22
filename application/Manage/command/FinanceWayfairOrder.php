@@ -6,6 +6,7 @@ use app\Manage\model\FinanceOrderStatisticsModel;
 use app\Manage\model\FinanceReportModel;
 use app\Manage\model\FinanceTableModel;
 use app\Manage\model\FinanceWayfairCoreModel;
+use app\Manage\model\OrderDetailModel;
 use Exception;
 use think\Cache;
 use think\console\Command;
@@ -34,6 +35,7 @@ class FinanceWayfairOrder extends Command
                 $tableId = [];
                 $wayfairCoreObj = new FinanceWayfairCoreModel();
                 $statistic = new FinanceOrderStatisticsModel();
+                $detailObj = new OrderDetailModel();
                 foreach ($list as $key => $item) {
                     if ($item) {
                         $wayfairOrder = $wayfairCoreObj->where(['payment_id' => $item['payment_id'], 'status' => 1])->find();
@@ -64,7 +66,12 @@ class FinanceWayfairOrder extends Command
                         if ($wayfairOrderStatistic) {
                             $list[$key]['sku'] = $wayfairOrderStatistic['platform_sku'];
                         } else {
-                            $list[$key]['sku'] = '';
+                            $detail = $detailObj->where(['saleOrderCodeOrg' => $item['payment_id']])->find();
+                            if ($detail) {
+                                $list[$key]['sku'] = $detail['productSku'];
+                            } else {
+                                $list[$key]['sku'] = '';
+                            }
                         }
                         $list[$key]['quantity'] = 1;
                     }
