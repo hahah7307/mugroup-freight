@@ -621,12 +621,12 @@ SELECT
 	a.sku,
 	c.pcr_product_sku warehouse_sku,
 	a.quantity * c.pcr_quantity quantity,
-	a.payment_amount * c.pcr_percent / 100 payment_amount,
-	a.payment_selling_fees * c.pcr_percent / 100 payment_selling_fees,
-	a.payment_fba_fees * c.pcr_percent / 100 payment_fba_fees,
-	a.outbound_amount * c.pcr_percent / 100 * - 1 outbound_amount,
-	a.outbound_selling_fee * c.pcr_percent / 100 outbound_selling_fee,
-	a.outbound_fba_fee * c.pcr_percent / 100 outbound_fba_fee 
+	a.payment_amount * c.pcr_percent * c.pcr_quantity / 100 payment_amount,
+	a.payment_selling_fees * c.pcr_percent * c.pcr_quantity / 100 payment_selling_fees,
+	a.payment_fba_fees * c.pcr_percent * c.pcr_quantity / 100 payment_fba_fees,
+	a.outbound_amount * c.pcr_percent * c.pcr_quantity / 100 * - 1 outbound_amount,
+	a.outbound_selling_fee * c.pcr_percent * c.pcr_quantity / 100 outbound_selling_fee,
+	a.outbound_fba_fee * c.pcr_percent * c.pcr_quantity / 100 outbound_fba_fee 
 FROM
 	(
 	SELECT
