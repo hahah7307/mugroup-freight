@@ -42,10 +42,12 @@ class OrderUpdate extends Command
             ->order('id asc')
             ->limit($data['offset'], $data['page_num'])
             ->select();
-        foreach ($orders as $item) {
-            $orderNew = OrderModel::saleOrderCodes2Order($item['saleOrderCode']);
-            if ($orderNew) {
-                OrderModel::orderUpdate($orderNew[0]);
+        $list = array_column($orders->toArray(), 'saleOrderCode');
+        $code = implode('","', $list);
+        $orderList = OrderModel::saleOrderCodes2Order($code);
+        foreach ($orderList as $item) {
+            if ($item) {
+                OrderModel::orderUpdate($item);
             }
         }
         $data['offset'] = count($orders) < $data['page_num'] ? 0 : $data['offset'] + count($orders);
