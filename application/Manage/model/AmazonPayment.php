@@ -413,7 +413,8 @@ class AmazonPayment extends Model
                     "transaction_fee"           =>  sprintf('%.2f', str_replace(',', '.', str_replace('.', '', $item[24]))),
                     "total"                     =>  sprintf('%.2f', str_replace(',', '.', str_replace('.', '', $item[26]))),
                 ];
-            } elseif ($item[2] == 'Anpassungen') {
+            } elseif ($item[2] == 'Anpassungen'
+                || $item[2] == 'Anpassung') {
                 $this->orderAdjustmentNew[] = [
                     "report_id"                 =>  $reportId,
                     "table_id"                  =>  $tableId,
