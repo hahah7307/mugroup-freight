@@ -905,7 +905,7 @@ class AmazonPayment extends Model
                         "table_id"                  =>  $tableId,
                         "payment_id"                =>  number_format($item[2], 0, '', ''),
                         "sku"                       =>  $item[8],
-                        "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[31])),
+                        "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[31])) * -1,
                     ];
                 }
             } elseif ($item[5] == 'REFUNDED') {
