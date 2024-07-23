@@ -3358,12 +3358,12 @@ GROUP BY
     {
         return '
 SELECT
+	a.platform,
+	a.user_account,
 	warehouse_sku,
 	SUM( qty ) qty,
 	order_status,
-	SUM( b.calcuRes ) tail,
-	NULL AS platform,
-	NULL AS user_account 
+	SUM( b.calcuRes ) tail
 FROM
 	mu_finance_order_statistics a
 	LEFT JOIN mu_ecang_order b ON a.saleOrderCode = b.saleOrderCode 
@@ -3378,12 +3378,12 @@ GROUP BY
 	platform,
 	user_account UNION ALL
 SELECT
+	a.platform,
+	a.user_account,
 	warehouse_sku,
 	qty,
 	order_status,
-	SUM( b.calcuRes ) tail,
-	a.platform,
-	a.user_account 
+	SUM( b.calcuRes ) tail
 FROM
 	mu_finance_order_statistics a
 	LEFT JOIN mu_ecang_order b ON a.saleOrderCode = b.saleOrderCode 

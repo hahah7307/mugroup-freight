@@ -720,24 +720,24 @@ class FinanceController extends BaseController
 
         // Add some data
         $objPHPExcel->setActiveSheetIndex(10)
-            ->setCellValue('A1', '仓库SKU')
-            ->setCellValue('B1', '数量')
-            ->setCellValue('C1', '订单状态')
-            ->setCellValue('D1', '尾程')
-            ->setCellValue('E1', '平台')
-            ->setCellValue('F1', '店铺')
+            ->setCellValue('A1', '平台')
+            ->setCellValue('B1', '店铺')
+            ->setCellValue('C1', '仓库SKU')
+            ->setCellValue('D1', '数量')
+            ->setCellValue('E1', '订单状态')
+            ->setCellValue('F1', '尾程')
         ;
 
         $orderResendIndex = 1;
         foreach ($orderResend as $orderResendItem) {
             $orderResendIndex ++;
             $objPHPExcel->setActiveSheetIndex(10)
-                ->setCellValue('A' . $orderResendIndex, $orderResendItem['warehouse_sku'])
-                ->setCellValue('B' . $orderResendIndex, $orderResendItem['qty'])
-                ->setCellValue('C' . $orderResendIndex, $orderResendItem['order_status'])
-                ->setCellValue('D' . $orderResendIndex, $orderResendItem['tail'])
-                ->setCellValue('E' . $orderResendIndex, $orderResendItem['platform'])
-                ->setCellValue('F' . $orderResendIndex, $orderResendItem['user_account'])
+                ->setCellValue('A' . $orderResendIndex, $orderResendItem['platform'])
+                ->setCellValue('B' . $orderResendIndex, $orderResendItem['user_account'])
+                ->setCellValue('C' . $orderResendIndex, $orderResendItem['warehouse_sku'])
+                ->setCellValue('D' . $orderResendIndex, $orderResendItem['qty'])
+                ->setCellValue('E' . $orderResendIndex, $orderResendItem['order_status'])
+                ->setCellValue('F' . $orderResendIndex, $orderResendItem['tail'])
             ;
         }
 
