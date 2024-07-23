@@ -9,8 +9,8 @@ class FinanceOrderStatisticsValidate extends Validate
     protected $rule = [
         'payment_id'        =>  'require',
         'saleOrderCode'     =>  'require',
-        'seller_sku'        =>  'require',
         'platform_sku'      =>  'require',
+        'warehouse_sku'     =>  'require',
         'qty'               =>  'require',
         'sale_unit'         =>  'require',
         'sale_amount'       =>  'require',
@@ -27,8 +27,8 @@ class FinanceOrderStatisticsValidate extends Validate
     protected $field = [
         'payment_id'        =>  'PAYMENT',
         'saleOrderCode'     =>  '参考号',
-        'seller_sku'        =>  '销售SKU',
-        'platform_sku'      =>  '仓库SKU',
+        'platform_sku'      =>  '销售SKU',
+        'warehouse_sku'     =>  '仓库SKU',
         'qty'               =>  '数量',
         'sale_unit'         =>  '单价',
         'sale_amount'       =>  '总销售额',
@@ -39,6 +39,6 @@ class FinanceOrderStatisticsValidate extends Validate
     ];
 
     protected $scene = [
-        'edit'          =>  ['payment_id', 'saleOrderCode', 'seller_sku', 'platform_sku', 'qty', 'sale_unit', 'sale_amount', 'selling_fee'],
+        'edit'          =>  ['payment_id', 'saleOrderCode', 'platform_sku', 'warehouse_sku', 'qty', 'sale_unit', 'sale_amount', 'selling_fee'],
     ];
 }

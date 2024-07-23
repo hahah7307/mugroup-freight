@@ -22,13 +22,13 @@
             <div class="layui-form-item">
                 <label class="layui-form-label">销售SKU</label>
                 <div class="layui-input-inline w300">
-                    <input type="text" class="layui-input" name="seller_sku" value="{$info.seller_sku}" placeholder="请填写销售SKU">
+                    <input type="text" class="layui-input" name="platform_sku" value="{$info.platform_sku}" placeholder="请填写销售SKU">
                 </div>
             </div>
             <div class="layui-form-item">
                 <label class="layui-form-label">仓库SKU</label>
                 <div class="layui-input-inline w300">
-                    <input type="text" class="layui-input" name="platform_sku" value="{$info.platform_sku}" placeholder="请填写仓库SKU">
+                    <input type="text" class="layui-input" name="warehouse_sku" value="{$info.warehouse_sku}" placeholder="请填写仓库SKU">
                 </div>
             </div>
             <div class="layui-form-item">
