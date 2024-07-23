@@ -2034,7 +2034,9 @@ FROM
 					AND b.platform = "walmart" 
 				) a
 				LEFT JOIN mu_finance_order_statistics b ON a.payment_id = b.payment_id
-				LEFT JOIN mu_ecang_order c ON b.saleOrderCode = c.saleOrderCode UNION ALL
+				LEFT JOIN mu_ecang_order c ON b.saleOrderCode = c.saleOrderCode
+			WHERE
+				b.payment_id IS NOT NULL UNION ALL
 			SELECT
 				a.platform,
 				a.userAccount,
@@ -2075,7 +2077,9 @@ FROM
 				LEFT JOIN mu_finance_order_outbound b ON b.payment_id = a.payment_id 
 				AND b.report_id = ' . $report_id . ' 
 				LEFT JOIN mu_finance_store c ON b.store_id = c.id
-				LEFT JOIN mu_finance_report d ON b.report_id = d.id UNION ALL
+				LEFT JOIN mu_finance_report d ON b.report_id = d.id
+			WHERE
+				b.payment_id IS NOT NULL UNION ALL
 			SELECT
 				b.platform,
 				b.userAccount,
@@ -2573,7 +2577,9 @@ FROM
 					AND b.platform = "wayfair" 
 				) a
 				LEFT JOIN mu_finance_order_statistics b ON a.payment_id = b.payment_id
-				LEFT JOIN mu_ecang_order c ON b.saleOrderCode = c.saleOrderCode UNION ALL
+				LEFT JOIN mu_ecang_order c ON b.saleOrderCode = c.saleOrderCode
+			WHERE
+				b.payment_id IS NOT NULL UNION ALL
 			SELECT
 				a.platform,
 				a.userAccount,
@@ -2611,7 +2617,9 @@ FROM
 				LEFT JOIN mu_finance_order_outbound b ON b.payment_id = a.payment_id 
 				AND b.report_id = ' . $report_id . '
 				LEFT JOIN mu_finance_store c ON b.store_id = c.id
-				LEFT JOIN mu_finance_report d ON b.report_id = d.id UNION ALL
+				LEFT JOIN mu_finance_report d ON b.report_id = d.id
+			WHERE
+				b.payment_id IS NOT NULL UNION ALL
 			SELECT
 				b.platform,
 				b.userAccount,
