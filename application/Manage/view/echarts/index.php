@@ -109,6 +109,17 @@
                         textFixed: {
                             Alaska: [20, -20]
                         },
+                        itemStyle: {
+                            normal: {
+                                label: {
+                                    color: 'black',
+                                    fontsize: 12,
+                                    show: true,
+                                    position: 'inner',
+                                    formatter: '{b}'
+                                }
+                            }
+                        },
                         data: [
                             {name: 'Alabama', value: 4822023},
                             {name: 'Alaska', value: 731449},

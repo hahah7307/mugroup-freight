@@ -721,12 +721,12 @@ SELECT
 	SUM( ROUND( evaluation_qty, 3 ) ) evaluation_qty,
 	SUM( ROUND( evaluation_amount, 2 ) ) evaluation_amount,
 	ROUND(
-		SUM( IFNULL( fba_sale_amount, 0 ) ) + SUM( IFNULL( fba_sale_tax, 0 ) ) + SUM( IFNULL( fba_refund_amount, 0 ) ) + SUM( IFNULL( fba_sale_selling_fees, 0 ) ) + SUM( IFNULL( fba_refund_selling_fees, 0 ) ) + SUM( IFNULL( fba_fees, 0 ) ) + SUM( IFNULL( fba_refund_fees, 0 ) ) + SUM( IFNULL( fba_refund_other, 0 ) ) + SUM( IFNULL( fba_ddp, 0 ) ) + SUM( IFNULL( fba_adCost, 0 ) ) + SUM( IFNULL( fba_inventory, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( liquidation, 0 ) ) + SUM( IFNULL( promotion, 0 ) ) + SUM( IFNULL( shipping_service, 0 ) ) - SUM( IFNULL( evaluation_amount, 0 ) ),
+		SUM( IFNULL( fba_sale_amount, 0 ) ) + SUM( IFNULL( fba_sale_tax, 0 ) ) + SUM( IFNULL( fba_refund_amount, 0 ) ) + SUM( IFNULL( fba_sale_selling_fees, 0 ) ) + SUM( IFNULL( fba_refund_selling_fees, 0 ) ) + SUM( IFNULL( fba_fees, 0 ) ) + SUM( IFNULL( fba_refund_fees, 0 ) ) + SUM( IFNULL( fba_refund_other, 0 ) ) + SUM( IFNULL( fba_ddp, 0 ) ) + SUM( IFNULL( fba_adCost, 0 ) ) + SUM( IFNULL( fba_inventory, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( liquidation, 0 ) ) + SUM( IFNULL( promotion, 0 ) ) + SUM( IFNULL( shipping_service, 0 ) ) + SUM( IFNULL( evaluation_amount, 0 ) ),
 		2 
 	) profit_include_evaluation,
 	ROUND(
 		(
-			SUM( IFNULL( fba_sale_amount, 0 ) ) + SUM( IFNULL( fba_sale_tax, 0 ) ) + SUM( IFNULL( fba_refund_amount, 0 ) ) + SUM( IFNULL( fba_sale_selling_fees, 0 ) ) + SUM( IFNULL( fba_refund_selling_fees, 0 ) ) + SUM( IFNULL( fba_fees, 0 ) ) + SUM( IFNULL( fba_refund_fees, 0 ) ) + SUM( IFNULL( fba_refund_other, 0 ) ) + SUM( IFNULL( fba_ddp, 0 ) ) + SUM( IFNULL( fba_adCost, 0 ) ) + SUM( IFNULL( fba_inventory, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( liquidation, 0 ) ) + SUM( IFNULL( promotion, 0 ) ) + SUM( IFNULL( shipping_service, 0 ) ) - SUM( IFNULL( evaluation_amount, 0 ) ) 
+			SUM( IFNULL( fba_sale_amount, 0 ) ) + SUM( IFNULL( fba_sale_tax, 0 ) ) + SUM( IFNULL( fba_refund_amount, 0 ) ) + SUM( IFNULL( fba_sale_selling_fees, 0 ) ) + SUM( IFNULL( fba_refund_selling_fees, 0 ) ) + SUM( IFNULL( fba_fees, 0 ) ) + SUM( IFNULL( fba_refund_fees, 0 ) ) + SUM( IFNULL( fba_refund_other, 0 ) ) + SUM( IFNULL( fba_ddp, 0 ) ) + SUM( IFNULL( fba_adCost, 0 ) ) + SUM( IFNULL( fba_inventory, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( liquidation, 0 ) ) + SUM( IFNULL( promotion, 0 ) ) + SUM( IFNULL( shipping_service, 0 ) ) + SUM( IFNULL( evaluation_amount, 0 ) ) 
 		) / SUM( IFNULL( fba_sale_amount, 0 ) ),
 		2 
 	) gross_profit_margin_include_evaluation 
@@ -754,7 +754,7 @@ FROM
 		SUM( ROUND( promotion, 6 ) ) promotion,
 		SUM( ROUND( shipping_service, 6 ) ) shipping_service,
 		SUM( ROUND( evaluation_qty, 3 ) ) evaluation_qty,
-		SUM( ROUND( evaluation_amount, 2 ) ) evaluation_amount 
+		SUM( ROUND( evaluation_amount, 2 ) ) * - 1 evaluation_amount 
 	FROM
 		(
 		SELECT
@@ -1274,12 +1274,12 @@ SELECT
 	SUM( ROUND( evaluation_qty, 3 ) ) evaluation_qty,
 	SUM( ROUND( evaluation_amount, 2 ) ) evaluation_amount,
 	ROUND(
-		SUM( IFNULL( fbm_sale_amount, 0 ) ) + SUM( IFNULL( fbm_sale_tax, 0 ) ) + SUM( IFNULL( fbm_refund_amount, 0 ) ) + SUM( IFNULL( fbm_sale_selling_fees, 0 ) ) + SUM( IFNULL( fbm_refund_selling_fees, 0 ) ) + SUM( IFNULL( fbm_refund_other, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( fbm_ddp, 0 ) ) + SUM( IFNULL( fbm_adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( liquidation, 0 ) ) + SUM( IFNULL( promotion, 0 ) ) + SUM( IFNULL( shipping_service, 0 ) ) + SUM( IFNULL( lc_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) - SUM( IFNULL( evaluation_amount, 0 ) ),
+		SUM( IFNULL( fbm_sale_amount, 0 ) ) + SUM( IFNULL( fbm_sale_tax, 0 ) ) + SUM( IFNULL( fbm_refund_amount, 0 ) ) + SUM( IFNULL( fbm_sale_selling_fees, 0 ) ) + SUM( IFNULL( fbm_refund_selling_fees, 0 ) ) + SUM( IFNULL( fbm_refund_other, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( fbm_ddp, 0 ) ) + SUM( IFNULL( fbm_adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( liquidation, 0 ) ) + SUM( IFNULL( promotion, 0 ) ) + SUM( IFNULL( shipping_service, 0 ) ) + SUM( IFNULL( lc_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( evaluation_amount, 0 ) ),
 		2 
 	) profit_include_evaluation,
 	ROUND(
 		(
-			SUM( IFNULL( fbm_sale_amount, 0 ) ) + SUM( IFNULL( fbm_sale_tax, 0 ) ) + SUM( IFNULL( fbm_refund_amount, 0 ) ) + SUM( IFNULL( fbm_sale_selling_fees, 0 ) ) + SUM( IFNULL( fbm_refund_selling_fees, 0 ) ) + SUM( IFNULL( fbm_refund_other, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( fbm_ddp, 0 ) ) + SUM( IFNULL( fbm_adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( liquidation, 0 ) ) + SUM( IFNULL( promotion, 0 ) ) + SUM( IFNULL( shipping_service, 0 ) ) + SUM( IFNULL( lc_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) - SUM( IFNULL( evaluation_amount, 0 ) ) 
+			SUM( IFNULL( fbm_sale_amount, 0 ) ) + SUM( IFNULL( fbm_sale_tax, 0 ) ) + SUM( IFNULL( fbm_refund_amount, 0 ) ) + SUM( IFNULL( fbm_sale_selling_fees, 0 ) ) + SUM( IFNULL( fbm_refund_selling_fees, 0 ) ) + SUM( IFNULL( fbm_refund_other, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( fbm_ddp, 0 ) ) + SUM( IFNULL( fbm_adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( liquidation, 0 ) ) + SUM( IFNULL( promotion, 0 ) ) + SUM( IFNULL( shipping_service, 0 ) ) + SUM( IFNULL( lc_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( evaluation_amount, 0 ) ) 
 		) / SUM( IFNULL( fbm_sale_amount, 0 ) ),
 		4 
 	) gross_profit_margin_include_evaluation 
@@ -1308,7 +1308,7 @@ FROM
 		SUM( ROUND( lc_adjustment, 6 ) ) lc_adjustment,
 		SUM( ROUND( le_adjustment, 6 ) ) le_adjustment,
 		SUM( ROUND( evaluation_qty, 3 ) ) evaluation_qty,
-		SUM( ROUND( evaluation_amount, 2 ) ) evaluation_amount 
+		SUM( ROUND( evaluation_amount, 2 ) ) * - 1 evaluation_amount 
 	FROM
 		(
 		SELECT
@@ -1937,12 +1937,12 @@ SELECT
 	SUM( ROUND( evaluation_qty, 3 ) ) evaluation_qty,
 	SUM( ROUND( evaluation_amount, 2 ) ) evaluation_amount,
 	ROUND(
-		SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( wfs_warehouse, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( wfs_warehouse, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( lc_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( wfs_adjustment, 0 ) ) - SUM( IFNULL( evaluation_amount, 0 ) ),
+		SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( wfs_warehouse, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( wfs_warehouse, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( lc_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( wfs_adjustment, 0 ) ) + SUM( IFNULL( evaluation_amount, 0 ) ),
 		2 
 	) profit_include_evaluation,
 	ROUND(
 		(
-			SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( wfs_warehouse, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( wfs_warehouse, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( lc_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( wfs_adjustment, 0 ) ) - SUM( IFNULL( evaluation_amount, 0 ) ) 
+			SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( wfs_warehouse, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( wfs_warehouse, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( lc_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( wfs_adjustment, 0 ) ) + SUM( IFNULL( evaluation_amount, 0 ) ) 
 		) / SUM( IFNULL( sale_amount, 0 ) ),
 		2 
 	) gross_profit_margin_include_evaluation 
@@ -1969,7 +1969,7 @@ FROM
 		SUM( ROUND( le_adjustment, 6 ) ) le_adjustment,
 		SUM( ROUND( wfs_adjustment, 6 ) ) wfs_adjustment,
 		SUM( ROUND( evaluation_qty, 3 ) ) evaluation_qty,
-		SUM( ROUND( evaluation_amount, 2 ) ) evaluation_amount 
+		SUM( ROUND( evaluation_amount, 2 ) ) * - 1 evaluation_amount 
 	FROM
 		(
 		SELECT
@@ -2489,12 +2489,12 @@ SELECT
 	SUM( ROUND( evaluation_qty, 3 ) ) evaluation_qty,
 	SUM( ROUND( evaluation_amount, 2 ) ) evaluation_amount,
 	ROUND(
-		SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( lc_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) - SUM( IFNULL( evaluation_amount, 0 ) ),
+		SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( lc_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( evaluation_amount, 0 ) ),
 		2 
 	) profit_include_evaluation,
 	ROUND(
 		(
-			SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( lc_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) - SUM( IFNULL( evaluation_amount, 0 ) ) 
+			SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( lc_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( evaluation_amount, 0 ) ) 
 		) / SUM( IFNULL( sale_amount, 0 ) ),
 		2 
 	) gross_profit_margin_include_evaluation 
@@ -2518,7 +2518,7 @@ FROM
 		SUM( ROUND( lc_adjustment, 6 ) ) lc_adjustment,
 		SUM( ROUND( le_adjustment, 6 ) ) le_adjustment,
 		SUM( ROUND( evaluation_qty, 3 ) ) evaluation_qty,
-		SUM( ROUND( evaluation_amount, 2 ) ) evaluation_amount 
+		SUM( ROUND( evaluation_amount, 2 ) ) * - 1 evaluation_amount 
 	FROM
 		(
 		SELECT
@@ -2917,12 +2917,12 @@ SELECT
 	SUM( ROUND( evaluation_qty, 3 ) ) evaluation_qty,
 	SUM( ROUND( evaluation_amount, 2 ) ) evaluation_amount,
 	ROUND(
-		SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( lc_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) - SUM( IFNULL( evaluation_amount, 0 ) ),
+		SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( lc_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( evaluation_amount, 0 ) ),
 		2 
 	) profit_include_evaluation,
 	ROUND(
 		(
-			SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( lc_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) - SUM( IFNULL( evaluation_amount, 0 ) ) 
+			SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( lc_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( evaluation_amount, 0 ) ) 
 		) / SUM( IFNULL( sale_amount, 0 ) ),
 		2 
 	) gross_profit_margin_include_evaluation 
@@ -2946,7 +2946,7 @@ FROM
 		SUM( ROUND( lc_adjustment, 6 ) ) lc_adjustment,
 		SUM( ROUND( le_adjustment, 6 ) ) le_adjustment,
 		SUM( ROUND( evaluation_qty, 3 ) ) evaluation_qty,
-		SUM( ROUND( evaluation_amount, 2 ) ) evaluation_amount 
+		SUM( ROUND( evaluation_amount, 2 ) ) * - 1 evaluation_amount 
 	FROM
 		(
 		SELECT
