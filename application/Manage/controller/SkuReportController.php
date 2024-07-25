@@ -1087,7 +1087,6 @@ ORDER BY
         ');
         $this->assign('lcList', $lcList);
 
-        Session::set(Config::get('BACK_URL'), $this->request->url(), 'manage');
         return view();
     }
 
