@@ -32,7 +32,7 @@
             <div class="layui-form-item">
                 <label class="layui-form-label">{if condition="$k eq 0"}仓库SKU{/if}</label>
                 <div class="layui-input-inline w300">
-                    <input type="text" class="layui-input" name="sku[]" value="{$v}" placeholder="请填写仓库SKU">
+                    <input type="text" class="layui-input input-sku" name="sku[{$k}]" value="{$v}" placeholder="请填写仓库SKU">
                 </div>
                 {if condition="$k eq 0"}
                 <button class="layui-btn layui-btn-sm btn-lc" lay-submit lay-filter="AttrAdd">添加</button>
@@ -67,11 +67,11 @@
             type: 'date'
         });
 
-        let domIndex = 0;
+        let domIndex = $(".input-sku").length - 1;
         // 添加属性
         form.on('submit(AttrAdd)', function(data) {
             domIndex ++;
-            let newDom = '<div class="layui-form-item"><label class="layui-form-label"></label><div class="layui-input-inline w300"><input type="text" class="layui-input" name="sku[' + domIndex + ']" placeholder="请填写仓库SKU"></div><button class="layui-btn layui-btn-sm layui-btn-danger btn-lc" lay-submit lay-filter="attrDel">删除</button></div>';
+            let newDom = '<div class="layui-form-item"><label class="layui-form-label"></label><div class="layui-input-inline w300"><input type="text" class="layui-input input-sku" name="sku[' + domIndex + ']" placeholder="请填写仓库SKU"></div><button class="layui-btn layui-btn-sm layui-btn-danger btn-lc" lay-submit lay-filter="attrDel">删除</button></div>';
             $("#sub-dom").before(newDom);
             form.render();
             return false;
@@ -143,7 +143,7 @@
                     max: {$quantity},
                     // 颜色区间
                     inRange: {
-                        color: ['#313695', '#4575b4', '#74add1', '#abd9e9', '#e0f3f8', '#ffffbf', '#fee090', '#fdae61', '#f46d43', '#d73027', '#a50026']
+                        color: ['#FFFFFF', '#313695']
                     },
                     // 文本，默认为数值文本
                     text: ['最高销售量', '最低销售量'],
@@ -199,6 +199,12 @@
             };
 
             myChart.setOption(option);
+
+            myChart.on('click', function (params) {
+                // 跳转到对应的页面
+                console.log(params.name);
+                // window.location.href = "/Manage/SkuReport/category/category/" + params.name + ".html";
+            });
         });
     }
 
