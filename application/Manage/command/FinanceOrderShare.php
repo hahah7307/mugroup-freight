@@ -275,11 +275,12 @@ class FinanceOrderShare extends Command
                         if (!empty($skuRelation) && count($skuRelation)) {
                             $shareItem = [];
                             foreach ($skuRelation['warehouse_sku'] as $value) {
+                                $fulfillmentData = FinanceOrderShareModel::getWarehouseSkuFulfillment($value['pcr_product_sku'], $item['report_id']);
                                 $amount = $item['total'];
                                 $shareItem[] = [
                                     'report_id'     =>  $item['report_id'],
                                     'table_id'      =>  $item['table_id'],
-                                    'fulfillment'   =>  'FBM',
+                                    'fulfillment'   =>  array_key_exists(0, $fulfillmentData) ? 'FBM' : 'FBA',
                                     'cost_type'     =>  'ADJUSTMENT',
                                     'share_code'    =>  $shareCode,
                                     'payment'       =>  $item['payment_id'],
