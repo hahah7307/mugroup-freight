@@ -22,6 +22,7 @@ use app\Manage\model\FinanceOrderStatisticsModel;
 use app\Manage\model\FinanceOrderTransferModel;
 use app\Manage\model\FinanceOrderWayfairModel;
 use app\Manage\model\FinanceReportModel;
+use app\Manage\model\FinanceSkuRelationModel;
 use app\Manage\model\FinanceStoreModel;
 use app\Manage\model\FinanceTableModel;
 use app\Manage\model\FinanceWarehouseModel;
@@ -251,6 +252,8 @@ class FinanceController extends BaseController
             ->setCellValue('AB1', '测评金额')
             ->setCellValue('AC1', '含测评毛利')
             ->setCellValue('AD1', '含测评毛利率')
+            ->setCellValue('AE1', '品名')
+            ->setCellValue('AF1', '运营人员')
         ;
 
         $fbaIndex = 1;
@@ -287,6 +290,8 @@ class FinanceController extends BaseController
                 ->setCellValue('AB' . $fbaIndex, $fbaItem['evaluation_amount'])
                 ->setCellValue('AC' . $fbaIndex, $fbaItem['profit_include_evaluation'])
                 ->setCellValue('AD' . $fbaIndex, $fbaItem['gross_profit_margin_include_evaluation'])
+                ->setCellValue('AE' . $fbaIndex, $fbaItem['product_name'])
+                ->setCellValue('AF' . $fbaIndex, $fbaItem['seller'])
             ;
         }
 
@@ -329,6 +334,8 @@ class FinanceController extends BaseController
             ->setCellValue('AC1', '测评金额')
             ->setCellValue('AD1', '含测评毛利')
             ->setCellValue('AE1', '含测评毛利率')
+            ->setCellValue('AF1', '品名')
+            ->setCellValue('AG1', '运营人员')
         ;
 
         $fbmIndex = 1;
@@ -366,6 +373,8 @@ class FinanceController extends BaseController
                 ->setCellValue('AC' . $fbmIndex, $fbmItem['evaluation_amount'])
                 ->setCellValue('AD' . $fbmIndex, $fbmItem['profit_include_evaluation'])
                 ->setCellValue('AE' . $fbmIndex, $fbmItem['gross_profit_margin_include_evaluation'])
+                ->setCellValue('AF' . $fbmIndex, $fbmItem['product_name'])
+                ->setCellValue('AG' . $fbmIndex, $fbmItem['seller'])
             ;
         }
 
@@ -406,6 +415,8 @@ class FinanceController extends BaseController
             ->setCellValue('AA1', '测评金额')
             ->setCellValue('AB1', '含测评毛利')
             ->setCellValue('AC1', '含测评毛利率')
+            ->setCellValue('AD1', '品名')
+            ->setCellValue('AE1', '运营人员')
         ;
 
         $walmartIndex = 1;
@@ -441,6 +452,8 @@ class FinanceController extends BaseController
                 ->setCellValue('AA' . $walmartIndex, $walmartItem['evaluation_amount'])
                 ->setCellValue('AB' . $walmartIndex, $walmartItem['profit_include_evaluation'])
                 ->setCellValue('AC' . $walmartIndex, $walmartItem['gross_profit_margin_include_evaluation'])
+                ->setCellValue('AD' . $walmartIndex, $walmartItem['product_name'])
+                ->setCellValue('AE' . $walmartIndex, $walmartItem['seller'])
             ;
         }
 
@@ -478,6 +491,8 @@ class FinanceController extends BaseController
             ->setCellValue('X1', '测评金额')
             ->setCellValue('Y1', '含测评毛利')
             ->setCellValue('Z1', '含测评毛利率')
+            ->setCellValue('AA1', '品名')
+            ->setCellValue('AB1', '运营人员')
         ;
 
         $wayfairIndex = 1;
@@ -510,6 +525,8 @@ class FinanceController extends BaseController
                 ->setCellValue('X' . $wayfairIndex, $wayfairItem['evaluation_amount'])
                 ->setCellValue('Y' . $wayfairIndex, $wayfairItem['profit_include_evaluation'])
                 ->setCellValue('Z' . $wayfairIndex, $wayfairItem['gross_profit_margin_include_evaluation'])
+                ->setCellValue('AA' . $wayfairIndex, $wayfairItem['product_name'])
+                ->setCellValue('AB' . $wayfairIndex, $wayfairItem['seller'])
             ;
         }
 
@@ -547,6 +564,8 @@ class FinanceController extends BaseController
             ->setCellValue('X1', '测评金额')
             ->setCellValue('Y1', '含测评毛利')
             ->setCellValue('Z1', '含测评毛利率')
+            ->setCellValue('AA1', '品名')
+            ->setCellValue('AB1', '运营人员')
         ;
 
         $sheinIndex = 1;
@@ -579,6 +598,8 @@ class FinanceController extends BaseController
                 ->setCellValue('X' . $sheinIndex, $sheinItem['evaluation_amount'])
                 ->setCellValue('Y' . $sheinIndex, $sheinItem['profit_include_evaluation'])
                 ->setCellValue('Z' . $sheinIndex, $sheinItem['gross_profit_margin_include_evaluation'])
+                ->setCellValue('AA' . $sheinIndex, $sheinItem['product_name'])
+                ->setCellValue('AB' . $sheinIndex, $sheinItem['seller'])
             ;
         }
 
@@ -2360,5 +2381,99 @@ FROM
 
             return view();
         }
+    }
+
+    /**
+     * @throws DbException
+     */
+    public function relation($id): \think\response\View
+    {
+        $keyword = $this->request->get('keyword', '', 'htmlspecialchars');
+        $this->assign('keyword', $keyword);
+        if ($keyword) {
+            $where['seller_sku|warehouse_sku|product_name|user_account|seller'] = ['like', '%' . $keyword . '%'];
+        } else {
+            $where = [];
+        }
+
+        $page_num = $this->request->get('page_num', Config::get('PAGE_NUM'));
+        $this->assign('page_num', $page_num);
+
+        // 列表
+        $order = new FinanceSkuRelationModel();
+        $where['report_id'] = $id;
+        $list = $order->where($where)->order('id asc')->paginate($page_num, false, ['query' => ['keyword' => $keyword]]);
+        $this->assign('list', $list);
+        $this->assign('report_id', $id);
+
+        return view();
+    }
+
+    /**
+     * @throws PHPExcel_Reader_Exception
+     */
+    public function relation_import()
+    {
+        // phpexcel
+        require_once './static/classes/PHPExcel/Classes/PHPExcel.php';
+
+        $filename = input('filename');
+        $report_id = input('id');
+        $file= "./upload/excel/" . $filename;
+        $excelReader = PHPExcel_IOFactory::createReaderForFile($file);
+        $excelObj = $excelReader->load($file);
+        $worksheet = $excelObj->getSheet(0);
+        $data = $worksheet->toArray();
+        unset($data[0]);
+
+        Db::startTrans();
+        try {
+            $adCostData = [];
+            $financeSkuRelationObj = new FinanceSkuRelationModel();
+            foreach ($data as $item) {
+                $adCostData[] = [
+                    "report_id"                 =>  $report_id,
+                    "seller_sku"                =>  $item[0],
+                    "warehouse_sku"             =>  $item[1],
+                    "qty"                       =>  $item[2],
+                    "unit_price"                =>  $item[3],
+                    "product_name"              =>  $item[4],
+                    "percent"                   =>  $item[5],
+                    "warehouse_name"            =>  $item[6],
+                    "user_account"              =>  $item[7],
+                    "created_user"              =>  $item[8],
+                    "created_date"              =>  $item[9],
+                    "updated_date"              =>  $item[10],
+                    "seller"                    =>  $item[11]
+                ];
+            }
+            $financeSkuRelationObj->insertAll($adCostData);
+
+            Db::commit();
+        } catch (Exception $e) {
+            Db::rollback();
+            $this->error($e->getMessage(), url('relation'));
+        }
+        $this->redirect(url('relation', ['id' => $report_id]));
+    }
+
+    public function relation_empty()
+    {
+        if ($this->request->isPost()) {
+            $post = $this->request->post();
+            $reportId = $post['id'];
+            $skuRelationObj = new FinanceSkuRelationModel();
+            if ($skuRelationObj->where('report_id', $reportId)->delete()) {
+                $financeReportObj = new FinanceReportModel();
+                $financeReportObj->save(['is_notify' => 0], ['id' => $reportId]);
+
+                echo json_encode(['code' => 1, 'msg' => '清空完成']);
+            } else {
+                echo json_encode(['code' => 0, 'msg' => '清空失败，请重试']);
+            }
+        } else {
+            echo json_encode(['code' => 0, 'msg' => '异常操作']);
+        }
+        exit;
     }
 }

@@ -686,7 +686,7 @@ WHERE
 SELECT
 	platform,
 	userAccount,
-	warehouse_sku,
+	a.warehouse_sku,
 	SUM( fba_sale_qty ) fba_sale_qty,
 	SUM( fba_refund_qty ) fba_refund_qty,
 	SUM( ROUND( fba_sale_amount, 7 ) ) fba_sale_amount,
@@ -729,7 +729,9 @@ SELECT
 			SUM( IFNULL( fba_sale_amount, 0 ) ) + SUM( IFNULL( fba_sale_tax, 0 ) ) + SUM( IFNULL( fba_refund_amount, 0 ) ) + SUM( IFNULL( fba_sale_selling_fees, 0 ) ) + SUM( IFNULL( fba_refund_selling_fees, 0 ) ) + SUM( IFNULL( fba_fees, 0 ) ) + SUM( IFNULL( fba_refund_fees, 0 ) ) + SUM( IFNULL( fba_refund_other, 0 ) ) + SUM( IFNULL( fba_ddp, 0 ) ) + SUM( IFNULL( fba_adCost, 0 ) ) + SUM( IFNULL( fba_inventory, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( liquidation, 0 ) ) + SUM( IFNULL( promotion, 0 ) ) + SUM( IFNULL( shipping_service, 0 ) ) + SUM( IFNULL( evaluation_amount, 0 ) ) 
 		) / SUM( IFNULL( fba_sale_amount, 0 ) ),
 		2 
-	) gross_profit_margin_include_evaluation 
+	) gross_profit_margin_include_evaluation,
+	b.product_name product_name,
+	b.seller seller 
 FROM
 	(
 	SELECT
@@ -1224,11 +1226,15 @@ FROM
 		userAccount,
 		warehouse_sku 
 	) a 
+	LEFT JOIN mu_finance_sku_relation b ON a.userAccount = b.user_account 
+	AND a.warehouse_sku = b.warehouse_sku 
 GROUP BY
 	platform,
 	userAccount,
 	warehouse_sku,
-	fba_sale_amount;
+	fba_sale_amount,
+	product_name,
+	seller;
         ';
     }
 
@@ -1238,7 +1244,7 @@ GROUP BY
 SELECT
 	platform,
 	userAccount,
-	warehouse_sku,
+	a.warehouse_sku,
 	SUM( fbm_sale_qty ) fbm_sale_qty,
 	SUM( fbm_refund_qty ) fbm_refund_qty,
 	SUM( ROUND( fbm_sale_amount, 7 ) ) fbm_sale_amount,
@@ -1282,7 +1288,9 @@ SELECT
 			SUM( IFNULL( fbm_sale_amount, 0 ) ) + SUM( IFNULL( fbm_sale_tax, 0 ) ) + SUM( IFNULL( fbm_refund_amount, 0 ) ) + SUM( IFNULL( fbm_sale_selling_fees, 0 ) ) + SUM( IFNULL( fbm_refund_selling_fees, 0 ) ) + SUM( IFNULL( fbm_refund_other, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( fbm_ddp, 0 ) ) + SUM( IFNULL( fbm_adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( liquidation, 0 ) ) + SUM( IFNULL( promotion, 0 ) ) + SUM( IFNULL( shipping_service, 0 ) ) + SUM( IFNULL( lc_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( evaluation_amount, 0 ) ) 
 		) / SUM( IFNULL( fbm_sale_amount, 0 ) ),
 		4 
-	) gross_profit_margin_include_evaluation 
+	) gross_profit_margin_include_evaluation,
+	b.product_name product_name,
+	b.seller seller 
 FROM
 	(
 	SELECT
@@ -1888,12 +1896,16 @@ FROM
 		platform,
 		userAccount,
 		warehouse_sku 
-	) a 
+	) a
+	LEFT JOIN mu_finance_sku_relation b ON a.userAccount = b.user_account 
+	AND a.warehouse_sku = b.warehouse_sku 
 GROUP BY
 	platform,
 	userAccount,
 	warehouse_sku,
-	fbm_sale_amount;
+	fbm_sale_amount,
+	product_name,
+	seller;
         ';
     }
 
@@ -1903,7 +1915,7 @@ GROUP BY
 SELECT
 	platform,
 	userAccount,
-	warehouse_sku,
+	a.warehouse_sku,
 	SUM( sale_qty ) sale_qty,
 	SUM( refund_qty ) refund_qty,
 	SUM( ROUND( sale_amount, 7 ) ) sale_amount,
@@ -1945,7 +1957,9 @@ SELECT
 			SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( wfs_warehouse, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( wfs_warehouse, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( lc_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( wfs_adjustment, 0 ) ) + SUM( IFNULL( evaluation_amount, 0 ) ) 
 		) / SUM( IFNULL( sale_amount, 0 ) ),
 		2 
-	) gross_profit_margin_include_evaluation 
+	) gross_profit_margin_include_evaluation,
+	b.product_name product_name,
+	b.seller seller 
 FROM
 	(
 	SELECT
@@ -2443,12 +2457,16 @@ FROM
 		platform,
 		userAccount,
 		warehouse_sku 
-	) a 
+	) a
+	LEFT JOIN mu_finance_sku_relation b ON a.userAccount = b.user_account 
+	AND a.warehouse_sku = b.warehouse_sku 
 GROUP BY
 	platform,
 	userAccount,
 	warehouse_sku,
-	sale_amount;
+	sale_amount,
+	product_name,
+	seller;
         ';
     }
 
@@ -2458,7 +2476,7 @@ GROUP BY
 SELECT
 	platform,
 	userAccount,
-	warehouse_sku,
+	a.warehouse_sku,
 	SUM( sale_qty ) sale_qty,
 	SUM( refund_qty ) refund_qty,
 	SUM( ROUND( sale_amount, 7 ) ) sale_amount,
@@ -2497,7 +2515,9 @@ SELECT
 			SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( lc_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( evaluation_amount, 0 ) ) 
 		) / SUM( IFNULL( sale_amount, 0 ) ),
 		2 
-	) gross_profit_margin_include_evaluation 
+	) gross_profit_margin_include_evaluation,
+	b.product_name product_name,
+	b.seller seller 
 FROM
 	(
 	SELECT
@@ -2871,12 +2891,16 @@ FROM
 		platform,
 		userAccount,
 		warehouse_sku 
-	) a 
+	) a
+	LEFT JOIN mu_finance_sku_relation b ON a.userAccount = b.user_account 
+	AND a.warehouse_sku = b.warehouse_sku 
 GROUP BY
 	platform,
 	userAccount,
 	warehouse_sku,
-	sale_amount;
+	sale_amount,
+	product_name,
+	seller;
         ';
     }
 
@@ -2886,7 +2910,7 @@ GROUP BY
 SELECT
 	platform,
 	userAccount,
-	warehouse_sku,
+	a.warehouse_sku,
 	SUM( sale_qty ) sale_qty,
 	SUM( refund_qty ) refund_qty,
 	SUM( ROUND( sale_amount, 7 ) ) sale_amount,
@@ -2925,7 +2949,9 @@ SELECT
 			SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( lc_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( evaluation_amount, 0 ) ) 
 		) / SUM( IFNULL( sale_amount, 0 ) ),
 		2 
-	) gross_profit_margin_include_evaluation 
+	) gross_profit_margin_include_evaluation,
+	b.product_name product_name,
+	b.seller seller 
 FROM
 	(
 	SELECT
@@ -3299,12 +3325,16 @@ FROM
 		platform,
 		userAccount,
 		warehouse_sku 
-	) a 
+	) a
+	LEFT JOIN mu_finance_sku_relation b ON a.userAccount = b.user_account 
+	AND a.warehouse_sku = b.warehouse_sku 
 GROUP BY
 	platform,
 	userAccount,
 	warehouse_sku,
-	sale_amount;
+	sale_amount,
+	product_name,
+	seller;
         ';
     }
 
