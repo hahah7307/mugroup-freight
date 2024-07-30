@@ -6,9 +6,7 @@ use app\Manage\model\FinanceOrderOutboundModel;
 use app\Manage\model\FinanceOrderRefundModel;
 use app\Manage\model\FinanceOrderSaleModel;
 use app\Manage\model\FinanceOrderShareModel;
-use app\Manage\model\FinanceStoreModel;
 use app\Manage\model\FinanceWarehouseFbmModel;
-use app\Manage\model\FinanceWarehouseModel;
 use app\Manage\model\ProductModel;
 use Exception;
 use think\Cache;
@@ -55,7 +53,7 @@ class FinanceWarehouseNotify extends Command
 
         $financeOutboundObj = new FinanceOrderOutboundModel();
         $financeWarehouseFbmObj = new FinanceWarehouseFbmModel();
-        $outbound = $financeOutboundObj->where(['is_notify' => 0])->select();
+//        $outbound = $financeOutboundObj->where(['is_notify' => 0])->select();
 //        if (count($outbound) > 0) {
 //            $output->writeln("OutboundNotify Unready");exit();
 //        } else {
@@ -67,6 +65,7 @@ class FinanceWarehouseNotify extends Command
                     $shareData = [];
                     foreach ($list as $item) {
                         $shareCode = self::generateRandomCode(16);
+                        // 自定义仓储费的主件sku，如果已经有或者已调整，按已存在的sku计算逻辑
                         $sku = $item['sku'];
                         if (self::sku_identify($sku)) {
                             // 在售主件直接用自己
@@ -79,11 +78,10 @@ class FinanceWarehouseNotify extends Command
                                 // 未在售配件有在售主件直接用该主件
                                 $mainSku = $product['productSku'];
                             }
-
                             $mainSku = empty($item['main_sku']) ? $mainSku : $item['main_sku'];
                         }
 
-                        //
+                        // 查询该主件sku各平台的销售情况
                         $saleList = $financeWarehouseFbmObj->query('
 SELECT
 	platform,
@@ -99,50 +97,58 @@ GROUP BY
 	warehouse_sku;
                         ');
 
+                        // 如该主件sku在主销售平台无销售数据，新增销售为0的该平台数据
+                        $isMainPlatform = false;
+                        foreach ($saleList as $v) {
+                            if ($v['platform'] == 'wayfairnew') {
+                                $v['platform'] = 'wayfair';
+                            }
+                            if ($v['platform'] == $item['main_platform']) {
+                                $isMainPlatform = true;
+                            }
+                        }
+                        if (!$isMainPlatform) {
+                            $saleList[] = [
+                                'platform'  =>  $item['main_platform'],
+                                'warehouse' =>  $mainSku,
+                                'sale_qty'  =>  0
+                            ];
+                        }
+
+                        // 统计销售总个数
                         $saleCount = array_sum(array_column($saleList, 'sale_qty'));
                         $sum = 0;
                         if ($saleList) {
-                            $isMainPlatform = false;
-                            foreach ($saleList as $v) {
-                                if ($v['platform'] == 'wayfairnew') {
-                                    $v['platform'] = 'wayfair';
-                                }
-                                if ($v['platform'] == $item['main_platform']) {
-                                    $isMainPlatform = true;
-                                }
-                            }
-                            if (!$isMainPlatform) {
-                                $saleList[] = [
-                                    'platform'  =>  $item['main_platform'],
-                                    'warehouse' =>  $mainSku,
-                                    'sale_qty'  =>  0
-                                ];
-                            }
                             foreach ($saleList as $key => $platformData) {
+                                // 销售平台为wayfair的情况需要调整平台名称
                                 if ($platformData['platform'] == 'wayfairnew') {
                                     $platformData['platform'] = 'wayfair';
                                 }
-                                $userAccountList = $financeWarehouseFbmObj->query('
-SELECT
-    DISTINCT
-	a.pcr_product_sku,
-	b.user_account,
-	c.platform 
+
+                                // 查询该主件sku在该平台的销售人员，根据销售人员数量均摊仓储费
+                                $userList = $financeWarehouseFbmObj->query('
+SELECT DISTINCT
+	a.warehouse_sku,
+	b.platform,
+	a.seller 
 FROM
-	mu_ecang_sku_relation a
-	LEFT JOIN mu_ecang_sku b ON a.sku_id = b.id
-	LEFT JOIN ( SELECT DISTINCT platform, userAccount FROM mu_finance_table WHERE rid = 6 ) c ON b.user_account = c.userAccount 
+	mu_finance_sku_relation a
+	LEFT JOIN ( SELECT DISTINCT platform, userAccount FROM mu_finance_table WHERE rid = ' . $item['report_id'] . ' ) b ON a.user_account = b.userAccount 
 WHERE
-	a.pcr_product_sku = "' . $mainSku . '" 
-	AND c.platform = "' . $platformData['platform'] . '";
-                            ');
+	a.warehouse_sku = "' . $mainSku . '" 
+	AND b.platform = "' . $platformData['platform'] . '"
+	AND a.report_id = ' . $item['report_id'] . ';
+                                ');
+
                                 if ($key + 1 != count($saleList)) {
+                                    // 销售数量和剩余库存的逻辑跟随主件sku，而不是当前的配件。费用使用配件
                                     if ($mainSku == $item['sku']) {
                                         $restQty = $item['quantity'];
                                     } else {
                                         $warehouseFbmData = $financeWarehouseFbmObj->where(['sku' => $mainSku, 'report_id' => $item['report_id']])->find();
                                         $restQty = empty($warehouseFbmData) ? $item['quantity'] : $warehouseFbmData['quantity'];
                                     }
+                                    // 主销售平台承担剩余库存应当分摊的仓储费和销售部分，其余平台只承担销量部分（意为帮卖）
                                     if ($item['main_platform'] == $platformData['platform']) {
                                         $platformTotal = round(($platformData['sale_qty'] + $restQty) / ($saleCount + $restQty) * $item['total'], 6);
                                     } else {
@@ -153,25 +159,64 @@ WHERE
                                     $platformTotal = $item['total'] - $sum;
                                 }
 
-                                $userAccountSum = 0;
-                                if ($userAccountList) {
-                                    foreach ($userAccountList as $k => $userAccount) {
-                                        if ($k + 1 != count($userAccountList)) {
-                                            $total = round($platformTotal / count($userAccountList), 6);
-                                            $userAccountSum += $total;
+                                $userSum = 0;
+                                if ($userList) {
+                                    foreach ($userList as $k => $user) {
+                                        if ($k + 1 != count($userList)) {
+                                            $userTotal = round($platformTotal / count($userList), 6);
+                                            $userSum += $userTotal;
                                         } else {
-                                            $total = $platformTotal - $userAccountSum;
+                                            $userTotal = $platformTotal - $userSum;
                                         }
-                                        $shareData[] = [
-                                            'report_id'     =>  $item['report_id'],
-                                            'user_account'  =>  $userAccount['user_account'],
-                                            'fulfillment'   =>  'FBM',
-                                            'cost_type'     =>  'WAREHOUSE_FBM',
-                                            'share_code'    =>  $shareCode,
-                                            'warehouse_sku' =>  $mainSku,
-                                            'amount'        =>  $item['total'],
-                                            'total'         =>  $total
-                                        ];
+
+                                        // 查询该主件sku该销售人员在该平台的所有店铺，根据店铺数量均摊仓储费
+                                        $userAccountList = $financeWarehouseFbmObj->query('
+SELECT DISTINCT
+	a.warehouse_sku,
+	a.user_account,
+	a.seller 
+FROM
+	mu_finance_sku_relation a
+	LEFT JOIN ( SELECT DISTINCT platform, userAccount FROM mu_finance_table WHERE rid = ' . $item['report_id'] . ' ) b ON a.user_account = b.userAccount 
+WHERE
+	a.seller = "' . $user['seller'] . '" 
+	AND a.warehouse_sku = "' . $mainSku . '" 
+	AND b.platform = "' . $platformData['platform'] . '"
+	AND a.report_id = ' . $item['report_id'] . ';
+                                        ');
+
+                                        $userAccountSum = 0;
+                                        if ($userAccountList) {
+                                            foreach ($userAccountList as $ku => $userAccount) {
+                                                if ($ku + 1 != count($userAccountList)) {
+                                                    $userAccountTotal = round($userTotal / count($userAccountList), 6);
+                                                    $userAccountSum += $userAccountTotal;
+                                                } else {
+                                                    $userAccountTotal = $userTotal - $userAccountSum;
+                                                }
+                                                $shareData[] = [
+                                                    'report_id'     =>  $item['report_id'],
+                                                    'user_account'  =>  $userAccount['user_account'],
+                                                    'fulfillment'   =>  'FBM',
+                                                    'cost_type'     =>  'WAREHOUSE_FBM',
+                                                    'share_code'    =>  $shareCode,
+                                                    'warehouse_sku' =>  $mainSku,
+                                                    'amount'        =>  $item['total'],
+                                                    'total'         =>  $userAccountTotal
+                                                ];
+                                            }
+                                        } else {
+                                            $shareData[] = [
+                                                'report_id'     =>  $item['report_id'],
+                                                'user_account'  =>  '',
+                                                'fulfillment'   =>  'FBM',
+                                                'cost_type'     =>  'WAREHOUSE_FBM',
+                                                'share_code'    =>  $shareCode,
+                                                'warehouse_sku' =>  $mainSku,
+                                                'amount'        =>  $item['total'],
+                                                'total'         =>  $userTotal
+                                            ];
+                                        }
                                     }
                                 } else {
                                     $shareData[] = [
@@ -187,40 +232,79 @@ WHERE
                                 }
                             }
                         } else {
-                            $userAccountList = $financeWarehouseFbmObj->query('
-SELECT
-    DISTINCT
-	a.pcr_product_sku,
-	b.user_account,
-	c.platform 
+                            // 无销售的主件sku只分摊到主销售平台
+                            $userList = $financeWarehouseFbmObj->query('
+SELECT DISTINCT
+	a.warehouse_sku,
+	b.platform,
+	a.seller 
 FROM
-	mu_ecang_sku_relation a
-	LEFT JOIN mu_ecang_sku b ON a.sku_id = b.id
-	LEFT JOIN ( SELECT DISTINCT platform, userAccount FROM mu_finance_table WHERE rid = 6 ) c ON b.user_account = c.userAccount 
+	mu_finance_sku_relation a
+	LEFT JOIN ( SELECT DISTINCT platform, userAccount FROM mu_finance_table WHERE rid = ' . $item['report_id'] . ' ) b ON a.user_account = b.userAccount 
 WHERE
-	a.pcr_product_sku = "' . $mainSku . '" 
-	AND c.platform = "' . $item['main_platform'] . '";
-                            ');
+	a.warehouse_sku = "' . $mainSku . '" 
+	AND b.platform = "' . $item['main_platform'] . '"
+	AND a.report_id = ' . $item['report_id'] . ';
+                                ');
 
-                            $userAccountSum = 0;
-                            if ($userAccountList) {
-                                foreach ($userAccountList as $k => $userAccount) {
-                                    if ($k + 1 != count($userAccountList)) {
-                                        $total = round($item['total'] / count($userAccountList), 6);
-                                        $userAccountSum += $total;
+                            $userSum = 0;
+                            if ($userList) {
+                                foreach ($userList as $k => $user) {
+                                    if ($k + 1 != count($userList)) {
+                                        $userTotal = round($item['total'] / count($userList), 6);
+                                        $userSum += $userTotal;
                                     } else {
-                                        $total = $item['total'] - $userAccountSum;
+                                        $userTotal = $item['total'] - $userSum;
                                     }
-                                    $shareData[] = [
-                                        'report_id'     =>  $item['report_id'],
-                                        'user_account'  =>  $userAccount['user_account'],
-                                        'fulfillment'   =>  'FBM',
-                                        'cost_type'     =>  'WAREHOUSE_FBM',
-                                        'share_code'    =>  $shareCode,
-                                        'warehouse_sku' =>  $mainSku,
-                                        'amount'        =>  $item['total'],
-                                        'total'         =>  $total
-                                    ];
+
+                                    // 平台内分摊逻辑同上
+                                    $userAccountList = $financeWarehouseFbmObj->query('
+SELECT DISTINCT
+	a.warehouse_sku,
+	a.user_account,
+	a.seller 
+FROM
+	mu_finance_sku_relation a
+	LEFT JOIN ( SELECT DISTINCT platform, userAccount FROM mu_finance_table WHERE rid = ' . $item['report_id'] . ' ) b ON a.user_account = b.userAccount 
+WHERE
+	a.seller = "' . $user['seller'] . '" 
+	AND a.warehouse_sku = "' . $mainSku . '" 
+	AND b.platform = "' . $user['platform'] . '"
+	AND a.report_id = ' . $item['report_id'] . ';
+                                        ');
+
+                                    $userAccountSum = 0;
+                                    if ($userAccountList) {
+                                        foreach ($userAccountList as $ku => $userAccount) {
+                                            if ($ku + 1 != count($userAccountList)) {
+                                                $userAccountTotal = round($userTotal / count($userAccountList), 6);
+                                                $userAccountSum += $userAccountTotal;
+                                            } else {
+                                                $userAccountTotal = $userTotal - $userAccountSum;
+                                            }
+                                            $shareData[] = [
+                                                'report_id'     =>  $item['report_id'],
+                                                'user_account'  =>  $userAccount['user_account'],
+                                                'fulfillment'   =>  'FBM',
+                                                'cost_type'     =>  'WAREHOUSE_FBM',
+                                                'share_code'    =>  $shareCode,
+                                                'warehouse_sku' =>  $mainSku,
+                                                'amount'        =>  $item['total'],
+                                                'total'         =>  $userAccountTotal
+                                            ];
+                                        }
+                                    } else {
+                                        $shareData[] = [
+                                            'report_id'     =>  $item['report_id'],
+                                            'user_account'  =>  '',
+                                            'fulfillment'   =>  'FBM',
+                                            'cost_type'     =>  'WAREHOUSE_FBM',
+                                            'share_code'    =>  $shareCode,
+                                            'warehouse_sku' =>  $mainSku,
+                                            'amount'        =>  $item['total'],
+                                            'total'         =>  $userTotal
+                                        ];
+                                    }
                                 }
                             } else {
                                 $shareData[] = [
