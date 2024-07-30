@@ -25,6 +25,7 @@ use app\Manage\model\FinanceReportModel;
 use app\Manage\model\FinanceSkuRelationModel;
 use app\Manage\model\FinanceStoreModel;
 use app\Manage\model\FinanceTableModel;
+use app\Manage\model\FinanceWarehouseFbmModel;
 use app\Manage\model\FinanceWarehouseModel;
 use app\Manage\model\FinanceWarehouseWFSModel;
 use app\Manage\model\FinanceWayfairCoreModel;
@@ -1367,8 +1368,11 @@ SELECT SUM(available_quantity * sku_ddp_unit) sum FROM mu_finance_store WHERE re
                 $sql = "
 SELECT DISTINCT
 	a.report_id,
+	b.platform,
+	b.user_account,
 	b.payment_id,
 	b.saleOrderCode,
+	b.paid_time,
 	b.shipping_time,
 	b.platform_sku seller_sku,
 	b.warehouse_sku,
@@ -1381,7 +1385,7 @@ WHERE
 	a.report_id = " . $report_id . "
 	AND b.saleOrderCode IS NOT NULL
 ORDER BY
-	b.shipping_time
+	b.shipping_time;
                 ";
                 $outboundData = $financeStoreObj->query($sql);
                 $outboundObj = new FinanceOrderOutboundModel();
@@ -1414,9 +1418,6 @@ ORDER BY
 
                 $shareObj = new FinanceOrderShareModel();
                 $shareObj->where('report_id', $reportId)->delete();
-
-                $warehouseObj = new FinanceWarehouseModel();
-                $warehouseObj->where('report_id' , $reportId)->update(['is_sale' => 0]);
 
                 $refundObj = new FinanceOrderRefundModel();
                 $refundObj->where(['report_id' => $reportId])->update(['share_code' => null]);
@@ -1804,10 +1805,32 @@ FROM
                     "age"                   =>  $item[8],
                     "volume"                =>  $item[9],
                     "total"                 =>  $item[10],
-                    "total_unit"            =>  $item[11]
+                    "total_unit"            =>  $item[11],
+                    "main_platform"         =>  $item[12]
                 ];
             }
-            $financeWarehouseObj->insertAll($warehouseData);
+
+            if ($financeWarehouseObj->insertAll($warehouseData)) {
+                $report = FinanceReportModel::get($report_id);
+                $lastDay = $report['month'] . '-' . date('t', strtotime($report['month'] . '-01'));
+                $model = new FinanceWarehouseFbmModel();
+                $data = $model->query('
+SELECT
+	' . $report_id . ' AS report_id,
+	a.sku,
+	a.main_platform,
+	a.total,
+	IFNULL( quantity, 0 ) quantity 
+FROM
+	( SELECT sku, main_platform, SUM( total ) total FROM mu_finance_warehouse WHERE report_id = ' . $report_id . ' GROUP BY sku, main_platform ) a
+	LEFT JOIN ( SELECT sku, SUM( quantity ) quantity FROM mu_finance_warehouse WHERE report_id = ' . $report_id . ' AND date = "' . $lastDay . '" GROUP BY sku ) b ON a.sku = b.sku 
+WHERE
+	total != 0;
+                ');
+                $model->insertAll($data);
+            } else {
+                throw new Exception("导入失败！");
+            }
 
             Db::commit();
         } catch (Exception $e) {
@@ -1824,6 +1847,9 @@ FROM
             $reportId = $post['id'];
             $warehouseObj = new FinanceWarehouseModel();
             if ($warehouseObj->where('report_id', $reportId)->delete()) {
+                $financeWarehouseFbmObj = new FinanceWarehouseFbmModel();
+                $financeWarehouseFbmObj->where('report_id', $reportId)->delete();
+
                 $financeReportObj = new FinanceReportModel();
                 $financeReportObj->save(['is_notify' => 0], ['id' => $reportId]);
 
@@ -1856,6 +1882,61 @@ FROM
             }
         } else {
             $info = FinanceWarehouseModel::get(['id' => $id,]);
+            $this->assign('info', $info);
+
+            return view();
+        }
+    }
+
+    /**
+     * @throws DbException
+     */
+    public function warehouse_fbm($id): \think\response\View
+    {
+        $keyword = $this->request->get('keyword', '', 'htmlspecialchars');
+        $this->assign('keyword', $keyword);
+        if ($keyword) {
+            $where['main_platform|sku|main_sku|share_code'] = ['like', '%' . $keyword . '%'];
+        } else {
+            $where = [];
+        }
+
+        $page_num = $this->request->get('page_num', Config::get('PAGE_NUM'));
+        $this->assign('page_num', $page_num);
+
+        // 订单列表
+        $order = new FinanceWarehouseFbmModel();
+        $where['report_id'] = $id;
+        $list = $order->where($where)->order('id asc')->paginate($page_num, false, ['query' => ['keyword' => $keyword]]);
+        $this->assign('list', $list);
+        $this->assign('report_id', $id);
+
+        $sum = $order->where($where)->sum('total');
+        $this->assign('sum', $sum);
+
+        return view();
+    }
+
+    /**
+     * @throws DbException
+     */
+    public function warehouse_fbm_edit($id)
+    {
+        if ($this->request->isPost()) {
+            $post = $this->request->post();
+            $model = new FinanceWarehouseFBMModel();
+            $info = $model->find($id);
+            $post['share_code'] = NULL;
+            if ($model->update($post, ['main_sku' => $info['main_sku']])) {
+                $shareObj = new FinanceOrderShareModel();
+                $shareObj->where(['report_id' => $info['report_id'], 'cost_type' => 'WAREHOUSE_FBM', 'warehouse_sku' => $info['main_sku']])->delete();
+
+                echo json_encode(['code' => 1, 'msg' => '修改成功']);
+            } else {
+                echo json_encode(['code' => 0, 'msg' => '修改失败，请重试']);
+            }
+        } else {
+            $info = FinanceWarehouseFBMModel::get(['id' => $id,]);
             $this->assign('info', $info);
 
             return view();

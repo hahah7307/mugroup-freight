@@ -7,7 +7,7 @@
 <!-- 主体内容 -->
 <div class="layui-body" id="LAY_app_body">
     <div class="right">
-        <a href="{:url('report')}" class="layui-btn layui-btn-danger layui-btn-sm fr"><i class="layui-icon">&#xe603;</i>返回上一页</a>
+        <a href="{:session('back_url', '', 'manage')}" class="layui-btn layui-btn-danger layui-btn-sm fr"><i class="layui-icon">&#xe603;</i>返回上一页</a>
         <div class="title">仓储费列表</div>
         <form class="layui-form search-form" method="get">
             <div class="layui-inline w200">
@@ -22,57 +22,40 @@
         </form>
 
         <div class="layui-form">
-            <a href="{:url('warehouse_fbm', ['id' => $report_id])}" class="layui-btn">FBM</a>
-            <a href="{:url('warehouse_wfs', ['id' => $report_id])}" class="layui-btn">WFS</a>
-            <button type="button" class="layui-btn  layui-btn-normal" id="excel">导入</button>
-            <button data-id="{$report_id}" class="layui-btn layui-btn-danger ml0" lay-submit lay-filter="Detele">清空</button>
             <span class="total">仓储费合计：{$sum|number_format=###,6}</span>
             <table class="layui-table" lay-size="sm">
                 <colgroup>
+                    <col width="80">
                     <col>
                     <col>
                     <col>
                     <col>
                     <col>
-                    <col>
-                    <col>
-                    <col>
-                    <col>
-                    <col>
-                    <col>
-                    <col>
+                    <col width="80">
                 </colgroup>
                 <thead>
                 <tr>
                     <th>ID</th>
-                    <th>计费日期</th>
-                    <th>SKU</th>
-                    <th>仓库代码</th>
-                    <th>长(cm)</th>
-                    <th>宽(cm)</th>
-                    <th>高(cm)</th>
-                    <th>数量</th>
-                    <th>库龄</th>
-                    <th>体积（m³）</th>
-                    <th>金额（USD）</th>
+                    <th>仓库SKU</th>
+                    <th>主件Sku</th>
                     <th>主销售平台</th>
+                    <th>月结余库存</th>
+                    <th>总金额</th>
+                    <th class="tc">操作</th>
                 </tr>
                 </thead>
                 <tbody>
                 {foreach name="list" item="v"}
                 <tr>
                     <td class="tr">{$v.id}</td>
-                    <td>{$v.date}</td>
                     <td>{$v.sku}</td>
-                    <td>{$v.warehouse_code}</td>
-                    <td class="tr">{$v.product_length}</td>
-                    <td class="tr">{$v.product_width}</td>
-                    <td class="tr">{$v.product_height}</td>
+                    <td>{$v.main_sku}</td>
+                    <td>{$v.main_platform}</td>
                     <td class="tr">{$v.quantity}</td>
-                    <td class="tr">{$v.age}</td>
-                    <td class="tr">{$v.volume}</td>
                     <td class="tr">{$v.total}</td>
-                    <td class="tr">{$v.main_platform}</td>
+                    <td class="tc">
+                        <a href="{:url('warehouse_fbm_edit', ['id' => $v.id])}" class="layui-btn layui-btn-normal layui-btn-sm">修改主件</a>
+                    </td>
                 </tr>
                 {/foreach}
                 </tbody>
