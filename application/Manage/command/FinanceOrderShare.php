@@ -266,16 +266,16 @@ class FinanceOrderShare extends Command
                     } else {
                         // 无出库
                         $tableObj = new FinanceTableModel();
-                        $userAccount = $tableObj->where(['id' => $item['table_id']])->find();
-                        if (empty($userAccount) || empty($userAccount['userAccount'])) {
+                        $table = $tableObj->find($item['table_id']);
+                        if (empty($table) || empty($table['userAccount'])) {
                             continue; // 无店铺号跳过
                         }
                         $relationObj = new SkuModel();
-                        $skuRelation = $relationObj->with('warehouseSku')->where(['product_sku' => $item['sku'], 'user_account' => $userAccount['userAccount']])->find();
+                        $skuRelation = $relationObj->with('warehouseSku')->where(['product_sku' => $item['sku'], 'user_account' => $table['userAccount']])->find();
                         if (!empty($skuRelation) && count($skuRelation)) {
                             $shareItem = [];
                             foreach ($skuRelation['warehouse_sku'] as $value) {
-                                $fulfillmentData = FinanceOrderShareModel::getWarehouseSkuFulfillment($value['pcr_product_sku'], $item['report_id']);
+                                $fulfillmentData = FinanceOrderShareModel::getWarehouseSkuFulfillment($value['pcr_product_sku'], $table);
                                 $amount = $item['total'];
                                 $shareItem[] = [
                                     'report_id'     =>  $item['report_id'],
@@ -302,7 +302,7 @@ class FinanceOrderShare extends Command
                                 if ($key == count($skuPercent) - 1) {
                                     $value['percent'] = 1 - $percentSum;
                                 }
-                                $fulfillmentData = FinanceOrderShareModel::getWarehouseSkuFulfillment($value['warehouse_sku'], $item['report_id']);
+                                $fulfillmentData = FinanceOrderShareModel::getWarehouseSkuFulfillment($value['warehouse_sku'], $table);
                                 foreach ($fulfillmentData as $k => $v) {
                                     $shareItem[] = [
                                         'report_id'     =>  $item['report_id'],
@@ -360,6 +360,8 @@ ORDER BY
                     if (count($list)) {
                         $shareItem = [];
                         $percentSum = 0;
+                        $tableObj = new FinanceTableModel();
+                        $table = $tableObj->find($item['table_id']);
                         foreach ($list as $key => $value) {
                             $amount = $item['total'];
                             if ($key == count($list) - 1) {
@@ -367,7 +369,7 @@ ORDER BY
                             } else {
                                 $percent = round(1 / count($list), 4);
                             }
-                            $fulfillmentData = FinanceOrderShareModel::getWarehouseSkuFulfillment($value['pcr_product_sku'], $item['report_id']);
+                            $fulfillmentData = FinanceOrderShareModel::getWarehouseSkuFulfillment($value['pcr_product_sku'], $table);
                             if ($fulfillmentData) {
                                 foreach ($fulfillmentData as $k => $v) {
                                     $shareItem[] = [
@@ -443,7 +445,7 @@ LIMIT 50;
                     $table = $tableObj->where(['rid' => $item['report_id'], 'userAccount' => $item['user_account']])->find();
                     $shareItem = [];
                     $amount = $item['total'];
-                    $fulfillmentData = FinanceOrderShareModel::getWarehouseSkuFulfillment($item['warehouse_sku'], $item['report_id']);
+                    $fulfillmentData = FinanceOrderShareModel::getWarehouseSkuFulfillment($item['warehouse_sku'], $table);
                     if ($fulfillmentData) {
                         foreach ($fulfillmentData as $k => $v) {
                             $shareItem[] = [
@@ -602,7 +604,7 @@ SELECT
 	*
 FROM
 	mu_ecang_sku a
-	LEFT JOIN ( SELECT DISTINCT platform, userAccount FROM mu_finance_table WHERE rid = 4 ) b ON a.user_account = b.userAccount
+	LEFT JOIN ( SELECT DISTINCT platform, userAccount FROM mu_finance_table WHERE rid = ' . $item['report_id'] . ' ) b ON a.user_account = b.userAccount
 	LEFT JOIN mu_ecang_sku_relation c ON a.id = c.sku_id
 WHERE
 	b.platform = "' . $item['platform'] . '"
@@ -644,8 +646,20 @@ WHERE
                                 }
                             }
                         } else {
-                            // 无listing TODO
-                            continue;
+                            // 无listing
+                            $shareItem[] = [
+                                'report_id'     =>  $item['report_id'],
+                                'user_account'  =>  '',
+                                'fulfillment'   =>  'FBM',
+                                'cost_type'     =>  'LCADJUSTMENT',
+                                'share_code'    =>  $shareCode,
+                                'payment'       =>  '',
+                                'seller_sku'    =>  '',
+                                'warehouse_sku' =>  $sku,
+                                'amount'        =>  $item['lc_adjustment'],
+                                'percent'       =>  1,
+                                'total'         =>  $item['lc_adjustment']
+                            ];
                         }
 
                     }

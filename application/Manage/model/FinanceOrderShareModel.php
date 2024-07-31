@@ -16,7 +16,7 @@ class FinanceOrderShareModel extends Model
      * @throws PDOException
      * @throws BindParamException
      */
-    static public function getWarehouseSkuFulfillment($warehouseSku, $reportId): array
+    static public function getWarehouseSkuFulfillment($warehouseSku, $table): array
     {
         $model = new FinanceOrderShareModel();
         $data = $model->query('
@@ -28,7 +28,8 @@ FROM
 	LEFT JOIN mu_ecang_order b ON a.saleOrderCode = b.saleOrderCode 
 WHERE
 	a.warehouse_sku = "' . $warehouseSku . '" 
-	AND report_id = ' . $reportId . ' 
+	AND report_id = ' . $table['rid'] . ' 
+	AND a.user_account = "' . $table['userAccount'] . '"
 GROUP BY
 	fulfillmentType;
         ');
@@ -40,7 +41,8 @@ FROM
 	mu_finance_order_outbound
 WHERE
 	warehouse_sku = "' . $warehouseSku . '" 
-	AND report_id = ' . $reportId . ' ;
+	AND report_id = ' . $table['rid'] . ' 
+	AND user_account = "' . $table['userAccount'] . '"
         ');
 
         $returnData = [];

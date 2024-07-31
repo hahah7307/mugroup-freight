@@ -1226,7 +1226,7 @@ FROM
 		userAccount,
 		warehouse_sku 
 	) a 
-	LEFT JOIN mu_finance_sku_relation b ON a.userAccount = b.user_account 
+	LEFT JOIN ( SELECT DISTINCT user_account, warehouse_sku, seller, product_name FROM mu_finance_sku_relation WHERE report_id = ' . $report_id . ' ) b ON a.userAccount = b.user_account 
 	AND a.warehouse_sku = b.warehouse_sku 
 GROUP BY
 	platform,
@@ -1698,7 +1698,7 @@ FROM
 				LEFT JOIN ( SELECT DISTINCT platform, userAccount FROM mu_finance_table WHERE rid = ' . $report_id . ' ) c ON b.user_account = c.userAccount 
 			WHERE
 				a.report_id = ' . $report_id . ' 
-				AND c.platform = "amazon" 
+				AND a.platform = "amazon" 
 				AND lc_adjustment IS NOT NULL UNION ALL
 			SELECT
 				"amazon" AS platform,

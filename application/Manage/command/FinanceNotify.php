@@ -132,9 +132,19 @@ class FinanceNotify extends Command
                         $output->writeln("LiquidationShare Unready");exit();
                     }
 
-                    $additional = $additionalObj->where(['report_id' => $report['id']])->where('share_code', null)->where('promotion', 'not null')->order('id asc')->select();
-                    if (count($additional) > 0) {
-                        $output->writeln("AdditionalShare Unready");exit();
+                    $additionalPromotion = $additionalObj->where(['report_id' => $report['id']])->where('share_code', null)->where('promotion', 'not null')->order('id asc')->select();
+                    if (count($additionalPromotion) > 0) {
+                        $output->writeln("AdditionalPromotionShare Unready");exit();
+                    }
+
+                    $additionalLcAdjustment = $additionalObj->where(['report_id' => $report['id']])->where('share_code', null)->where('lc_adjustment', 'not null')->order('id asc')->select();
+                    if (count($additionalLcAdjustment) > 0) {
+                        $output->writeln("AdditionalLcAdjustmentShare Unready");exit();
+                    }
+
+                    $additionalLeAdjustment = $additionalObj->where(['report_id' => $report['id']])->where('share_code', null)->where('le_adjustment', 'not null')->order('id asc')->select();
+                    if (count($additionalLeAdjustment) > 0) {
+                        $output->writeln("AdditionalLeAdjustmentShare Unready");exit();
                     }
 
                     // 检测无销售的sku仓储费是否归类主件
