@@ -1452,7 +1452,7 @@ FROM
 				NULL AS fbm_refund_other,
 				NULL AS calcuRes,
 				c.sku_ddp_unit * b.qty / d.USD fbm_ddp,
-				b.warehouse_rent,
+				NULL AS warehouse_rent,
 				NULL AS adjustment,
 				NULL AS liquidation,
 				NULL AS promotion,
@@ -1735,13 +1735,13 @@ FROM
 				AND c.platform = "amazon" 
 				AND le_adjustment IS NOT NULL UNION ALL
 			SELECT
-				a.platform,
-				a.user_account userAccount,
+				"amazon" AS platform,
+				b.user_account userAccount,
 				NULL AS payment,
 				NULL AS payment_id,
 				NULL AS saleOrderCode,
 				NULL AS seller_sku,
-				a.sku warehouse_sku,
+				b.warehouse_sku warehouse_sku,
 				NULL AS fbm_sale_qty,
 				NULL AS fbm_refund_qty,
 				NULL AS fbm_sale_amount,
@@ -1752,7 +1752,7 @@ FROM
 				NULL AS fbm_refund_other,
 				NULL AS calcuRes,
 				NULL AS fbm_ddp,
-				ROUND( SUM( a.total / b.qty ), 7 ) warehouse_rent,
+				ROUND( SUM( b.total ), 6 ) warehouse_rent,
 				NULL AS adjustment,
 				NULL AS liquidation,
 				NULL AS promotion,
@@ -1760,55 +1760,16 @@ FROM
 				NULL AS lc_adjustment,
 				NULL AS le_adjustment 
 			FROM
-				(
-				SELECT
-					sku,
-					pcr_product_sku,
-					sku_id,
-					user_account,
-					platform,
-					total 
-				FROM
-					(
-					SELECT DISTINCT
-						main_sku sku,
-						SUM( total ) total 
-					FROM
-						mu_finance_warehouse 
-					WHERE
-						is_sale = 0 
-						AND total > 0 
-						AND report_id = ' . $report_id . ' 
-					GROUP BY
-						main_sku 
-					) a
-					LEFT JOIN mu_ecang_sku_relation b ON a.sku = b.pcr_product_sku
-					LEFT JOIN mu_ecang_sku c ON b.sku_id = c.id
-					LEFT JOIN ( SELECT DISTINCT rid, platform, userAccount FROM mu_finance_table ) d ON c.user_account = d.userAccount 
-				WHERE
-					c.user_account != "" 
-					AND d.rid = ' . $report_id . ' 
-				) a
-				LEFT JOIN (
-				SELECT
-					sku,
-					COUNT( sku ) qty 
-				FROM
-					( SELECT DISTINCT main_sku sku FROM mu_finance_warehouse WHERE is_sale = 0 AND total > 0 AND report_id = ' . $report_id . ' ) a
-					LEFT JOIN mu_ecang_sku_relation b ON a.sku = b.pcr_product_sku
-					LEFT JOIN mu_ecang_sku c ON b.sku_id = c.id
-					LEFT JOIN ( SELECT DISTINCT rid, platform, userAccount FROM mu_finance_table ) d ON c.user_account = d.userAccount 
-				WHERE
-					c.user_account != "" 
-					AND d.rid = ' . $report_id . ' 
-				GROUP BY
-					sku 
-				) b ON a.sku = b.sku 
+				mu_finance_warehouse_fbm a
+				LEFT JOIN mu_finance_order_share b ON a.share_code = b.share_code
+				LEFT JOIN ( SELECT DISTINCT platform, userAccount FROM mu_finance_table WHERE rid = ' . $report_id . ' ) c ON b.user_account = c.userAccount 
 			WHERE
-				platform = "amazon" 
+				a.report_id = ' . $report_id . ' 
+				AND b.report_id = ' . $report_id . '
+				AND ( c.platform = "amazon" OR c.platform IS NULL ) 
 			GROUP BY
 				platform,
-				userAccount,
+				user_account,
 				warehouse_sku 
 			) a 
 		GROUP BY
@@ -1897,7 +1858,7 @@ FROM
 		userAccount,
 		warehouse_sku 
 	) a
-	LEFT JOIN mu_finance_sku_relation b ON a.userAccount = b.user_account 
+	LEFT JOIN ( SELECT DISTINCT user_account, warehouse_sku, seller, product_name FROM mu_finance_sku_relation WHERE report_id = ' . $report_id . ' ) b ON a.userAccount = b.user_account 
 	AND a.warehouse_sku = b.warehouse_sku 
 GROUP BY
 	platform,
@@ -2068,7 +2029,7 @@ FROM
 				NULL AS wfs_tail,
 				c.sku_ddp_unit * b.qty / d.USD ddp,
 				NULL AS adCost,
-				b.warehouse_rent,
+				NULL AS warehouse_rent,
 				NULL AS wfs_warehouse,
 				NULL AS adjustment,
 				NULL AS lc_adjustment,
@@ -2312,12 +2273,12 @@ FROM
 			WHERE
 				report_id = ' . $report_id . ' UNION ALL
 			SELECT
-				a.platform,
-				a.user_account userAccount,
+				"walmart" AS platform,
+				b.user_account userAccount,
 				NULL AS payment_id,
 				NULL AS saleOrderCode,
 				NULL AS seller_sku,
-				a.sku warehouse_sku,
+				b.warehouse_sku warehouse_sku,
 				NULL AS sale_qty,
 				NULL AS refund_qty,
 				NULL AS sale_amount,
@@ -2328,62 +2289,23 @@ FROM
 				NULL AS wfs_tail,
 				NULL AS ddp,
 				NULL AS adCost,
-				ROUND( SUM( a.total / b.qty ), 7 ) warehouse_rent,
+				ROUND( SUM( b.total ), 6 ) warehouse_rent,
 				NULL AS wfs_warehouse,
 				NULL AS adjustment,
 				NULL AS lc_adjustment,
 				NULL AS le_adjustment,
 				NULL AS wfs_adjustment 
 			FROM
-				(
-				SELECT
-					sku,
-					pcr_product_sku,
-					sku_id,
-					user_account,
-					platform,
-					total 
-				FROM
-					(
-					SELECT DISTINCT
-						main_sku sku,
-						SUM( total ) total 
-					FROM
-						mu_finance_warehouse 
-					WHERE
-						is_sale = 0 
-						AND total > 0 
-						AND report_id = ' . $report_id . ' 
-					GROUP BY
-						main_sku 
-					) a
-					LEFT JOIN mu_ecang_sku_relation b ON a.sku = b.pcr_product_sku
-					LEFT JOIN mu_ecang_sku c ON b.sku_id = c.id
-					LEFT JOIN ( SELECT DISTINCT rid, platform, userAccount FROM mu_finance_table ) d ON c.user_account = d.userAccount 
-				WHERE
-					c.user_account != "" 
-					AND d.rid = ' . $report_id . ' 
-				) a
-				LEFT JOIN (
-				SELECT
-					sku,
-					COUNT( sku ) qty 
-				FROM
-					( SELECT DISTINCT main_sku sku FROM mu_finance_warehouse WHERE is_sale = 0 AND total > 0 AND report_id = ' . $report_id . '  ) a
-					LEFT JOIN mu_ecang_sku_relation b ON a.sku = b.pcr_product_sku
-					LEFT JOIN mu_ecang_sku c ON b.sku_id = c.id
-					LEFT JOIN ( SELECT DISTINCT rid, platform, userAccount FROM mu_finance_table ) d ON c.user_account = d.userAccount 
-				WHERE
-					c.user_account != "" 
-					AND d.rid = ' . $report_id . ' 
-				GROUP BY
-					sku 
-				) b ON a.sku = b.sku 
+				mu_finance_warehouse_fbm a
+				LEFT JOIN mu_finance_order_share b ON a.share_code = b.share_code
+				LEFT JOIN ( SELECT DISTINCT platform, userAccount FROM mu_finance_table WHERE rid = ' . $report_id . ' ) c ON b.user_account = c.userAccount 
 			WHERE
-				platform = "walmart" 
+				a.report_id = ' . $report_id . ' 
+				AND b.report_id = ' . $report_id . '
+				AND c.platform = "walmart" 
 			GROUP BY
 				platform,
-				userAccount,
+				user_account,
 				warehouse_sku 
 			) a 
 		GROUP BY
@@ -2458,7 +2380,7 @@ FROM
 		userAccount,
 		warehouse_sku 
 	) a
-	LEFT JOIN mu_finance_sku_relation b ON a.userAccount = b.user_account 
+	LEFT JOIN ( SELECT DISTINCT user_account, warehouse_sku, seller, product_name FROM mu_finance_sku_relation WHERE report_id = ' . $report_id . ' ) b ON a.userAccount = b.user_account 
 	AND a.warehouse_sku = b.warehouse_sku 
 GROUP BY
 	platform,
@@ -2616,7 +2538,7 @@ FROM
 				NULL AS calcuRes,
 				c.sku_ddp_unit * b.qty / d.USD ddp,
 				NULL AS adCost,
-				b.warehouse_rent,
+				NULL AS warehouse_rent,
 				NULL AS adjustment,
 				NULL AS lc_adjustment,
 				NULL AS le_adjustment 
@@ -2755,12 +2677,12 @@ FROM
 				AND c.platform = "wayfair" 
 				AND le_adjustment IS NOT NULL UNION ALL
 			SELECT
-				a.platform,
-				a.user_account userAccount,
+				"wayfair" AS platform,
+				b.user_account userAccount,
 				NULL AS payment_id,
 				NULL AS saleOrderCode,
 				NULL AS seller_sku,
-				a.sku warehouse_sku,
+				b.warehouse_sku warehouse_sku,
 				NULL AS sale_qty,
 				NULL AS refund_qty,
 				NULL AS sale_amount,
@@ -2770,60 +2692,21 @@ FROM
 				NULL AS calcuRes,
 				NULL AS ddp,
 				NULL AS adCost,
-				ROUND( SUM( a.total / b.qty ), 7 ) warehouse_rent,
+				ROUND( SUM( b.total ), 6 ) warehouse_rent,
 				NULL AS adjustment,
 				NULL AS lc_adjustment,
 				NULL AS le_adjustment 
 			FROM
-				(
-				SELECT
-					sku,
-					pcr_product_sku,
-					sku_id,
-					user_account,
-					platform,
-					total 
-				FROM
-					(
-					SELECT DISTINCT
-						main_sku sku,
-						SUM( total ) total 
-					FROM
-						mu_finance_warehouse 
-					WHERE
-						is_sale = 0 
-						AND total > 0 
-						AND report_id = ' . $report_id . ' 
-					GROUP BY
-						main_sku 
-					) a
-					LEFT JOIN mu_ecang_sku_relation b ON a.sku = b.pcr_product_sku
-					LEFT JOIN mu_ecang_sku c ON b.sku_id = c.id
-					LEFT JOIN ( SELECT DISTINCT rid, platform, userAccount FROM mu_finance_table ) d ON c.user_account = d.userAccount 
-				WHERE
-					c.user_account != "" 
-					AND d.rid = ' . $report_id . ' 
-				) a
-				LEFT JOIN (
-				SELECT
-					sku,
-					COUNT( sku ) qty 
-				FROM
-					( SELECT DISTINCT main_sku sku FROM mu_finance_warehouse WHERE is_sale = 0 AND total > 0 AND report_id = ' . $report_id . ' ) a
-					LEFT JOIN mu_ecang_sku_relation b ON a.sku = b.pcr_product_sku
-					LEFT JOIN mu_ecang_sku c ON b.sku_id = c.id
-					LEFT JOIN ( SELECT DISTINCT rid, platform, userAccount FROM mu_finance_table ) d ON c.user_account = d.userAccount 
-				WHERE
-					c.user_account != "" 
-					AND d.rid = ' . $report_id . ' 
-				GROUP BY
-					sku 
-				) b ON a.sku = b.sku 
+				mu_finance_warehouse_fbm a
+				LEFT JOIN mu_finance_order_share b ON a.share_code = b.share_code
+				LEFT JOIN ( SELECT DISTINCT platform, userAccount FROM mu_finance_table WHERE rid = ' . $report_id . ' ) c ON b.user_account = c.userAccount 
 			WHERE
-				platform = "wayfair" 
+				a.report_id = ' . $report_id . ' 
+				AND a.report_id = ' . $report_id . '
+				AND c.platform = "wayfair"
 			GROUP BY
 				platform,
-				userAccount,
+				user_account,
 				warehouse_sku 
 			) a 
 		GROUP BY
@@ -2892,7 +2775,7 @@ FROM
 		userAccount,
 		warehouse_sku 
 	) a
-	LEFT JOIN mu_finance_sku_relation b ON a.userAccount = b.user_account 
+	LEFT JOIN ( SELECT DISTINCT user_account, warehouse_sku, seller, product_name FROM mu_finance_sku_relation WHERE report_id = ' . $report_id . ' ) b ON a.userAccount = b.user_account 
 	AND a.warehouse_sku = b.warehouse_sku 
 GROUP BY
 	platform,
@@ -3050,7 +2933,7 @@ FROM
 				NULL AS calcuRes,
 				c.sku_ddp_unit * b.qty / d.USD ddp,
 				NULL AS adCost,
-				b.warehouse_rent,
+				NULL AS warehouse_rent,
 				NULL AS adjustment,
 				NULL AS lc_adjustment,
 				NULL AS le_adjustment 
@@ -3189,12 +3072,12 @@ FROM
 				AND c.platform = "shein" 
 				AND le_adjustment IS NOT NULL UNION ALL
 			SELECT
-				a.platform,
-				a.user_account userAccount,
+				"shein" AS platform,
+				b.user_account userAccount,
 				NULL AS payment_id,
 				NULL AS saleOrderCode,
 				NULL AS seller_sku,
-				a.sku warehouse_sku,
+				b.warehouse_sku warehouse_sku,
 				NULL AS sale_qty,
 				NULL AS refund_qty,
 				NULL AS sale_amount,
@@ -3204,60 +3087,21 @@ FROM
 				NULL AS calcuRes,
 				NULL AS ddp,
 				NULL AS adCost,
-				ROUND( SUM( a.total / b.qty ), 7 ) warehouse_rent,
+				ROUND( SUM( b.total ), 6 ) warehouse_rent,
 				NULL AS adjustment,
 				NULL AS lc_adjustment,
 				NULL AS le_adjustment 
 			FROM
-				(
-				SELECT
-					sku,
-					pcr_product_sku,
-					sku_id,
-					user_account,
-					platform,
-					total 
-				FROM
-					(
-					SELECT DISTINCT
-						main_sku sku,
-						SUM( total ) total 
-					FROM
-						mu_finance_warehouse 
-					WHERE
-						is_sale = 0 
-						AND total > 0 
-						AND report_id = ' . $report_id . ' 
-					GROUP BY
-						main_sku 
-					) a
-					LEFT JOIN mu_ecang_sku_relation b ON a.sku = b.pcr_product_sku
-					LEFT JOIN mu_ecang_sku c ON b.sku_id = c.id
-					LEFT JOIN ( SELECT DISTINCT rid, platform, userAccount FROM mu_finance_table ) d ON c.user_account = d.userAccount 
-				WHERE
-					c.user_account != "" 
-					AND d.rid = ' . $report_id . ' 
-				) a
-				LEFT JOIN (
-				SELECT
-					sku,
-					COUNT( sku ) qty 
-				FROM
-					( SELECT DISTINCT main_sku sku FROM mu_finance_warehouse WHERE is_sale = 0 AND total > 0 AND report_id = ' . $report_id . ' ) a
-					LEFT JOIN mu_ecang_sku_relation b ON a.sku = b.pcr_product_sku
-					LEFT JOIN mu_ecang_sku c ON b.sku_id = c.id
-					LEFT JOIN ( SELECT DISTINCT rid, platform, userAccount FROM mu_finance_table ) d ON c.user_account = d.userAccount 
-				WHERE
-					c.user_account != "" 
-					AND d.rid = ' . $report_id . ' 
-				GROUP BY
-					sku 
-				) b ON a.sku = b.sku 
+				mu_finance_warehouse_fbm a
+				LEFT JOIN mu_finance_order_share b ON a.share_code = b.share_code
+				LEFT JOIN ( SELECT DISTINCT platform, userAccount FROM mu_finance_table WHERE rid = ' . $report_id . ' ) c ON b.user_account = c.userAccount 
 			WHERE
-				platform = "shein" 
+				a.report_id = ' . $report_id . ' 
+				AND b.report_id = ' . $report_id . '
+				AND c.platform = "shein"
 			GROUP BY
 				platform,
-				userAccount,
+				user_account,
 				warehouse_sku 
 			) a 
 		GROUP BY
@@ -3326,7 +3170,7 @@ FROM
 		userAccount,
 		warehouse_sku 
 	) a
-	LEFT JOIN mu_finance_sku_relation b ON a.userAccount = b.user_account 
+	LEFT JOIN ( SELECT DISTINCT user_account, warehouse_sku, seller, product_name FROM mu_finance_sku_relation WHERE report_id = ' . $report_id . ' ) b ON a.userAccount = b.user_account 
 	AND a.warehouse_sku = b.warehouse_sku 
 GROUP BY
 	platform,

@@ -34,7 +34,6 @@
                     <col width="140">
                     <col>
                     <col>
-                    <col>
                     <col width="80">
                 </colgroup>
                 <thead>
@@ -52,7 +51,6 @@
                     <th>发货时间</th>
                     <th>数量</th>
                     <th>DDP</th>
-                    <th>仓储费</th>
                     <th class="tc">核算DDP</th>
                 </tr>
                 </thead>
@@ -72,7 +70,6 @@
                     <td>{$v.shipping_time}</td>
                     <td class="tr">{$v.qty}</td>
                     <td class="tr">{$v.store.sku_ddp_unit}</td>
-                    <td class="tr">{$v.warehouse_rent}</td>
                     <td class="tc">
                         {if condition="$v.is_notify eq 0"}
                             <p class="blue">待核算</p>

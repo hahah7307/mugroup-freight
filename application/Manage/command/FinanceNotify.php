@@ -10,7 +10,9 @@ use app\Manage\model\FinanceOrderRefundModel;
 use app\Manage\model\FinanceOrderSaleModel;
 use app\Manage\model\FinanceOrderShippingServiceModel;
 use app\Manage\model\FinanceReportModel;
+use app\Manage\model\FinanceSkuRelationModel;
 use app\Manage\model\FinanceStoreModel;
+use app\Manage\model\FinanceWarehouseFbmModel;
 use app\Manage\model\FinanceWarehouseModel;
 use Exception;
 use think\Cache;
@@ -93,6 +95,13 @@ class FinanceNotify extends Command
                         $output->writeln("Store Unready");exit();
                     }
 
+                    // 检测产品与运营的映射关系是否导入
+                    $financeSkuRelationObj = new FinanceSkuRelationModel();
+                    $skuRelation = $financeSkuRelationObj->where(['report_id' => $report['id']])->order('id asc')->select();
+                    if (count($skuRelation) == 0) {
+                        $output->writeln("SkuRelation Unready");exit();
+                    }
+
                     // 检测出库数据是否完全关联ddp和仓储费分摊
                     $financeOutboundObj = new FinanceOrderOutboundModel();
                     $outbound = $financeOutboundObj->where(['report_id' => $report['id']])->where(['is_notify' => 0])->order('shipping_time asc')->select();
@@ -129,9 +138,15 @@ class FinanceNotify extends Command
                     }
 
                     // 检测无销售的sku仓储费是否归类主件
-                    $noSaleWarehouse = $warehouseObj->where(['is_sale' => 0])->where('main_sku', null)->order('id asc')->select();
-                    if (count($noSaleWarehouse) > 0) {
-                        $output->writeln("WarehouseMainSku Unready");exit();
+                    $warehouseFbmObj = new FinanceWarehouseFbmModel();
+                    $WarehouseFbmMainSku = $warehouseFbmObj->where('main_sku', null)->order('id asc')->select();
+                    if (count($WarehouseFbmMainSku) > 0) {
+                        $output->writeln("WarehouseFbmMainSku Unready");exit();
+                    }
+
+                    $WarehouseFbmShare = $warehouseFbmObj->where('share_code', null)->order('id asc')->select();
+                    if (count($WarehouseFbmShare) > 0) {
+                        $output->writeln("WarehouseFbmShare Unready");exit();
                     }
 
                     $financeReportObj->save(['is_notify' => 1], ['id' => $report['id']]);

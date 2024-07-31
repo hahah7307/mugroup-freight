@@ -53,10 +53,10 @@ class FinanceWarehouseNotify extends Command
 
         $financeOutboundObj = new FinanceOrderOutboundModel();
         $financeWarehouseFbmObj = new FinanceWarehouseFbmModel();
-//        $outbound = $financeOutboundObj->where(['is_notify' => 0])->select();
-//        if (count($outbound) > 0) {
-//            $output->writeln("OutboundNotify Unready");exit();
-//        } else {
+        $outbound = $financeOutboundObj->where(['is_notify' => 0])->select();
+        if (count($outbound) > 0) {
+            $output->writeln("OutboundNotify Unready");exit();
+        } else {
             Db::startTrans();
             try {
                 $list = $financeWarehouseFbmObj->where('share_code', null)->limit(50)->order('id asc')->select();
@@ -341,7 +341,7 @@ WHERE
                 Db::rollback();
                 $output->writeln($e->getMessage());
             }
-//        }
+        }
     }
 
     /**

@@ -149,7 +149,7 @@ class FinanceController extends BaseController
         }
 
         $saleRefund = $financeReportObj->query(FinanceReportModel::getSaleRefundSql($report_id));
-        $warehouseSku = $financeReportObj->query(FinanceReportModel::getWarehouseSkuSql($report_id, $report['month']));
+//        $warehouseSku = $financeReportObj->query(FinanceReportModel::getWarehouseSkuSql($report_id, $report['month']));
         $warehouseRent = $financeReportObj->query(FinanceReportModel::getWarehouseRentSql($report_id));
         $paymentNoOutbound = $financeReportObj->query(FinanceReportModel::getPaymentNoOutboundSql($report_id));
         $fbaWarehouseSku = $financeReportObj->query(FinanceReportModel::getFbaWarehouseSkuSql($report_id, $report['month']));
@@ -1431,10 +1431,13 @@ ORDER BY
                 $liquidationObj = new FinanceOrderLiquidationModel();
                 $liquidationObj->where(['report_id' => $reportId])->update(['share_code' => null]);
 
-                $promotionObj = new FinanceOrderAdditionalModel();
-                $promotionObj->where(['report_id' => $reportId])->where('promotion', 'not null')->update(['share_code' => null]);
-                $promotionObj->where(['report_id' => $reportId])->where('lc_adjustment', 'not null')->update(['share_code' => null]);
-                $promotionObj->where(['report_id' => $reportId])->where('le_adjustment', 'not null')->update(['share_code' => null]);
+                $warehouseFbmObj = new FinanceWarehouseFbmModel();
+                $warehouseFbmObj->where(['report_id' => $reportId])->update(['share_code' => null]);
+
+                $additionalObj = new FinanceOrderAdditionalModel();
+                $additionalObj->where(['report_id' => $reportId])->where('promotion', 'not null')->update(['share_code' => null]);
+                $additionalObj->where(['report_id' => $reportId])->where('lc_adjustment', 'not null')->update(['share_code' => null]);
+                $additionalObj->where(['report_id' => $reportId])->where('le_adjustment', 'not null')->update(['share_code' => null]);
 
                 $financeReportObj = new FinanceReportModel();
                 $financeReportObj->save(['is_notify' => 0], ['id' => $reportId]);
