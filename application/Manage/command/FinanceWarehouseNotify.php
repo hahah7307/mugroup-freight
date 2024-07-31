@@ -52,6 +52,7 @@ class FinanceWarehouseNotify extends Command
             $output->writeln("Shein Unready");exit();
         }
 
+        $financeOutboundObj = new FinanceOrderOutboundModel();
         $financeWarehouseFbmObj = new FinanceWarehouseFbmModel();
         Db::startTrans();
         try {
@@ -60,6 +61,11 @@ class FinanceWarehouseNotify extends Command
                 $updateData = [];
                 $shareData = [];
                 foreach ($list as $item) {
+                    // 无出库数据先不分摊费用
+                    $outbound = $financeOutboundObj->where(['report_id' => $item['report_id']])->select();
+                    if (count($outbound) <= 0) {
+                        continue;
+                    }
                     $shareCode = self::generateRandomCode(16);
                     // 自定义仓储费的主件sku，如果已经有或者已调整，按已存在的sku计算逻辑
                     $sku = $item['sku'];

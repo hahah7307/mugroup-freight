@@ -4,6 +4,7 @@ namespace app\Manage\command;
 use app\Manage\model\FinanceOrderAdditionalModel;
 use app\Manage\model\FinanceOrderAdjustmentModel;
 use app\Manage\model\FinanceOrderLiquidationModel;
+use app\Manage\model\FinanceOrderOutboundModel;
 use app\Manage\model\FinanceOrderRefundModel;
 use app\Manage\model\FinanceOrderSaleModel;
 use app\Manage\model\FinanceOrderShareModel;
@@ -61,6 +62,7 @@ class FinanceOrderShare extends Command
 
         Db::startTrans();
         try {
+            $financeOutboundObj = new FinanceOrderOutboundModel();
             $financeOrderShareObj = new FinanceOrderShareModel();
             // 退款分摊
             $financeOrderRefundObj = new FinanceOrderRefundModel();
@@ -69,6 +71,11 @@ class FinanceOrderShare extends Command
                 // 判断是否出库
                 $orderStatisticObj = new FinanceOrderStatisticsModel();
                 foreach ($list as $item) {
+                    // 无出库数据先不分摊费用
+                    $outbound = $financeOutboundObj->where(['report_id' => $item['report_id']])->select();
+                    if (count($outbound) <= 0) {
+                        continue;
+                    }
                     $fulfillment = $item['fulfillment'] == 'Amazon' ? 'FBA' : 'FBM';
                     $shareCode = self::generateRandomCode(16);
                     $statistic = $orderStatisticObj->where(['payment_id' => $item['payment_id'], 'platform_sku' => $item['sku']])->select();
@@ -174,6 +181,11 @@ class FinanceOrderShare extends Command
             if (count($shipping)) {
                 $orderStatisticObj = new FinanceOrderStatisticsModel();
                 foreach ($shipping as $item) {
+                    // 无出库数据先不分摊费用
+                    $outbound = $financeOutboundObj->where(['report_id' => $item['report_id']])->select();
+                    if (count($outbound) <= 0) {
+                        continue;
+                    }
                     $orderModel = new OrderModel();
                     $order = $orderModel->where(['saleOrderCode' => $item['payment_id']])->find();
                     $fulfillment = $order['fulfillmentType'] == 1 ? 'FBA' : 'FBM';
@@ -236,6 +248,11 @@ class FinanceOrderShare extends Command
                 $orderModel = new OrderModel();
                 $orderStatisticObj = new FinanceOrderStatisticsModel();
                 foreach ($adjustment as $item) {
+                    // 无出库数据先不分摊费用
+                    $outbound = $financeOutboundObj->where(['report_id' => $item['report_id']])->select();
+                    if (count($outbound) <= 0) {
+                        continue;
+                    }
                     $order = $orderModel->where(['saleOrderCode' => $item['payment_id']])->find();
                     $fulfillment = $order['fulfillmentType'] == 1 ? 'FBA' : 'FBM';
                     $shareCode = self::generateRandomCode(16);
@@ -334,6 +351,11 @@ class FinanceOrderShare extends Command
             if (count($liquidation)) {
                 $orderStatisticObj = new FinanceOrderStatisticsModel();
                 foreach ($liquidation as $item) {
+                    // 无出库数据先不分摊费用
+                    $outbound = $financeOutboundObj->where(['report_id' => $item['report_id']])->select();
+                    if (count($outbound) <= 0) {
+                        continue;
+                    }
                     $shareCode = self::generateRandomCode(16);
                     $list = $orderStatisticObj->query('
 SELECT
@@ -440,6 +462,11 @@ LIMIT 50;
             ');
             if (count($promotion)) {
                 foreach ($promotion as $item) {
+                    // 无出库数据先不分摊费用
+                    $outbound = $financeOutboundObj->where(['report_id' => $item['report_id']])->select();
+                    if (count($outbound) <= 0) {
+                        continue;
+                    }
                     $shareCode = self::generateRandomCode(16);
                     $tableObj = new FinanceTableModel();
                     $table = $tableObj->where(['rid' => $item['report_id'], 'userAccount' => $item['user_account']])->find();
@@ -489,6 +516,11 @@ LIMIT 50;
             $leAdjustment = $additionalModel->where('le_adjustment', 'not null')->where('share_code', 'null')->limit(50)->select();
             if (count($leAdjustment)) {
                 foreach ($leAdjustment as $item) {
+                    // 无出库数据先不分摊费用
+                    $outbound = $financeOutboundObj->where(['report_id' => $item['report_id']])->select();
+                    if (count($outbound) <= 0) {
+                        continue;
+                    }
                     $shareCode = self::generateRandomCode(16);
                     $shareItem = [];
                     $sku = self::getMainSku($item['warehouse_sku']);
@@ -575,6 +607,11 @@ WHERE
             $lcAdjustment = $additionalModel->where('lc_adjustment', 'not null')->where('share_code', 'null')->limit(50)->select();
             if (count($lcAdjustment)) {
                 foreach ($lcAdjustment as $item) {
+                    // 无出库数据先不分摊费用
+                    $outbound = $financeOutboundObj->where(['report_id' => $item['report_id']])->select();
+                    if (count($outbound) <= 0) {
+                        continue;
+                    }
                     $shareCode = self::generateRandomCode(16);
                     $shareItem = [];
                     $sku = self::getMainSku($item['warehouse_sku']);
