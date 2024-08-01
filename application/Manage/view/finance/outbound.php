@@ -32,6 +32,7 @@
                     <col>
                     <col>
                     <col width="140">
+                    <col width="140">
                     <col>
                     <col>
                     <col width="80">
@@ -39,34 +40,36 @@
                 <thead>
                 <tr>
                     <th>ID</th>
+                    <th>平台</th>
+                    <th>店铺名</th>
                     <th>参考单号</th>
                     <th>Payment</th>
                     <th>外销合同号</th>
                     <th>采购单号</th>
-                    <th>平台</th>
-                    <th>店铺名</th>
                     <th>店铺SKU</th>
                     <th>仓库SKU</th>
                     <th>发货方式</th>
+                    <th>支付时间</th>
                     <th>发货时间</th>
                     <th>数量</th>
                     <th>DDP</th>
-                    <th class="tc">核算DDP</th>
+                    <th class="tc">是否核算</th>
                 </tr>
                 </thead>
                 <tbody>
                 {foreach name="list" item="v"}
                 <tr>
                     <td class="tr">{$v.id}</td>
+                    <td>{$v.platform}</td>
+                    <td>{$v.user_account}</td>
                     <td>{$v.saleOrderCode}</td>
                     <td>{$v.payment_id}</td>
                     <td>{$v.store.export_no}</td>
                     <td>{$v.store.content}</td>
-                    <td>{$v.sale_order_code.platform}</td>
-                    <td>{$v.sale_order_code.userAccount}</td>
                     <td>{$v.seller_sku}</td>
                     <td>{$v.warehouse_sku}</td>
                     <td>{$v.fulfillment}</td>
+                    <td>{$v.paid_time}</td>
                     <td>{$v.shipping_time}</td>
                     <td class="tr">{$v.qty}</td>
                     <td class="tr">{$v.store.sku_ddp_unit}</td>

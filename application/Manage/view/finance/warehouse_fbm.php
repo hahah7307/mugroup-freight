@@ -66,65 +66,10 @@
     </div>
 </div>
 <script>
-    layui.use(['form', 'jquery', 'upload', 'laydate'], function(){
+    layui.use(['form', 'jquery'], function(){
         let $ = layui.jquery,
-            form = layui.form,
-            upload = layui.upload,
-            laydate = layui.laydate;
+            form = layui.form;
 
-        // 上传
-        let uploadInst = upload.render({
-            elem: '#excel' //绑定元素
-            ,url: '/Manage/upload/file_upload' //上传接口
-            ,exts: 'xls|xlsx|csv'
-            ,multiple: true
-            ,before: function (obj){
-                layer.load(1);
-            }
-            ,done: function(res){
-                //上传完毕回调
-                if (res.code === 1) {
-                    location.href = "/Manage/Finance/warehouse_import/id/{$report_id}/filename/" + res.data + "/origin/" + res.origin;
-                } else {
-                    layer.alert(res.msg,{icon:2,closeBtn:0,title:false,btnAlign:'c'},function(){
-                        layer.closeAll();
-                    });
-                }
-            }
-            ,error: function(){
-                //请求异常回调
-            }
-        });
-
-        // 删除
-        form.on('submit(Detele)', function(data){
-            var text = $(this).text(),
-                button = $(this),
-                id = $(this).data('id');
-            layer.confirm('确定清空仓储费列表吗？',{icon:3,closeBtn:0,title:false,btnAlign:'c'},function(){
-                $('button').attr('disabled',true);
-                button.text('请稍候...');
-                axios.post("{:url('warehouse_empty')}", {id:id})
-                    .then(function (response) {
-                        var res = response.data;
-                        if (res.code === 1) {
-                            layer.alert(res.msg,{icon:1,closeBtn:0,title:false,btnAlign:'c',},function(){
-                                location.reload();
-                            });
-                        } else {
-                            layer.alert(res.msg,{icon:2,closeBtn:0,title:false,btnAlign:'c'},function(){
-                                layer.closeAll();
-                                $('button').attr('disabled',false);
-                                button.text(text);
-                            });
-                        }
-                    })
-                    .catch(function (error) {
-                        console.log(error);
-                    });
-                return false;
-            });
-        });
     });
 </script>
 

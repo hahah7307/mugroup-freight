@@ -101,11 +101,10 @@
     </div>
 </div>
 <script>
-    layui.use(['form', 'jquery', 'upload', 'laydate'], function(){
+    layui.use(['form', 'jquery', 'upload'], function(){
         let $ = layui.jquery,
             form = layui.form,
-            upload = layui.upload,
-            laydate = layui.laydate;
+            upload = layui.upload;
 
         // 上传
         let uploadInst = upload.render({
