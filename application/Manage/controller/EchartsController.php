@@ -45,11 +45,11 @@ GROUP BY
 ORDER BY
 	value DESC;
         ');
+        $sum = array_sum(array_column($list, 'value'));
+        $this->assign('sum', empty($sum) ? 100 : $sum);
         $this->assign('list', json_encode($list));
 
-        $quantity = input('quantity', $list[0]['value']);
-//        dump($list[0]['value']);exit();
-//        $quantity = empty($quantity) ? $list[0]['value'] : 500;
+        $quantity = input('quantity', empty($list[0]['value']) ? 500 : $list[0]['value']);
         $this->assign('quantity', $quantity);
 
         return view();

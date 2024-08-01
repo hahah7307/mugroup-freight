@@ -189,7 +189,16 @@
                                     fontsize: 12,
                                     show: true,
                                     position: 'inner',
-                                    formatter: '{b}'
+                                    formatter: function(params) {
+                                        // 假设我们有一个总数为100的数据集
+                                        let total = {$sum};
+                                        // 计算当前项的百分比
+                                        let value = typeof params.data == 'undefined' ? 0 : params.value;
+                                        let percent = value / total * 100;
+                                        // 格式化百分比，保留两位小数
+                                        percent = percent.toFixed(2) + '%';
+                                        return params.name + '(' + percent + ')';
+                                    }
                                 }
                             }
                         },
