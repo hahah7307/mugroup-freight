@@ -49,7 +49,7 @@ ORDER BY
         $this->assign('sum', empty($sum) ? 100 : $sum);
         $this->assign('list', json_encode($list));
 
-        $quantity = input('quantity', empty($list[0]['value']) ? 500 : $list[0]['value']);
+        $quantity = empty($list[0]['value']) ? 0 : $list[0]['value'];
         $this->assign('quantity', $quantity);
 
         return view();

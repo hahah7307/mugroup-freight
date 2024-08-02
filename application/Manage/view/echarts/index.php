@@ -25,7 +25,7 @@
             <div class="layui-form-item">
                 <label class="layui-form-label">参考数量</label>
                 <div class="layui-input-inline w300">
-                    <input type="text" class="layui-input" name="quantity" value="{$quantity}" placeholder="请填写参考数量">
+                    <input type="text" class="layui-input" value="{$quantity}" disabled>
                 </div>
             </div>
             {foreach name="sku" item="v" key="k"}
