@@ -149,7 +149,7 @@
         const category_1 = echarts.init(document.getElementById("main_1"));
         category_1.setOption({
             title: {
-                text: 'Sku个数增减饼状图',
+                text: 'Sku个数增减饼状图（环比上月）',
                 // subtext: 'Fake Data',
                 left: 'center'
             },
@@ -188,7 +188,7 @@
         const category_2 = echarts.init(document.getElementById("main_2"));
         category_2.setOption({
             title: {
-                text: '销售数量增减饼状图',
+                text: '销售数量增减饼状图（环比上月）',
                 // subtext: 'Fake Data',
                 left: 'center'
             },
