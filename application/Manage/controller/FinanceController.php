@@ -1368,6 +1368,7 @@ SELECT SUM(available_quantity * sku_ddp_unit) sum FROM mu_finance_store WHERE re
                 $sql = "
 SELECT DISTINCT
 	a.report_id,
+	a.table_id,
 	b.platform,
 	b.user_account,
 	b.payment_id,

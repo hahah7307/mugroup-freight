@@ -31,6 +31,7 @@
                     <col>
                     <col>
                     <col>
+                    <col>
                     <col width="140">
                     <col width="140">
                     <col>
@@ -40,6 +41,7 @@
                 <thead>
                 <tr>
                     <th>ID</th>
+                    <th>账单ID</th>
                     <th>平台</th>
                     <th>店铺名</th>
                     <th>参考单号</th>
@@ -60,6 +62,7 @@
                 {foreach name="list" item="v"}
                 <tr>
                     <td class="tr">{$v.id}</td>
+                    <td class="tr">{$v.table_id}</td>
                     <td>{$v.platform}</td>
                     <td>{$v.user_account}</td>
                     <td>{$v.saleOrderCode}</td>
