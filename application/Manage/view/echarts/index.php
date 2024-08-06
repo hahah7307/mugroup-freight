@@ -3,6 +3,22 @@
 <style>
     .right {min-width: 480px; width: 480px}
     #USAMap {z-index: 99999999}
+    @media (min-width : 1920px) {
+        #USAMap {
+            width: 1800px;
+            height: 1200px;
+            margin-left: 720px;
+            z-index: 99999999
+        }
+    }
+    @media (max-width : 1920px) {
+        #USAMap {
+            width: 1150px;
+            height: 900px;
+            margin-left: 720px;
+            z-index: 99999999
+        }
+    }
 </style>
 <script src="/static/echarts/dist/echarts.min.js"></script>
 <script src="/static/echarts/test/lib/jquery.min.js"></script>
@@ -49,7 +65,7 @@
         </form>
     </div>
 </div>
-<div id="USAMap" style="width: 1800px;height:1200px;margin-left: 720px"></div>
+<div id="USAMap"></div>
 
 <script>
     layui.use(['form', 'jquery', 'laydate'], function(){
