@@ -5,19 +5,15 @@ use app\Manage\model\FinanceOrderAdditionalModel;
 use app\Manage\model\FinanceOrderAdjustmentModel;
 use app\Manage\model\FinanceOrderLiquidationModel;
 use app\Manage\model\FinanceOrderOutboundModel;
-use app\Manage\model\FinanceOrderRefundModel;
-use app\Manage\model\FinanceOrderSaleModel;
 use app\Manage\model\FinanceOrderShareModel;
+use app\Manage\model\FinanceOrderShareValidate;
 use app\Manage\model\FinanceOrderShippingServiceModel;
 use app\Manage\model\FinanceOrderStatisticsModel;
+use app\Manage\model\FinanceReportModel;
 use app\Manage\model\FinanceTableModel;
 use app\Manage\model\OrderDetailModel;
 use app\Manage\model\OrderModel;
-use app\Manage\model\ProductModel;
-use app\Manage\model\SkuModel;
 use Exception;
-use think\Cache;
-use think\Config;
 use think\console\Command;
 use think\console\Input;
 use think\console\Output;
@@ -40,406 +36,41 @@ class FinanceOrderShare extends Command
      */
     protected function execute(Input $input, Output $output)
     {
-        // 加载自定义配置
-        Config::load(APP_PATH . 'storage.php');
-
-        // 检测wayfair订单是否校验完毕
-        $wayfairOrder = Cache::get('wayfairOrder');
-        if (!empty($wayfairOrder)) {
-            $output->writeln("Wayfair Unready");exit();
-        }
-
-        // 检测shein订单是否校验完毕
-        $orderSaleObj = new FinanceOrderSaleModel();
-        $sheinOrder = $orderSaleObj->where('sku', null)->where(['payment_id' => [['like', 'GSUN%']]])->select();
-        $financeOrderRefundObj = new FinanceOrderRefundModel();
-        $sheinRefund = $financeOrderRefundObj->where('sku', null)->where(['payment_id' => [['like', 'GSUN%']]])->select();
-        $financeOrderAdjustmentObj = new FinanceOrderAdjustmentModel();
-        $sheinAdjustment = $financeOrderAdjustmentObj->where('sku', null)->where(['payment_id' => [['like', 'GSUN%']]])->select();
-        if (count($sheinOrder) + count($sheinRefund) + count($sheinAdjustment) > 0) {
-            $output->writeln("Shein Unready");exit();
+        if (!FinanceOrderShareValidate::CompleteWayfairOrder() || !FinanceOrderShareValidate::CompleteSheinOrder()) {
+            exit();
         }
 
         Db::startTrans();
         try {
-            $financeOutboundObj = new FinanceOrderOutboundModel();
-            $financeOrderShareObj = new FinanceOrderShareModel();
-            // 退款分摊
-            $financeOrderRefundObj = new FinanceOrderRefundModel();
-            $list = $financeOrderRefundObj->where('share_code', null)->order('id asc')->limit(100)->select();
-            if (count($list)) {
-                // 判断是否出库
-                $orderStatisticObj = new FinanceOrderStatisticsModel();
-                foreach ($list as $item) {
-                    // 无出库数据先不分摊费用
-                    $outbound = $financeOutboundObj->where(['report_id' => $item['report_id']])->select();
-                    if (count($outbound) <= 0) {
-                        continue;
-                    }
-                    $fulfillment = $item['fulfillment'] == 'Amazon' ? 'FBA' : 'FBM';
-                    $shareCode = self::generateRandomCode(16);
-                    $statistic = $orderStatisticObj->where(['payment_id' => $item['payment_id'], 'platform_sku' => $item['sku']])->select();
-                    if (count($statistic)) {
-                        // 有实际出库信息，且出库sku对应
-                        $shareItem = [];
-                        $amountSum = 0;
-                        foreach ($statistic as $value) {
-                            $amount = $item['product_sales'] + $item['shipping_credits'] + $item['gift_wrap_credits'] + $item['regulatory_fee'] + $item['promotional_rebates'];
-                            $restAmount = $amount - $amountSum;
-                            $total = count($statistic) == 1 ? $restAmount : min($value['sale_amount'], $restAmount);
-                            $percent = $amount == 0 ? 1 : round($total / $amount, 5);
-                            $shareItem[] = [
-                                'report_id'     =>  $item['report_id'],
-                                'table_id'      =>  $item['table_id'],
-                                'fulfillment'   =>  $fulfillment,
-                                'cost_type'     =>  'REFUND',
-                                'share_code'    =>  $shareCode,
-                                'payment'       =>  $item['payment_id'],
-                                'seller_sku'    =>  $item['sku'],
-                                'warehouse_sku' =>  $value['warehouse_sku'],
-                                'amount'        =>  $amount,
-                                'percent'       =>  min($percent, 1),
-                                'total'         =>  $total
-                            ];
-                            $amountSum += $total;
-                        }
-                        if ($financeOrderShareObj->insertAll($shareItem)) {
-                            $financeOrderRefundObj->update(['share_code' => $shareCode], ['id' => $item['id']]);
-                        }
-                    } else {
-                        $statistic = $orderStatisticObj->where(['payment_id' => $item['payment_id']])->select();
-                        if (count($statistic)) {
-                            // 有实际出库，但seller sku不对应
-                            $shareItem = [];
-                            $amountSum = 0;
-                            foreach ($statistic as $value) {
-                                $amount = $item['product_sales'] + $item['shipping_credits'] + $item['gift_wrap_credits'] + $item['regulatory_fee'] + $item['promotional_rebates'];
-                                $restAmount = $amount - $amountSum;
-                                $total = count($statistic) == 1 ? $restAmount : min($value['sale_amount'], $restAmount);
-                                $percent = $amount == 0 ? 1 : round($total / $amount, 5);
-                                $shareItem[] = [
-                                    'report_id'     =>  $item['report_id'],
-                                    'table_id'      =>  $item['table_id'],
-                                    'fulfillment'   =>  $fulfillment,
-                                    'cost_type'     =>  'REFUND',
-                                    'share_code'    =>  $shareCode,
-                                    'payment'       =>  $item['payment_id'],
-                                    'seller_sku'    =>  $item['sku'],
-                                    'warehouse_sku' =>  $value['warehouse_sku'],
-                                    'amount'        =>  $amount,
-                                    'percent'       =>  min($percent, 1),
-                                    'total'         =>  $total
-                                ];
-                                $amountSum += $total;
-                            }
-                            if ($financeOrderShareObj->insertAll($shareItem)) {
-                                $financeOrderRefundObj->update(['share_code' => $shareCode], ['id' => $item['id']]);
-                            }
-                        } else {
-                            // 无出库记录
-                            $tableObj = new FinanceTableModel();
-                            $userAccount = $tableObj->where(['id' => $item['table_id']])->find();
-                            if (empty($userAccount) || empty($userAccount['userAccount'])) {
-                                continue; // 无店铺号跳过
-                            }
-                            $relationObj = new SkuModel();
-                            $skuRelation = $relationObj->with('warehouseSku')->where(['product_sku' => $item['sku'], 'user_account' => $userAccount['userAccount']])->find();
-                            if (!empty($skuRelation) && count($skuRelation)) {
-                                $shareItem = [];
-                                foreach ($skuRelation['warehouse_sku'] as $value) {
-                                    $amount = $item['product_sales'] + $item['shipping_credits'] + $item['gift_wrap_credits'] + $item['regulatory_fee'] + $item['promotional_rebates'];
-                                    $shareItem[] = [
-                                        'report_id'     =>  $item['report_id'],
-                                        'table_id'      =>  $item['table_id'],
-                                        'fulfillment'   =>  $fulfillment,
-                                        'cost_type'     =>  'REFUND',
-                                        'share_code'    =>  $shareCode,
-                                        'payment'       =>  $item['payment_id'],
-                                        'seller_sku'    =>  $item['sku'],
-                                        'warehouse_sku' =>  $value['pcr_product_sku'],
-                                        'amount'        =>  $amount,
-                                        'percent'       =>  $value['pcr_percent'] / 100,
-                                        'total'         =>  $amount * $value['pcr_percent'] / 100
-                                    ];
-                                }
-                                if ($financeOrderShareObj->insertAll($shareItem)) {
-                                    $financeOrderRefundObj->update(['share_code' => $shareCode], ['id' => $item['id']]);
-                                }
-                            } else {
-                                // 无sku映射先跳过 TODO
-                                continue;
+            self::promotionShare();
+            self::shippingServiceShare();
+            self::liquidationShare();
+            self::adjustmentShare();
+            self::warehouseAdjustmentShare();
 
-                            }
-                        }
-                    }
-                }
-            }
+            Db::commit();
+            $output->writeln("success");
+        } catch (\Exception $e) {
+            dump($e->getMessage());
+            Db::rollback();
+            $output->writeln($e->getMessage());
+        }
+    }
 
-            // 退运费分摊
-            $financeOrderShippingObj = new FinanceOrderShippingServiceModel();
-            $shipping = $financeOrderShippingObj->where('share_code', null)->order('id asc')->limit(100)->select();
-            if (count($shipping)) {
-                $orderStatisticObj = new FinanceOrderStatisticsModel();
-                foreach ($shipping as $item) {
-                    // 无出库数据先不分摊费用
-                    $outbound = $financeOutboundObj->where(['report_id' => $item['report_id']])->select();
-                    if (count($outbound) <= 0) {
-                        continue;
-                    }
-                    $orderModel = new OrderModel();
-                    $order = $orderModel->where(['saleOrderCode' => $item['payment_id']])->find();
-                    $fulfillment = $order['fulfillmentType'] == 1 ? 'FBA' : 'FBM';
-                    $shareCode = self::generateRandomCode(16);
-                    $statistic = $orderStatisticObj->where(['payment_id' => $item['payment_id']])->select();
-                    $shareItem = [];
-                    if (count($statistic)) {
-                        $amountSum = 0;
-                        foreach ($statistic as $value) {
-                            $amount = $item['total'];
-                            $restAmount = $amount - $amountSum;
-                            $total = count($statistic) == 1 ? $restAmount : min($value['sale_amount'], $restAmount);
-                            $percent = $amount == 0 ? 1 : round($total / $amount, 5);
-                            $shareItem[] = [
-                                'report_id'     =>  $item['report_id'],
-                                'table_id'      =>  $item['table_id'],
-                                'fulfillment'   =>  $fulfillment,
-                                'cost_type'     =>  'SHIPPING',
-                                'share_code'    =>  $shareCode,
-                                'payment'       =>  $item['payment_id'],
-                                'seller_sku'    =>  $item['sku'],
-                                'warehouse_sku' =>  $value['warehouse_sku'],
-                                'amount'        =>  $amount,
-                                'percent'       =>  min($percent, 1),
-                                'total'         =>  $total
-                            ];
-                            $amountSum += $total;
-                        }
-                    } else {
-                        // 无出库
-                        $orderDetailObj = new OrderDetailModel();
-                        $orderDetail = $orderDetailObj->where(['order_id' => $order['id']])->find();
-                        if ($orderDetail) {
-                            $amount = $item['total'];
-                            $shareItem[] = [
-                                'report_id'     => $item['report_id'],
-                                'table_id'      => $item['table_id'],
-                                'fulfillment'   => 'FBM',
-                                'cost_type'     => 'SHIPPING',
-                                'share_code'    => $shareCode,
-                                'payment'       => $item['payment_id'],
-                                'seller_sku'    => $item['sku'],
-                                'warehouse_sku' => $orderDetail['warehouseSku'],
-                                'amount'        => $amount,
-                                'percent'       => 1,
-                                'total'         => $amount
-                            ];
-                        }
-                    }
-                    if ($financeOrderShareObj->insertAll($shareItem)) {
-                        $financeOrderShippingObj->update(['share_code' => $shareCode], ['id' => $item['id']]);
-                    }
-                }
-            }
-
-            // 调整分摊
-            $financeOrderAdjustmentObj = new FinanceOrderAdjustmentModel();
-            $adjustment = $financeOrderAdjustmentObj->where('share_code', null)->order('id asc')->limit(100)->select();
-            if (count($adjustment)) {
-                $orderModel = new OrderModel();
-                $orderStatisticObj = new FinanceOrderStatisticsModel();
-                foreach ($adjustment as $item) {
-                    // 无出库数据先不分摊费用
-                    $outbound = $financeOutboundObj->where(['report_id' => $item['report_id']])->select();
-                    if (count($outbound) <= 0) {
-                        continue;
-                    }
-                    $order = $orderModel->where(['saleOrderCode' => $item['payment_id']])->find();
-                    $fulfillment = $order['fulfillmentType'] == 1 ? 'FBA' : 'FBM';
-                    $shareCode = self::generateRandomCode(16);
-                    $statistic = $orderStatisticObj->where(['payment_id' => $item['payment_id']])->select();
-                    if (count($statistic)) {
-                        $shareItem = [];
-                        $amountSum = 0;
-                        foreach ($statistic as $value) {
-                            $amount = $item['total'];
-                            $restAmount = $amount - $amountSum;
-                            $total = count($statistic) == 1 ? $restAmount : min($value['sale_amount'], $restAmount);
-                            $percent = $amount == 0 ? 1 : round($total / $amount, 5);
-                            $shareItem[] = [
-                                'report_id'     =>  $item['report_id'],
-                                'table_id'      =>  $item['table_id'],
-                                'fulfillment'   =>  $fulfillment,
-                                'cost_type'     =>  'ADJUSTMENT',
-                                'share_code'    =>  $shareCode,
-                                'payment'       =>  $item['payment_id'],
-                                'seller_sku'    =>  $item['sku'],
-                                'warehouse_sku' =>  $value['warehouse_sku'],
-                                'amount'        =>  $amount,
-                                'percent'       =>  min($percent, 1),
-                                'total'         =>  $total
-                            ];
-                            $amountSum += $total;
-                        }
-                    } else {
-                        // 无出库
-                        $tableObj = new FinanceTableModel();
-                        $table = $tableObj->find($item['table_id']);
-                        if (empty($table) || empty($table['userAccount'])) {
-                            continue; // 无店铺号跳过
-                        }
-                        $relationObj = new SkuModel();
-                        $skuRelation = $relationObj->with('warehouseSku')->where(['product_sku' => $item['sku'], 'user_account' => $table['userAccount']])->find();
-                        if (!empty($skuRelation) && count($skuRelation)) {
-                            $shareItem = [];
-                            foreach ($skuRelation['warehouse_sku'] as $value) {
-                                $fulfillmentData = FinanceOrderShareModel::getWarehouseSkuFulfillment($value['pcr_product_sku'], $table);
-                                $amount = $item['total'];
-                                $shareItem[] = [
-                                    'report_id'     =>  $item['report_id'],
-                                    'table_id'      =>  $item['table_id'],
-                                    'fulfillment'   =>  array_key_exists(0, $fulfillmentData) ? 'FBM' : 'FBA',
-                                    'cost_type'     =>  'ADJUSTMENT',
-                                    'share_code'    =>  $shareCode,
-                                    'payment'       =>  $item['payment_id'],
-                                    'seller_sku'    =>  $item['sku'],
-                                    'warehouse_sku' =>  $value['pcr_product_sku'],
-                                    'amount'        =>  $amount,
-                                    'percent'       =>  $value['pcr_percent'] / 100,
-                                    'total'         =>  $amount * $value['pcr_percent'] / 100
-                                ];
-                            }
-                        } else {
-                            // 无sku映射分摊到所有产品*********************************************************
-                            $table = $tableObj->find($item['table_id']);
-                            $skuPercent = self::generateSkuPercent($table);
-                            $shareItem = [];
-                            $percentSum = 0;
-                            foreach ($skuPercent as $key => $value) {
-                                $amount = $item['total'];
-                                if ($key == count($skuPercent) - 1) {
-                                    $value['percent'] = 1 - $percentSum;
-                                }
-                                $fulfillmentData = FinanceOrderShareModel::getWarehouseSkuFulfillment($value['warehouse_sku'], $table);
-                                foreach ($fulfillmentData as $k => $v) {
-                                    $shareItem[] = [
-                                        'report_id'     =>  $item['report_id'],
-                                        'table_id'      =>  $item['table_id'],
-                                        'fulfillment'   =>  $k == 1 ? 'FBA' : 'FBM',
-                                        'cost_type'     =>  'ADJUSTMENT',
-                                        'share_code'    =>  $shareCode,
-                                        'payment'       =>  $item['payment_id'],
-                                        'seller_sku'    =>  $item['sku'],
-                                        'warehouse_sku' =>  $value['warehouse_sku'],
-                                        'amount'        =>  $amount,
-                                        'percent'       =>  $value['percent'] * $v,
-                                        'total'         =>  $amount * $value['percent'] * $v
-                                    ];
-                                }
-                                $percentSum += $value['percent'];
-                            }
-                        }
-                    }
-                    if ($financeOrderShareObj->insertAll($shareItem)) {
-                        $financeOrderAdjustmentObj->update(['share_code' => $shareCode], ['id' => $item['id']]);
-                    }
-                }
-            }
-
-            // 清算分摊
-            $financeOrderLiquidationObj = new FinanceOrderLiquidationModel();
-            $liquidation = $financeOrderLiquidationObj->where('share_code', null)->order('id asc')->limit(100)->select();
-            if (count($liquidation)) {
-                $orderStatisticObj = new FinanceOrderStatisticsModel();
-                foreach ($liquidation as $item) {
-                    // 无出库数据先不分摊费用
-                    $outbound = $financeOutboundObj->where(['report_id' => $item['report_id']])->select();
-                    if (count($outbound) <= 0) {
-                        continue;
-                    }
-                    $shareCode = self::generateRandomCode(16);
-                    $list = $orderStatisticObj->query('
-SELECT
-	a.id,
-	a.total,
-	c.user_account,
-	a.sku,
-	c.asin,
-	c.seller_sku,
-	e.pcr_product_sku 
-FROM
-	mu_finance_order_liquidation a
-	LEFT JOIN mu_finance_table b ON a.table_id = b.id
-	LEFT JOIN mu_ecang_listing c ON a.sku = c.asin 
-	AND b.userAccount = c.user_account
-	LEFT JOIN mu_ecang_sku d ON c.seller_sku = d.product_sku
-	LEFT JOIN mu_ecang_sku_relation e ON d.id = e.sku_id 
-WHERE
-	a.total != 0 
-	AND a.id = ' . $item['id'] . ' 
-ORDER BY
-	id ASC;
-                    ');
-                    if (count($list)) {
-                        $shareItem = [];
-                        $percentSum = 0;
-                        $tableObj = new FinanceTableModel();
-                        $table = $tableObj->find($item['table_id']);
-                        foreach ($list as $key => $value) {
-                            $amount = $item['total'];
-                            if ($key == count($list) - 1) {
-                                $percent = 1 - $percentSum;
-                            } else {
-                                $percent = round(1 / count($list), 4);
-                            }
-                            $fulfillmentData = FinanceOrderShareModel::getWarehouseSkuFulfillment($value['pcr_product_sku'], $table);
-                            if ($fulfillmentData) {
-                                foreach ($fulfillmentData as $k => $v) {
-                                    $shareItem[] = [
-                                        'report_id'     =>  $item['report_id'],
-                                        'table_id'      =>  $item['table_id'],
-                                        'fulfillment'   =>  $k == 1 ? 'FBA' : 'FBM',
-                                        'cost_type'     =>  'LIQUIDATION',
-                                        'share_code'    =>  $shareCode,
-                                        'payment'       =>  $item['order_id'],
-                                        'seller_sku'    =>  $value['seller_sku'],
-                                        'warehouse_sku' =>  $value['pcr_product_sku'],
-                                        'amount'        =>  $amount,
-                                        'percent'       =>  min($percent, 1) * $v,
-                                        'total'         =>  round($amount * min($percent, 1), 6) * $v
-                                    ];
-                                }
-                            } else {
-                                $percent = round(1 / count($list), 4);
-                                $shareItem[] = [
-                                    'report_id'     =>  $item['report_id'],
-                                    'table_id'      =>  $item['table_id'],
-                                    'fulfillment'   =>  'FBM',
-                                    'cost_type'     =>  'LIQUIDATION',
-                                    'share_code'    =>  $shareCode,
-                                    'payment'       =>  $item['order_id'],
-                                    'seller_sku'    =>  $value['seller_sku'],
-                                    'warehouse_sku' =>  $value['pcr_product_sku'],
-                                    'amount'        =>  $amount,
-                                    'percent'       =>  min($percent, 1),
-                                    'total'         =>  round($amount * min($percent, 1), 6)
-                                ];
-                            }
-                            $percentSum += $percent;
-                        }
-                        if ($financeOrderShareObj->insertAll($shareItem)) {
-                            $financeOrderLiquidationObj->update(['share_code' => $shareCode], ['id' => $item['id']]);
-                        }
-                    } else {
-                        // 无listing TODO
-                        continue;
-
-                    }
-                }
-            }
-
-            // 促销
-            $additionalModel = new FinanceOrderAdditionalModel();
-            $promotion = $additionalModel->query('
+    /**
+     * @throws BindParamException
+     * @throws DataNotFoundException
+     * @throws ModelNotFoundException
+     * @throws PDOException
+     * @throws DbException
+     */
+    static protected function promotionShare()
+    {
+        // 促销
+        $financeOrderShareObj = new FinanceOrderShareModel();
+        $financeOutboundObj = new FinanceOrderOutboundModel();
+        $additionalModel = new FinanceOrderAdditionalModel();
+        $promotion = $additionalModel->query('
 SELECT
 	report_id,
 	user_account,
@@ -460,433 +91,477 @@ ORDER BY
 	warehouse_sku
 LIMIT 50;
             ');
-            if (count($promotion)) {
-                foreach ($promotion as $item) {
-                    // 无出库数据先不分摊费用
-                    $outbound = $financeOutboundObj->where(['report_id' => $item['report_id']])->select();
-                    if (count($outbound) <= 0) {
-                        continue;
-                    }
-                    $shareCode = self::generateRandomCode(16);
-                    $tableObj = new FinanceTableModel();
-                    $table = $tableObj->where(['rid' => $item['report_id'], 'userAccount' => $item['user_account']])->find();
-                    $shareItem = [];
-                    $amount = $item['total'];
-                    $fulfillmentData = FinanceOrderShareModel::getWarehouseSkuFulfillment($item['warehouse_sku'], $table);
-                    if ($fulfillmentData) {
-                        foreach ($fulfillmentData as $k => $v) {
-                            $shareItem[] = [
-                                'report_id'     =>  $item['report_id'],
-                                'table_id'      =>  $table['id'],
-                                'fulfillment'   =>  $k == 1 ? 'FBA' : 'FBM',
-                                'cost_type'     =>  'PROMOTION',
-                                'share_code'    =>  $shareCode,
-                                'payment'       =>  '',
-                                'seller_sku'    =>  '',
-                                'warehouse_sku' =>  $item['warehouse_sku'],
-                                'amount'        =>  $amount,
-                                'percent'       =>  $v,
-                                'total'         =>  $amount * $v
-                            ];
-                        }
-                    } else {
-                        // 无listing
+        if (count($promotion)) {
+            foreach ($promotion as $item) {
+                // 无出库数据先不分摊费用
+                $outbound = $financeOutboundObj->where(['report_id' => $item['report_id']])->select();
+                if (count($outbound) <= 0) {
+                    continue;
+                }
+                $shareCode = FinanceOrderShareModel::generateRandomCode();
+                $tableObj = new FinanceTableModel();
+                $table = $tableObj->where(['rid' => $item['report_id'], 'userAccount' => $item['user_account']])->find();
+                $report = FinanceReportModel::get($item['report_id']);
+                $shareItem = [];
+                $amount = $item['total'];
+                $fulfillmentData = FinanceOrderShareModel::generateFulfillmentByWarehouseSkuInUserAccount($item['warehouse_sku'], $report, $table['userAccount']);
+                if ($fulfillmentData) {
+                    foreach ($fulfillmentData as $k => $v) {
                         $shareItem[] = [
                             'report_id'     =>  $item['report_id'],
                             'table_id'      =>  $table['id'],
-                            'fulfillment'   =>  'FBM',
+                            'user_account'  =>  $item['user_account'],
+                            'fulfillment'   =>  $k == 1 ? 'FBA' : 'FBM',
                             'cost_type'     =>  'PROMOTION',
                             'share_code'    =>  $shareCode,
                             'payment'       =>  '',
                             'seller_sku'    =>  '',
                             'warehouse_sku' =>  $item['warehouse_sku'],
                             'amount'        =>  $amount,
-                            'percent'       =>  1,
-                            'total'         =>  $amount
+                            'percent'       =>  $v,
+                            'total'         =>  $amount * $v
                         ];
                     }
+                } else {
+                    // 无listing
+                    $shareItem[] = [
+                        'report_id'     =>  $item['report_id'],
+                        'table_id'      =>  $table['id'],
+                        'user_account'  =>  $item['user_account'],
+                        'fulfillment'   =>  'FBM',
+                        'cost_type'     =>  'PROMOTION',
+                        'share_code'    =>  $shareCode,
+                        'payment'       =>  '',
+                        'seller_sku'    =>  '',
+                        'warehouse_sku' =>  $item['warehouse_sku'],
+                        'amount'        =>  $amount,
+                        'percent'       =>  1,
+                        'total'         =>  $amount
+                    ];
+                }
 
-                    if ($financeOrderShareObj->insertAll($shareItem)) {
-                        $additionalModel->update(['share_code' => $shareCode], ['report_id' => $item['report_id'], 'user_account' => $item['user_account'], 'warehouse_sku' => $item['warehouse_sku']])->where('promotion', 'NOT NULL');
-                    }
+                if ($financeOrderShareObj->insertAll($shareItem)) {
+                    $additionalModel->update(['share_code' => $shareCode], ['report_id' => $item['report_id'], 'user_account' => $item['user_account'], 'warehouse_sku' => $item['warehouse_sku']])->where('promotion', 'NOT NULL');
                 }
             }
+        }
+    }
 
-            // 海外仓调整
-            $leAdjustment = $additionalModel->where('le_adjustment', 'not null')->where('share_code', 'null')->limit(50)->select();
-            if (count($leAdjustment)) {
-                foreach ($leAdjustment as $item) {
-                    // 无出库数据先不分摊费用
-                    $outbound = $financeOutboundObj->where(['report_id' => $item['report_id']])->select();
-                    if (count($outbound) <= 0) {
-                        continue;
-                    }
-                    $shareCode = self::generateRandomCode(16);
-                    $shareItem = [];
-                    $sku = self::getMainSku($item['warehouse_sku']);
-                    $fulfillmentData = self::getSkuUserAccountFulfillment($sku, $item['report_id'], $item['platform']);
-                    if ($fulfillmentData) {
-                        foreach ($fulfillmentData as $k => $v) {
-                            foreach ($v as $fulfillment => $percent) {
-                                $shareItem[] = [
-                                    'report_id'     =>  $item['report_id'],
-                                    'user_account'  =>  $k,
-                                    'fulfillment'   =>  $fulfillment == 1 ? 'FBA' : 'FBM',
-                                    'cost_type'     =>  'LEADJUSTMENT',
-                                    'share_code'    =>  $shareCode,
-                                    'payment'       =>  '',
-                                    'seller_sku'    =>  '',
-                                    'warehouse_sku' =>  $sku,
-                                    'amount'        =>  $item['le_adjustment'],
-                                    'percent'       =>  $percent,
-                                    'total'         =>  $item['le_adjustment'] * $percent
-                                ];
-                            }
-                        }
-                    } else {
-                        $relationObj = new SkuModel();
-                        $skuRelation = $relationObj->query('
-SELECT
-	*
-FROM
-	mu_ecang_sku a
-	LEFT JOIN ( SELECT DISTINCT platform, userAccount FROM mu_finance_table WHERE rid = 4 ) b ON a.user_account = b.userAccount
-	LEFT JOIN mu_ecang_sku_relation c ON a.id = c.sku_id
-WHERE
-	b.platform = "' . $item['platform'] . '"
-	AND c.pcr_product_sku = "' . $sku . '";
-                        ');
-                        if (!empty($skuRelation) && count($skuRelation)) {
-                            $init_percent = 0;
-                            foreach ($skuRelation as $key => $value) {
-                                $amount = $item['le_adjustment'];
-                                if ($key + 1 == count($skuRelation)) {
-                                    $shareItem[] = [
-                                        'report_id'     =>  $item['report_id'],
-                                        'user_account'  =>  $value['user_account'],
-                                        'fulfillment'   =>  'FBM',
-                                        'cost_type'     =>  'LEADJUSTMENT',
-                                        'share_code'    =>  $shareCode,
-                                        'payment'       =>  '',
-                                        'seller_sku'    =>  '',
-                                        'warehouse_sku' =>  $value['pcr_product_sku'],
-                                        'amount'        =>  $amount,
-                                        'percent'       =>  1 - $init_percent,
-                                        'total'         =>  $amount * (1 - $init_percent)
-                                    ];
-                                } else {
-                                    $shareItem[] = [
-                                        'report_id'     =>  $item['report_id'],
-                                        'user_account'  =>  $value['user_account'],
-                                        'fulfillment'   =>  'FBM',
-                                        'cost_type'     =>  'LEADJUSTMENT',
-                                        'share_code'    =>  $shareCode,
-                                        'payment'       =>  '',
-                                        'seller_sku'    =>  '',
-                                        'warehouse_sku' =>  $value['pcr_product_sku'],
-                                        'amount'        =>  $amount,
-                                        'percent'       =>  round(1 / count($skuRelation), 4),
-                                        'total'         =>  $amount * round(1 / count($skuRelation), 4)
-                                    ];
-                                    $init_percent += round(1 / count($skuRelation), 4);
-                                }
-                            }
+    /**
+     * @throws DataNotFoundException
+     * @throws DbException
+     * @throws ModelNotFoundException
+     */
+    static protected function shippingServiceShare()
+    {
+        // 退运费分摊
+        $financeOrderShareObj = new FinanceOrderShareModel();
+        $financeOutboundObj = new FinanceOrderOutboundModel();
+        $financeOrderShippingObj = new FinanceOrderShippingServiceModel();
+        $shipping = $financeOrderShippingObj->where('share_code', null)->order('id asc')->limit(100)->select();
+        if (count($shipping)) {
+            $orderStatisticObj = new FinanceOrderStatisticsModel();
+            foreach ($shipping as $item) {
+                // 无出库数据先不分摊费用
+                $outbound = $financeOutboundObj->where(['report_id' => $item['report_id']])->select();
+                if (count($outbound) <= 0) {
+                    continue;
+                }
+
+                // 这里使用订单表作为查询表可确保数据的完成性，基本存在
+                $orderModel = new OrderModel();
+                $order = $orderModel->where(['refNo' => $item['payment_id']])->find();
+                $fulfillment = !empty($order) && $order['fulfillmentType'] == 1 ? 'FBA' : 'FBM';
+                $shareCode = FinanceOrderShareModel::generateRandomCode();
+                $statistic = $orderStatisticObj->where(['payment_id' => $item['payment_id']])->select();
+                $shareItem = [];
+                if (count($statistic)) {
+                    $amount = $item['total'];
+                    $percentSum = 0;
+                    foreach ($statistic as $key => $value) {
+                        if (count($statistic) == $key + 1) {
+                            $percent = 1 - $percentSum;
                         } else {
-                            // 无listing TODO
-                            continue;
+                            // 退运费根据出库的销售额分摊
+                            $percent = round($value['sale_amount'] / array_sum(array_column($statistic->toArray(), 'sale_amount')), 4);
+                            $percentSum += $percent;
                         }
-
+                        $shareItem[] = [
+                            'report_id'     =>  $item['report_id'],
+                            'table_id'      =>  $item['table_id'],
+                            'user_account'  =>  $value['user_account'],
+                            'fulfillment'   =>  $fulfillment,
+                            'cost_type'     =>  'SHIPPING',
+                            'share_code'    =>  $shareCode,
+                            'payment'       =>  $item['payment_id'],
+                            'seller_sku'    =>  $value['platform_sku'],
+                            'warehouse_sku' =>  $value['warehouse_sku'],
+                            'amount'        =>  $amount,
+                            'percent'       =>  $percent,
+                            'total'         =>  round($amount * $percent, 7)
+                        ];
                     }
-
-                    if ($financeOrderShareObj->insertAll($shareItem)) {
-                        $additionalModel->update(['share_code' => $shareCode], ['id' => $item['id']]);
+                } else {
+                    // 无出库
+                    $orderDetailObj = new OrderDetailModel();
+                    $orderDetail = $orderDetailObj->where(['order_id' => $order['id']])->find();
+                    if ($orderDetail) {
+                        $amount = $item['total'];
+                        $shareItem[] = [
+                            'report_id'     => $item['report_id'],
+                            'table_id'      => $item['table_id'],
+                            'user_account'  => $order['userAccount'],
+                            'fulfillment'   => $fulfillment,
+                            'cost_type'     => 'SHIPPING',
+                            'share_code'    => $shareCode,
+                            'payment'       => $item['payment_id'],
+                            'seller_sku'    => $orderDetail['productSku'],
+                            'warehouse_sku' => $orderDetail['warehouseSku'],
+                            'amount'        => $amount,
+                            'percent'       => 1,
+                            'total'         => $amount
+                        ];
                     }
                 }
+                if ($financeOrderShareObj->insertAll($shareItem)) {
+                    $financeOrderShippingObj->update(['share_code' => $shareCode], ['id' => $item['id']]);
+                }
             }
+        }
+    }
 
-            $lcAdjustment = $additionalModel->where('lc_adjustment', 'not null')->where('share_code', 'null')->limit(50)->select();
-            if (count($lcAdjustment)) {
-                foreach ($lcAdjustment as $item) {
-                    // 无出库数据先不分摊费用
-                    $outbound = $financeOutboundObj->where(['report_id' => $item['report_id']])->select();
-                    if (count($outbound) <= 0) {
-                        continue;
-                    }
-                    $shareCode = self::generateRandomCode(16);
+    /**
+     * @throws BindParamException
+     * @throws DataNotFoundException
+     * @throws ModelNotFoundException
+     * @throws PDOException
+     * @throws DbException
+     */
+    static protected function liquidationShare()
+    {
+        // 清算分摊
+        $financeOrderShareObj = new FinanceOrderShareModel();
+        $financeOutboundObj = new FinanceOrderOutboundModel();
+        $financeOrderLiquidationObj = new FinanceOrderLiquidationModel();
+        $liquidation = $financeOrderLiquidationObj->where('share_code', null)->order('id asc')->limit(100)->select();
+        if (count($liquidation)) {
+            $orderStatisticObj = new FinanceOrderStatisticsModel();
+            foreach ($liquidation as $item) {
+                // 无出库数据先不分摊费用
+                $outbound = $financeOutboundObj->where(['report_id' => $item['report_id']])->select();
+                if (count($outbound) <= 0) {
+                    continue;
+                }
+                $shareCode = FinanceOrderShareModel::generateRandomCode();
+                $tableObj = new FinanceTableModel();
+                $table = $tableObj->find($item['table_id']);
+                $report = FinanceReportModel::get($item['report_id']);
+                $list = $orderStatisticObj->query('
+SELECT
+	a.id,
+	a.total,
+	c.user_account,
+	a.sku,
+	c.asin,
+	c.seller_sku,
+	d.percent,
+	d.warehouse_sku 
+FROM
+	mu_finance_order_liquidation a
+	LEFT JOIN mu_finance_table b ON a.table_id = b.id
+	LEFT JOIN ( SELECT asin, seller_sku, user_account, MAX( updated_time ) updated_time FROM mu_ecang_listing GROUP BY asin, seller_sku, user_account, updated_time ) c ON a.sku = c.asin 
+	AND b.userAccount = c.user_account
+	LEFT JOIN ( SELECT DISTINCT user_account, seller_sku, warehouse_sku, seller, product_name, percent FROM mu_finance_sku_relation WHERE report_id = 6 ) d ON c.seller_sku = d.seller_sku 
+	AND d.user_account = c.user_account 
+WHERE
+	a.total != 0 
+	AND a.id = ' . $item['id'] . ' 
+ORDER BY
+	c.updated_time ASC;
+                    ');
+                if (count($list)) {
                     $shareItem = [];
-                    $sku = self::getMainSku($item['warehouse_sku']);
-                    $fulfillmentData = self::getSkuUserAccountFulfillment($sku, $item['report_id'], $item['platform']);
-                    if ($fulfillmentData) {
-                        foreach ($fulfillmentData as $k => $v) {
-                            foreach ($v as $fulfillment => $percent) {
+                    $percentSum = 0;
+                    foreach ($list as $key => $value) {
+                        $amount = $item['total'];
+                        if ($key == count($list) - 1) {
+                            $percent = 1 - $percentSum;
+                        } else {
+                            $percent = round(1 / count($list), 4);
+                            $percentSum += $percent;
+                        }
+                        $fulfillmentData = FinanceOrderShareModel::generateFulfillmentByWarehouseSkuInUserAccount($value['warehouse_sku'], $report, $table['userAccount']);
+                        if ($fulfillmentData) {
+                            foreach ($fulfillmentData as $k => $v) {
                                 $shareItem[] = [
                                     'report_id'     =>  $item['report_id'],
-                                    'user_account'  =>  $k,
-                                    'fulfillment'   =>  $fulfillment == 1 ? 'FBA' : 'FBM',
-                                    'cost_type'     =>  'LCADJUSTMENT',
+                                    'table_id'      =>  $item['table_id'],
+                                    'user_account'  =>  $value['user_account'],
+                                    'fulfillment'   =>  $k == 1 ? 'FBA' : 'FBM',
+                                    'cost_type'     =>  'LIQUIDATION',
                                     'share_code'    =>  $shareCode,
-                                    'payment'       =>  '',
-                                    'seller_sku'    =>  '',
-                                    'warehouse_sku' =>  $sku,
-                                    'amount'        =>  $item['lc_adjustment'],
-                                    'percent'       =>  $percent,
-                                    'total'         =>  $item['lc_adjustment'] * $percent
+                                    'payment'       =>  $item['order_id'],
+                                    'seller_sku'    =>  $value['seller_sku'],
+                                    'warehouse_sku' =>  $value['warehouse_sku'],
+                                    'amount'        =>  $amount,
+                                    'percent'       =>  $percent * $v,
+                                    'total'         =>  round($amount * min($percent, 1), 6) * $v
                                 ];
                             }
+                        } else {
+                            $shareItem[] = [
+                                'report_id'     =>  $item['report_id'],
+                                'table_id'      =>  $item['table_id'],
+                                'user_account'  =>  $value['user_account'],
+                                'fulfillment'   =>  'FBM',
+                                'cost_type'     =>  'LIQUIDATION',
+                                'share_code'    =>  $shareCode,
+                                'payment'       =>  $item['order_id'],
+                                'seller_sku'    =>  $value['seller_sku'],
+                                'warehouse_sku' =>  $value['warehouse_sku'],
+                                'amount'        =>  $amount,
+                                'percent'       =>  $percent * (empty($value['percent']) ? 1 : $value['percent']),
+                                'total'         =>  round($amount * $percent * (empty($value['percent']) ? 1 : $value['percent']), 6)
+                            ];
+                        }
+                    }
+                    if ($financeOrderShareObj->insertAll($shareItem)) {
+                        $financeOrderLiquidationObj->update(['share_code' => $shareCode], ['id' => $item['id']]);
+                    }
+                } else {
+                    // 无listing TODO
+                    continue;
+
+                }
+            }
+        }
+    }
+
+    /**
+     * @throws BindParamException
+     * @throws DataNotFoundException
+     * @throws ModelNotFoundException
+     * @throws PDOException
+     * @throws DbException
+     */
+    static protected function adjustmentShare()
+    {
+        // 调整分摊
+        $financeOrderShareObj = new FinanceOrderShareModel();
+        $financeOutboundObj = new FinanceOrderOutboundModel();
+        $financeOrderAdjustmentObj = new FinanceOrderAdjustmentModel();
+        $adjustment = $financeOrderAdjustmentObj->where('share_code', null)->order('id asc')->limit(100)->select();
+        if (count($adjustment)) {
+            $orderModel = new OrderModel();
+            $orderStatisticObj = new FinanceOrderStatisticsModel();
+            foreach ($adjustment as $item) {
+                // 无出库数据先不分摊费用
+                $outbound = $financeOutboundObj->where(['report_id' => $item['report_id']])->select();
+                if (count($outbound) <= 0) {
+                    continue;
+                }
+                $order = $orderModel->where(['saleOrderCode' => $item['payment_id']])->find();
+                $fulfillment = $order['fulfillmentType'] == 1 ? 'FBA' : 'FBM';
+                $shareCode = FinanceOrderShareModel::generateRandomCode();
+                $tableObj = new FinanceTableModel();
+                $table = FinanceTableModel::get($item['table_id']);
+                $report = FinanceReportModel::get($item['report_id']);
+                $shareItem = [];
+                $statistic = $orderStatisticObj->where(['payment_id' => $item['payment_id']])->select();
+                if (count($statistic)) {
+                    $percentSum = 0;
+                    foreach ($statistic as $key => $value) {
+                        $amount = $item['total'];
+                        if ($key == count($statistic) - 1) {
+                            $percent = 1 - $percentSum;
+                        } else {
+                            $percent = round(1 / count($statistic), 4);
+                            $percentSum += $percent;
+                        }
+                        $shareItem[] = [
+                            'report_id'     =>  $item['report_id'],
+                            'table_id'      =>  $item['table_id'],
+                            'user_account'  =>  $table['userAccount'],
+                            'fulfillment'   =>  $fulfillment,
+                            'cost_type'     =>  'ADJUSTMENT',
+                            'share_code'    =>  $shareCode,
+                            'payment'       =>  $item['payment_id'],
+                            'seller_sku'    =>  $item['sku'],
+                            'warehouse_sku' =>  $value['warehouse_sku'],
+                            'amount'        =>  $amount,
+                            'percent'       =>  $percent,
+                            'total'         =>  $amount * $percent
+                        ];
+                    }
+                } else {
+                    // 无出库
+                    if (empty($table) || empty($table['userAccount'])) {
+                        continue; // 无店铺号跳过
+                    }
+                    $relation = FinanceOrderShareModel::generateSellerListByWarehouseSkuInUserAccount($item['sku'], $report, $table['userAccount']);
+                    if ($relation) {
+                        foreach ($relation as $value) {
+                            $fulfillmentData = FinanceOrderShareModel::generateFulfillmentByWarehouseSkuInUserAccount($value['warehouse_sku'], $report, $table['userAccount']);
+                            $amount = $item['total'];
+                            $shareItem[] = [
+                                'report_id'     =>  $item['report_id'],
+                                'table_id'      =>  $item['table_id'],
+                                'user_account'  =>  $table['userAccount'],
+                                'fulfillment'   =>  array_key_exists(0, $fulfillmentData) ? 'FBM' : 'FBA',
+                                'cost_type'     =>  'ADJUSTMENT',
+                                'share_code'    =>  $shareCode,
+                                'payment'       =>  $item['payment_id'],
+                                'seller_sku'    =>  $item['sku'],
+                                'warehouse_sku' =>  $value['warehouse_sku'],
+                                'amount'        =>  $amount,
+                                'percent'       =>  1,
+                                'total'         =>  $amount
+                            ];
                         }
                     } else {
-                        $relationObj = new SkuModel();
-                        $skuRelation = $relationObj->query('
-SELECT
-	*
-FROM
-	mu_ecang_sku a
-	LEFT JOIN ( SELECT DISTINCT platform, userAccount FROM mu_finance_table WHERE rid = ' . $item['report_id'] . ' ) b ON a.user_account = b.userAccount
-	LEFT JOIN mu_ecang_sku_relation c ON a.id = c.sku_id
-WHERE
-	b.platform = "' . $item['platform'] . '"
-	AND c.pcr_product_sku = "' . $sku . '";
-                        ');
-                        if (!empty($skuRelation) && count($skuRelation)) {
-                            $init_percent = 0;
-                            foreach ($skuRelation as $key => $value) {
-                                $amount = $item['lc_adjustment'];
-                                if ($key + 1 == count($skuRelation)) {
-                                    $shareItem[] = [
-                                        'report_id'     =>  $item['report_id'],
-                                        'user_account'  =>  $value['user_account'],
-                                        'fulfillment'   =>  'FBM',
-                                        'cost_type'     =>  'LCADJUSTMENT',
-                                        'share_code'    =>  $shareCode,
-                                        'payment'       =>  '',
-                                        'seller_sku'    =>  '',
-                                        'warehouse_sku' =>  $sku,
-                                        'amount'        =>  $amount,
-                                        'percent'       =>  1 - $init_percent,
-                                        'total'         =>  $amount * (1 - $init_percent)
-                                    ];
+                        // 无sku映射分摊到所有产品*********************************************************
+                        $table = $tableObj->find($item['table_id']);
+                        $skuPercent = FinanceOrderShareModel::generateSkuPercentByUserAccount($table);
+                        $percentSum = 0;
+                        foreach ($skuPercent as $key => $value) {
+                            $amount = $item['total'];
+                            if ($key == count($skuPercent) - 1) {
+                                $value['percent'] = 1 - $percentSum;
+                            }
+                            $fulfillmentData = FinanceOrderShareModel::generateFulfillmentByWarehouseSkuInUserAccount($value['warehouse_sku'], $report, $table['userAccount']);
+                            foreach ($fulfillmentData as $k => $v) {
+                                $shareItem[] = [
+                                    'report_id'     =>  $item['report_id'],
+                                    'table_id'      =>  $item['table_id'],
+                                    'user_account'  =>  $table['userAccount'],
+                                    'fulfillment'   =>  $k == 1 ? 'FBA' : 'FBM',
+                                    'cost_type'     =>  'ADJUSTMENT',
+                                    'share_code'    =>  $shareCode,
+                                    'payment'       =>  $item['payment_id'],
+                                    'seller_sku'    =>  $item['sku'],
+                                    'warehouse_sku' =>  $value['warehouse_sku'],
+                                    'amount'        =>  $amount,
+                                    'percent'       =>  $value['percent'] * $v,
+                                    'total'         =>  $amount * $value['percent'] * $v
+                                ];
+                            }
+                            $percentSum += $value['percent'];
+                        }
+                    }
+                }
+                if ($financeOrderShareObj->insertAll($shareItem)) {
+                    $financeOrderAdjustmentObj->update(['share_code' => $shareCode], ['id' => $item['id']]);
+                }
+            }
+        }
+    }
+
+    /**
+     * @throws BindParamException
+     * @throws DataNotFoundException
+     * @throws ModelNotFoundException
+     * @throws PDOException
+     * @throws DbException
+     */
+    static protected function warehouseAdjustmentShare()
+    {
+        // 海外仓调整
+        $financeOrderShareObj = new FinanceOrderShareModel();
+        $financeOutboundObj = new FinanceOrderOutboundModel();
+        $additionalModel = new FinanceOrderAdditionalModel();
+        $warehouseAdjustment = $additionalModel
+            ->where(function($query) {
+                $query->where('share_code', null)
+                    ->where('lc_adjustment', 'notnull');
+            })
+            ->whereOr(function($query) {
+                $query->where('share_code', null)
+                    ->where('le_adjustment', 'notnull');
+            })
+            ->limit(100)->select();
+        if (count($warehouseAdjustment)) {
+            foreach ($warehouseAdjustment as $item) {
+                // 无出库数据先不分摊费用
+                $outbound = $financeOutboundObj->where(['report_id' => $item['report_id']])->select();
+                if (count($outbound) <= 0) {
+                    continue;
+                }
+                $shareCode = FinanceOrderShareModel::generateRandomCode();
+                $costType = empty($item['lc_adjustment']) ? 'LEADJUSTMENT' : 'LCADJUSTMENT';
+                $costField = empty($item['lc_adjustment']) ? 'le_adjustment' : 'lc_adjustment';
+                $report = FinanceReportModel::get($item['report_id']);
+                $shareItem = [];
+                $sku = FinanceOrderShareModel::getMainSku($item['warehouse_sku']);
+                $userList = FinanceOrderShareModel::generateSellerListByWarehouseSku($sku, $report, $item['platform']);
+                if ($userList) {
+                    $total = $item[$costField];
+                    $userSum = 0;
+                    $percentSum = 0;
+                    foreach ($userList as $k => $v) {
+                        if ($k + 1 != count($userList)) {
+                            $userTotal = round($total / count($userList), 6);
+                            $percent = round(1 / count($userList), 4);
+                            $userSum += $userTotal;
+                            $percentSum += $percent;
+                        } else {
+                            $userTotal = $total - $userSum;
+                            $percent = 1 - $percentSum;
+                        }
+
+                        $userAccountList = FinanceOrderShareModel::generateUserAccountListByWarehouseSkuAndSeller($sku, $report, $v['seller'], $item['platform']);
+                        $userAccountSum = 0;
+                        if ($userAccountList) {
+                            foreach ($userAccountList as $ku => $userAccount) {
+                                if ($ku + 1 != count($userAccountList)) {
+                                    $userAccountTotal = round($userTotal / count($userAccountList), 6);
+                                    $userAccountSum += $userAccountTotal;
                                 } else {
-                                    $shareItem[] = [
-                                        'report_id'     =>  $item['report_id'],
-                                        'user_account'  =>  $value['user_account'],
-                                        'fulfillment'   =>  'FBM',
-                                        'cost_type'     =>  'LCADJUSTMENT',
-                                        'share_code'    =>  $shareCode,
-                                        'payment'       =>  '',
-                                        'seller_sku'    =>  '',
-                                        'warehouse_sku' =>  $sku,
-                                        'amount'        =>  $amount,
-                                        'percent'       =>  round(1 / count($skuRelation), 4),
-                                        'total'         =>  $amount * round(1 / count($skuRelation), 4)
-                                    ];
-                                    $init_percent += round(1 / count($skuRelation), 4);
+                                    $userAccountTotal = $userTotal - $userAccountSum;
                                 }
+                                $shareItem[] = [
+                                    'report_id'     =>  $item['report_id'],
+                                    'user_account'  =>  $userAccount['user_account'],
+                                    'fulfillment'   =>  'FBM',
+                                    'cost_type'     =>  $costType,
+                                    'share_code'    =>  $shareCode,
+                                    'warehouse_sku' =>  $sku,
+                                    'amount'        =>  $item[$costField],
+                                    'percent'       =>  $percent,
+                                    'total'         =>  $userAccountTotal
+                                ];
                             }
                         } else {
-                            // 无listing
                             $shareItem[] = [
                                 'report_id'     =>  $item['report_id'],
                                 'user_account'  =>  '',
                                 'fulfillment'   =>  'FBM',
-                                'cost_type'     =>  'LCADJUSTMENT',
+                                'cost_type'     =>  $costType,
                                 'share_code'    =>  $shareCode,
-                                'payment'       =>  '',
-                                'seller_sku'    =>  '',
                                 'warehouse_sku' =>  $sku,
-                                'amount'        =>  $item['lc_adjustment'],
-                                'percent'       =>  1,
-                                'total'         =>  $item['lc_adjustment']
+                                'amount'        =>  $item[$costField],
+                                'percent'       =>  $percent,
+                                'total'         =>  $userTotal
                             ];
                         }
-
                     }
-
-                    if ($financeOrderShareObj->insertAll($shareItem)) {
-                        $additionalModel->update(['share_code' => $shareCode], ['id' => $item['id']]);
-                    }
-                }
-            }
-
-
-
-            Db::commit();
-            $output->writeln("success");
-        } catch (\Exception $e) {
-            dump($e->getMessage());
-            Db::rollback();
-            $output->writeln($e->getMessage());
-        }
-    }
-
-    static protected function generateRandomCode($length): string
-    {
-        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        $randomString = '';
-        for ($i = 0; $i < $length; $i++) {
-            $randomString .= $characters[rand(0, strlen($characters) - 1)];
-        }
-        $financeOrderShareObj = new FinanceOrderShareModel();
-        $codeList = $financeOrderShareObj->column('share_code');
-        if (in_array($randomString, $codeList)) {
-            return self::generateRandomCode($length);
-        } else {
-            return $randomString;
-        }
-    }
-
-    /**
-     * @throws PDOException
-     * @throws BindParamException
-     */
-    static protected function generateSkuPercent($table)
-    {
-        $model = new FinanceOrderShareModel();
-        if ($table['platform'] == "wayfair") {
-            return $model->query('
-SELECT
-	warehouse_sku,
-	SUM( qty ) qty,
-	ROUND(SUM( qty ) / (
-	SELECT
-		SUM( qty ) 
-	FROM
-		( SELECT DISTINCT payment_id FROM mu_finance_order_sale WHERE table_id in (SELECT id FROM mu_finance_table WHERE rid = ' . $table['rid'] . ' AND platform = "wayfair")) a
-		LEFT JOIN mu_finance_order_statistics b ON a.payment_id = b.payment_id
-		LEFT JOIN mu_ecang_product c ON b.warehouse_sku = c.productSku 
-	WHERE
-		c.saleStatus = 2 
-	) , 4) percent
-FROM
-	( SELECT DISTINCT payment_id FROM mu_finance_order_sale WHERE table_id in (SELECT id FROM mu_finance_table WHERE rid = ' . $table['rid'] . ' AND platform = "wayfair")) a
-	LEFT JOIN mu_finance_order_statistics b ON a.payment_id = b.payment_id
-	LEFT JOIN mu_ecang_product c ON b.warehouse_sku = c.productSku 
-WHERE
-	c.saleStatus = 2 
-GROUP BY
-	warehouse_sku;
-            ');
-        } else {
-            return $model->query('
-SELECT
-	warehouse_sku,
-	SUM( qty ) qty,
-	ROUND(SUM( qty ) / (
-	SELECT
-		SUM( qty ) 
-	FROM
-		( SELECT DISTINCT payment_id FROM mu_finance_order_sale WHERE table_id = ' . $table['id'] . ' ) a
-		LEFT JOIN mu_finance_order_statistics b ON a.payment_id = b.payment_id
-		LEFT JOIN mu_ecang_product c ON b.warehouse_sku = c.productSku 
-	WHERE
-		c.saleStatus = 2 
-	) , 4) percent
-FROM
-	( SELECT DISTINCT payment_id FROM mu_finance_order_sale WHERE table_id = ' . $table['id'] . ' ) a
-	LEFT JOIN mu_finance_order_statistics b ON a.payment_id = b.payment_id
-	LEFT JOIN mu_ecang_product c ON b.warehouse_sku = c.productSku 
-WHERE
-	c.saleStatus = 2 
-GROUP BY
-	warehouse_sku;
-            ');
-        }
-    }
-
-    /**
-     * @throws DataNotFoundException
-     * @throws ModelNotFoundException
-     * @throws DbException
-     */
-    static public function getMainSku($sku)
-    {
-        if (self::sku_identify($sku)) {
-            // 在售主件直接用自己
-            return $sku;
-        } else {
-            if (!strpos($sku, '-')) {
-                // 未在售主件也先用自己
-                return $sku;
-            } else {
-                $mainSku = explode('-', $sku)[0];
-                $productObj = new ProductModel();
-                $product = $productObj->where(['productSku' => ['like', $mainSku . '%'], 'saleStatus' => 2])->order('productSku asc')->find();
-                if (empty($product)) {
-                    // 未在售配件也无未在售主件
-                    return $mainSku;
                 } else {
-                    // 未在售配件有在售主件直接用该主件
-                    return $product['productSku'];
+                    $shareItem[] = [
+                        'report_id'     =>  $item['report_id'],
+                        'user_account'  =>  '',
+                        'fulfillment'   =>  'FBM',
+                        'cost_type'     =>  $costType,
+                        'share_code'    =>  $shareCode,
+                        'warehouse_sku' =>  $sku,
+                        'amount'        =>  $item[$costField],
+                        'percent'       =>  1,
+                        'total'         =>  $item[$costField]
+                    ];
+                }
+
+                if ($financeOrderShareObj->insertAll($shareItem)) {
+                    $additionalModel->update(['share_code' => $shareCode], ['id' => $item['id']]);
                 }
             }
         }
-    }
-
-    /**
-     * @throws ModelNotFoundException
-     * @throws DbException
-     * @throws DataNotFoundException
-     */
-    static protected function sku_identify($sku): bool
-    {
-        $productObj = new ProductModel();
-        $productObj = $productObj->where(['productSku' => $sku, 'saleStatus' => 2])->select();
-        if (count($productObj) > 0) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * @throws PDOException
-     * @throws BindParamException
-     */
-    static public function getSkuUserAccountFulfillment($warehouseSku, $reportId, $platform): array
-    {
-        $model = new FinanceOrderShareModel();
-        $data = $model->query('
-SELECT
-	SUM( a.qty ) qty,
-	b.userAccount,
-	b.fulfillmentType 
-FROM
-	mu_finance_order_outbound a
-	LEFT JOIN mu_ecang_order b ON a.saleOrderCode = b.saleOrderCode 
-WHERE
-	a.warehouse_sku = "' . $warehouseSku . '" 
-	AND report_id = ' . $reportId . '
-	AND b.platform = "' . $platform . '"
-GROUP BY
-    userAccount,
-	fulfillmentType;
-        ');
-
-        $sum = $model->query('
-SELECT
-	SUM( qty ) qty
-FROM
-	mu_finance_order_outbound a
-	LEFT JOIN mu_ecang_order b ON a.saleOrderCode = b.saleOrderCode 
-WHERE
-	warehouse_sku = "' . $warehouseSku . '" 
-	AND report_id = ' . $reportId . '
-	AND b.platform = "' . $platform . '";
-        ');
-
-        $returnData = [];
-        $percentSum = 0;
-        foreach ($data as $key => $item) {
-            if ($key + 1 - count($data) != 0) {
-                $percent = round($item['qty'] / $sum[0]['qty'], 4);
-                if ($percent != 1) {
-                    $percentSum += $percent;
-                }
-            } else {
-                $percent = 1 - $percentSum;
-            }
-            $returnData[$item['userAccount']][$item['fulfillmentType']] = $percent;
-        }
-
-        return $returnData;
     }
 }

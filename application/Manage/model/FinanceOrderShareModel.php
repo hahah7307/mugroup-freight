@@ -3,6 +3,9 @@
 namespace app\Manage\model;
 
 use think\db\exception\BindParamException;
+use think\db\exception\DataNotFoundException;
+use think\db\exception\ModelNotFoundException;
+use think\exception\DbException;
 use think\exception\PDOException;
 use think\Model;
 
@@ -13,10 +16,55 @@ class FinanceOrderShareModel extends Model
     protected $resultSetType = 'collection';
 
     /**
+     * @throws ModelNotFoundException
+     * @throws DbException
+     * @throws DataNotFoundException
+     */
+    static public function sku_identify($sku): bool
+    {
+        $productObj = new ProductModel();
+        $productObj = $productObj->where(['productSku' => $sku, 'saleStatus' => 2])->select();
+        if (count($productObj) > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * @throws DataNotFoundException
+     * @throws ModelNotFoundException
+     * @throws DbException
+     */
+    static public function getMainSku($sku)
+    {
+        if (self::sku_identify($sku)) {
+            // 在售主件直接用自己
+            return $sku;
+        } else {
+            if (!strpos($sku, '-')) {
+                // 未在售主件也先用自己
+                return $sku;
+            } else {
+                $mainSku = explode('-', $sku)[0];
+                $productObj = new ProductModel();
+                $product = $productObj->where(['productSku' => ['like', $mainSku . '%'], 'saleStatus' => 2])->order('productSku asc')->find();
+                if (empty($product)) {
+                    // 未在售配件也无未在售主件
+                    return $mainSku;
+                } else {
+                    // 未在售配件有在售主件直接用该主件
+                    return $product['productSku'];
+                }
+            }
+        }
+    }
+
+    /**
      * @throws PDOException
      * @throws BindParamException
      */
-    static public function getWarehouseSkuFulfillment($warehouseSku, $table): array
+    static public function generateFulfillmentByWarehouseSkuInUserAccount($warehouseSku, $report, $userAccount): array
     {
         $model = new FinanceOrderShareModel();
         $data = $model->query('
@@ -28,8 +76,8 @@ FROM
 	LEFT JOIN mu_ecang_order b ON a.saleOrderCode = b.saleOrderCode 
 WHERE
 	a.warehouse_sku = "' . $warehouseSku . '" 
-	AND report_id = ' . $table['rid'] . ' 
-	AND a.user_account = "' . $table['userAccount'] . '"
+	AND report_id = ' . $report['id'] . ' 
+	AND a.user_account = "' . $userAccount . '"
 GROUP BY
 	fulfillmentType;
         ');
@@ -41,8 +89,8 @@ FROM
 	mu_finance_order_outbound
 WHERE
 	warehouse_sku = "' . $warehouseSku . '" 
-	AND report_id = ' . $table['rid'] . ' 
-	AND user_account = "' . $table['userAccount'] . '"
+	AND report_id = ' . $report['id'] . ' 
+	AND user_account = "' . $userAccount . '"
         ');
 
         $returnData = [];
@@ -60,5 +108,146 @@ WHERE
         }
 
         return $returnData;
+    }
+
+    static public function generateRandomCode($length = 16): string
+    {
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $randomString = '';
+        for ($i = 0; $i < $length; $i++) {
+            $randomString .= $characters[rand(0, strlen($characters) - 1)];
+        }
+        $financeOrderShareObj = new FinanceOrderShareModel();
+        $codeList = $financeOrderShareObj->column('share_code');
+        if (in_array($randomString, $codeList)) {
+            return self::generateRandomCode($length);
+        } else {
+            return $randomString;
+        }
+    }
+
+    /**
+     * @throws PDOException
+     * @throws BindParamException
+     */
+    static public function generatePlatformSaleQtyByWarehouseSku($warehouse_sku, $report)
+    {
+        $financeOrderShareObj = new FinanceOrderShareModel();
+        return $financeOrderShareObj->query('
+SELECT
+    platform,
+    warehouse_sku,
+    SUM( qty ) sale_qty
+FROM
+    mu_finance_order_outbound 
+WHERE
+    warehouse_sku = "' . $warehouse_sku . '" 
+    AND report_id = ' . $report['id'] . ' 
+GROUP BY
+    platform,
+    warehouse_sku;
+        ');
+    }
+
+    /**
+     * @throws PDOException
+     * @throws BindParamException
+     */
+    static public function generateSellerListByWarehouseSku($warehouse_sku, $report, $platform)
+    {
+        $financeOrderShareObj = new FinanceOrderShareModel();
+        return $financeOrderShareObj->query('
+SELECT DISTINCT
+    a.warehouse_sku,
+    b.platform,
+    a.seller 
+FROM
+    mu_finance_sku_relation a
+    LEFT JOIN ( SELECT DISTINCT platform, userAccount FROM mu_finance_table WHERE rid = ' . $report['id'] . ' ) b ON a.user_account = b.userAccount 
+WHERE
+    a.warehouse_sku = "' . $warehouse_sku . '"
+    AND b.platform = "' . $platform . '"
+    AND a.report_id = ' . $report['id'] . ';
+        ');
+    }
+
+    /**
+     * @throws PDOException
+     * @throws BindParamException
+     */
+    static public function generateSellerListByWarehouseSkuInUserAccount($warehouse_sku, $report, $userAccount)
+    {
+        $financeOrderShareObj = new FinanceOrderShareModel();
+        return $financeOrderShareObj->query('
+SELECT DISTINCT
+    a.warehouse_sku,
+    a.user_account,
+    a.seller 
+FROM
+    mu_finance_sku_relation a
+    LEFT JOIN ( SELECT DISTINCT platform, userAccount FROM mu_finance_table WHERE rid = ' . $report['id'] . ' ) b ON a.user_account = b.userAccount 
+WHERE
+    a.warehouse_sku = "' . $warehouse_sku . '"
+    AND a.user_account = "' . $userAccount . '"
+    AND a.report_id = ' . $report['id'] . ';
+        ');
+    }
+
+    /**
+     * @throws PDOException
+     * @throws BindParamException
+     */
+    static public function generateUserAccountListByWarehouseSkuAndSeller($warehouse_sku, $report, $seller, $platform)
+    {
+        $financeOrderShareObj = new FinanceOrderShareModel();
+        return $financeOrderShareObj->query('
+SELECT DISTINCT
+    a.warehouse_sku,
+    a.user_account,
+    a.seller 
+FROM
+    mu_finance_sku_relation a
+    LEFT JOIN ( SELECT DISTINCT platform, userAccount FROM mu_finance_table WHERE rid = ' . $report['id'] . ' ) b ON a.user_account = b.userAccount 
+WHERE
+    a.seller = "' . $seller . '" 
+    AND a.warehouse_sku = "' . $warehouse_sku . '"
+    AND b.platform = "' . $platform . '"
+    AND a.report_id = ' . $report['id'] . ';
+        ');
+    }
+
+    /**
+     * @throws PDOException
+     * @throws BindParamException
+     */
+    static public function generateSkuPercentByUserAccount($table)
+    {
+        $model = new FinanceOrderShareModel();
+        $warehouseSaleQty = $model->query('
+SELECT
+	warehouse_sku,
+	SUM( qty ) qty
+FROM
+	( SELECT DISTINCT payment_id FROM mu_finance_order_sale WHERE table_id in (SELECT id FROM mu_finance_table WHERE rid = ' . $table['rid'] . ' AND userAccount = "' . $table['userAccount'] . '")) a
+	LEFT JOIN mu_finance_order_statistics b ON a.payment_id = b.payment_id
+	LEFT JOIN mu_ecang_product c ON b.warehouse_sku = c.productSku 
+WHERE
+	c.saleStatus = 2 
+GROUP BY
+	warehouse_sku;
+            ');
+
+        $qtySum = array_sum(array_column($warehouseSaleQty, 'qty'));
+        $percentSum = 0;
+        foreach ($warehouseSaleQty as $key => $item) {
+            if ($key + 1 == count($warehouseSaleQty)) {
+                $warehouseSaleQty[$key]['percent'] = 1 - $percentSum;
+            } else {
+                $warehouseSaleQty[$key]['percent'] = round($item['qty'] / $qtySum, 4);
+                $percentSum += round($item['qty'] / $qtySum, 4);
+            }
+        }
+
+        return $warehouseSaleQty;
     }
 }
