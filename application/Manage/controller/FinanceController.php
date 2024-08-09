@@ -29,7 +29,9 @@ use app\Manage\model\FinanceWarehouseFbmModel;
 use app\Manage\model\FinanceWarehouseModel;
 use app\Manage\model\FinanceWarehouseWFSModel;
 use app\Manage\model\FinanceWayfairCoreModel;
+use app\Manage\model\ProductModel;
 use app\Manage\validate\FinanceOrderStatisticsValidate;
+use app\Manage\validate\FinanceRelationValidate;
 use app\Manage\validate\FinanceReportValidate;
 use app\Manage\validate\FinanceTableValidate;
 use app\Manage\validate\FinanceWayfairCoreValidate;
@@ -2491,7 +2493,114 @@ WHERE
         $this->assign('list', $list);
         $this->assign('report_id', $id);
 
+        Session::set(Config::get('BACK_URL'), $this->request->url(), 'manage');
+
         return view();
+    }
+
+    // 添加
+    /**
+     * @throws ModelNotFoundException
+     * @throws DbException
+     * @throws DataNotFoundException
+     */
+    public function relation_add($id)
+    {
+        if ($this->request->isPost()) {
+            $post = $this->request->post();
+            $dataValidate = new FinanceRelationValidate();
+            if ($dataValidate->scene('add')->check($post)) {
+                $model = new FinanceSkuRelationModel();
+                $productModel = new ProductModel();
+                $product = $productModel->where(['productSku' => $post['warehouse_sku']])->find();
+                if ($product) {
+                    $post['report_id'] = $id;
+                    $post['product_name'] = $product['productTitle'] . '[' . $product['productTitleEn'] . ']';
+                    $post['unit_price'] = $product['sp_unit_price'];
+                    $post['warehouse_name'] = 'ALL';
+                } else {
+                    echo json_encode(['code' => 0, 'msg' => '仓库SKU不存在']);
+                    exit;
+                }
+                if ($model->allowField(true)->save($post)) {
+                    echo json_encode(['code' => 1, 'msg' => '添加成功']);
+                    exit;
+                } else {
+                    echo json_encode(['code' => 0, 'msg' => '添加失败，请重试']);
+                    exit;
+                }
+            } else {
+                echo json_encode(['code' => 0, 'msg' => $dataValidate->getError()]);
+                exit;
+            }
+        } else {
+            $this->assign('report_id', $id);
+
+            return view();
+        }
+    }
+
+    // 编辑
+    /**
+     * @throws ModelNotFoundException
+     * @throws DbException
+     * @throws DataNotFoundException
+     */
+    public function relation_edit($id)
+    {
+        if ($this->request->isPost()) {
+            $post = $this->request->post();
+            $dataValidate = new FinanceRelationValidate();
+            if ($dataValidate->scene('edit')->check($post)) {
+                $model = new FinanceSkuRelationModel();
+                $productModel = new ProductModel();
+                $product = $productModel->where(['productSku' => $post['warehouse_sku']])->find();
+                if ($product) {
+                    $post['product_name'] = $product['productTitle'] . '[' . $product['productTitleEn'] . ']';
+                    $post['unit_price'] = $product['sp_unit_price'];
+                    $post['warehouse_name'] = 'ALL';
+                } else {
+                    echo json_encode(['code' => 0, 'msg' => '仓库SKU不存在']);
+                    exit;
+                }
+                if ($model->allowField(true)->save($post, ['id' => $id])) {
+                    echo json_encode(['code' => 1, 'msg' => '修改成功']);
+                    exit;
+                } else {
+                    echo json_encode(['code' => 0, 'msg' => '修改失败，请重试']);
+                    exit;
+                }
+            } else {
+                echo json_encode(['code' => 0, 'msg' => $dataValidate->getError()]);
+                exit;
+            }
+        } else {
+            $this->assign('info', FinanceSkuRelationModel::get($id));
+
+            return view();
+        }
+    }
+
+    // 删除
+    /**
+     * @throws DbException
+     */
+    public function relation_delete()
+    {
+        if ($this->request->isPost()) {
+            $post = $this->request->post();
+            $block = FinanceSkuRelationModel::get($post['id']);
+            if ($block->delete()) {
+                echo json_encode(['code' => 1, 'msg' => '操作成功']);
+                exit;
+            } else {
+                echo json_encode(['code' => 0, 'msg' => '操作失败，请重试']);
+                exit;
+            }
+        } else {
+            echo json_encode(['code' => 0, 'msg' => '异常操作']);
+            exit;
+        }
     }
 
     /**
