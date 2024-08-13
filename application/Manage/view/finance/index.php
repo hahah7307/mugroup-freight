@@ -105,7 +105,6 @@
     </div>
 </div>
 <script>
-    console.log(encodeURIComponent("wayfair调整&退款一店.xlsx"));
     layui.use(['form', 'jquery', 'upload', 'laydate'], function(){
         let $ = layui.jquery,
             form = layui.form,
