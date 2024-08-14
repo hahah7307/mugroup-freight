@@ -45,4 +45,5 @@ return [
     'app\Manage\command\InventoryTurnover', //
     'app\Manage\command\AkAdCostDeliveryMethod', //
     'app\Manage\command\FinanceSheinOrder', //
+    'app\Manage\command\FinanceOperationShare', //
 ];

@@ -135,6 +135,25 @@ class FinanceController extends BaseController
 
     /**
      * @throws DbException
+     */
+    public function report_operation()
+    {
+        if ($this->request->isPost()) {
+            $post = $this->request->post();
+            $report = FinanceReportModel::get($post['id']);
+            FinanceReportModel::update(['is_operation' => 0], ['id' => ['gt', 0]]);
+            $is_operation = $report['is_operation'] == 1 ? 0 : 1;
+            FinanceReportModel::update(['is_operation' => $is_operation], ['id' => $report['id']]);
+            echo json_encode(['code' => 1, 'msg' => '操作成功']);
+            exit;
+        } else {
+            echo json_encode(['code' => 0, 'msg' => '异常操作']);
+            exit;
+        }
+    }
+
+    /**
+     * @throws DbException
      * @throws ModelNotFoundException
      * @throws DataNotFoundException
      * @throws \PHPExcel_Exception

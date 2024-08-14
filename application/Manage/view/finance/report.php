@@ -29,7 +29,8 @@
                     <col width="50">
                     <col>
                     <col width="100">
-                    <col width="80">
+                    <col width="100">
+                    <col width="100">
                     <col width="315">
                 </colgroup>
                 <thead>
@@ -37,7 +38,8 @@
                     <th>ID</th>
                     <th>报表名称</th>
                     <th>月份</th>
-                    <th class="tc">状态</th>
+                    <th class="tc">营运核算</th>
+                    <th class="tc">同步状态</th>
                     <th class="tc">操作</th>
                 </tr>
                 </thead>
@@ -47,6 +49,9 @@
                     <td>{$v.id}</td>
                     <td>{$v.name}</td>
                     <td>{$v.month}</td>
+                    <td class="tc">
+                        <input type="checkbox" class="h30" name="look" value="{$v.id}" lay-skin="switch" lay-text="是|否" lay-filter="formLock" {if condition="$v.is_operation eq 1"}checked{/if}>
+                    </td>
                     <td class="tc">
                         {if condition="$v.is_notify eq 1"}
                             <span class="green">已同步</span>
@@ -119,10 +124,13 @@
 
         // 状态
         form.on('switch(formLock)', function(data){
-            $('button').attr('disabled',true);
-            axios.post("{:url('status')}", {id:data.value,type:'look'})
+            // 选中所有复选框
+            $('input[type="checkbox"]').prop('checked', false);
+            $(this).prop('checked', true);
+            form.render('checkbox'); // 只重新渲染checkbox类型
+            axios.post("{:url('report_operation')}", {id:data.value,type:'look'})
                 .then(function (response) {
-                    var res = response.data;
+                    let res = response.data;
                     if (res.code === 0) {
                         layer.alert(data.msg,{icon:2,closeBtn:0,title:false,btnAlign:'c'},function(){
                             location.reload();

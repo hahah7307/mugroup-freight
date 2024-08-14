@@ -250,4 +250,25 @@ GROUP BY
 
         return $warehouseSaleQty;
     }
+
+    /**
+     * @throws PDOException
+     * @throws BindParamException
+     */
+    static public function generateSellerInPlatformListByWarehouseSku($warehouse_sku, $report)
+    {
+        $financeOrderShareObj = new FinanceOrderShareModel();
+        return $financeOrderShareObj->query('
+SELECT DISTINCT
+	platform,
+	seller 
+FROM
+	mu_finance_sku_relation a
+	LEFT JOIN ( SELECT DISTINCT platform, userAccount FROM mu_finance_table WHERE rid = ' . $report['id'] . ' ) b ON a.user_account = b.userAccount 
+WHERE
+	warehouse_sku = "' . $warehouse_sku . '" 
+	AND a.report_id = ' . $report['id'] . ' 
+	AND platform IN ( "amazon", "wayfair", "walmart" );
+        ');
+    }
 }
