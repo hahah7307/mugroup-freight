@@ -110,11 +110,6 @@ class FinanceNotify extends Command
                     }
 
                     // 检测分摊是否完成
-                    $refund = $financeOrderRefundObj->where(['report_id' => $report['id']])->where('share_code', null)->order('id asc')->select();
-                    if (count($refund) > 0) {
-                        $output->writeln("RefundShare Unready");exit();
-                    }
-
                     $financeOrderShippingObj = new FinanceOrderShippingServiceModel();
                     $shipping = $financeOrderShippingObj->where(['report_id' => $report['id']])->where('share_code', null)->order('id asc')->select();
                     if (count($shipping) > 0) {
