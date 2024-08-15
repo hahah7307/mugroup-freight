@@ -9,6 +9,7 @@ use app\Manage\model\FinanceAdCostModel;
 use app\Manage\model\FinanceEvaluationModel;
 use app\Manage\model\FinanceOrderAdditionalModel;
 use app\Manage\model\FinanceOrderAdjustmentModel;
+use app\Manage\model\FinanceOrderAdjustmentWfsModel;
 use app\Manage\model\FinanceOrderFbaInventoryModel;
 use app\Manage\model\FinanceOrderLiquidationModel;
 use app\Manage\model\FinanceOrderPromotionModel;
@@ -1025,6 +1026,13 @@ class FinanceController extends BaseController
                             $regulatory = $financeOrderSaleObj->where(['table_id' => $tableId])->sum('regulatory_fee');
                             $promotional = $financeOrderSaleObj->where(['table_id' => $tableId])->sum('promotional_rebates');
                             $sale_amount = round($productSale + $shipping + $gift + $regulatory + $promotional, 2);
+                        }
+                    }
+
+                    if ($payment_type == "walmart") {
+                        $financeOrderAdjustmentWfsObj = new FinanceOrderAdjustmentWfsModel();
+                        if (!$financeOrderAdjustmentWfsObj->saveAll($paymentData['orderAdjustmentWfs'])) {
+                            throw new \think\Exception('Payment导入失败！');
                         }
                     }
 

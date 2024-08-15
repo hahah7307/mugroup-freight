@@ -23,6 +23,8 @@ class AmazonPayment extends Model
 
     public $orderAdjustmentNew = [];
 
+    public $orderAdjustmentWfs = [];
+
     public $orderFbaInventory = [];
 
     public $orderTransferNew = [];
@@ -935,14 +937,35 @@ class AmazonPayment extends Model
                     ];
                 }
             } elseif ($item[5] == 'ADJMNT') {
-                $this->orderAdjustmentNew[] = [
-                    "report_id"                 =>  $reportId,
-                    "table_id"                  =>  $tableId,
-                    "payment_id"                =>  number_format($item[2], 0, '', ''),
-                    "sku"                       =>  $item[8],
-                    "is_wfs_tail"               =>  $item[66] == "Walmart-fulfilled(WFS)" ? 1 : 0,
-                    "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[21])),
-                ];
+                if ($item[66] == "Walmart-fulfilled(WFS)" && $item[55] == 'WFS Fulfillment fee') {
+                    // WFS尾程
+                    $this->orderAdjustmentWfs[] = [
+                        "report_id"                 =>  $reportId,
+                        "table_id"                  =>  $tableId,
+                        "payment_id"                =>  number_format($item[2], 0, '', ''),
+                        "sku"                       =>  $item[8],
+                        "is_fulfillment"            =>  1,
+                        "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[21])),
+                    ];
+                } elseif ($item[66] == "Walmart-fulfilled(WFS)" && $item[55] == '"WFS Return Shipping fee "') {
+                    // WFS退运费
+                    $this->orderAdjustmentWfs[] = [
+                        "report_id"                 =>  $reportId,
+                        "table_id"                  =>  $tableId,
+                        "payment_id"                =>  number_format($item[2], 0, '', ''),
+                        "sku"                       =>  $item[8],
+                        "is_return_shipping"        =>  1,
+                        "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[21])),
+                    ];
+                } else {
+                    $this->orderAdjustmentNew[] = [
+                        "report_id"                 =>  $reportId,
+                        "table_id"                  =>  $tableId,
+                        "payment_id"                =>  number_format($item[2], 0, '', ''),
+                        "sku"                       =>  $item[8],
+                        "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[21])),
+                    ];
+                }
             }
         }
 
@@ -955,7 +978,8 @@ class AmazonPayment extends Model
             'orderLiquidationNew'       =>  $this->orderLiquidationNew,
             'orderAdjustmentNew'        =>  $this->orderAdjustmentNew,
             'orderFbaInventory'         =>  $this->orderFbaInventory,
-            'orderTransferNew'          =>  $this->orderTransferNew
+            'orderTransferNew'          =>  $this->orderTransferNew,
+            'orderAdjustmentWfs'        =>  $this->orderAdjustmentWfs
         ];
     }
 
