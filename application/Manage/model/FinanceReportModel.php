@@ -3148,29 +3148,32 @@ SELECT
 	SUM( ROUND( adjustment, 6 ) ) adjustment,
 	SUM( ROUND( lc_adjustment, 6 ) ) lc_adjustment,
 	SUM( ROUND( le_adjustment, 6 ) ) le_adjustment,
+	SUM( ROUND( operation_expenses, 4 ) ) operation_expenses,
+	SUM( ROUND( operation_factory, 4 ) ) operation_factory,
+	SUM( ROUND( operation_delivery, 4 ) ) operation_delivery,
 	ROUND( SUM( IFNULL( adCost, 0 ) ) / SUM( IFNULL( sale_amount, 0 ) ) * - 1, 4 ) ad_percent,
 	ROUND( SUM( IFNULL( warehouse_rent, 0 ) ) / SUM( IFNULL( sale_amount, 0 ) ) * - 1, 4 ) warehouse_percent,
 	ROUND( SUM( IFNULL( calcuRes, 0 ) ) / SUM( IFNULL( sale_amount, 0 ) ) * - 1, 4 ) tail_percent,
 	ROUND( SUM( IFNULL( ddp, 0 ) ) / SUM( IFNULL( sale_amount, 0 ) ) * - 1, 4 ) ddp_percent,
 	ROUND(
-		SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( lc_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ),
+		SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( lc_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( operation_expenses, 0 ) ) + SUM( IFNULL( operation_factory, 0 ) ) + SUM( IFNULL( operation_delivery, 0 ) ),
 		2 
 	) profit,
 	ROUND(
 		(
-			SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( lc_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) 
+			SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( lc_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( operation_expenses, 0 ) ) + SUM( IFNULL( operation_factory, 0 ) ) + SUM( IFNULL( operation_delivery, 0 ) ) 
 		) / SUM( IFNULL( sale_amount, 0 ) ),
 		4 
 	) gross_profit_margin,
 	SUM( ROUND( evaluation_qty, 3 ) ) evaluation_qty,
 	SUM( ROUND( evaluation_amount, 2 ) ) evaluation_amount,
 	ROUND(
-		SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( lc_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( evaluation_amount, 0 ) ),
+		SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( lc_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( operation_expenses, 0 ) ) + SUM( IFNULL( operation_factory, 0 ) ) + SUM( IFNULL( operation_delivery, 0 ) ) + SUM( IFNULL( evaluation_amount, 0 ) ),
 		2 
 	) profit_include_evaluation,
 	ROUND(
 		(
-			SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( lc_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( evaluation_amount, 0 ) ) 
+			SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( lc_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( operation_expenses, 0 ) ) + SUM( IFNULL( operation_factory, 0 ) ) + SUM( IFNULL( operation_delivery, 0 ) ) + SUM( IFNULL( evaluation_amount, 0 ) ) 
 		) / SUM( IFNULL( sale_amount, 0 ) ),
 		2 
 	) gross_profit_margin_include_evaluation,
@@ -3195,6 +3198,9 @@ FROM
 		SUM( ROUND( adjustment, 6 ) ) adjustment,
 		SUM( ROUND( lc_adjustment, 6 ) ) lc_adjustment,
 		SUM( ROUND( le_adjustment, 6 ) ) le_adjustment,
+		SUM( ROUND( operation_expenses, 4 ) ) operation_expenses,
+		SUM( ROUND( operation_factory, 4 ) ) operation_factory,
+		SUM( ROUND( operation_delivery, 4 ) ) operation_delivery,
 		SUM( ROUND( evaluation_qty, 3 ) ) evaluation_qty,
 		SUM( ROUND( evaluation_amount, 2 ) ) * - 1 evaluation_amount 
 	FROM
@@ -3216,6 +3222,9 @@ FROM
 			SUM( ROUND( adjustment, 6 ) ) adjustment,
 			SUM( ROUND( lc_adjustment, 6 ) ) lc_adjustment,
 			SUM( ROUND( le_adjustment, 6 ) ) le_adjustment,
+			NULL AS operation_expenses,
+			NULL AS operation_factory,
+			NULL AS operation_delivery,
 			NULL AS evaluation_qty,
 			NULL AS evaluation_amount 
 		FROM
@@ -3255,7 +3264,7 @@ FROM
 					AND b.platform = "shein" 
 				) a
 				LEFT JOIN mu_finance_order_statistics b ON a.payment_id = b.payment_id
-				LEFT JOIN mu_ecang_order c ON b.saleOrderCode = c.saleOrderCode
+				LEFT JOIN mu_ecang_order c ON b.saleOrderCode = c.saleOrderCode 
 			WHERE
 				b.payment_id IS NOT NULL UNION ALL
 			SELECT
@@ -3295,7 +3304,7 @@ FROM
 				LEFT JOIN mu_finance_order_outbound b ON b.payment_id = a.payment_id 
 				AND b.report_id = ' . $report_id . '
 				LEFT JOIN mu_finance_store c ON b.store_id = c.id
-				LEFT JOIN mu_finance_report d ON b.report_id = d.id
+				LEFT JOIN mu_finance_report d ON b.report_id = d.id 
 			WHERE
 				b.payment_id IS NOT NULL UNION ALL
 			SELECT
@@ -3438,8 +3447,7 @@ FROM
 				LEFT JOIN ( SELECT DISTINCT platform, userAccount FROM mu_finance_table WHERE rid = ' . $report_id . ' ) c ON b.user_account = c.userAccount 
 			WHERE
 				a.report_id = ' . $report_id . ' 
-				AND b.report_id = ' . $report_id . '
-				AND c.platform = "shein"
+				AND c.platform = "shein" 
 			GROUP BY
 				platform,
 				user_account,
@@ -3466,6 +3474,9 @@ FROM
 			NULL AS adjustment,
 			NULL AS lc_adjustment,
 			NULL AS le_adjustment,
+			NULL AS operation_expenses,
+			NULL AS operation_factory,
+			NULL AS operation_delivery,
 			b.qty evaluation_qty,
 			ROUND( a.cny_actual_paid / c.USD, 2 ) evaluation_amount 
 		FROM
@@ -3494,13 +3505,103 @@ FROM
 			NULL AS adjustment,
 			NULL AS lc_adjustment,
 			NULL AS le_adjustment,
+			NULL AS operation_expenses,
+			NULL AS operation_factory,
+			NULL AS operation_delivery,
 			NULL AS evaluation_qty,
 			NULL AS evaluation_amount 
 		FROM
 			mu_finance_ad_cost 
 		WHERE
 			report_id = ' . $report_id . ' 
-			AND platform = "shein" 
+			AND platform = "shein" UNION ALL
+		SELECT
+			c.platform AS platform,
+			c.userAccount userAccount,
+			b.warehouse_sku warehouse_sku,
+			NULL AS sale_qty,
+			NULL AS refund_qty,
+			NULL AS sale_amount,
+			NULL AS refund_amount,
+			NULL AS sale_selling_fees,
+			NULL AS refund_selling_fees,
+			NULL AS calcuRes,
+			NULL AS ddp,
+			NULL AS adCost,
+			NULL AS warehouse_rent,
+			NULL AS adjustment,
+			NULL AS lc_adjustment,
+			NULL AS le_adjustment,
+			b.total operation_expenses,
+			NULL AS operation_factory,
+			NULL AS operation_delivery,
+			NULL AS evaluation_qty,
+			NULL AS evaluation_amount 
+		FROM
+			mu_finance_operation_expenses a
+			LEFT JOIN mu_finance_order_share b ON a.share_code = b.share_code
+			LEFT JOIN ( SELECT DISTINCT platform, userAccount FROM mu_finance_table WHERE rid = ' . $report_id . ' ) c ON b.user_account = c.userAccount 
+		WHERE
+			a.report_id = ' . $report_id . ' 
+			AND c.platform = "shein" UNION ALL
+		SELECT
+			c.platform AS platform,
+			c.userAccount userAccount,
+			b.warehouse_sku warehouse_sku,
+			NULL AS sale_qty,
+			NULL AS refund_qty,
+			NULL AS sale_amount,
+			NULL AS refund_amount,
+			NULL AS sale_selling_fees,
+			NULL AS refund_selling_fees,
+			NULL AS calcuRes,
+			NULL AS ddp,
+			NULL AS adCost,
+			NULL AS warehouse_rent,
+			NULL AS adjustment,
+			NULL AS lc_adjustment,
+			NULL AS le_adjustment,
+			NULL AS operation_expenses,
+			b.total operation_factory,
+			NULL AS operation_delivery,
+			NULL AS evaluation_qty,
+			NULL AS evaluation_amount 
+		FROM
+			mu_finance_operation_factory a
+			LEFT JOIN mu_finance_order_share b ON a.share_code = b.share_code
+			LEFT JOIN ( SELECT DISTINCT platform, userAccount FROM mu_finance_table WHERE rid = ' . $report_id . ' ) c ON b.user_account = c.userAccount 
+		WHERE
+			a.report_id = ' . $report_id . ' 
+			AND c.platform = "shein" UNION ALL
+		SELECT
+			c.platform AS platform,
+			c.userAccount userAccount,
+			b.warehouse_sku warehouse_sku,
+			NULL AS sale_qty,
+			NULL AS refund_qty,
+			NULL AS sale_amount,
+			NULL AS refund_amount,
+			NULL AS sale_selling_fees,
+			NULL AS refund_selling_fees,
+			NULL AS calcuRes,
+			NULL AS ddp,
+			NULL AS adCost,
+			NULL AS warehouse_rent,
+			NULL AS adjustment,
+			NULL AS lc_adjustment,
+			NULL AS le_adjustment,
+			NULL AS operation_expenses,
+			NULL AS operation_factory,
+			b.total operation_delivery,
+			NULL AS evaluation_qty,
+			NULL AS evaluation_amount 
+		FROM
+			mu_finance_operation_delivery a
+			LEFT JOIN mu_finance_order_share b ON a.share_code = b.share_code
+			LEFT JOIN ( SELECT DISTINCT platform, userAccount FROM mu_finance_table WHERE rid = ' . $report_id . ' ) c ON b.user_account = c.userAccount 
+		WHERE
+			a.report_id = ' . $report_id . ' 
+			AND c.platform = "shein" 
 		) a 
 	GROUP BY
 		platform,
