@@ -1,6 +1,7 @@
 <?php
 namespace app\Manage\command;
 
+use app\Manage\model\FinanceOperationDeliveryModel;
 use app\Manage\model\FinanceOperationExpensesModel;
 use app\Manage\model\FinanceOperationFactoryModel;
 use app\Manage\model\FinanceOrderOutboundModel;
@@ -327,6 +328,49 @@ class FinanceOperationShare extends Command
                     }
 
                     if ($factoryObj->update(['report_id' => $reportItem['id'], 'calculate_month' => date('Ym', strtotime($reportItem['month'] . '-01')), 'share_code' => $shareCode], ['id' => $item['id']])) {
+                        $financeOrderShareObj->insertAll($shareItem);
+                    }
+                }
+
+                // 国内快递费用分摊
+                $deliveryObj = new FinanceOperationDeliveryModel();
+                $deliveryList = $deliveryObj->where('report_id', null)->order('id asc')->select();
+                foreach ($deliveryList as $item) {
+                    if (!in_array($item['sku'], $SkuList)) {
+                        continue;
+                    }
+
+                    $shareItem = [];
+                    $shareCode = FinanceOrderShareModel::generateRandomCode();
+                    $fulfillmentData = FinanceOrderShareModel::generateFulfillmentByWarehouseSkuInUserAccount($item['sku'], $reportItem, $item['user_account']);
+                    if ($fulfillmentData) {
+                        foreach ($fulfillmentData as $k => $v) {
+                            $shareItem[] = [
+                                'report_id'     =>  $reportItem['id'],
+                                'user_account'  =>  $item['user_account'],
+                                'fulfillment'   =>  $k == 1 ? 'FBA' : 'FBM',
+                                'cost_type'     =>  'OPERATION_DELIVERY',
+                                'share_code'    =>  $shareCode,
+                                'warehouse_sku' =>  $item['sku'],
+                                'amount'        =>  $item['total'],
+                                'percent'       =>  $v,
+                                'total'         =>  $item['total'] * $v
+                            ];
+                        }
+                    } else {
+                        $shareItem[] = [
+                            'report_id'     =>  $reportItem['id'],
+                            'user_account'  =>  $item['user_account'],
+                            'fulfillment'   =>  'FBM',
+                            'cost_type'     =>  'OPERATION_DELIVERY',
+                            'share_code'    =>  $shareCode,
+                            'warehouse_sku' =>  $item['sku'],
+                            'amount'        =>  $item['total'],
+                            'percent'       =>  1,
+                            'total'         =>  $item['total']
+                        ];
+                    }
+                    if ($deliveryObj->update(['report_id' => $reportItem['id'], 'calculate_month' => date('Ym', strtotime($reportItem['month'] . '-01')), 'share_code' => $shareCode], ['id' => $item['id']])) {
                         $financeOrderShareObj->insertAll($shareItem);
                     }
                 }
