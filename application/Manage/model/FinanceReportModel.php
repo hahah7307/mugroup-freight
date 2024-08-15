@@ -704,29 +704,32 @@ SELECT
 	SUM( ROUND( liquidation, 6 ) ) liquidation,
 	SUM( ROUND( promotion, 6 ) ) promotion,
 	SUM( ROUND( shipping_service, 6 ) ) shipping_service,
+	SUM( ROUND( operation_expenses, 4 ) ) operation_expenses,
+	SUM( ROUND( operation_factory, 4 ) ) operation_factory,
+	SUM( ROUND( operation_delivery, 4 ) ) operation_delivery,
 	ROUND( SUM( IFNULL( fba_adCost, 0 ) ) / SUM( IFNULL( fba_sale_amount, 0 ) ) * - 1, 4 ) ad_percent,
 	ROUND( SUM( IFNULL( fba_inventory, 0 ) ) / SUM( IFNULL( fba_sale_amount, 0 ) ) * - 1, 4 ) inventory_percent,
 	ROUND( SUM( IFNULL( fba_fees, 0 ) ) / SUM( IFNULL( fba_sale_amount, 0 ) ) * - 1, 4 ) tail_percent,
 	ROUND( SUM( IFNULL( fba_ddp, 0 ) ) / SUM( IFNULL( fba_sale_amount, 0 ) ) * - 1, 4 ) ddp_percent,
 	ROUND(
-		SUM( IFNULL( fba_sale_amount, 0 ) ) + SUM( IFNULL( fba_sale_tax, 0 ) ) + SUM( IFNULL( fba_refund_amount, 0 ) ) + SUM( IFNULL( fba_sale_selling_fees, 0 ) ) + SUM( IFNULL( fba_refund_selling_fees, 0 ) ) + SUM( IFNULL( fba_fees, 0 ) ) + SUM( IFNULL( fba_refund_fees, 0 ) ) + SUM( IFNULL( fba_refund_other, 0 ) ) + SUM( IFNULL( fba_ddp, 0 ) ) + SUM( IFNULL( fba_adCost, 0 ) ) + SUM( IFNULL( fba_inventory, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( liquidation, 0 ) ) + SUM( IFNULL( promotion, 0 ) ) + SUM( IFNULL( shipping_service, 0 ) ),
+		SUM( IFNULL( fba_sale_amount, 0 ) ) + SUM( IFNULL( fba_sale_tax, 0 ) ) + SUM( IFNULL( fba_refund_amount, 0 ) ) + SUM( IFNULL( fba_sale_selling_fees, 0 ) ) + SUM( IFNULL( fba_refund_selling_fees, 0 ) ) + SUM( IFNULL( fba_fees, 0 ) ) + SUM( IFNULL( fba_refund_fees, 0 ) ) + SUM( IFNULL( fba_refund_other, 0 ) ) + SUM( IFNULL( fba_ddp, 0 ) ) + SUM( IFNULL( fba_adCost, 0 ) ) + SUM( IFNULL( fba_inventory, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( liquidation, 0 ) ) + SUM( IFNULL( promotion, 0 ) ) + SUM( IFNULL( shipping_service, 0 ) ) + SUM( IFNULL( operation_expenses, 0 ) ) + SUM( IFNULL( operation_factory, 0 ) ) + SUM( IFNULL( operation_delivery, 0 ) ),
 		2 
 	) profit,
 	ROUND(
 		(
-			SUM( IFNULL( fba_sale_amount, 0 ) ) + SUM( IFNULL( fba_sale_tax, 0 ) ) + SUM( IFNULL( fba_refund_amount, 0 ) ) + SUM( IFNULL( fba_sale_selling_fees, 0 ) ) + SUM( IFNULL( fba_refund_selling_fees, 0 ) ) + SUM( IFNULL( fba_fees, 0 ) ) + SUM( IFNULL( fba_refund_fees, 0 ) ) + SUM( IFNULL( fba_refund_other, 0 ) ) + SUM( IFNULL( fba_ddp, 0 ) ) + SUM( IFNULL( fba_adCost, 0 ) ) + SUM( IFNULL( fba_inventory, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( liquidation, 0 ) ) + SUM( IFNULL( promotion, 0 ) ) + SUM( IFNULL( shipping_service, 0 ) )
+			SUM( IFNULL( fba_sale_amount, 0 ) ) + SUM( IFNULL( fba_sale_tax, 0 ) ) + SUM( IFNULL( fba_refund_amount, 0 ) ) + SUM( IFNULL( fba_sale_selling_fees, 0 ) ) + SUM( IFNULL( fba_refund_selling_fees, 0 ) ) + SUM( IFNULL( fba_fees, 0 ) ) + SUM( IFNULL( fba_refund_fees, 0 ) ) + SUM( IFNULL( fba_refund_other, 0 ) ) + SUM( IFNULL( fba_ddp, 0 ) ) + SUM( IFNULL( fba_adCost, 0 ) ) + SUM( IFNULL( fba_inventory, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( liquidation, 0 ) ) + SUM( IFNULL( promotion, 0 ) ) + SUM( IFNULL( shipping_service, 0 ) ) + SUM( IFNULL( operation_expenses, 0 ) ) + SUM( IFNULL( operation_factory, 0 ) ) + SUM( IFNULL( operation_delivery, 0 ) ) 
 		) / SUM( IFNULL( fba_sale_amount, 0 ) ),
 		4 
 	) gross_profit_margin,
 	SUM( ROUND( evaluation_qty, 3 ) ) evaluation_qty,
 	SUM( ROUND( evaluation_amount, 2 ) ) evaluation_amount,
 	ROUND(
-		SUM( IFNULL( fba_sale_amount, 0 ) ) + SUM( IFNULL( fba_sale_tax, 0 ) ) + SUM( IFNULL( fba_refund_amount, 0 ) ) + SUM( IFNULL( fba_sale_selling_fees, 0 ) ) + SUM( IFNULL( fba_refund_selling_fees, 0 ) ) + SUM( IFNULL( fba_fees, 0 ) ) + SUM( IFNULL( fba_refund_fees, 0 ) ) + SUM( IFNULL( fba_refund_other, 0 ) ) + SUM( IFNULL( fba_ddp, 0 ) ) + SUM( IFNULL( fba_adCost, 0 ) ) + SUM( IFNULL( fba_inventory, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( liquidation, 0 ) ) + SUM( IFNULL( promotion, 0 ) ) + SUM( IFNULL( shipping_service, 0 ) ) + SUM( IFNULL( evaluation_amount, 0 ) ),
+		SUM( IFNULL( fba_sale_amount, 0 ) ) + SUM( IFNULL( fba_sale_tax, 0 ) ) + SUM( IFNULL( fba_refund_amount, 0 ) ) + SUM( IFNULL( fba_sale_selling_fees, 0 ) ) + SUM( IFNULL( fba_refund_selling_fees, 0 ) ) + SUM( IFNULL( fba_fees, 0 ) ) + SUM( IFNULL( fba_refund_fees, 0 ) ) + SUM( IFNULL( fba_refund_other, 0 ) ) + SUM( IFNULL( fba_ddp, 0 ) ) + SUM( IFNULL( fba_adCost, 0 ) ) + SUM( IFNULL( fba_inventory, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( liquidation, 0 ) ) + SUM( IFNULL( promotion, 0 ) ) + SUM( IFNULL( shipping_service, 0 ) ) + SUM( IFNULL( operation_expenses, 0 ) ) + SUM( IFNULL( operation_factory, 0 ) ) + SUM( IFNULL( operation_delivery, 0 ) ) + SUM( IFNULL( evaluation_amount, 0 ) ),
 		2 
 	) profit_include_evaluation,
 	ROUND(
 		(
-			SUM( IFNULL( fba_sale_amount, 0 ) ) + SUM( IFNULL( fba_sale_tax, 0 ) ) + SUM( IFNULL( fba_refund_amount, 0 ) ) + SUM( IFNULL( fba_sale_selling_fees, 0 ) ) + SUM( IFNULL( fba_refund_selling_fees, 0 ) ) + SUM( IFNULL( fba_fees, 0 ) ) + SUM( IFNULL( fba_refund_fees, 0 ) ) + SUM( IFNULL( fba_refund_other, 0 ) ) + SUM( IFNULL( fba_ddp, 0 ) ) + SUM( IFNULL( fba_adCost, 0 ) ) + SUM( IFNULL( fba_inventory, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( liquidation, 0 ) ) + SUM( IFNULL( promotion, 0 ) ) + SUM( IFNULL( shipping_service, 0 ) ) + SUM( IFNULL( evaluation_amount, 0 ) ) 
+			SUM( IFNULL( fba_sale_amount, 0 ) ) + SUM( IFNULL( fba_sale_tax, 0 ) ) + SUM( IFNULL( fba_refund_amount, 0 ) ) + SUM( IFNULL( fba_sale_selling_fees, 0 ) ) + SUM( IFNULL( fba_refund_selling_fees, 0 ) ) + SUM( IFNULL( fba_fees, 0 ) ) + SUM( IFNULL( fba_refund_fees, 0 ) ) + SUM( IFNULL( fba_refund_other, 0 ) ) + SUM( IFNULL( fba_ddp, 0 ) ) + SUM( IFNULL( fba_adCost, 0 ) ) + SUM( IFNULL( fba_inventory, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( liquidation, 0 ) ) + SUM( IFNULL( promotion, 0 ) ) + SUM( IFNULL( shipping_service, 0 ) ) + SUM( IFNULL( operation_expenses, 0 ) ) + SUM( IFNULL( operation_factory, 0 ) ) + SUM( IFNULL( operation_delivery, 0 ) ) + SUM( IFNULL( evaluation_amount, 0 ) ) 
 		) / SUM( IFNULL( fba_sale_amount, 0 ) ),
 		2 
 	) gross_profit_margin_include_evaluation,
@@ -755,6 +758,9 @@ FROM
 		SUM( ROUND( liquidation, 6 ) ) liquidation,
 		SUM( ROUND( promotion, 6 ) ) promotion,
 		SUM( ROUND( shipping_service, 6 ) ) shipping_service,
+		SUM( ROUND( operation_expenses, 4 ) ) operation_expenses,
+		SUM( ROUND( operation_factory, 4 ) ) operation_factory,
+		SUM( ROUND( operation_delivery, 4 ) ) operation_delivery,
 		SUM( ROUND( evaluation_qty, 3 ) ) evaluation_qty,
 		SUM( ROUND( evaluation_amount, 2 ) ) * - 1 evaluation_amount 
 	FROM
@@ -780,6 +786,9 @@ FROM
 			SUM( ROUND( liquidation, 6 ) ) liquidation,
 			SUM( ROUND( promotion, 6 ) ) promotion,
 			SUM( ROUND( shipping_service, 6 ) ) shipping_service,
+			NULL AS operation_expenses,
+			NULL AS operation_factory,
+			NULL AS operation_delivery,
 			NULL AS evaluation_qty,
 			NULL AS evaluation_amount 
 		FROM
@@ -820,11 +829,11 @@ FROM
 					mu_finance_order_sale a
 					LEFT JOIN mu_finance_table b ON a.table_id = b.id 
 				WHERE
-					report_id = ' . $report_id . '
+					report_id = ' . $report_id . ' 
 					AND a.fulfillment = "Amazon" 
 					AND b.platform = "amazon" 
 				) a
-				LEFT JOIN mu_finance_order_statistics b ON a.payment_id = b.payment_id
+				LEFT JOIN mu_finance_order_statistics b ON a.payment_id = b.payment_id 
 			WHERE
 				b.payment_id IS NOT NULL UNION ALL
 			SELECT
@@ -912,7 +921,7 @@ FROM
 				LEFT JOIN mu_finance_order_outbound b ON b.payment_id = a.payment_id 
 				AND b.report_id = ' . $report_id . '
 				LEFT JOIN mu_finance_store c ON b.store_id = c.id
-				LEFT JOIN mu_finance_report d ON b.report_id = d.id
+				LEFT JOIN mu_finance_report d ON b.report_id = d.id 
 			WHERE
 				b.payment_id IS NOT NULL UNION ALL
 			SELECT
@@ -1127,6 +1136,9 @@ FROM
 			NULL AS liquidation,
 			NULL AS promotion,
 			NULL AS shipping_service,
+			NULL AS operation_expenses,
+			NULL AS operation_factory,
+			NULL AS operation_delivery,
 			NULL AS evaluation_qty,
 			NULL AS evaluation_amount 
 		FROM
@@ -1138,7 +1150,7 @@ FROM
 			LEFT JOIN mu_ecang_sku_relation e ON e.sku_id = d.id 
 		WHERE
 			reportDateMonth = "' . $month . '" 
-			AND a.totalAdsCost != 0
+			AND a.totalAdsCost != 0 
 			AND is_fba = 1 
 		GROUP BY
 			platform,
@@ -1167,6 +1179,9 @@ FROM
 			NULL AS liquidation,
 			NULL AS promotion,
 			NULL AS shipping_service,
+			NULL AS operation_expenses,
+			NULL AS operation_factory,
+			NULL AS operation_delivery,
 			NULL AS evaluation_qty,
 			NULL AS evaluation_amount 
 		FROM
@@ -1179,7 +1194,7 @@ FROM
 		WHERE
 			reportDateMonth = "' . $month . '" 
 			AND a.sharedLabelingFee + a.fbaStorageFee + a.longTermStorageFee + a.sharedFbaDisposalFee + a.sharedAmazonPartneredCarrierShipmentFee + a.sharedFbaInboundConvenienceFee != 0 
-			AND e.pcr_product_sku IS NOT NULL
+			AND e.pcr_product_sku IS NOT NULL 
 		GROUP BY
 			platform,
 			userAccount,
@@ -1205,6 +1220,9 @@ FROM
 			NULL AS liquidation,
 			NULL AS promotion,
 			NULL AS shipping_service,
+			NULL AS operation_expenses,
+			NULL AS operation_factory,
+			NULL AS operation_delivery,
 			b.qty evaluation_qty,
 			ROUND( a.cny_actual_paid / c.USD, 2 ) evaluation_amount 
 		FROM
@@ -1215,7 +1233,109 @@ FROM
 		WHERE
 			d.fulfillmentType = 1 
 			AND a.report_id = ' . $report_id . ' 
-			AND b.platform = "amazon" 
+			AND b.platform = "amazon" UNION ALL
+		SELECT
+			c.platform AS platform,
+			c.userAccount userAccount,
+			b.warehouse_sku warehouse_sku,
+			NULL AS fba_sale_qty,
+			NULL AS fba_refund_qty,
+			NULL AS fba_sale_amount,
+			NULL AS fba_sale_tax,
+			NULL AS fba_refund_amount,
+			NULL AS fba_sale_selling_fees,
+			NULL AS fba_refund_selling_fees,
+			NULL AS fba_fees,
+			NULL AS fba_refund_fees,
+			NULL AS fba_refund_other,
+			NULL AS fba_ddp,
+			NULL AS fba_adCost,
+			NULL AS fba_inventory,
+			NULL AS adjustment,
+			NULL AS liquidation,
+			NULL AS promotion,
+			NULL AS shipping_service,
+			b.total operation_expenses,
+			NULL AS operation_factory,
+			NULL AS operation_delivery,
+			NULL AS evaluation_qty,
+			NULL AS evaluation_amount 
+		FROM
+			mu_finance_operation_expenses a
+			LEFT JOIN mu_finance_order_share b ON a.share_code = b.share_code
+			LEFT JOIN ( SELECT DISTINCT platform, userAccount FROM mu_finance_table WHERE rid = ' . $report_id . ' ) c ON b.user_account = c.userAccount 
+		WHERE
+			a.report_id = ' . $report_id . ' 
+			AND b.fulfillment = "FBA" 
+			AND c.platform = "amazon" UNION ALL
+		SELECT
+			c.platform AS platform,
+			c.userAccount userAccount,
+			b.warehouse_sku warehouse_sku,
+			NULL AS fba_sale_qty,
+			NULL AS fba_refund_qty,
+			NULL AS fba_sale_amount,
+			NULL AS fba_sale_tax,
+			NULL AS fba_refund_amount,
+			NULL AS fba_sale_selling_fees,
+			NULL AS fba_refund_selling_fees,
+			NULL AS fba_fees,
+			NULL AS fba_refund_fees,
+			NULL AS fba_refund_other,
+			NULL AS fba_ddp,
+			NULL AS fba_adCost,
+			NULL AS fba_inventory,
+			NULL AS adjustment,
+			NULL AS liquidation,
+			NULL AS promotion,
+			NULL AS shipping_service,
+			NULL AS operation_expenses,
+			b.total operation_factory,
+			NULL AS operation_delivery,
+			NULL AS evaluation_qty,
+			NULL AS evaluation_amount 
+		FROM
+			mu_finance_operation_factory a
+			LEFT JOIN mu_finance_order_share b ON a.share_code = b.share_code
+			LEFT JOIN ( SELECT DISTINCT platform, userAccount FROM mu_finance_table WHERE rid = ' . $report_id . ' ) c ON b.user_account = c.userAccount 
+		WHERE
+			a.report_id = ' . $report_id . ' 
+			AND b.fulfillment = "FBA" 
+			AND c.platform = "amazon" UNION ALL
+		SELECT
+			c.platform AS platform,
+			c.userAccount userAccount,
+			b.warehouse_sku warehouse_sku,
+			NULL AS fba_sale_qty,
+			NULL AS fba_refund_qty,
+			NULL AS fba_sale_amount,
+			NULL AS fba_sale_tax,
+			NULL AS fba_refund_amount,
+			NULL AS fba_sale_selling_fees,
+			NULL AS fba_refund_selling_fees,
+			NULL AS fba_fees,
+			NULL AS fba_refund_fees,
+			NULL AS fba_refund_other,
+			NULL AS fba_ddp,
+			NULL AS fba_adCost,
+			NULL AS fba_inventory,
+			NULL AS adjustment,
+			NULL AS liquidation,
+			NULL AS promotion,
+			NULL AS shipping_service,
+			NULL AS operation_expenses,
+			NULL AS operation_factory,
+			b.total operation_delivery,
+			NULL AS evaluation_qty,
+			NULL AS evaluation_amount 
+		FROM
+			mu_finance_operation_delivery a
+			LEFT JOIN mu_finance_order_share b ON a.share_code = b.share_code
+			LEFT JOIN ( SELECT DISTINCT platform, userAccount FROM mu_finance_table WHERE rid = ' . $report_id . ' ) c ON b.user_account = c.userAccount 
+		WHERE
+			a.report_id = ' . $report_id . ' 
+			AND b.fulfillment = "FBA" 
+			AND c.platform = "amazon" 
 		) a 
 	GROUP BY
 		platform,
@@ -1225,7 +1345,7 @@ FROM
 		platform,
 		userAccount,
 		warehouse_sku 
-	) a 
+	) a
 	LEFT JOIN ( SELECT DISTINCT user_account, warehouse_sku, seller, product_name FROM mu_finance_sku_relation WHERE report_id = ' . $report_id . ' ) b ON a.userAccount = b.user_account 
 	AND a.warehouse_sku = b.warehouse_sku 
 GROUP BY
