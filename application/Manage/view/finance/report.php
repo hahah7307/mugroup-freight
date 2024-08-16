@@ -31,7 +31,7 @@
                     <col width="100">
                     <col width="100">
                     <col width="100">
-                    <col width="315">
+                    <col width="220">
                 </colgroup>
                 <thead>
                 <tr>
@@ -61,10 +61,7 @@
                     </td>
                     <td class="tl">
                         <a href="{:url('index', ['id' => $v.id])}" class="layui-btn layui-btn-sm">账单</a>
-                        <a href="{:url('warehouse', ['id' => $v.id])}" class="layui-btn layui-btn-sm">仓租</a>
-                        <a href="{:url('additional', ['id' => $v.id])}" class="layui-btn layui-btn-sm">额外</a>
-                        <a href="{:url('evaluation', ['id' => $v.id])}" class="layui-btn layui-btn-sm">测评</a>
-                        <a href="{:url('ad_cost', ['id' => $v.id])}" class="layui-btn layui-btn-sm">广告</a>
+                        <a href="{:url('cost', ['id' => $v.id])}" class="layui-btn layui-btn-sm">费用</a>
                         <a href="{:url('relation', ['id' => $v.id])}" class="layui-btn layui-btn-sm">映射</a>
                         <a href="{:url('store', ['id' => $v.id])}" class="layui-btn layui-btn-sm">库存</a>
                         <a href="{:url('outbound', ['id' => $v.id])}" class="layui-btn layui-btn-sm">出库</a>
