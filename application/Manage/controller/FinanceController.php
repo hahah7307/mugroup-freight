@@ -2414,9 +2414,15 @@ WHERE
         $keyword = $this->request->get('keyword', '', 'htmlspecialchars');
         $this->assign('keyword', $keyword);
         if ($keyword) {
-            $where['share_code|payment|seller_sku|warehouse_sku'] = ['like', '%' . $keyword . '%'];
+            $where['share_code|user_account|fulfillment|cost_type|payment|seller_sku|warehouse_sku'] = ['like', '%' . $keyword . '%'];
         } else {
             $where = [];
+        }
+
+        $costType = $this->request->get('cost_type', '', 'htmlspecialchars');
+        if ($costType) {
+            $where['cost_type'] = $costType;
+            $this->assign('cost_type', $costType);
         }
 
         $page_num = $this->request->get('page_num', Config::get('PAGE_NUM'));

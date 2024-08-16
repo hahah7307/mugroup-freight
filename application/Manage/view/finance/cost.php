@@ -41,7 +41,7 @@
                 </tr>
                 <tr>
                     <td>测评</td>
-                    <td>测评费用（系统会根据实际出库进行分摊，且币种换算成美金）</td>
+                    <td>测评费用（系统会根据实际出库进行分摊，且币种换算成美金只在最终导出表格内呈现）</td>
                     <td class="tc">
                         <a href="{:url('evaluation', ['id' => $id])}" class="layui-btn layui-btn layui-btn-sm">查看</a>
                     </td>
@@ -55,21 +55,21 @@
                 </tr>
                 <tr>
                     <td>台账-国内广告</td>
-                    <td>国内广告费（包含）</td>
+                    <td>国内广告费（包含专利费、设计费、建模费、等其他费用，有分摊记录）</td>
                     <td class="tc">
                         <a href="{:url('operation_expenses', ['id' => $id])}" class="layui-btn layui-btn layui-btn-sm">查看</a>
                     </td>
                 </tr>
                 <tr>
                     <td>台账-工厂</td>
-                    <td>国内广告费（包含）</td>
+                    <td>工厂运费（包含工厂运费、杂费和各种退款等，有分摊记录）</td>
                     <td class="tc">
                         <a href="{:url('operation_factory', ['id' => $id])}" class="layui-btn layui-btn layui-btn-sm">查看</a>
                     </td>
                 </tr>
                 <tr>
                     <td>台账-国内快递</td>
-                    <td>国内广告费（包含）</td>
+                    <td>国内快递费（有分摊记录）</td>
                     <td class="tc">
                         <a href="{:url('operation_delivery', ['id' => $id])}" class="layui-btn layui-btn layui-btn-sm">查看</a>
                     </td>
