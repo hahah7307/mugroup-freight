@@ -1,14 +1,10 @@
 <?php
 namespace app\Manage\command;
 
-use app\Manage\model\FinanceOrderAdjustmentModel;
 use app\Manage\model\FinanceOrderOutboundModel;
-use app\Manage\model\FinanceOrderRefundModel;
-use app\Manage\model\FinanceOrderSaleModel;
+use app\Manage\model\FinanceOrderShareValidate;
 use app\Manage\model\FinanceStoreModel;
-use app\Manage\model\FinanceWarehouseModel;
 use Exception;
-use think\Cache;
 use think\Config;
 use think\console\Command;
 use think\console\Input;
@@ -30,21 +26,8 @@ class FinanceOutboundNotify extends Command
         // 加载自定义配置
         Config::load(APP_PATH . 'storage.php');
 
-        // 检测wayfair订单是否校验完毕
-        $wayfairOrder = Cache::get('wayfairOrder');
-        if (!empty($wayfairOrder)) {
-            $output->writeln("Wayfair Unready");exit();
-        }
-
-        // 检测shein订单是否校验完毕
-        $orderSaleObj = new FinanceOrderSaleModel();
-        $sheinOrder = $orderSaleObj->where('sku', null)->where(['payment_id' => [['like', 'GSUN%']]])->select();
-        $financeOrderRefundObj = new FinanceOrderRefundModel();
-        $sheinRefund = $financeOrderRefundObj->where('sku', null)->where(['payment_id' => [['like', 'GSUN%']]])->select();
-        $financeOrderAdjustmentObj = new FinanceOrderAdjustmentModel();
-        $sheinAdjustment = $financeOrderAdjustmentObj->where('sku', null)->where(['payment_id' => [['like', 'GSUN%']]])->select();
-        if (count($sheinOrder) + count($sheinRefund) + count($sheinAdjustment) > 0) {
-            $output->writeln("Shein Unready");exit();
+        if (!FinanceOrderShareValidate::CompleteWayfairOrder() || !FinanceOrderShareValidate::CompleteSheinOrder()) {
+            exit();
         }
 
         Db::startTrans();
@@ -54,8 +37,11 @@ class FinanceOutboundNotify extends Command
             if (count($list)) {
                 $financeStoreObj = new FinanceStoreModel();
                 foreach ($list as $item) {
-                    $sku = $item['warehouse_sku'];
+                    if (!FinanceOrderShareValidate::CompleteStoreImport($item['report_id'])) {
+                        continue;
+                    }
 
+                    $sku = $item['warehouse_sku'];
                     $storeItems = $financeStoreObj->where(['sku' => $sku, 'report_id' => $item['report_id']])->order('entering_date asc,shipment_date asc, export_no asc')->select(); // 剩余库存
                     if (count($storeItems) <= 0) {
                         $financeOutboundObj->update(['is_notify' => 1], ['id' => $item['id']]);

@@ -1,21 +1,19 @@
 <?php
 namespace app\Manage\command;
 
+use app\Manage\model\FinanceAdCostModel;
 use app\Manage\model\FinanceEvaluationModel;
 use app\Manage\model\FinanceOrderAdditionalModel;
 use app\Manage\model\FinanceOrderAdjustmentModel;
 use app\Manage\model\FinanceOrderLiquidationModel;
 use app\Manage\model\FinanceOrderOutboundModel;
-use app\Manage\model\FinanceOrderRefundModel;
-use app\Manage\model\FinanceOrderSaleModel;
+use app\Manage\model\FinanceOrderShareValidate;
 use app\Manage\model\FinanceOrderShippingServiceModel;
 use app\Manage\model\FinanceReportModel;
 use app\Manage\model\FinanceSkuRelationModel;
-use app\Manage\model\FinanceStoreModel;
 use app\Manage\model\FinanceWarehouseFbmModel;
 use app\Manage\model\FinanceWarehouseModel;
 use Exception;
-use think\Cache;
 use think\Config;
 use think\console\Command;
 use think\console\Input;
@@ -43,21 +41,24 @@ class FinanceNotify extends Command
             $list = $financeReportObj->where(['is_notify' => 0])->order('created_at asc')->select();
             if (count($list)) {
                 foreach ($list as $report) {
-                    // 检测wayfair订单是否校验完毕
-                    $wayfairOrder = Cache::get('wayfairOrder');
-                    if (!empty($wayfairOrder)) {
-                        $output->writeln("Wayfair Unready");exit();
+                    if (!FinanceOrderShareValidate::CompleteWayfairOrder()) {
+                        $output->writeln("Wayfair Unready");
+                        exit();
                     }
 
-                    // 检测shein订单是否校验完毕
-                    $orderSaleObj = new FinanceOrderSaleModel();
-                    $sheinOrder = $orderSaleObj->where('sku', null)->where(['payment_id' => [['like', 'GSUN%']]])->select();
-                    $financeOrderRefundObj = new FinanceOrderRefundModel();
-                    $sheinRefund = $financeOrderRefundObj->where('sku', null)->where(['payment_id' => [['like', 'GSUN%']]])->select();
-                    $financeOrderAdjustmentObj = new FinanceOrderAdjustmentModel();
-                    $sheinAdjustment = $financeOrderAdjustmentObj->where('sku', null)->where(['payment_id' => [['like', 'GSUN%']]])->select();
-                    if (count($sheinOrder) + count($sheinRefund) + count($sheinAdjustment) > 0) {
-                        $output->writeln("Shein Unready");exit();
+                    if (!FinanceOrderShareValidate::CompleteSheinOrder()) {
+                        $output->writeln("Shein Unready");
+                        exit();
+                    }
+
+                    if (!FinanceOrderShareValidate::CompleteIsShare($report['id'])) {
+                        $output->writeln("Share Unready");
+                        exit();
+                    }
+
+                    if (!FinanceOrderShareValidate::CompleteStoreImport($report['id'])) {
+                        $output->writeln("Store Unready");
+                        exit();
                     }
 
                     // 检测仓租费是否导入
@@ -81,18 +82,11 @@ class FinanceNotify extends Command
                         $output->writeln("Evaluation Unready");exit();
                     }
 
-                    // 检测测评订单是否导入
-                    $adCostObj = new FinanceEvaluationModel();
+                    // 检测广告是否导入
+                    $adCostObj = new FinanceAdCostModel();
                     $adCost = $adCostObj->where(['report_id' => $report['id']])->order('id asc')->select();
                     if (count($adCost) == 0) {
                         $output->writeln("AdCost Unready");exit();
-                    }
-
-                    // 检测期初库存是否导入
-                    $financeStoreObj = new FinanceStoreModel();
-                    $store = $financeStoreObj->where(['report_id' => $report['id']])->order('entering_date asc')->select();
-                    if (count($store) == 0) {
-                        $output->writeln("Store Unready");exit();
                     }
 
                     // 检测产品与运营的映射关系是否导入
@@ -116,6 +110,7 @@ class FinanceNotify extends Command
                         $output->writeln("ShippingServiceShare Unready");exit();
                     }
 
+                    $financeOrderAdjustmentObj = new FinanceOrderAdjustmentModel();
                     $adjustment = $financeOrderAdjustmentObj->where(['report_id' => $report['id']])->where('share_code', null)->order('id asc')->select();
                     if (count($adjustment) > 0) {
                         $output->writeln("AdjustmentShare Unready");exit();

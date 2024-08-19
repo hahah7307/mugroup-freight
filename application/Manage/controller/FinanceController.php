@@ -1,8 +1,6 @@
 <?php
 namespace app\Manage\controller;
 
-use app\Manage\command\FinanceNotify;
-use app\Manage\command\FinanceOrderShare;
 use app\Manage\model\AkAdCostCreateModel;
 use app\Manage\model\AmazonPayment;
 use app\Manage\model\FinanceAdCostModel;
@@ -169,12 +167,11 @@ class FinanceController extends BaseController
 
         $financeReportObj = new FinanceReportModel();
         $report = $financeReportObj->find($report_id);
-        if (empty($report) || $report['is_notify'] != 1) {
+        if (empty($report)) {
             $this->error('异常操作！', url('report'));
         }
 
         $saleRefund = $financeReportObj->query(FinanceReportModel::getSaleRefundSql($report_id));
-//        $warehouseSku = $financeReportObj->query(FinanceReportModel::getWarehouseSkuSql($report_id, $report['month']));
         $warehouseRent = $financeReportObj->query(FinanceReportModel::getWarehouseRentSql($report_id));
         $paymentNoOutbound = $financeReportObj->query(FinanceReportModel::getPaymentNoOutboundSql($report_id));
         $fbaWarehouseSku = $financeReportObj->query(FinanceReportModel::getFbaWarehouseSkuSql($report_id, $report['month']));
@@ -1138,9 +1135,6 @@ class FinanceController extends BaseController
         $this->redirect(Session::get(Config::get('BACK_URL'), 'manage'));
     }
 
-    /**
-     * @throws Exception
-     */
     public function table_delete()
     {
         if ($this->request->isPost()) {
@@ -1350,8 +1344,125 @@ class FinanceController extends BaseController
         $where['report_id'] = $id;
         $list = $order->with(['store', 'saleOrderCode'])->where($where)->order('id asc')->paginate($page_num, false, ['query' => ['keyword' => $keyword, 'page_num' => $page_num]]);
         $this->assign('list', $list);
+        $this->assign('report_id', $id);
+        $this->assign('report', FinanceReportModel::get($id));
 
         return view();
+    }
+
+    public function outbound_generate()
+    {
+        if ($this->request->isPost()) {
+            $post = $this->request->post();
+            $report_id = $post['id'];
+
+            Db::startTrans();
+            try {
+                $outboundObj = new FinanceOrderOutboundModel();
+                $sql = "
+SELECT DISTINCT
+	a.report_id,
+	a.table_id,
+	b.platform,
+	b.user_account,
+	b.payment_id,
+	b.saleOrderCode,
+	b.paid_time,
+	b.shipping_time,
+	b.platform_sku seller_sku,
+	b.warehouse_sku,
+	a.fulfillment,
+	b.qty 
+FROM
+	mu_finance_order_sale a
+	LEFT JOIN mu_finance_order_statistics b ON a.payment_id = b.payment_id 
+WHERE
+	a.report_id = " . $report_id . "
+	AND b.saleOrderCode IS NOT NULL
+ORDER BY
+	b.shipping_time;
+                ";
+                $outboundData = $outboundObj->query($sql);
+                $outboundObj->insertAll($outboundData);
+                FinanceReportModel::update(['is_share' => 1], ['id' => $report_id]);
+
+                Db::commit();
+                echo json_encode(['code' => 1, 'msg' => '出库明细生成成功']);
+            } catch (\SoapFault $e) {
+                Db::rollback();
+                echo json_encode(['code' => 0, 'msg' => '生成失败，请重试']);
+            } catch (\Exception $e) {
+                Db::rollback();
+                echo json_encode(['code' => 0, 'msg' => '生成失败，请重试']);
+            }
+        } else {
+            echo json_encode(['code' => 0, 'msg' => '异常操作']);
+        }
+        exit;
+    }
+
+    public function outbound_empty($id)
+    {
+        if ($this->request->isPost()) {
+            $post = $this->request->post();
+            $reportId = $post['id'];
+
+            Db::startTrans();
+            try {
+                FinanceReportModel::update(['is_share' => 0], ['id' => $reportId]);
+
+                $outboundObj = new FinanceOrderOutboundModel();
+                $outboundObj->where('report_id', $reportId)->delete();
+
+                $shareObj = new FinanceOrderShareModel();
+                $shareObj->where('report_id', $reportId)->delete();
+
+                $refundObj = new FinanceOrderRefundModel();
+                $refundObj->where(['report_id' => $reportId])->update(['share_code' => null]);
+
+                $shippingObj = new FinanceOrderShippingServiceModel();
+                $shippingObj->where(['report_id' => $reportId])->update(['share_code' => null]);
+
+                $adjustmentObj = new FinanceOrderAdjustmentModel();
+                $adjustmentObj->where(['report_id' => $reportId])->update(['share_code' => null]);
+
+                $adjustmentWfsObj = new FinanceOrderAdjustmentWfsModel();
+                $adjustmentWfsObj->where(['report_id' => $reportId])->update(['share_code' => null]);
+
+                $liquidationObj = new FinanceOrderLiquidationModel();
+                $liquidationObj->where(['report_id' => $reportId])->update(['share_code' => null]);
+
+                $additionalObj = new FinanceOrderAdditionalModel();
+                $additionalObj->where(['report_id' => $reportId])->update(['share_code' => null]);
+
+                $warehouseFbmObj = new FinanceWarehouseFbmModel();
+                $warehouseFbmObj->where(['report_id' => $reportId])->update(['share_code' => null]);
+
+                $operationExpensesObj = new FinanceOperationExpensesModel();
+                $operationExpensesObj->where(['report_id' => $reportId])->update(['share_code' => null, 'calculate_month' => null, 'report_id' => null]);
+
+                $operationFactoryObj = new FinanceOperationFactoryModel();
+                $operationFactoryObj->where(['report_id' => $reportId])->update(['share_code' => null, 'calculate_month' => null, 'report_id' => null]);
+
+                $operationDeliveryObj = new FinanceOperationDeliveryModel();
+                $operationDeliveryObj->where(['report_id' => $reportId])->update(['share_code' => null, 'calculate_month' => null, 'report_id' => null]);
+
+                $financeReportObj = new FinanceReportModel();
+                $financeReportObj->save(['is_notify' => 0], ['id' => $reportId]);
+
+                Db::commit();
+                echo json_encode(['code' => 1, 'msg' => '清空完成']);
+            } catch (\SoapFault $e) {
+                Db::rollback();
+                echo json_encode(['code' => 0, 'msg' => '清空失败，请重试']);
+            } catch (\Exception $e) {
+                Db::rollback();
+                echo json_encode(['code' => 0, 'msg' => '清空失败，请重试']);
+            }
+        } else {
+            echo json_encode(['code' => 0, 'msg' => '异常操作']);
+        }
+        exit;
     }
 
     /**
@@ -1436,35 +1547,7 @@ SELECT SUM(available_quantity * sku_ddp_unit) sum FROM mu_finance_store WHERE re
                 }
             }
             $financeStoreObj = new FinanceStoreModel();
-            if($financeStoreObj->insertAll($storeData)) {
-                $sql = "
-SELECT DISTINCT
-	a.report_id,
-	a.table_id,
-	b.platform,
-	b.user_account,
-	b.payment_id,
-	b.saleOrderCode,
-	b.paid_time,
-	b.shipping_time,
-	b.platform_sku seller_sku,
-	b.warehouse_sku,
-	a.fulfillment,
-	b.qty 
-FROM
-	mu_finance_order_sale a
-	LEFT JOIN mu_finance_order_statistics b ON a.payment_id = b.payment_id 
-WHERE
-	a.report_id = " . $report_id . "
-	AND b.saleOrderCode IS NOT NULL
-ORDER BY
-	b.shipping_time;
-                ";
-                $outboundData = $financeStoreObj->query($sql);
-                $outboundObj = new FinanceOrderOutboundModel();
-                $outboundObj->insertAll($outboundData);
-                echo 'success';
-            } else {
+            if(!$financeStoreObj->insertAll($storeData)) {
                 throw new \think\Exception('表格导入失败！');
             }
             Db::commit();
@@ -1485,35 +1568,6 @@ ORDER BY
             try {
                 $storeObj = new FinanceStoreModel();
                 $storeObj->where('report_id', $reportId)->delete();
-
-                $outboundObj = new FinanceOrderOutboundModel();
-                $outboundObj->where('report_id', $reportId)->delete();
-
-                $shareObj = new FinanceOrderShareModel();
-                $shareObj->where('report_id', $reportId)->delete();
-
-                $refundObj = new FinanceOrderRefundModel();
-                $refundObj->where(['report_id' => $reportId])->update(['share_code' => null]);
-
-                $shippingObj = new FinanceOrderShippingServiceModel();
-                $shippingObj->where(['report_id' => $reportId])->update(['share_code' => null]);
-
-                $adjustmentObj = new FinanceOrderAdjustmentModel();
-                $adjustmentObj->where(['report_id' => $reportId])->update(['share_code' => null]);
-
-                $liquidationObj = new FinanceOrderLiquidationModel();
-                $liquidationObj->where(['report_id' => $reportId])->update(['share_code' => null]);
-
-                $warehouseFbmObj = new FinanceWarehouseFbmModel();
-                $warehouseFbmObj->where(['report_id' => $reportId])->update(['share_code' => null]);
-
-                $additionalObj = new FinanceOrderAdditionalModel();
-                $additionalObj->where(['report_id' => $reportId])->where('promotion', 'not null')->update(['share_code' => null]);
-                $additionalObj->where(['report_id' => $reportId])->where('lc_adjustment', 'not null')->update(['share_code' => null]);
-                $additionalObj->where(['report_id' => $reportId])->where('le_adjustment', 'not null')->update(['share_code' => null]);
-
-                $financeReportObj = new FinanceReportModel();
-                $financeReportObj->save(['is_notify' => 0], ['id' => $reportId]);
 
                 Db::commit();
                 echo json_encode(['code' => 1, 'msg' => '清空完成']);

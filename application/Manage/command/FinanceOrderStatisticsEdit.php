@@ -1,13 +1,10 @@
 <?php
 namespace app\Manage\command;
 
-use app\Manage\model\FinanceOrderAdjustmentModel;
-use app\Manage\model\FinanceOrderRefundModel;
-use app\Manage\model\FinanceOrderSaleModel;
+use app\Manage\model\FinanceOrderShareValidate;
 use app\Manage\model\FinanceOrderStatisticsEditModel;
 use app\Manage\model\FinanceOrderStatisticsModel;
 use Exception;
-use think\Cache;
 use think\console\Command;
 use think\console\Input;
 use think\console\Output;
@@ -25,21 +22,8 @@ class FinanceOrderStatisticsEdit extends Command
      */
     protected function execute(Input $input, Output $output)
     {
-        // 检测wayfair订单是否校验完毕
-        $wayfairOrder = Cache::get('wayfairOrder');
-        if (!empty($wayfairOrder)) {
-            $output->writeln("Wayfair Unready");exit();
-        }
-
-        // 检测shein订单是否校验完毕
-        $orderSaleObj = new FinanceOrderSaleModel();
-        $sheinOrder = $orderSaleObj->where('sku', null)->where(['payment_id' => [['like', 'GSUN%']]])->select();
-        $financeOrderRefundObj = new FinanceOrderRefundModel();
-        $sheinRefund = $financeOrderRefundObj->where('sku', null)->where(['payment_id' => [['like', 'GSUN%']]])->select();
-        $financeOrderAdjustmentObj = new FinanceOrderAdjustmentModel();
-        $sheinAdjustment = $financeOrderAdjustmentObj->where('sku', null)->where(['payment_id' => [['like', 'GSUN%']]])->select();
-        if (count($sheinOrder) + count($sheinRefund) + count($sheinAdjustment) > 0) {
-            $output->writeln("Shein Unready");exit();
+        if (!FinanceOrderShareValidate::CompleteWayfairOrder() || !FinanceOrderShareValidate::CompleteSheinOrder()) {
+            exit();
         }
 
         Db::startTrans();

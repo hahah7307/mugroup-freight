@@ -6,6 +6,7 @@ use app\Manage\model\FinanceOperationExpensesModel;
 use app\Manage\model\FinanceOperationFactoryModel;
 use app\Manage\model\FinanceOrderOutboundModel;
 use app\Manage\model\FinanceOrderShareModel;
+use app\Manage\model\FinanceOrderShareValidate;
 use app\Manage\model\FinanceReportModel;
 use Exception;
 use think\console\Command;
@@ -31,6 +32,10 @@ class FinanceOperationShare extends Command
             $reportObj = new FinanceReportModel();
             $reportItem = $reportObj->where(['is_operation' => 1])->find();
             if ($reportItem) {
+                if (!FinanceOrderShareValidate::CompleteIsShare($reportItem['id'])) {
+                    exit();
+                }
+
                 $outboundObj = new FinanceOrderOutboundModel();
                 $SkuList = $outboundObj->where(['report_id' => $reportItem['id']])->distinct(true)->column('warehouse_sku');
 

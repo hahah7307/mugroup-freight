@@ -5,7 +5,6 @@ use app\Manage\model\FinanceOrderAdditionalModel;
 use app\Manage\model\FinanceOrderAdjustmentModel;
 use app\Manage\model\FinanceOrderAdjustmentWfsModel;
 use app\Manage\model\FinanceOrderLiquidationModel;
-use app\Manage\model\FinanceOrderOutboundModel;
 use app\Manage\model\FinanceOrderShareModel;
 use app\Manage\model\FinanceOrderShareValidate;
 use app\Manage\model\FinanceOrderShippingServiceModel;
@@ -70,7 +69,6 @@ class FinanceOrderShare extends Command
     {
         // 促销
         $financeOrderShareObj = new FinanceOrderShareModel();
-        $financeOutboundObj = new FinanceOrderOutboundModel();
         $additionalModel = new FinanceOrderAdditionalModel();
         $promotion = $additionalModel->query('
 SELECT
@@ -95,9 +93,7 @@ LIMIT 50;
             ');
         if (count($promotion)) {
             foreach ($promotion as $item) {
-                // 无出库数据先不分摊费用
-                $outbound = $financeOutboundObj->where(['report_id' => $item['report_id']])->select();
-                if (count($outbound) <= 0) {
+                if (!FinanceOrderShareValidate::CompleteIsShare($item['report_id'])) {
                     continue;
                 }
                 $shareCode = FinanceOrderShareModel::generateRandomCode();
@@ -158,15 +154,12 @@ LIMIT 50;
     {
         // 退运费分摊
         $financeOrderShareObj = new FinanceOrderShareModel();
-        $financeOutboundObj = new FinanceOrderOutboundModel();
         $financeOrderShippingObj = new FinanceOrderShippingServiceModel();
         $shipping = $financeOrderShippingObj->where('share_code', null)->order('id asc')->limit(100)->select();
         if (count($shipping)) {
             $orderStatisticObj = new FinanceOrderStatisticsModel();
             foreach ($shipping as $item) {
-                // 无出库数据先不分摊费用
-                $outbound = $financeOutboundObj->where(['report_id' => $item['report_id']])->select();
-                if (count($outbound) <= 0) {
+                if (!FinanceOrderShareValidate::CompleteIsShare($item['report_id'])) {
                     continue;
                 }
 
@@ -243,17 +236,15 @@ LIMIT 50;
     {
         // 清算分摊
         $financeOrderShareObj = new FinanceOrderShareModel();
-        $financeOutboundObj = new FinanceOrderOutboundModel();
         $financeOrderLiquidationObj = new FinanceOrderLiquidationModel();
         $liquidation = $financeOrderLiquidationObj->where('share_code', null)->order('id asc')->limit(100)->select();
         if (count($liquidation)) {
             $orderStatisticObj = new FinanceOrderStatisticsModel();
             foreach ($liquidation as $item) {
-                // 无出库数据先不分摊费用
-                $outbound = $financeOutboundObj->where(['report_id' => $item['report_id']])->select();
-                if (count($outbound) <= 0) {
+                if (!FinanceOrderShareValidate::CompleteIsShare($item['report_id'])) {
                     continue;
                 }
+
                 $shareCode = FinanceOrderShareModel::generateRandomCode();
                 $tableObj = new FinanceTableModel();
                 $table = $tableObj->find($item['table_id']);
@@ -350,18 +341,16 @@ ORDER BY
     {
         // 调整分摊
         $financeOrderShareObj = new FinanceOrderShareModel();
-        $financeOutboundObj = new FinanceOrderOutboundModel();
         $financeOrderAdjustmentObj = new FinanceOrderAdjustmentModel();
         $adjustment = $financeOrderAdjustmentObj->where('share_code', null)->order('id asc')->limit(100)->select();
         if (count($adjustment)) {
             $orderModel = new OrderModel();
             $orderStatisticObj = new FinanceOrderStatisticsModel();
             foreach ($adjustment as $item) {
-                // 无出库数据先不分摊费用
-                $outbound = $financeOutboundObj->where(['report_id' => $item['report_id']])->select();
-                if (count($outbound) <= 0) {
+                if (!FinanceOrderShareValidate::CompleteIsShare($item['report_id'])) {
                     continue;
                 }
+
                 $order = $orderModel->where(['saleOrderCode' => $item['payment_id']])->find();
                 $fulfillment = $order['fulfillmentType'] == 1 ? 'FBA' : 'FBM';
                 $shareCode = FinanceOrderShareModel::generateRandomCode();
@@ -469,13 +458,16 @@ ORDER BY
     {
         // 调整分摊
         $financeOrderShareObj = new FinanceOrderShareModel();
-        $financeOutboundObj = new FinanceOrderOutboundModel();
         $financeOrderAdjustmentWfsObj = new FinanceOrderAdjustmentWfsModel();
         $adjustmentWfs = $financeOrderAdjustmentWfsObj->where('share_code', null)->order('id asc')->limit(100)->select();
         if (count($adjustmentWfs)) {
             $orderModel = new OrderModel();
             $orderStatisticObj = new FinanceOrderStatisticsModel();
             foreach ($adjustmentWfs as $item) {
+                if (!FinanceOrderShareValidate::CompleteIsShare($item['report_id'])) {
+                    continue;
+                }
+
                 if ($item['is_fulfillment']) {
                     $costType = "WFS_FULFILLMENT";
                 } elseif ($item['is_return_shipping']) {
@@ -483,11 +475,7 @@ ORDER BY
                 } else {
                     $costType = "WFS";
                 }
-                // 无出库数据先不分摊费用
-                $outbound = $financeOutboundObj->where(['report_id' => $item['report_id']])->select();
-                if (count($outbound) <= 0) {
-                    continue;
-                }
+
                 $order = $orderModel->where(['saleOrderCode' => $item['payment_id']])->find();
                 $fulfillment = $order['fulfillmentType'] == 1 ? 'FBA' : 'FBM';
                 $shareCode = FinanceOrderShareModel::generateRandomCode();
@@ -595,7 +583,6 @@ ORDER BY
     {
         // 海外仓调整
         $financeOrderShareObj = new FinanceOrderShareModel();
-        $financeOutboundObj = new FinanceOrderOutboundModel();
         $additionalModel = new FinanceOrderAdditionalModel();
         $warehouseAdjustment = $additionalModel
             ->where(function($query) {
@@ -609,11 +596,10 @@ ORDER BY
             ->limit(100)->select();
         if (count($warehouseAdjustment)) {
             foreach ($warehouseAdjustment as $item) {
-                // 无出库数据先不分摊费用
-                $outbound = $financeOutboundObj->where(['report_id' => $item['report_id']])->select();
-                if (count($outbound) <= 0) {
+                if (!FinanceOrderShareValidate::CompleteIsShare($item['report_id'])) {
                     continue;
                 }
+
                 $shareCode = FinanceOrderShareModel::generateRandomCode();
                 $costType = empty($item['lc_adjustment']) ? 'LEADJUSTMENT' : 'LCADJUSTMENT';
                 $costField = empty($item['lc_adjustment']) ? 'le_adjustment' : 'lc_adjustment';

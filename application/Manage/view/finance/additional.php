@@ -41,6 +41,7 @@
                     <col>
                     <col>
                     <col>
+                    <col>
                 </colgroup>
                 <thead>
                 <tr>
@@ -54,6 +55,7 @@
                     <th>良仓调整费用</th>
                     <th>乐歌调整费用</th>
                     <th>WFS调整费用</th>
+                    <th>分摊唯一标识号</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -69,6 +71,7 @@
                     <td class="tr">{$v.lc_adjustment}</td>
                     <td class="tr">{$v.le_adjustment}</td>
                     <td class="tr">{$v.wfs_adjustment}</td>
+                    <td>{$v.share_code}</td>
                 </tr>
                 {/foreach}
                 </tbody>
