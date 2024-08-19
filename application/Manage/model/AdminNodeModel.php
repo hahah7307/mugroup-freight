@@ -2,8 +2,10 @@
 
 namespace app\Manage\model;
 
+use think\db\exception\DataNotFoundException;
+use think\db\exception\ModelNotFoundException;
+use think\exception\DbException;
 use think\Model;
-use think\Session;
 
 class AdminNodeModel extends Model
 {
@@ -14,22 +16,28 @@ class AdminNodeModel extends Model
 
     protected $resultSetType = 'collection';
 
-    public function parentNode()
-    {
-        return $this->hasOne('AdminNodeModel', 'id', 'parent_id');
-    }
-
     // 无限递归+排序
+    /**
+     * @throws DbException
+     * @throws ModelNotFoundException
+     * @throws DataNotFoundException
+     */
     static public function node_format()
     {
-        return self::list_sort([], 0, 1);
+        return self::list_sort();
     }
 
-    protected function list_sort($list = [], $pid = 0, $level = 1)
+    /**
+     * @throws DbException
+     * @throws ModelNotFoundException
+     * @throws DataNotFoundException
+     */
+    protected static function list_sort($list = [], $pid = 0, $level = 1)
     {
-        $category = self::with([])->where(['status' => ['egt', self::STATUS_SHOW], 'parent_id' => $pid])->order('sort asc')->select()->toArray();
+        $adminNodeObj = new AdminNodeModel();
+        $category = $adminNodeObj->where(['status' => ['egt', self::STATUS_SHOW], 'parent_id' => $pid])->order('sort asc')->select();
         if ($category) {
-            foreach ($category as $k => $v) {
+            foreach ($category as $v) {
                 $v['level'] = $level;
                 $v['node_name'] = str_repeat('&nbsp;', ($level -1) * 6 + 1) . "↳" . $v['name'];
                 $list[] = $v;
@@ -40,20 +48,30 @@ class AdminNodeModel extends Model
     }
 
     // 获取所有权限
+    /**
+     * @throws DbException
+     * @throws ModelNotFoundException
+     * @throws DataNotFoundException
+     */
     static public function get_node_access($arr)
     {
-        $node = self::access_format($arr, 0, 1);
-        return $node;
+        return self::access_format($arr, 1);
     }
 
-    protected function access_format($arr, $pid = 0, $level)
+    /**
+     * @throws DbException
+     * @throws ModelNotFoundException
+     * @throws DataNotFoundException
+     */
+    protected static function access_format($arr, $level, $pid = 0)
     {
-        $node = self::all(['level' => $level, 'parent_id' => $pid, 'status' => self::STATUS_ACTIVE])->toArray();
+        $adminNodeObj = new AdminNodeModel();
+        $node = $adminNodeObj->order('sort asc')->where(['level' => $level, 'parent_id' => $pid, 'status' => self::STATUS_ACTIVE])->select();
         if ($node) {
             $level ++;
             foreach ($node as $k => $v) {
                 $node[$k]['access'] = in_array($v['id'], $arr) ? 1 : 0;
-                $node[$k]['child'] = self::access_format($arr, $v['id'], $level);
+                $node[$k]['child'] = self::access_format($arr, $level, $v['id']);
             }
         }
         return $node;
