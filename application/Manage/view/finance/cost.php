@@ -27,28 +27,28 @@
                 <tbody>
                 <tr>
                     <td>仓租</td>
-                    <td>海外仓仓储费（FBM仓储费）</td>
+                    <td>海外仓仓储费（FBM仓储费、WFS仓储费，需导入，有分摊记录）</td>
                     <td class="tc">
                         <a href="{:url('warehouse', ['id' => $id])}" class="layui-btn layui-btn layui-btn-sm">查看</a>
                     </td>
                 </tr>
                 <tr>
                     <td>额外</td>
-                    <td>额外四项费用（包含运营分摊的促销费用、良仓调整费用、乐歌调整费用、WFS调整费用等）</td>
+                    <td>额外四项费用（包含运营分摊的促销费用、良仓调整费用、乐歌调整费用、WFS调整费用等，需导入，有分摊记录）</td>
                     <td class="tc">
                         <a href="{:url('additional', ['id' => $id])}" class="layui-btn layui-btn layui-btn-sm">查看</a>
                     </td>
                 </tr>
                 <tr>
                     <td>测评</td>
-                    <td>测评费用（系统会根据实际出库进行分摊，且币种换算成美金只在最终导出表格内呈现）</td>
+                    <td>测评费用（系统会根据实际出库进行分摊，且币种换算成美金只在最终导出表格内呈现，需导入）</td>
                     <td class="tc">
                         <a href="{:url('evaluation', ['id' => $id])}" class="layui-btn layui-btn layui-btn-sm">查看</a>
                     </td>
                 </tr>
                 <tr>
                     <td>广告</td>
-                    <td>其他平台广告费（此处特指其他平台广告费，亚马逊平台广告费由领星提供系统自动分摊且无分摊数据留存）</td>
+                    <td>其他平台广告费（此处特指其他平台广告费，亚马逊平台广告费由领星提供系统自动分摊且无分摊数据留存，需导入）</td>
                     <td class="tc">
                         <a href="{:url('ad_cost', ['id' => $id])}" class="layui-btn layui-btn layui-btn-sm">查看</a>
                     </td>
@@ -72,6 +72,13 @@
                     <td>国内快递费（有分摊记录）</td>
                     <td class="tc">
                         <a href="{:url('operation_delivery', ['id' => $id])}" class="layui-btn layui-btn layui-btn-sm">查看</a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>WFS</td>
+                    <td>WFS其他费用明细（包含WFS尾程、WFS退运费等）</td>
+                    <td class="tc">
+                        <a href="{:url('wfs_fulfillment', ['id' => $id])}" class="layui-btn layui-btn layui-btn-sm">查看</a>
                     </td>
                 </tr>
                 </tbody>
