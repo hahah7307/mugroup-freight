@@ -16,6 +16,11 @@ class AdminNodeModel extends Model
 
     protected $resultSetType = 'collection';
 
+    public function parentNode(): \think\model\relation\HasOne
+    {
+        return $this->hasOne('AdminNodeModel', 'id', 'parent_id');
+    }
+
     // 无限递归+排序
     /**
      * @throws DbException
