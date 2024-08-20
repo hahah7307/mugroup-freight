@@ -21,7 +21,7 @@
         <div class="layui-form">
             <a class="layui-btn" href="{:url('relation_add', ['id' => $report_id])}">添加</a>
             <button type="button" class="layui-btn  layui-btn-normal" id="excel">导入</button>
-            <button data-id="{$report_id}" class="layui-btn layui-btn-danger ml0" lay-submit lay-filter="Detele">清空</button>
+            <button data-id="{$report_id}" class="layui-btn layui-btn-danger ml0" lay-submit lay-filter="Empty">清空</button>
             <table class="layui-table" lay-size="sm">
                 <colgroup>
                     <col>
@@ -107,7 +107,7 @@
         });
 
         // 清空
-        form.on('submit(Detele)', function(data){
+        form.on('submit(Empty)', function(data){
             var text = $(this).text(),
                 button = $(this),
                 id = $(this).data('id');
