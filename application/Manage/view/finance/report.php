@@ -122,8 +122,9 @@
         // 状态
         form.on('switch(formLock)', function(data){
             // 选中所有复选框
+            let boolean = $(this).prop('checked');
             $('input[type="checkbox"]').prop('checked', false);
-            $(this).prop('checked', true);
+            $(this).prop('checked', boolean);
             form.render('checkbox'); // 只重新渲染checkbox类型
             axios.post("{:url('report_operation')}", {id:data.value,type:'look'})
                 .then(function (response) {
