@@ -32,7 +32,7 @@
                     <col>
                     <col>
                     <col>
-                    <col>
+                    <col width="80">
                 </colgroup>
                 <thead>
                 <tr>
