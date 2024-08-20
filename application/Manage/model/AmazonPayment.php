@@ -110,7 +110,7 @@ class AmazonPayment extends Model
                     "other"                     =>  sprintf('%.2f', str_replace(',', '', $item[28])),
                     "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[29])),
                 ];
-            } elseif ($item[2] == 'Service Fee'
+            } elseif (($item[2] == 'Service Fee' && strpos($item[5], 'Coupon') !== false)
                 ||  $item[2] == 'Deal Fee'
             ) {
                 $this->orderPromotionNew[] = [
