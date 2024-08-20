@@ -3901,4 +3901,56 @@ GROUP BY
 	user_account;
         ';
     }
+
+    static public function getOperationExpenses($report_id): string
+    {
+        return '
+SELECT
+	a.type,
+	b.user_account,
+	b.fulfillment,
+	b.warehouse_sku,
+	b.total
+FROM
+	mu_finance_operation_expenses a
+	LEFT JOIN mu_finance_order_share b ON a.share_code = b.share_code 
+WHERE
+	a.report_id = ' . $report_id . ';
+        ';
+    }
+
+    static public function getOperationFactory($report_id): string
+    {
+        return '
+SELECT
+	a.type,
+	b.user_account,
+	b.fulfillment,
+	b.warehouse_sku,
+	b.total
+FROM
+	mu_finance_operation_factory a
+	LEFT JOIN mu_finance_order_share b ON a.share_code = b.share_code 
+WHERE
+	a.report_id = ' . $report_id . ';
+        ';
+    }
+
+    static public function getOperationDelivery($report_id): string
+    {
+        return '
+SELECT
+	a.seller,
+	a.platform,
+	b.user_account,
+	b.fulfillment,
+	b.warehouse_sku,
+	b.total
+FROM
+	mu_finance_operation_delivery a
+	LEFT JOIN mu_finance_order_share b ON a.share_code = b.share_code 
+WHERE
+	a.report_id = ' . $report_id . ';
+        ';
+    }
 }

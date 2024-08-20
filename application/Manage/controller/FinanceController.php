@@ -183,6 +183,9 @@ class FinanceController extends BaseController
         $userAccountSubscription = $financeReportObj->query(FinanceReportModel::getUserAccountSubscription($report_id));
         $orderWayfair = $financeReportObj->query(FinanceReportModel::getOrderWayfair($report_id));
         $orderResend = $financeReportObj->query(FinanceReportModel::getOrderResend($report['month']));
+        $operationExpenses = $financeReportObj->query(FinanceReportModel::getOperationExpenses($report_id));
+        $operationFactory = $financeReportObj->query(FinanceReportModel::getOperationFactory($report_id));
+        $operationDelivery = $financeReportObj->query(FinanceReportModel::getOperationDelivery($report_id));
 
         // phpexcel
         require_once './static/classes/PHPExcel/Classes/PHPExcel.php';
@@ -814,6 +817,89 @@ class FinanceController extends BaseController
                 ->setCellValue('D' . $orderResendIndex, $orderResendItem['qty'])
                 ->setCellValue('E' . $orderResendIndex, $orderResendItem['order_status'])
                 ->setCellValue('F' . $orderResendIndex, $orderResendItem['tail'])
+            ;
+        }
+
+        // create new sheet
+        $objPHPExcel->createSheet();
+
+        // Set name sheet
+        $objPHPExcel->setActiveSheetIndex(11)->setTitle('国内广告');
+
+        // Add some data
+        $objPHPExcel->setActiveSheetIndex(11)
+            ->setCellValue('A1', '费用类型')
+            ->setCellValue('B1', '店铺')
+            ->setCellValue('C1', '运送方式')
+            ->setCellValue('D1', 'SKU')
+            ->setCellValue('E1', '费用')
+        ;
+
+        $operationExpensesIndex = 1;
+        foreach ($operationExpenses as $operationExpensesItem) {
+            $operationExpensesIndex ++;
+            $objPHPExcel->setActiveSheetIndex(11)
+                ->setCellValue('A' . $operationExpensesIndex, $operationExpensesItem['type'])
+                ->setCellValue('B' . $operationExpensesIndex, $operationExpensesItem['user_account'])
+                ->setCellValue('C' . $operationExpensesIndex, $operationExpensesItem['fulfillment'])
+                ->setCellValue('D' . $operationExpensesIndex, $operationExpensesItem['warehouse_sku'])
+                ->setCellValue('E' . $operationExpensesIndex, $operationExpensesItem['total'])
+            ;
+        }
+
+        // create new sheet
+        $objPHPExcel->createSheet();
+
+        // Set name sheet
+        $objPHPExcel->setActiveSheetIndex(12)->setTitle('工厂运费');
+
+        // Add some data
+        $objPHPExcel->setActiveSheetIndex(12)
+            ->setCellValue('A1', '费用类型')
+            ->setCellValue('B1', '店铺')
+            ->setCellValue('C1', '运送方式')
+            ->setCellValue('D1', 'SKU')
+            ->setCellValue('E1', '费用')
+        ;
+
+        $operationFactoryIndex = 1;
+        foreach ($operationFactory as $operationFactoryItem) {
+            $operationFactoryIndex ++;
+            $objPHPExcel->setActiveSheetIndex(12)
+                ->setCellValue('A' . $operationFactoryIndex, $operationFactoryItem['type'])
+                ->setCellValue('B' . $operationFactoryIndex, $operationFactoryItem['user_account'])
+                ->setCellValue('C' . $operationFactoryIndex, $operationFactoryItem['fulfillment'])
+                ->setCellValue('D' . $operationFactoryIndex, $operationFactoryItem['warehouse_sku'])
+                ->setCellValue('E' . $operationFactoryIndex, $operationFactoryItem['total'])
+            ;
+        }
+
+        // create new sheet
+        $objPHPExcel->createSheet();
+
+        // Set name sheet
+        $objPHPExcel->setActiveSheetIndex(13)->setTitle('国内快递');
+
+        // Add some data
+        $objPHPExcel->setActiveSheetIndex(13)
+            ->setCellValue('A1', '运营人员')
+            ->setCellValue('B1', '平台')
+            ->setCellValue('C1', '店铺')
+            ->setCellValue('D1', '运送方式')
+            ->setCellValue('E1', 'SKU')
+            ->setCellValue('F1', '费用')
+        ;
+
+        $operationDeliveryIndex = 1;
+        foreach ($operationDelivery as $operationDeliveryItem) {
+            $operationDeliveryIndex ++;
+            $objPHPExcel->setActiveSheetIndex(13)
+                ->setCellValue('A' . $operationDeliveryIndex, $operationDeliveryItem['seller'])
+                ->setCellValue('B' . $operationDeliveryIndex, $operationDeliveryItem['platform'])
+                ->setCellValue('C' . $operationDeliveryIndex, $operationDeliveryItem['user_account'])
+                ->setCellValue('D' . $operationDeliveryIndex, $operationDeliveryItem['fulfillment'])
+                ->setCellValue('E' . $operationDeliveryIndex, $operationDeliveryItem['warehouse_sku'])
+                ->setCellValue('F' . $operationDeliveryIndex, $operationDeliveryItem['total'])
             ;
         }
 
