@@ -1118,7 +1118,7 @@ FROM
 		SELECT
 			"amazon" AS platform,
 			c.ecang_user_account userAccount,
-			e.pcr_product_sku warehouse_sku,
+			d.warehouse_sku,
 			NULL AS fba_sale_qty,
 			NULL AS fba_refund_qty,
 			NULL AS fba_sale_amount,
@@ -1130,7 +1130,7 @@ FROM
 			NULL AS fba_refund_fees,
 			NULL AS fba_refund_other,
 			NULL AS fba_ddp,
-			SUM( a.totalAdsCost * e.pcr_percent * e.pcr_quantity ) * 0.01 fba_adCost,
+			SUM( a.totalAdsCost * d.percent * d.qty ) fba_adCost,
 			NULL AS fba_inventory,
 			NULL AS adjustment,
 			NULL AS liquidation,
@@ -1145,9 +1145,8 @@ FROM
 			mu_ak_ad_cost a
 			LEFT JOIN mu_ak_seller b ON b.sid = a.sid
 			LEFT JOIN mu_ecang_ak_user_account_relation c ON c.ak_user_account = b.`name`
-			LEFT JOIN mu_ecang_sku d ON d.user_account = c.ecang_user_account 
-			AND a.msku = d.product_sku
-			LEFT JOIN mu_ecang_sku_relation e ON e.sku_id = d.id 
+			LEFT JOIN ( SELECT DISTINCT user_account, seller_sku, warehouse_sku, percent, qty FROM mu_finance_sku_relation WHERE report_id = ' . $report_id . ' ) d ON d.user_account = c.ecang_user_account 
+			AND a.msku = d.seller_sku 
 		WHERE
 			reportDateMonth = "' . $month . '" 
 			AND a.totalAdsCost != 0 
@@ -1159,7 +1158,7 @@ FROM
 		SELECT
 			"amazon" AS platform,
 			c.ecang_user_account userAccount,
-			e.pcr_product_sku warehouse_sku,
+			d.warehouse_sku,
 			NULL AS fba_sale_qty,
 			NULL AS fba_refund_qty,
 			NULL AS fba_sale_amount,
@@ -1173,8 +1172,10 @@ FROM
 			NULL AS fba_ddp,
 			NULL AS fba_adCost,
 			SUM(
-				( a.sharedLabelingFee + a.fbaStorageFee + a.longTermStorageFee + a.sharedFbaDisposalFee + a.sharedAmazonPartneredCarrierShipmentFee + a.sharedFbaInboundConvenienceFee ) * e.pcr_percent * e.pcr_quantity 
-			) * 0.01 fba_inventory,
+				(
+					a.sharedLabelingFee + a.fbaStorageFee + a.longTermStorageFee + a.sharedFbaDisposalFee + a.sharedAmazonPartneredCarrierShipmentFee + a.sharedFbaInboundConvenienceFee + a.sharedFbaInboundDefectFee 
+				) * d.percent * d.qty 
+			) fba_inventory,
 			NULL AS adjustment,
 			NULL AS liquidation,
 			NULL AS promotion,
@@ -1188,13 +1189,12 @@ FROM
 			mu_ak_ad_cost a
 			LEFT JOIN mu_ak_seller b ON b.sid = a.sid
 			LEFT JOIN mu_ecang_ak_user_account_relation c ON c.ak_user_account = b.`name`
-			LEFT JOIN mu_ecang_sku d ON d.user_account = c.ecang_user_account 
-			AND a.msku = d.product_sku
-			LEFT JOIN mu_ecang_sku_relation e ON e.sku_id = d.id 
+			LEFT JOIN ( SELECT DISTINCT user_account, seller_sku, warehouse_sku, percent, qty FROM mu_finance_sku_relation WHERE report_id = ' . $report_id . ' ) d ON d.user_account = c.ecang_user_account 
+			AND a.msku = d.seller_sku 
 		WHERE
 			reportDateMonth = "' . $month . '" 
-			AND a.sharedLabelingFee + a.fbaStorageFee + a.longTermStorageFee + a.sharedFbaDisposalFee + a.sharedAmazonPartneredCarrierShipmentFee + a.sharedFbaInboundConvenienceFee != 0 
-			AND e.pcr_product_sku IS NOT NULL 
+			AND a.sharedLabelingFee + a.fbaStorageFee + a.longTermStorageFee + a.sharedFbaDisposalFee + a.sharedAmazonPartneredCarrierShipmentFee + a.sharedFbaInboundConvenienceFee + a.sharedFbaInboundDefectFee != 0 
+			AND d.warehouse_sku IS NOT NULL 
 		GROUP BY
 			platform,
 			userAccount,
@@ -1909,7 +1909,7 @@ FROM
 		SELECT
 			"amazon" AS platform,
 			c.ecang_user_account userAccount,
-			e.pcr_product_sku warehouse_sku,
+			d.warehouse_sku,
 			NULL AS fbm_sale_qty,
 			NULL AS fbm_refund_qty,
 			NULL AS fbm_sale_amount,
@@ -1920,7 +1920,7 @@ FROM
 			NULL AS fbm_refund_other,
 			NULL AS calcuRes,
 			NULL AS fbm_ddp,
-			SUM( a.totalAdsCost * e.pcr_percent * e.pcr_quantity ) * 0.01 fbm_adCost,
+			SUM( a.totalAdsCost * d.percent * d.qty ) fbm_adCost,
 			NULL AS warehouse_rent,
 			NULL AS adjustment,
 			NULL AS liquidation,
@@ -1937,9 +1937,8 @@ FROM
 			mu_ak_ad_cost a
 			LEFT JOIN mu_ak_seller b ON b.sid = a.sid
 			LEFT JOIN mu_ecang_ak_user_account_relation c ON c.ak_user_account = b.`name`
-			LEFT JOIN mu_ecang_sku d ON d.user_account = c.ecang_user_account 
-			AND a.msku = d.product_sku
-			LEFT JOIN mu_ecang_sku_relation e ON e.sku_id = d.id 
+			LEFT JOIN ( SELECT DISTINCT user_account, seller_sku, warehouse_sku, percent, qty FROM mu_finance_sku_relation WHERE report_id = ' . $report_id . ' ) d ON d.user_account = c.ecang_user_account 
+			AND a.msku = d.seller_sku 
 		WHERE
 			reportDateMonth = "' . $month . '" 
 			AND a.totalAdsCost != 0 
