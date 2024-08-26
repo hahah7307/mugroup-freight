@@ -19,6 +19,7 @@
         </form>
 
         <div class="layui-form">
+            <span class="total">合计：{$sum}</span>
             <table class="layui-table" lay-size="sm">
                 <colgroup>
                     <col width="80">

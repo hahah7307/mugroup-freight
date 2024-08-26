@@ -2905,10 +2905,13 @@ WHERE
 
         // 列表
         $order = new FinanceOperationExpensesModel();
+        $share = new FinanceOrderShareModel();
         $where['report_id'] = $id;
         $list = $order->where($where)->order('id asc')->paginate($page_num, false, ['query' => ['keyword' => $keyword]]);
         $this->assign('list', $list);
         $this->assign('report_id', $id);
+        $this->assign('sum', $order->where(['report_id' => $id])->sum('total'));
+        $this->assign('company', $share->where(['report_id' => $id, 'cost_type' => 'OPERATION_EXPENSES_PATENT', 'user_account' => 'company'])->sum('total'));
 
         Session::set(Config::get('BACK_URL'), $this->request->url(), 'manage');
 
@@ -2937,6 +2940,7 @@ WHERE
         $list = $order->where($where)->order('id asc')->paginate($page_num, false, ['query' => ['keyword' => $keyword]]);
         $this->assign('list', $list);
         $this->assign('report_id', $id);
+        $this->assign('sum', $order->where(['report_id' => $id])->sum('total'));
 
         Session::set(Config::get('BACK_URL'), $this->request->url(), 'manage');
 
@@ -2965,6 +2969,7 @@ WHERE
         $list = $order->where($where)->order('id asc')->paginate($page_num, false, ['query' => ['keyword' => $keyword]]);
         $this->assign('list', $list);
         $this->assign('report_id', $id);
+        $this->assign('sum', $order->where(['report_id' => $id])->sum('total'));
 
         Session::set(Config::get('BACK_URL'), $this->request->url(), 'manage');
 
