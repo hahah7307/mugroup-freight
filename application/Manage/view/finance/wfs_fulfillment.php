@@ -19,6 +19,8 @@
         </form>
 
         <div class="layui-form">
+            <span class="total">尾程合计：{$wfs_tail}</span>
+            <span class="total">退运合计：{$wfs_return}</span>
             <table class="layui-table" lay-size="sm">
                 <colgroup>
                     <col width="80">

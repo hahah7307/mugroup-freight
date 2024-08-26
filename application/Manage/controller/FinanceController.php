@@ -2994,6 +2994,9 @@ WHERE
         $this->assign('list', $list);
         $this->assign('report_id', $id);
 
+        $this->assign('wfs_tail', $order->where($where)->where('is_fulfillment', 1)->sum('total'));
+        $this->assign('wfs_return', $order->where($where)->where('is_return_shipping', 1)->sum('total'));
+
         Session::set(Config::get('BACK_URL'), $this->request->url(), 'manage');
 
         return view();
