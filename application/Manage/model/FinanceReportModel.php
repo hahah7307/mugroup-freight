@@ -1862,7 +1862,7 @@ FROM
 				LEFT JOIN ( SELECT DISTINCT platform, userAccount FROM mu_finance_table WHERE rid = ' . $report_id . ' ) c ON b.user_account = c.userAccount 
 			WHERE
 				a.report_id = ' . $report_id . ' 
-				AND c.platform = "amazon" 
+				AND a.platform = "amazon" 
 				AND le_adjustment IS NOT NULL UNION ALL
 			SELECT
 				"amazon" AS platform,
@@ -2468,7 +2468,7 @@ FROM
 				LEFT JOIN ( SELECT DISTINCT platform, userAccount FROM mu_finance_table WHERE rid = ' . $report_id . ' ) c ON b.user_account = c.userAccount 
 			WHERE
 				a.report_id = ' . $report_id . ' 
-				AND c.platform = "walmart" 
+				AND a.platform = "walmart" 
 				AND lc_adjustment IS NOT NULL UNION ALL
 			SELECT
 				"walmart" AS platform,
@@ -2501,7 +2501,7 @@ FROM
 				LEFT JOIN ( SELECT DISTINCT platform, userAccount FROM mu_finance_table WHERE rid = ' . $report_id . ' ) c ON b.user_account = c.userAccount 
 			WHERE
 				a.report_id = ' . $report_id . ' 
-				AND c.platform = "walmart" 
+				AND a.platform = "walmart" 
 				AND le_adjustment IS NOT NULL UNION ALL
 			SELECT
 				"walmart" AS platform,
@@ -3053,7 +3053,7 @@ FROM
 				LEFT JOIN ( SELECT DISTINCT platform, userAccount FROM mu_finance_table WHERE rid = ' . $report_id . ' ) c ON b.user_account = c.userAccount 
 			WHERE
 				a.report_id = ' . $report_id . ' 
-				AND c.platform = "wayfair" 
+				AND a.platform = "wayfair" 
 				AND lc_adjustment IS NOT NULL UNION ALL
 			SELECT
 				"wayfair" AS platform,
@@ -3082,7 +3082,7 @@ FROM
 				LEFT JOIN ( SELECT DISTINCT platform, userAccount FROM mu_finance_table WHERE rid = ' . $report_id . ' ) c ON b.user_account = c.userAccount 
 			WHERE
 				a.report_id = ' . $report_id . ' 
-				AND c.platform = "wayfair" 
+				AND a.platform = "wayfair" 
 				AND le_adjustment IS NOT NULL UNION ALL
 			SELECT
 				"wayfair" AS platform,
