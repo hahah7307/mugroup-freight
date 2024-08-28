@@ -1255,7 +1255,7 @@ FROM
 			NULL AS liquidation,
 			NULL AS promotion,
 			NULL AS shipping_service,
-			b.total operation_expenses,
+			ROUND( b.total / d.USD, 2) operation_expenses,
 			NULL AS operation_factory,
 			NULL AS operation_delivery,
 			NULL AS evaluation_qty,
@@ -1264,6 +1264,7 @@ FROM
 			mu_finance_operation_expenses a
 			LEFT JOIN mu_finance_order_share b ON a.share_code = b.share_code
 			LEFT JOIN ( SELECT DISTINCT platform, userAccount FROM mu_finance_table WHERE rid = ' . $report_id . ' ) c ON b.user_account = c.userAccount 
+			LEFT JOIN mu_finance_report d ON a.report_id = d.id
 		WHERE
 			a.report_id = ' . $report_id . ' 
 			AND b.fulfillment = "FBA" 
@@ -1290,7 +1291,7 @@ FROM
 			NULL AS promotion,
 			NULL AS shipping_service,
 			NULL AS operation_expenses,
-			b.total operation_factory,
+			ROUND( b.total / d.USD, 2) operation_factory,
 			NULL AS operation_delivery,
 			NULL AS evaluation_qty,
 			NULL AS evaluation_amount 
@@ -1298,6 +1299,7 @@ FROM
 			mu_finance_operation_factory a
 			LEFT JOIN mu_finance_order_share b ON a.share_code = b.share_code
 			LEFT JOIN ( SELECT DISTINCT platform, userAccount FROM mu_finance_table WHERE rid = ' . $report_id . ' ) c ON b.user_account = c.userAccount 
+			LEFT JOIN mu_finance_report d ON a.report_id = d.id
 		WHERE
 			a.report_id = ' . $report_id . ' 
 			AND b.fulfillment = "FBA" 
@@ -1325,13 +1327,14 @@ FROM
 			NULL AS shipping_service,
 			NULL AS operation_expenses,
 			NULL AS operation_factory,
-			b.total operation_delivery,
+			ROUND( b.total / d.USD, 2) operation_delivery,
 			NULL AS evaluation_qty,
 			NULL AS evaluation_amount 
 		FROM
 			mu_finance_operation_delivery a
 			LEFT JOIN mu_finance_order_share b ON a.share_code = b.share_code
 			LEFT JOIN ( SELECT DISTINCT platform, userAccount FROM mu_finance_table WHERE rid = ' . $report_id . ' ) c ON b.user_account = c.userAccount 
+			LEFT JOIN mu_finance_report d ON a.report_id = d.id
 		WHERE
 			a.report_id = ' . $report_id . ' 
 			AND b.fulfillment = "FBA" 
@@ -2005,7 +2008,7 @@ FROM
 			NULL AS shipping_service,
 			NULL AS lc_adjustment,
 			NULL AS le_adjustment,
-			b.total operation_expenses,
+			ROUND( b.total / d.USD, 2) operation_expenses,
 			NULL AS operation_factory,
 			NULL AS operation_delivery,
 			NULL AS evaluation_qty,
@@ -2014,6 +2017,7 @@ FROM
 			mu_finance_operation_expenses a
 			LEFT JOIN mu_finance_order_share b ON a.share_code = b.share_code
 			LEFT JOIN ( SELECT DISTINCT platform, userAccount FROM mu_finance_table WHERE rid = ' . $report_id . ' ) c ON b.user_account = c.userAccount 
+			LEFT JOIN mu_finance_report d ON a.report_id = d.id
 		WHERE
 			a.report_id = ' . $report_id . ' 
 			AND b.fulfillment = "FBM" 
@@ -2041,7 +2045,7 @@ FROM
 			NULL AS lc_adjustment,
 			NULL AS le_adjustment,
 			NULL AS operation_expenses,
-			b.total operation_factory,
+			ROUND( b.total / d.USD, 2) operation_factory,
 			NULL AS operation_delivery,
 			NULL AS evaluation_qty,
 			NULL AS evaluation_amount 
@@ -2049,6 +2053,7 @@ FROM
 			mu_finance_operation_factory a
 			LEFT JOIN mu_finance_order_share b ON a.share_code = b.share_code
 			LEFT JOIN ( SELECT DISTINCT platform, userAccount FROM mu_finance_table WHERE rid = ' . $report_id . ' ) c ON b.user_account = c.userAccount 
+			LEFT JOIN mu_finance_report d ON a.report_id = d.id
 		WHERE
 			a.report_id = ' . $report_id . ' 
 			AND b.fulfillment = "FBM" 
@@ -2077,13 +2082,14 @@ FROM
 			NULL AS le_adjustment,
 			NULL AS operation_expenses,
 			NULL AS operation_factory,
-			b.total operation_delivery,
+			ROUND( b.total / d.USD, 2) operation_delivery,
 			NULL AS evaluation_qty,
 			NULL AS evaluation_amount 
 		FROM
 			mu_finance_operation_delivery a
 			LEFT JOIN mu_finance_order_share b ON a.share_code = b.share_code
 			LEFT JOIN ( SELECT DISTINCT platform, userAccount FROM mu_finance_table WHERE rid = ' . $report_id . ' ) c ON b.user_account = c.userAccount 
+			LEFT JOIN mu_finance_report d ON a.report_id = d.id
 		WHERE
 			a.report_id = ' . $report_id . ' 
 			AND b.fulfillment = "FBM" 
@@ -2691,7 +2697,7 @@ FROM
 			NULL AS lc_adjustment,
 			NULL AS le_adjustment,
 			NULL AS wfs_adjustment,
-			b.total operation_expenses,
+			ROUND( b.total / d.USD, 2) operation_expenses,
 			NULL AS operation_factory,
 			NULL AS operation_delivery,
 			NULL AS evaluation_qty,
@@ -2700,6 +2706,7 @@ FROM
 			mu_finance_operation_expenses a
 			LEFT JOIN mu_finance_order_share b ON a.share_code = b.share_code
 			LEFT JOIN ( SELECT DISTINCT platform, userAccount FROM mu_finance_table WHERE rid = ' . $report_id . ' ) c ON b.user_account = c.userAccount 
+			LEFT JOIN mu_finance_report d ON a.report_id = d.id
 		WHERE
 			a.report_id = ' . $report_id . ' 
 			AND c.platform = "walmart" UNION ALL
@@ -2725,7 +2732,7 @@ FROM
 			NULL AS le_adjustment,
 			NULL AS wfs_adjustment,
 			NULL AS operation_expenses,
-			b.total operation_factory,
+			ROUND( b.total / d.USD, 2) operation_factory,
 			NULL AS operation_delivery,
 			NULL AS evaluation_qty,
 			NULL AS evaluation_amount 
@@ -2733,6 +2740,7 @@ FROM
 			mu_finance_operation_factory a
 			LEFT JOIN mu_finance_order_share b ON a.share_code = b.share_code
 			LEFT JOIN ( SELECT DISTINCT platform, userAccount FROM mu_finance_table WHERE rid = ' . $report_id . ' ) c ON b.user_account = c.userAccount 
+			LEFT JOIN mu_finance_report d ON a.report_id = d.id
 		WHERE
 			a.report_id = ' . $report_id . ' 
 			AND c.platform = "walmart" UNION ALL
@@ -2759,13 +2767,14 @@ FROM
 			NULL AS wfs_adjustment,
 			NULL AS operation_expenses,
 			NULL AS operation_factory,
-			b.total operation_delivery,
+			ROUND( b.total / d.USD, 2) operation_delivery,
 			NULL AS evaluation_qty,
 			NULL AS evaluation_amount 
 		FROM
 			mu_finance_operation_delivery a
 			LEFT JOIN mu_finance_order_share b ON a.share_code = b.share_code
 			LEFT JOIN ( SELECT DISTINCT platform, userAccount FROM mu_finance_table WHERE rid = ' . $report_id . ' ) c ON b.user_account = c.userAccount 
+			LEFT JOIN mu_finance_report d ON a.report_id = d.id
 		WHERE
 			a.report_id = ' . $report_id . ' 
 			AND c.platform = "walmart" 
@@ -3195,7 +3204,7 @@ FROM
 			NULL AS adjustment,
 			NULL AS lc_adjustment,
 			NULL AS le_adjustment,
-			b.total operation_expenses,
+			ROUND( b.total / d.USD, 2) operation_expenses,
 			NULL AS operation_factory,
 			NULL AS operation_delivery,
 			NULL AS evaluation_qty,
@@ -3204,6 +3213,7 @@ FROM
 			mu_finance_operation_expenses a
 			LEFT JOIN mu_finance_order_share b ON a.share_code = b.share_code
 			LEFT JOIN ( SELECT DISTINCT platform, userAccount FROM mu_finance_table WHERE rid = ' . $report_id . ' ) c ON b.user_account = c.userAccount 
+			LEFT JOIN mu_finance_report d ON a.report_id = d.id
 		WHERE
 			a.report_id = ' . $report_id . ' 
 			AND c.platform = "wayfair" UNION ALL
@@ -3225,7 +3235,7 @@ FROM
 			NULL AS lc_adjustment,
 			NULL AS le_adjustment,
 			NULL AS operation_expenses,
-			b.total operation_factory,
+			ROUND( b.total / d.USD, 2) operation_factory,
 			NULL AS operation_delivery,
 			NULL AS evaluation_qty,
 			NULL AS evaluation_amount 
@@ -3233,6 +3243,7 @@ FROM
 			mu_finance_operation_factory a
 			LEFT JOIN mu_finance_order_share b ON a.share_code = b.share_code
 			LEFT JOIN ( SELECT DISTINCT platform, userAccount FROM mu_finance_table WHERE rid = ' . $report_id . ' ) c ON b.user_account = c.userAccount 
+			LEFT JOIN mu_finance_report d ON a.report_id = d.id
 		WHERE
 			a.report_id = ' . $report_id . ' 
 			AND c.platform = "wayfair" UNION ALL
@@ -3255,13 +3266,14 @@ FROM
 			NULL AS le_adjustment,
 			NULL AS operation_expenses,
 			NULL AS operation_factory,
-			b.total operation_delivery,
+			ROUND( b.total / d.USD, 2) operation_delivery,
 			NULL AS evaluation_qty,
 			NULL AS evaluation_amount 
 		FROM
 			mu_finance_operation_delivery a
 			LEFT JOIN mu_finance_order_share b ON a.share_code = b.share_code
 			LEFT JOIN ( SELECT DISTINCT platform, userAccount FROM mu_finance_table WHERE rid = ' . $report_id . ' ) c ON b.user_account = c.userAccount 
+			LEFT JOIN mu_finance_report d ON a.report_id = d.id
 		WHERE
 			a.report_id = ' . $report_id . ' 
 			AND c.platform = "wayfair" 
@@ -3691,7 +3703,7 @@ FROM
 			NULL AS adjustment,
 			NULL AS lc_adjustment,
 			NULL AS le_adjustment,
-			b.total operation_expenses,
+			ROUND( b.total / d.USD, 2) operation_expenses,
 			NULL AS operation_factory,
 			NULL AS operation_delivery,
 			NULL AS evaluation_qty,
@@ -3700,6 +3712,7 @@ FROM
 			mu_finance_operation_expenses a
 			LEFT JOIN mu_finance_order_share b ON a.share_code = b.share_code
 			LEFT JOIN ( SELECT DISTINCT platform, userAccount FROM mu_finance_table WHERE rid = ' . $report_id . ' ) c ON b.user_account = c.userAccount 
+			LEFT JOIN mu_finance_report d ON a.report_id = d.id
 		WHERE
 			a.report_id = ' . $report_id . ' 
 			AND c.platform = "shein" UNION ALL
@@ -3721,7 +3734,7 @@ FROM
 			NULL AS lc_adjustment,
 			NULL AS le_adjustment,
 			NULL AS operation_expenses,
-			b.total operation_factory,
+			ROUND( b.total / d.USD, 2) operation_factory,
 			NULL AS operation_delivery,
 			NULL AS evaluation_qty,
 			NULL AS evaluation_amount 
@@ -3729,6 +3742,7 @@ FROM
 			mu_finance_operation_factory a
 			LEFT JOIN mu_finance_order_share b ON a.share_code = b.share_code
 			LEFT JOIN ( SELECT DISTINCT platform, userAccount FROM mu_finance_table WHERE rid = ' . $report_id . ' ) c ON b.user_account = c.userAccount 
+			LEFT JOIN mu_finance_report d ON a.report_id = d.id
 		WHERE
 			a.report_id = ' . $report_id . ' 
 			AND c.platform = "shein" UNION ALL
@@ -3751,13 +3765,14 @@ FROM
 			NULL AS le_adjustment,
 			NULL AS operation_expenses,
 			NULL AS operation_factory,
-			b.total operation_delivery,
+			ROUND( b.total / d.USD, 2) operation_delivery,
 			NULL AS evaluation_qty,
 			NULL AS evaluation_amount 
 		FROM
 			mu_finance_operation_delivery a
 			LEFT JOIN mu_finance_order_share b ON a.share_code = b.share_code
 			LEFT JOIN ( SELECT DISTINCT platform, userAccount FROM mu_finance_table WHERE rid = ' . $report_id . ' ) c ON b.user_account = c.userAccount 
+			LEFT JOIN mu_finance_report d ON a.report_id = d.id
 		WHERE
 			a.report_id = ' . $report_id . ' 
 			AND c.platform = "shein" 
