@@ -31,6 +31,7 @@
                     <col>
                     <col>
                     <col>
+                    <col>
                     <col width="80">
                 </colgroup>
                 <thead>
@@ -41,6 +42,7 @@
                     <th>主销售平台</th>
                     <th>月结余库存</th>
                     <th>总金额</th>
+                    <th>分摊唯一标识号</th>
                     <th class="tc">操作</th>
                 </tr>
                 </thead>
@@ -53,6 +55,7 @@
                     <td>{$v.main_platform}</td>
                     <td class="tr">{$v.quantity}</td>
                     <td class="tr">{$v.total}</td>
+                    <td>{$v.share_code}</td>
                     <td class="tc">
                         <a href="{:url('warehouse_fbm_edit', ['id' => $v.id])}" class="layui-btn layui-btn-normal layui-btn-sm">修改主件</a>
                     </td>

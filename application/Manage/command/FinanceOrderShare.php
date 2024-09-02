@@ -139,7 +139,7 @@ LIMIT 50;
                 }
 
                 if ($financeOrderShareObj->insertAll($shareItem)) {
-                    $additionalModel->update(['share_code' => $shareCode], ['report_id' => $item['report_id'], 'user_account' => $item['user_account'], 'warehouse_sku' => $item['warehouse_sku']])->where('promotion', 'NOT NULL');
+                    $additionalModel->update(['share_code' => $shareCode], ['report_id' => $item['report_id'], 'user_account' => $item['user_account'], 'warehouse_sku' => $item['warehouse_sku'], 'promotion' => ['not null']]);
                 }
             }
         }
@@ -264,7 +264,7 @@ FROM
 	LEFT JOIN mu_finance_table b ON a.table_id = b.id
 	LEFT JOIN ( SELECT asin, seller_sku, user_account, MAX( updated_time ) updated_time FROM mu_ecang_listing GROUP BY asin, seller_sku, user_account, updated_time ) c ON a.sku = c.asin 
 	AND b.userAccount = c.user_account
-	LEFT JOIN ( SELECT DISTINCT user_account, seller_sku, warehouse_sku, seller, product_name, percent FROM mu_finance_sku_relation WHERE report_id = 6 ) d ON c.seller_sku = d.seller_sku 
+	LEFT JOIN ( SELECT DISTINCT user_account, seller_sku, warehouse_sku, seller, product_name, percent FROM mu_finance_sku_relation WHERE report_id = ' . $item['report_id'] . ' ) d ON c.seller_sku = d.seller_sku 
 	AND d.user_account = c.user_account 
 WHERE
 	a.total != 0 
