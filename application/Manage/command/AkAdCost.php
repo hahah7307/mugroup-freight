@@ -103,6 +103,14 @@ class AkAdCost extends Command
                     'adsSbCost'                                 =>  $item['adsSbCost'],
                     'adsSbvCost'                                =>  $item['adsSbvCost'],
                     'adsSdCost'                                 =>  $item['adsSdCost'],
+                    'sharedSubscriptionFee'                     =>  $item['sharedSubscriptionFee'],
+                    'sharedLdFee'                               =>  $item['sharedLdFee'],
+                    'sharedCouponFee'                           =>  $item['sharedCouponFee'],
+                    'sharedVineFee'                             =>  $item['sharedVineFee'],
+                    'sharedLiquidationsFees'                    =>  $item['sharedLiquidationsFees'],
+                    'fbaLiquidationProceeds'                    =>  $item['fbaLiquidationProceeds'],
+                    'fbaLiquidationProceedsAdjustments'         =>  $item['fbaLiquidationProceedsAdjustments'],
+                    'taxCollected'                              =>  $item['taxCollected'],
                 ];
                 unset($item);
             }
