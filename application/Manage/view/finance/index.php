@@ -31,6 +31,8 @@
                     <option value="wayfair">wayfair</option>
                     <option value="walmart">walmart</option>
                     <option value="shein">shein</option>
+                    <option value="temu">temu</option>
+                    <option value="ebay">ebay</option>
                 </select>
             </div>
             <button type="button" class="layui-btn  layui-btn-normal" id="excel">导入</button><br><br>

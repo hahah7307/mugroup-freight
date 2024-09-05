@@ -27,7 +27,7 @@ class FinanceSheinOrder extends Command
         Db::startTrans();
         try {
             $orderSaleObj = new FinanceOrderSaleModel();
-            $list = $orderSaleObj->where('sku', null)->where(['payment_id' => [['like', 'GSUN%']]])->limit(100)->select();
+            $list = $orderSaleObj->where('sku', null)->limit(100)->select();
             $newOrder = [];
             if (count($list)) {
                 foreach ($list as $item) {
@@ -65,7 +65,7 @@ class FinanceSheinOrder extends Command
             }
 
             $orderAdjustmentObj = new FinanceOrderAdjustmentModel();
-            $adjustment = $orderAdjustmentObj->where('sku', null)->where(['payment_id' => [['like', 'GSUN%']]])->limit(100)->select();
+            $adjustment = $orderAdjustmentObj->where('sku', null)->limit(100)->select();
             $newOrder = [];
             if (count($adjustment)) {
                 foreach ($adjustment as $a) {

@@ -1166,4 +1166,128 @@ class AmazonPayment extends Model
             'orderTransferNew'          =>  $this->orderTransferNew
         ];
     }
+
+    /**
+     * @throws DbException
+     * @throws ModelNotFoundException
+     * @throws DataNotFoundException
+     */
+    public function temu($excel, $tableId, $reportId): array
+    {
+        foreach ($excel as $item) {
+            $orderObj = new OrderModel();
+            $order = $orderObj->with(['details'])->where(['refNo|saleOrderCode' => $item[2]])->find();
+            if ($order && $order['userAccount'] != $this->userAccount) {
+                $this->userAccount = $order['userAccount'];
+            }
+
+            if ($item[1] == 'Order Payment') {
+                $this->orderSaleNew[] = [
+                    "report_id"                 =>  $reportId,
+                    "table_id"                  =>  $tableId,
+                    "payment_id"                =>  $item[2],
+                    "fulfillment"               =>  "Seller",
+                    "product_sales"             =>  sprintf('%.2f', str_replace(',', '', $item[4])),
+                    "selling_fees"              =>  0,
+                    "shipping_credits"          =>  0,
+                    "gift_wrap_credits"         =>  0,
+                    "regulatory_fee"            =>  0,
+                    "promotional_rebates"       =>  0,
+                    "fba_fees"                  =>  0,
+                ];
+            } elseif ($item[1] == 'Refund') {
+                $this->orderRefundNew[] = [
+                    "report_id"                 =>  $reportId,
+                    "table_id"                  =>  $tableId,
+                    "payment_id"                =>  $item[2],
+                    "fulfillment"               =>  "Seller",
+                    "product_sales"             =>  sprintf('%.2f', str_replace(',', '', $item[4])),
+                    "selling_fees"              =>  0,
+                    "shipping_credits"          =>  0,
+                    "gift_wrap_credits"         =>  0,
+                    "regulatory_fee"            =>  0,
+                    "promotional_rebates"       =>  0,
+                    "fba_fees"                  =>  0,
+                ];
+            } elseif (($item[1] == 'Others')
+                || $item[1] == 'Shipping label purchase'
+                || $item[1] == 'Shipping label purchase adjustment'
+            ) {
+                if (strpos($item[2], 'LW') === false) {
+                    $this->orderAdjustmentNew[] = [
+                        "report_id"                 =>  $reportId,
+                        "table_id"                  =>  $tableId,
+                        "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[6])),
+                    ];
+                }
+            }
+        }
+
+        return [
+            'userAccount'               =>  $this->userAccount,
+            'orderSaleNew'              =>  $this->orderSaleNew,
+            'orderRefundNew'            =>  $this->orderRefundNew,
+            'orderPromotionNew'         =>  $this->orderPromotionNew,
+            'orderShippingServiceNew'   =>  $this->orderShippingServiceNew,
+            'orderLiquidationNew'       =>  $this->orderLiquidationNew,
+            'orderAdjustmentNew'        =>  $this->orderAdjustmentNew,
+            'orderFbaInventory'         =>  $this->orderFbaInventory,
+            'orderTransferNew'          =>  $this->orderTransferNew
+        ];
+    }
+
+    /**
+     * @throws DbException
+     * @throws ModelNotFoundException
+     * @throws DataNotFoundException
+     */
+    public function ebay($excel, $tableId, $reportId): array
+    {
+        foreach ($excel as $item) {
+            $orderObj = new OrderModel();
+            $order = $orderObj->with(['details'])->where(['refNo|saleOrderCode' => $item[2]])->find();
+            if ($order && $order['userAccount'] != $this->userAccount) {
+                $this->userAccount = $order['userAccount'];
+            }
+
+            if ($item[1] == '订单') {
+                $this->orderSaleNew[] = [
+                    "report_id"                 =>  $reportId,
+                    "table_id"                  =>  $tableId,
+                    "payment_id"                =>  $item[2],
+                    "fulfillment"               =>  "Seller",
+                    "product_sales"             =>  sprintf('%.2f', str_replace(',', '', $item[34])),
+                    "selling_fees"              =>  round(str_replace(',', '', $item[26]), 2)
+                        + round(str_replace(',', '', $item[27]), 2)
+                        + round(str_replace(',', '', $item[31]), 2),
+                    "shipping_credits"          =>  0,
+                    "gift_wrap_credits"         =>  0,
+                    "regulatory_fee"            =>  0,
+                    "promotional_rebates"       =>  0,
+                    "fba_fees"                  =>  0,
+                ];
+            } elseif ($item[1] == '其他费用') {
+                if (gettype(strpos($item[38], 'Promoted Listings')) == 'integer') {
+                    $this->orderPromotionNew[] = [
+                        "report_id"                 =>  $reportId,
+                        "table_id"                  =>  $tableId,
+                        "description"               =>  $item[38],
+                        "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[34])),
+                    ];
+                }
+            }
+        }
+
+        return [
+            'userAccount'               =>  $this->userAccount,
+            'orderSaleNew'              =>  $this->orderSaleNew,
+            'orderRefundNew'            =>  $this->orderRefundNew,
+            'orderPromotionNew'         =>  $this->orderPromotionNew,
+            'orderShippingServiceNew'   =>  $this->orderShippingServiceNew,
+            'orderLiquidationNew'       =>  $this->orderLiquidationNew,
+            'orderAdjustmentNew'        =>  $this->orderAdjustmentNew,
+            'orderFbaInventory'         =>  $this->orderFbaInventory,
+            'orderTransferNew'          =>  $this->orderTransferNew
+        ];
+    }
 }
