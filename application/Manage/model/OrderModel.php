@@ -246,6 +246,7 @@ class OrderModel extends Model
                 foreach ($orderDetail as $detail) {
                     $detail['warehouseSkuList'] = json_encode($detail['warehouseSkuList']);
                     $detail['promotionIdList'] = json_encode($detail['promotionIdList']);
+                    $detail['buyerCustomizedInfo'] = json_encode($detail['buyerCustomizedInfo']);
                     $detail['order_id'] = $newId;
                     if (!$detailModel->insert($detail)) {
                         throw new Exception("订单详情插入失败！");
