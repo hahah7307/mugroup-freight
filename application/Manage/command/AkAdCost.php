@@ -111,6 +111,8 @@ class AkAdCost extends Command
                     'fbaLiquidationProceeds'                    =>  $item['fbaLiquidationProceeds'],
                     'fbaLiquidationProceedsAdjustments'         =>  $item['fbaLiquidationProceedsAdjustments'],
                     'taxCollected'                              =>  $item['taxCollected'],
+                    'country'                                   =>  $item['country'],
+                    'countryCode'                               =>  $item['countryCode'],
                 ];
                 unset($item);
             }
