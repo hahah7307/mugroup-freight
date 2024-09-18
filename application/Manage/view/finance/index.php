@@ -31,6 +31,7 @@
                     <option value="wayfair">wayfair</option>
                     <option value="walmart">walmart</option>
                     <option value="shein">shein</option>
+                    <option value="shein_semi_managed">shein_semi_managed</option>
                     <option value="temu">temu</option>
                     <option value="ebay">ebay</option>
                 </select>

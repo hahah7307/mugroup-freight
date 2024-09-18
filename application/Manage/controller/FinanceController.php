@@ -1101,6 +1101,7 @@ class FinanceController extends BaseController
         $rid = input('rid');
         $payment_type = input('payment_type');
         $payment_type_new = strpos($payment_type, 'amazon') !== false ? 'amazon' : $payment_type;
+        $payment_type_new = $payment_type == 'shein_semi_managed' ? 'shein' : $payment_type_new;
         $file= "./upload/excel/" . $filename;
         $excelReader = PHPExcel_IOFactory::createReaderForFile($file);
         $excelObj = $excelReader->load($file);
