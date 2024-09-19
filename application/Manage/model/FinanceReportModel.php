@@ -1024,92 +1024,7 @@ FROM
 			WHERE
 				a.report_id = ' . $report_id . ' 
 				AND c.fulfillment = "FBA" 
-				AND b.platform = "amazon" UNION ALL
-			SELECT
-				b.platform,
-				b.userAccount,
-				NULL AS payment,
-				NULL AS payment_id,
-				NULL AS saleOrderCode,
-				c.seller_sku seller_sku,
-				c.warehouse_sku warehouse_sku,
-				NULL AS fba_sale_qty,
-				NULL AS fba_refund_qty,
-				NULL AS fba_sale_amount,
-				NULL AS fba_sale_tax,
-				NULL AS fba_refund_amount,
-				NULL AS fba_sale_selling_fees,
-				NULL AS fba_refund_selling_fees,
-				NULL AS fba_fees,
-				NULL AS fba_refund_fees,
-				NULL AS fba_refund_other,
-				NULL AS fba_ddp,
-				NULL AS adCost,
-				NULL AS fba_inventory,
-				NULL AS adjustment,
-				c.total liquidation,
-				NULL AS promotion,
-				NULL AS shipping_service 
-			FROM
-				mu_finance_order_liquidation a
-				LEFT JOIN mu_finance_table b ON a.table_id = b.id
-				LEFT JOIN mu_finance_order_share c ON a.share_code = c.share_code 
-			WHERE
-				a.report_id = ' . $report_id . ' 
-				AND c.fulfillment = "FBA" 
-				AND b.platform = "amazon" UNION ALL
-			SELECT
-				"amazon" AS platform,
-				a.user_account userAccount,
-				NULL AS payment,
-				NULL AS payment_id,
-				NULL AS saleOrderCode,
-				NULL AS seller_sku,
-				a.warehouse_sku warehouse_sku,
-				NULL AS fba_sale_qty,
-				NULL AS fba_refund_qty,
-				NULL AS fba_sale_amount,
-				NULL AS fba_sale_tax,
-				NULL AS fba_refund_amount,
-				NULL AS fba_sale_selling_fees,
-				NULL AS fba_refund_selling_fees,
-				NULL AS fba_fees,
-				NULL AS fba_ddp,
-				NULL AS fba_refund_fees,
-				NULL AS fba_refund_other,
-				NULL AS adCost,
-				NULL AS fba_inventory,
-				NULL AS adjustment,
-				NULL AS liquidation,
-				b.total promotion,
-				NULL AS shipping_service 
-			FROM
-				(
-				SELECT
-					report_id,
-					user_account,
-					warehouse_sku,
-					share_code,
-					SUM( promotion ) total 
-				FROM
-					mu_finance_order_additional 
-				WHERE
-					promotion IS NOT NULL 
-					AND report_id = ' . $report_id . ' 
-				GROUP BY
-					report_id,
-					user_account,
-					warehouse_sku,
-					share_code 
-				ORDER BY
-					report_id,
-					user_account,
-					warehouse_sku,
-					share_code 
-				) a
-				LEFT JOIN mu_finance_order_share b ON a.share_code = b.share_code 
-			WHERE
-				b.fulfillment = "FBA" 
+				AND b.platform = "amazon" 
 			) a 
 		GROUP BY
 			platform,
@@ -1150,6 +1065,127 @@ FROM
 		WHERE
 			reportDateMonth = "' . $month . '" 
 			AND a.totalAdsCost != 0 
+			AND is_fba = 1 
+		GROUP BY
+			platform,
+			userAccount,
+			warehouse_sku UNION ALL
+		SELECT
+			"amazon" AS platform,
+			c.ecang_user_account userAccount,
+			d.warehouse_sku,
+			NULL AS fba_sale_qty,
+			NULL AS fba_refund_qty,
+			NULL AS fba_sale_amount,
+			NULL AS fba_sale_tax,
+			NULL AS fba_refund_amount,
+			NULL AS fba_sale_selling_fees,
+			NULL AS fba_refund_selling_fees,
+			NULL AS fba_fees,
+			NULL AS fba_refund_fees,
+			NULL AS fba_refund_other,
+			NULL AS fba_ddp,
+			NULL AS fba_adCost,
+			NULL AS fba_inventory,
+			NULL AS adjustment,
+			NULL AS liquidation,
+			SUM( ( a.sharedLdFee + a.sharedCouponFee ) * d.percent * d.qty ) promotion,
+			NULL AS shipping_service,
+			NULL AS operation_expenses,
+			NULL AS operation_factory,
+			NULL AS operation_delivery,
+			NULL AS evaluation_qty,
+			NULL AS evaluation_amount 
+		FROM
+			mu_ak_ad_cost a
+			LEFT JOIN mu_ak_seller b ON b.sid = a.sid
+			LEFT JOIN mu_ecang_ak_user_account_relation c ON c.ak_user_account = b.`name`
+			LEFT JOIN ( SELECT DISTINCT user_account, seller_sku, warehouse_sku, percent, qty FROM mu_finance_sku_relation WHERE report_id = ' . $report_id . ' ) d ON d.user_account = c.ecang_user_account 
+			AND a.msku = d.seller_sku 
+		WHERE
+			reportDateMonth = "' . $month . '" 
+			AND ( a.sharedLdFee != 0 OR a.sharedCouponFee != 0 ) 
+			AND is_fba = 1 
+		GROUP BY
+			platform,
+			userAccount,
+			warehouse_sku UNION ALL
+		SELECT
+			"amazon" AS platform,
+			c.ecang_user_account userAccount,
+			d.warehouse_sku,
+			NULL AS fba_sale_qty,
+			NULL AS fba_refund_qty,
+			NULL AS fba_sale_amount,
+			NULL AS fba_sale_tax,
+			NULL AS fba_refund_amount,
+			NULL AS fba_sale_selling_fees,
+			NULL AS fba_refund_selling_fees,
+			NULL AS fba_fees,
+			NULL AS fba_refund_fees,
+			NULL AS fba_refund_other,
+			NULL AS fba_ddp,
+			NULL AS fba_adCost,
+			NULL AS fba_inventory,
+			NULL AS adjustment,
+			SUM( ( a.sharedLiquidationsFees + a.fbaLiquidationProceeds ) * d.percent * d.qty ) liquidation,
+			NULL AS promotion,
+			NULL AS shipping_service,
+			NULL AS operation_expenses,
+			NULL AS operation_factory,
+			NULL AS operation_delivery,
+			NULL AS evaluation_qty,
+			NULL AS evaluation_amount 
+		FROM
+			mu_ak_ad_cost a
+			LEFT JOIN mu_ak_seller b ON b.sid = a.sid
+			LEFT JOIN mu_ecang_ak_user_account_relation c ON c.ak_user_account = b.`name`
+			LEFT JOIN ( SELECT DISTINCT user_account, seller_sku, warehouse_sku, percent, qty FROM mu_finance_sku_relation WHERE report_id = ' . $report_id . ' ) d ON d.user_account = c.ecang_user_account 
+			AND a.msku = d.seller_sku 
+		WHERE
+			reportDateMonth = "' . $month . '" 
+			AND ( a.sharedLiquidationsFees != 0 OR a.fbaLiquidationProceeds != 0 ) 
+			AND is_fba = 1 
+		GROUP BY
+			platform,
+			userAccount,
+			warehouse_sku UNION ALL
+		SELECT
+			"amazon" AS platform,
+			c.ecang_user_account userAccount,
+			d.warehouse_sku,
+			NULL AS fba_sale_qty,
+			NULL AS fba_refund_qty,
+			NULL AS fba_sale_amount,
+			NULL AS fba_sale_tax,
+			NULL AS fba_refund_amount,
+			NULL AS fba_sale_selling_fees,
+			NULL AS fba_refund_selling_fees,
+			NULL AS fba_fees,
+			NULL AS fba_refund_fees,
+			NULL AS fba_refund_other,
+			NULL AS fba_ddp,
+			NULL AS fba_adCost,
+			NULL AS fba_inventory,
+			NULL AS adjustment,
+			SUM( a.taxCollected * d.percent * d.qty ) liquidation,
+			NULL AS promotion,
+			NULL AS shipping_service,
+			NULL AS operation_expenses,
+			NULL AS operation_factory,
+			NULL AS operation_delivery,
+			NULL AS evaluation_qty,
+			NULL AS evaluation_amount 
+		FROM
+			mu_ak_ad_cost a
+			LEFT JOIN mu_ak_seller b ON b.sid = a.sid
+			LEFT JOIN mu_ecang_ak_user_account_relation c ON c.ak_user_account = b.`name`
+			LEFT JOIN ( SELECT DISTINCT user_account, seller_sku, warehouse_sku, percent, qty FROM mu_finance_sku_relation WHERE report_id = ' . $report_id . ' ) d ON d.user_account = c.ecang_user_account 
+			AND a.msku = d.seller_sku 
+		WHERE
+			reportDateMonth = "' . $month . '" 
+			AND a.countryCode != "US" 
+			AND a.taxCollected != 0 
 			AND is_fba = 1 
 		GROUP BY
 			platform,
@@ -1716,91 +1752,6 @@ FROM
 				AND b.platform = "amazon" UNION ALL
 			SELECT
 				"amazon" AS platform,
-				userAccount userAccount,
-				NULL AS payment,
-				NULL AS payment_id,
-				NULL AS saleOrderCode,
-				NULL AS seller_sku,
-				warehouse_sku warehouse_sku,
-				NULL AS fbm_sale_qty,
-				NULL AS fbm_refund_qty,
-				NULL AS fbm_sale_amount,
-				NULL AS fbm_sale_tax,
-				NULL AS fbm_refund_amount,
-				NULL AS fbm_sale_selling_fees,
-				NULL AS fbm_refund_selling_fees,
-				NULL AS fbm_refund_other,
-				NULL AS calcuRes,
-				NULL AS fbm_ddp,
-				NULL AS warehouse_rent,
-				NULL AS adjustment,
-				c.total liquidation,
-				NULL AS promotion,
-				NULL AS shipping_service,
-				NULL AS lc_adjustment,
-				NULL AS le_adjustment 
-			FROM
-				mu_finance_order_liquidation a
-				LEFT JOIN mu_finance_table b ON a.table_id = b.id
-				LEFT JOIN mu_finance_order_share c ON a.share_code = c.share_code 
-			WHERE
-				a.report_id = ' . $report_id . ' 
-				AND c.fulfillment = "FBM" 
-				AND b.platform = "amazon" UNION ALL
-			SELECT
-				"amazon" AS platform,
-				a.user_account userAccount,
-				NULL AS payment,
-				NULL AS payment_id,
-				NULL AS saleOrderCode,
-				NULL AS seller_sku,
-				a.warehouse_sku warehouse_sku,
-				NULL AS fbm_sale_qty,
-				NULL AS fbm_refund_qty,
-				NULL AS fbm_sale_amount,
-				NULL AS fbm_sale_tax,
-				NULL AS fbm_refund_amount,
-				NULL AS fbm_sale_selling_fees,
-				NULL AS fbm_refund_selling_fees,
-				NULL AS fbm_refund_other,
-				NULL AS calcuRes,
-				NULL AS fbm_ddp,
-				NULL AS warehouse_rent,
-				NULL AS adjustment,
-				NULL AS liquidation,
-				b.total promotion,
-				NULL AS shipping_service,
-				NULL AS lc_adjustment,
-				NULL AS le_adjustment 
-			FROM
-				(
-				SELECT
-					report_id,
-					user_account,
-					warehouse_sku,
-					share_code,
-					SUM( promotion ) total 
-				FROM
-					mu_finance_order_additional 
-				WHERE
-					promotion IS NOT NULL 
-					AND report_id = ' . $report_id . ' 
-				GROUP BY
-					report_id,
-					user_account,
-					warehouse_sku,
-					share_code 
-				ORDER BY
-					report_id,
-					user_account,
-					warehouse_sku,
-					share_code 
-				) a
-				LEFT JOIN mu_finance_order_share b ON a.share_code = b.share_code 
-			WHERE
-				b.fulfillment = "FBM" UNION ALL
-			SELECT
-				"amazon" AS platform,
 				b.user_account userAccount,
 				NULL AS payment,
 				NULL AS payment_id,
@@ -1945,6 +1896,130 @@ FROM
 		WHERE
 			reportDateMonth = "' . $month . '" 
 			AND a.totalAdsCost != 0 
+			AND is_fba = 0 
+		GROUP BY
+			platform,
+			userAccount,
+			warehouse_sku UNION ALL
+		SELECT
+			"amazon" AS platform,
+			c.ecang_user_account userAccount,
+			d.warehouse_sku,
+			NULL AS fbm_sale_qty,
+			NULL AS fbm_refund_qty,
+			NULL AS fbm_sale_amount,
+			NULL AS fbm_sale_tax,
+			NULL AS fbm_refund_amount,
+			NULL AS fbm_sale_selling_fees,
+			NULL AS fbm_refund_selling_fees,
+			NULL AS fbm_refund_other,
+			NULL AS calcuRes,
+			NULL AS fbm_ddp,
+			NULL AS fbm_adCost,
+			NULL AS warehouse_rent,
+			NULL AS adjustment,
+			NULL AS liquidation,
+			SUM( ( a.sharedLdFee + a.sharedCouponFee ) * d.percent * d.qty ) promotion,
+			NULL AS shipping_service,
+			NULL AS lc_adjustment,
+			NULL AS le_adjustment,
+			NULL AS operation_expenses,
+			NULL AS operation_factory,
+			NULL AS operation_delivery,
+			NULL AS evaluation_qty,
+			NULL AS evaluation_amount 
+		FROM
+			mu_ak_ad_cost a
+			LEFT JOIN mu_ak_seller b ON b.sid = a.sid
+			LEFT JOIN mu_ecang_ak_user_account_relation c ON c.ak_user_account = b.`name`
+			LEFT JOIN ( SELECT DISTINCT user_account, seller_sku, warehouse_sku, percent, qty FROM mu_finance_sku_relation WHERE report_id = ' . $report_id . ' ) d ON d.user_account = c.ecang_user_account 
+			AND a.msku = d.seller_sku 
+		WHERE
+			reportDateMonth = "' . $month . '" 
+			AND ( a.sharedLdFee != 0 OR a.sharedCouponFee != 0 ) 
+			AND is_fba = 0 
+		GROUP BY
+			platform,
+			userAccount,
+			warehouse_sku UNION ALL
+		SELECT
+			"amazon" AS platform,
+			c.ecang_user_account userAccount,
+			d.warehouse_sku,
+			NULL AS fbm_sale_qty,
+			NULL AS fbm_refund_qty,
+			NULL AS fbm_sale_amount,
+			NULL AS fbm_sale_tax,
+			NULL AS fbm_refund_amount,
+			NULL AS fbm_sale_selling_fees,
+			NULL AS fbm_refund_selling_fees,
+			NULL AS fbm_refund_other,
+			NULL AS calcuRes,
+			NULL AS fbm_ddp,
+			NULL AS fbm_adCost,
+			NULL AS warehouse_rent,
+			NULL AS adjustment,
+			SUM( ( a.sharedLiquidationsFees + a.fbaLiquidationProceeds ) * d.percent * d.qty ) liquidation,
+			NULL AS promotion,
+			NULL AS shipping_service,
+			NULL AS lc_adjustment,
+			NULL AS le_adjustment,
+			NULL AS operation_expenses,
+			NULL AS operation_factory,
+			NULL AS operation_delivery,
+			NULL AS evaluation_qty,
+			NULL AS evaluation_amount 
+		FROM
+			mu_ak_ad_cost a
+			LEFT JOIN mu_ak_seller b ON b.sid = a.sid
+			LEFT JOIN mu_ecang_ak_user_account_relation c ON c.ak_user_account = b.`name`
+			LEFT JOIN ( SELECT DISTINCT user_account, seller_sku, warehouse_sku, percent, qty FROM mu_finance_sku_relation WHERE report_id = ' . $report_id . ' ) d ON d.user_account = c.ecang_user_account 
+			AND a.msku = d.seller_sku 
+		WHERE
+			reportDateMonth = "' . $month . '" 
+			AND ( a.sharedLiquidationsFees != 0 OR a.fbaLiquidationProceeds != 0 ) 
+			AND is_fba = 0 
+		GROUP BY
+			platform,
+			userAccount,
+			warehouse_sku UNION ALL
+		SELECT
+			"amazon" AS platform,
+			c.ecang_user_account userAccount,
+			d.warehouse_sku,
+			NULL AS fbm_sale_qty,
+			NULL AS fbm_refund_qty,
+			NULL AS fbm_sale_amount,
+			NULL AS fbm_sale_tax,
+			NULL AS fbm_refund_amount,
+			NULL AS fbm_sale_selling_fees,
+			NULL AS fbm_refund_selling_fees,
+			NULL AS fbm_refund_other,
+			NULL AS calcuRes,
+			NULL AS fbm_ddp,
+			NULL AS fbm_adCost,
+			NULL AS warehouse_rent,
+			NULL AS adjustment,
+			SUM( a.taxCollected * d.percent * d.qty ) liquidation,
+			NULL AS promotion,
+			NULL AS shipping_service,
+			NULL AS lc_adjustment,
+			NULL AS le_adjustment,
+			NULL AS operation_expenses,
+			NULL AS operation_factory,
+			NULL AS operation_delivery,
+			NULL AS evaluation_qty,
+			NULL AS evaluation_amount 
+		FROM
+			mu_ak_ad_cost a
+			LEFT JOIN mu_ak_seller b ON b.sid = a.sid
+			LEFT JOIN mu_ecang_ak_user_account_relation c ON c.ak_user_account = b.`name`
+			LEFT JOIN ( SELECT DISTINCT user_account, seller_sku, warehouse_sku, percent, qty FROM mu_finance_sku_relation WHERE report_id = ' . $report_id . ' ) d ON d.user_account = c.ecang_user_account 
+			AND a.msku = d.seller_sku 
+		WHERE
+			reportDateMonth = "' . $month . '" 
+			AND a.countryCode != "US" 
+			AND a.taxCollected != 0 
 			AND is_fba = 0 
 		GROUP BY
 			platform,
