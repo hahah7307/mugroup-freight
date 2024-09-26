@@ -252,7 +252,10 @@ class AmazonPayment extends Model
                     "other"                     =>  sprintf('%.2f', str_replace(',', '', $item[25])),
                     "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[26])),
                 ];
-            } elseif ($item[2] == 'Service Fee') {
+            } elseif (($item[2] == 'Service Fee' && strpos($item[5], 'Coupon') !== false)
+                ||  ($item[2] == 'Service Fee' && $item[5] == 'Subscription')
+                ||  $item[2] == 'Deal Fee'
+            ) {
                 $this->orderPromotionNew[] = [
                     "report_id"                 =>  $reportId,
                     "table_id"                  =>  $tableId,
@@ -390,7 +393,8 @@ class AmazonPayment extends Model
                     "other"                     =>  sprintf('%.2f', str_replace(',', '.', str_replace('.', '', $item[25]))),
                     "total"                     =>  sprintf('%.2f', str_replace(',', '.', str_replace('.', '', $item[26]))),
                 ];
-            } elseif ($item[2] == 'Servicegebühr') {
+            } elseif (($item[2] == 'Servicegebühr' && strpos($item[5], 'Werbekosten') !== false)
+                ) {
                 $this->orderPromotionNew[] = [
                     "report_id"                 =>  $reportId,
                     "table_id"                  =>  $tableId,
