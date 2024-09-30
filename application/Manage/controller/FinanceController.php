@@ -179,6 +179,7 @@ class FinanceController extends BaseController
         $walmartWarehouseSku = $financeReportObj->query(FinanceReportModel::getWalmartWarehouseSkuSql($report_id));
         $wayfairWarehouseSku = $financeReportObj->query(FinanceReportModel::getWayfairWarehouseSkuSql($report_id));
         $sheinWarehouseSku = $financeReportObj->query(FinanceReportModel::getSheinWarehouseSkuSql($report_id));
+        $temuWarehouseSku = $financeReportObj->query(FinanceReportModel::getTemuWarehouseSkuSql($report_id));
         $userAccountTransfer = $financeReportObj->query(FinanceReportModel::getUserAccountTransfer($report_id));
         $userAccountSubscription = $financeReportObj->query(FinanceReportModel::getUserAccountSubscription($report_id));
         $orderWayfair = $financeReportObj->query(FinanceReportModel::getOrderWayfair($report_id));
@@ -900,6 +901,85 @@ class FinanceController extends BaseController
                 ->setCellValue('D' . $operationDeliveryIndex, $operationDeliveryItem['fulfillment'])
                 ->setCellValue('E' . $operationDeliveryIndex, $operationDeliveryItem['warehouse_sku'])
                 ->setCellValue('F' . $operationDeliveryIndex, $operationDeliveryItem['total'])
+            ;
+        }
+
+        // create new sheet
+        $objPHPExcel->createSheet();
+
+        // Set name sheet
+        $objPHPExcel->setActiveSheetIndex(14)->setTitle('Temu');
+
+        // Add some data
+        $objPHPExcel->setActiveSheetIndex(14)
+            ->setCellValue('A1', '平台')
+            ->setCellValue('B1', '店铺')
+            ->setCellValue('C1', '仓库Sku')
+            ->setCellValue('D1', '销售量')
+            ->setCellValue('E1', '退款量')
+            ->setCellValue('F1', '销售额')
+            ->setCellValue('G1', '退款额')
+            ->setCellValue('H1', '平台佣金')
+            ->setCellValue('I1', '平台佣金退款')
+            ->setCellValue('J1', 'FBM尾程')
+            ->setCellValue('K1', 'DDP')
+            ->setCellValue('L1', '广告费')
+            ->setCellValue('M1', '仓储费')
+            ->setCellValue('N1', '调整费用')
+            ->setCellValue('O1', '良仓调整费用')
+            ->setCellValue('P1', '乐歌调整费用')
+            ->setCellValue('Q1', '国内广告费')
+            ->setCellValue('R1', '工厂运费')
+            ->setCellValue('S1', '国内快递费')
+            ->setCellValue('T1', '广告费占比')
+            ->setCellValue('U1', '仓储费占比')
+            ->setCellValue('V1', '尾程占比')
+            ->setCellValue('W1', 'DDP占比')
+            ->setCellValue('X1', '毛利')
+            ->setCellValue('Y1', '毛利率')
+            ->setCellValue('Z1', '测评数量')
+            ->setCellValue('AA1', '测评金额')
+            ->setCellValue('AB1', '含测评毛利')
+            ->setCellValue('AC1', '含测评毛利率')
+            ->setCellValue('AD1', '品名')
+            ->setCellValue('AE1', '运营人员')
+        ;
+
+        $temuIndex = 1;
+        foreach ($temuWarehouseSku as $temuItem) {
+            $temuIndex ++;
+            $objPHPExcel->setActiveSheetIndex(14)
+                ->setCellValue('A' . $temuIndex, $temuItem['platform'])
+                ->setCellValue('B' . $temuIndex, $temuItem['userAccount'])
+                ->setCellValue('C' . $temuIndex, $temuItem['warehouse_sku'])
+                ->setCellValue('D' . $temuIndex, $temuItem['sale_qty'])
+                ->setCellValue('E' . $temuIndex, $temuItem['refund_qty'])
+                ->setCellValue('F' . $temuIndex, $temuItem['sale_amount'])
+                ->setCellValue('G' . $temuIndex, $temuItem['refund_amount'])
+                ->setCellValue('H' . $temuIndex, $temuItem['sale_selling_fees'])
+                ->setCellValue('I' . $temuIndex, $temuItem['refund_selling_fees'])
+                ->setCellValue('J' . $temuIndex, $temuItem['calcuRes'])
+                ->setCellValue('K' . $temuIndex, $temuItem['ddp'])
+                ->setCellValue('L' . $temuIndex, $temuItem['adCost'])
+                ->setCellValue('M' . $temuIndex, $temuItem['warehouse_rent'])
+                ->setCellValue('N' . $temuIndex, $temuItem['adjustment'])
+                ->setCellValue('O' . $temuIndex, $temuItem['lc_adjustment'])
+                ->setCellValue('P' . $temuIndex, $temuItem['le_adjustment'])
+                ->setCellValue('Q' . $temuIndex, $temuItem['operation_expenses'])
+                ->setCellValue('R' . $temuIndex, $temuItem['operation_factory'])
+                ->setCellValue('S' . $temuIndex, $temuItem['operation_delivery'])
+                ->setCellValue('T' . $temuIndex, $temuItem['ad_percent'])
+                ->setCellValue('U' . $temuIndex, $temuItem['warehouse_percent'])
+                ->setCellValue('V' . $temuIndex, $temuItem['tail_percent'])
+                ->setCellValue('W' . $temuIndex, $temuItem['ddp_percent'])
+                ->setCellValue('X' . $temuIndex, $temuItem['profit'])
+                ->setCellValue('Y' . $temuIndex, $temuItem['gross_profit_margin'])
+                ->setCellValue('Z' . $temuIndex, $temuItem['evaluation_qty'])
+                ->setCellValue('AA' . $temuIndex, $temuItem['evaluation_amount'])
+                ->setCellValue('AB' . $temuIndex, $temuItem['profit_include_evaluation'])
+                ->setCellValue('AC' . $temuIndex, $temuItem['gross_profit_margin_include_evaluation'])
+                ->setCellValue('AD' . $temuIndex, $temuItem['product_name'])
+                ->setCellValue('AE' . $temuIndex, $temuItem['seller'])
             ;
         }
 
