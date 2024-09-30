@@ -180,6 +180,7 @@ class FinanceController extends BaseController
         $wayfairWarehouseSku = $financeReportObj->query(FinanceReportModel::getWayfairWarehouseSkuSql($report_id));
         $sheinWarehouseSku = $financeReportObj->query(FinanceReportModel::getSheinWarehouseSkuSql($report_id));
         $temuWarehouseSku = $financeReportObj->query(FinanceReportModel::getTemuWarehouseSkuSql($report_id));
+        $ebayWarehouseSku = $financeReportObj->query(FinanceReportModel::getEbayWarehouseSkuSql($report_id));
         $userAccountTransfer = $financeReportObj->query(FinanceReportModel::getUserAccountTransfer($report_id));
         $userAccountSubscription = $financeReportObj->query(FinanceReportModel::getUserAccountSubscription($report_id));
         $orderWayfair = $financeReportObj->query(FinanceReportModel::getOrderWayfair($report_id));
@@ -980,6 +981,85 @@ class FinanceController extends BaseController
                 ->setCellValue('AC' . $temuIndex, $temuItem['gross_profit_margin_include_evaluation'])
                 ->setCellValue('AD' . $temuIndex, $temuItem['product_name'])
                 ->setCellValue('AE' . $temuIndex, $temuItem['seller'])
+            ;
+        }
+
+        // create new sheet
+        $objPHPExcel->createSheet();
+
+        // Set name sheet
+        $objPHPExcel->setActiveSheetIndex(15)->setTitle('Ebay');
+
+        // Add some data
+        $objPHPExcel->setActiveSheetIndex(15)
+            ->setCellValue('A1', '平台')
+            ->setCellValue('B1', '店铺')
+            ->setCellValue('C1', '仓库Sku')
+            ->setCellValue('D1', '销售量')
+            ->setCellValue('E1', '退款量')
+            ->setCellValue('F1', '销售额')
+            ->setCellValue('G1', '退款额')
+            ->setCellValue('H1', '平台佣金')
+            ->setCellValue('I1', '平台佣金退款')
+            ->setCellValue('J1', 'FBM尾程')
+            ->setCellValue('K1', 'DDP')
+            ->setCellValue('L1', '广告费')
+            ->setCellValue('M1', '仓储费')
+            ->setCellValue('N1', '调整费用')
+            ->setCellValue('O1', '良仓调整费用')
+            ->setCellValue('P1', '乐歌调整费用')
+            ->setCellValue('Q1', '国内广告费')
+            ->setCellValue('R1', '工厂运费')
+            ->setCellValue('S1', '国内快递费')
+            ->setCellValue('T1', '广告费占比')
+            ->setCellValue('U1', '仓储费占比')
+            ->setCellValue('V1', '尾程占比')
+            ->setCellValue('W1', 'DDP占比')
+            ->setCellValue('X1', '毛利')
+            ->setCellValue('Y1', '毛利率')
+            ->setCellValue('Z1', '测评数量')
+            ->setCellValue('AA1', '测评金额')
+            ->setCellValue('AB1', '含测评毛利')
+            ->setCellValue('AC1', '含测评毛利率')
+            ->setCellValue('AD1', '品名')
+            ->setCellValue('AE1', '运营人员')
+        ;
+
+        $ebayIndex = 1;
+        foreach ($ebayWarehouseSku as $ebayItem) {
+            $ebayIndex ++;
+            $objPHPExcel->setActiveSheetIndex(15)
+                ->setCellValue('A' . $ebayIndex, $ebayItem['platform'])
+                ->setCellValue('B' . $ebayIndex, $ebayItem['userAccount'])
+                ->setCellValue('C' . $ebayIndex, $ebayItem['warehouse_sku'])
+                ->setCellValue('D' . $ebayIndex, $ebayItem['sale_qty'])
+                ->setCellValue('E' . $ebayIndex, $ebayItem['refund_qty'])
+                ->setCellValue('F' . $ebayIndex, $ebayItem['sale_amount'])
+                ->setCellValue('G' . $ebayIndex, $ebayItem['refund_amount'])
+                ->setCellValue('H' . $ebayIndex, $ebayItem['sale_selling_fees'])
+                ->setCellValue('I' . $ebayIndex, $ebayItem['refund_selling_fees'])
+                ->setCellValue('J' . $ebayIndex, $ebayItem['calcuRes'])
+                ->setCellValue('K' . $ebayIndex, $ebayItem['ddp'])
+                ->setCellValue('L' . $ebayIndex, $ebayItem['adCost'])
+                ->setCellValue('M' . $ebayIndex, $ebayItem['warehouse_rent'])
+                ->setCellValue('N' . $ebayIndex, $ebayItem['adjustment'])
+                ->setCellValue('O' . $ebayIndex, $ebayItem['lc_adjustment'])
+                ->setCellValue('P' . $ebayIndex, $ebayItem['le_adjustment'])
+                ->setCellValue('Q' . $ebayIndex, $ebayItem['operation_expenses'])
+                ->setCellValue('R' . $ebayIndex, $ebayItem['operation_factory'])
+                ->setCellValue('S' . $ebayIndex, $ebayItem['operation_delivery'])
+                ->setCellValue('T' . $ebayIndex, $ebayItem['ad_percent'])
+                ->setCellValue('U' . $ebayIndex, $ebayItem['warehouse_percent'])
+                ->setCellValue('V' . $ebayIndex, $ebayItem['tail_percent'])
+                ->setCellValue('W' . $ebayIndex, $ebayItem['ddp_percent'])
+                ->setCellValue('X' . $ebayIndex, $ebayItem['profit'])
+                ->setCellValue('Y' . $ebayIndex, $ebayItem['gross_profit_margin'])
+                ->setCellValue('Z' . $ebayIndex, $ebayItem['evaluation_qty'])
+                ->setCellValue('AA' . $ebayIndex, $ebayItem['evaluation_amount'])
+                ->setCellValue('AB' . $ebayIndex, $ebayItem['profit_include_evaluation'])
+                ->setCellValue('AC' . $ebayIndex, $ebayItem['gross_profit_margin_include_evaluation'])
+                ->setCellValue('AD' . $ebayIndex, $ebayItem['product_name'])
+                ->setCellValue('AE' . $ebayIndex, $ebayItem['seller'])
             ;
         }
 
