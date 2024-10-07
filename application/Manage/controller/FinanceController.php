@@ -21,6 +21,7 @@ use app\Manage\model\FinanceOrderShareModel;
 use app\Manage\model\FinanceOrderShippingServiceModel;
 use app\Manage\model\FinanceOrderStatisticsEditModel;
 use app\Manage\model\FinanceOrderStatisticsModel;
+use app\Manage\model\FinanceOrderSubscriptionModel;
 use app\Manage\model\FinanceOrderTransferModel;
 use app\Manage\model\FinanceOrderWayfairModel;
 use app\Manage\model\FinanceReportModel;
@@ -1362,6 +1363,11 @@ class FinanceController extends BaseController
 
                     $financeOrderTransferObj = new FinanceOrderTransferModel();
                     if (!$financeOrderTransferObj->saveAll($paymentData['orderTransferNew'])) {
+                        throw new \think\Exception('Payment导入失败！');
+                    }
+
+                    $financeOrderSubscriptionObj = new FinanceOrderSubscriptionModel();
+                    if (!$financeOrderSubscriptionObj->saveAll($paymentData['orderSubscriptionNew'])) {
                         throw new \think\Exception('Payment导入失败！');
                     }
 
