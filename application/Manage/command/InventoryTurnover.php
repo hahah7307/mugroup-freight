@@ -93,7 +93,9 @@ FROM
 	mu_ecang_order a
 	LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id 
 WHERE
-	a.`status` = 4 
+	a.`status` != 5 
+	AND a.`status` != 7 
+	AND a.`status` != 0 
 	AND a.datePaidPlatform >= "' . date('Y-m-d H:i:s', strtotime('-1 month')) . '" 
 	AND a.datePaidPlatform < "' . date('Y-m-d H:i:s') . ' ";
         ');
