@@ -128,7 +128,7 @@ class AmazonPayment extends Model
                     "description"               => $item[5],
                     "total"                     => sprintf('%.2f', str_replace(',', '', $item[29])),
                 ];
-            }elseif ($item[2] == 'Shipping Services') {
+            } elseif ($item[2] == 'Shipping Services') {
                 $this->orderShippingServiceNew[] = [
                     "report_id"                 =>  $reportId,
                     "table_id"                  =>  $tableId,
@@ -262,7 +262,6 @@ class AmazonPayment extends Model
                     "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[26])),
                 ];
             } elseif (($item[2] == 'Service Fee' && strpos($item[5], 'Coupon') !== false)
-                ||  ($item[2] == 'Service Fee' && $item[5] == 'Subscription')
                 ||  $item[2] == 'Deal Fee'
             ) {
                 $this->orderPromotionNew[] = [
@@ -270,6 +269,13 @@ class AmazonPayment extends Model
                     "table_id"                  =>  $tableId,
                     "description"               =>  $item[5],
                     "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[26])),
+                ];
+            } elseif ($item[2] == 'Service Fee' && $item[5] == 'Subscription') {
+                $this->orderSubscriptionNew[] = [
+                    "report_id"                 => $reportId,
+                    "table_id"                  => $tableId,
+                    "description"               => $item[5],
+                    "total"                     => sprintf('%.2f', str_replace(',', '', $item[26])),
                 ];
             } elseif ($item[2] == 'Shipping Services') {
                 $this->orderShippingServiceNew[] = [

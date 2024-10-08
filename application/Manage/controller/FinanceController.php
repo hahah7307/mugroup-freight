@@ -1332,7 +1332,7 @@ class FinanceController extends BaseController
                     if (!$financeOrderPromotionObj->saveAll($paymentData['orderPromotionNew'])) {
                         throw new \think\Exception('Payment导入失败！');
                     } else {
-                        $promotionSum = $financeOrderPromotionObj->where(['table_id' => $tableId, 'description' => ['neq', 'Subscription']])->sum('total');
+                        $promotionSum = $financeOrderPromotionObj->where(['table_id' => $tableId])->sum('total');
                     }
 
                     $financeOrderShippingServiceObj = new FinanceOrderShippingServiceModel();
