@@ -70,7 +70,7 @@ FROM
 	mu_le_inventory_batch a
 	LEFT JOIN mu_ecang_product b ON SUBSTRING( a.lecangsCode, 7 ) = b.productSku 
 WHERE
-	created_date = ' . date('Ymd', strtotime('-1 month')) . ' 
+	created_date = ' . date('Ymd', strtotime('-7 day')) . ' 
 	AND b.saleStatus != 18
 	AND b.saleStatus != 19 UNION ALL
 SELECT
@@ -80,7 +80,7 @@ FROM
 	mu_lc_inventory_batch a
 	LEFT JOIN mu_ecang_product b ON a.product_sku = b.productSku 
 WHERE
-	created_date = ' . date('Ymd', strtotime('-1 month')) . ' 
+	created_date = ' . date('Ymd', strtotime('-7 day')) . ' 
 	AND b.saleStatus != 18
 	AND b.saleStatus != 19
 	) a;
@@ -96,11 +96,11 @@ WHERE
 	a.`status` != 5 
 	AND a.`status` != 7 
 	AND a.`status` != 0 
-	AND a.datePaidPlatform >= "' . date('Y-m-d H:i:s', strtotime('-1 month')) . '" 
+	AND a.datePaidPlatform >= "' . date('Y-m-d H:i:s', strtotime('-7 day')) . '" 
 	AND a.datePaidPlatform < "' . date('Y-m-d H:i:s') . ' ";
         ');
             $data = [
-                'turnover'      =>  round($monthQty[0]['qty'] / (($last_sum[0]['value'] + $sum[0]['value']) / 2) * 12, 2),
+                'turnover'      =>  round($monthQty[0]['qty'] / (($last_sum[0]['value'] + $sum[0]['value']) / 2) * 52, 2),
                 'date'          =>  date('Ymd'),
                 'created_date'  =>  date('Y-m-d H:i:s')
             ];
