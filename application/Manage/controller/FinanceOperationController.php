@@ -18,26 +18,36 @@ class FinanceOperationController extends BaseController
      */
     public function index(): \think\response\View
     {
+        $type = $this->request->get('type', 1);
+        $this->assign('type', $type);
+        if ($type == 1) {
+            $field = 'calculate_month';
+        } elseif ($type == 2) {
+            $field = 'month';
+        } else {
+            $field = 'calculate_month';
+        }
+
         $month = $this->request->get('month', date('Y-m', strtotime('-1 month')));
         $calculate_month = date('Ym', strtotime($month . '-01'));
         $this->assign('month', $month);
 
         $expenses = new FinanceOperationExpensesModel();
-        $list1 = $expenses->where(['calculate_month' => $calculate_month])->order('id asc')->select();
+        $list1 = $expenses->where([$field => $calculate_month])->order('id asc')->select();
         $this->assign('list1', $list1);
-        $this->assign('list1_sum', $expenses->where(['calculate_month' => $calculate_month])->sum('total'));
+        $this->assign('list1_sum', $expenses->where([$field => $calculate_month])->sum('total'));
 
         //
         $factory = new FinanceOperationFactoryModel();
-        $list2 = $factory->where(['calculate_month' => $calculate_month])->order('id asc')->select();
+        $list2 = $factory->where([$field => $calculate_month])->order('id asc')->select();
         $this->assign('list2', $list2);
-        $this->assign('list2_sum', $factory->where(['calculate_month' => $calculate_month])->sum('total'));
+        $this->assign('list2_sum', $factory->where([$field => $calculate_month])->sum('total'));
 
         //
         $delivery = new FinanceOperationDeliveryModel();
-        $list3 = $delivery->where(['calculate_month' => $calculate_month])->order('id asc')->select();
+        $list3 = $delivery->where([$field => $calculate_month])->order('id asc')->select();
         $this->assign('list3', $list3);
-        $this->assign('list3_sum', $delivery->where(['calculate_month' => $calculate_month])->sum('total'));
+        $this->assign('list3_sum', $delivery->where([$field => $calculate_month])->sum('total'));
 
         return view();
     }

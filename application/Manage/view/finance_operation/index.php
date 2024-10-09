@@ -7,10 +7,13 @@
 <!-- 主体内容 -->
 <div class="layui-body" id="LAY_app_body">
     <div class="right">
-        <div class="title">营运费用(已核算)</div>
+        <div class="title">营运费用</div>
         <form class="layui-form search-form" method="get">
-            <div class="layui-inline w200">
-                <input type="text" class="layui-input" name="keyword" value="{$keyword}" placeholder="文件名称">
+            <div class="layui-input-inline w100">
+                <select name="type">
+                    <option value="1" {if condition="$type eq 1"}selected{/if}>已核算</option>
+                    <option value="2" {if condition="$type eq 2"}selected{/if}>已支付</option>
+                </select>
             </div>
             <div class="layui-input-inline">
                 <input type="text" class="layui-input" id="month" name="month" value="{$month}" placeholder="核算月份">
