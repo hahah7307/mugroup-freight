@@ -2,8 +2,6 @@
 namespace app\Manage\command;
 
 use app\Manage\model\ApiClient;
-use app\Manage\model\LcProductModel;
-use app\Manage\model\LeProductModel;
 use app\Manage\model\ProductModel;
 use app\Manage\model\ProductUpdateModel;
 use Exception;
@@ -30,14 +28,8 @@ class ProductUpdate extends Command
 
         $productObj = new ProductUpdateModel();
         $ecUpdate = $productObj->find(1);
-        $lcUpdate = $productObj->find(2);
-        $leUpdate = $productObj->find(3);
         if (date('Ymd') == $ecUpdate['date']
             && $ecUpdate['is_finished'] == 1
-            && date('Ymd') == $lcUpdate['date']
-            && $lcUpdate['is_finished'] == 1
-            && date('Ymd') == $leUpdate['date']
-            && $leUpdate['is_finished'] == 1
         ) {
             echo "success";exit();
         }
@@ -47,16 +39,6 @@ class ProductUpdate extends Command
             Db::execute("TRUNCATE TABLE mu_ecang_product");
             ProductUpdateModel::update(['id' => $ecUpdate['id'], 'date' => date('Ymd'), 'page' => 1, 'is_finished' => 0]);
             $ecUpdate['page'] = 1;
-        }
-        if (date('Ymd') > $lcUpdate['date']) {
-            Db::execute("TRUNCATE TABLE mu_lc_product");
-            ProductUpdateModel::update(['id' => $lcUpdate['id'], 'date' => date('Ymd'), 'page' => 1, 'is_finished' => 0]);
-            $lcUpdate['page'] = 1;
-        }
-        if (date('Ymd') > $leUpdate['date']) {
-            Db::execute("TRUNCATE TABLE mu_le_product");
-            ProductUpdateModel::update(['id' => $leUpdate['id'], 'date' => date('Ymd'), 'page' => 1, 'is_finished' => 0]);
-            $leUpdate['page'] = 1;
         }
 
         Db::startTrans();
@@ -88,63 +70,6 @@ class ProductUpdate extends Command
                     $productObj = new ProductModel();
                     $productObj->saveAll($addData);
                     ProductUpdateModel::update(['id' => $ecUpdate['id'], 'page' => $ecUpdate['page'] + 1]);
-                    unset($addData);
-                }
-            }
-
-            // 良仓产品更新
-            if (date('Ymd') == $lcUpdate['date'] && $lcUpdate['is_finished'] == 1){
-                echo "success";
-            } else {
-                $lcProductRes = ApiClient::LcWarehouseApi("getProductList", '{"pageSize":50,"page":' . $lcUpdate['page'] . '}');
-                $lcProductList = $lcProductRes['data'];
-                if (count($lcProductList) <= 0) {
-                    ProductUpdateModel::update(['id' => $lcUpdate['id'], 'is_finished' => 1]);
-                } else {
-                    $addData = [];
-                    foreach ($lcProductList as $item) {
-                        $productInfo = LcProductModel::get(['product_sku' => $item['product_sku']]);
-                        if (!empty($productInfo)) {
-                            continue;
-                        }
-                        $productDetail = $item;
-                        unset($productDetail['warehouse_attribute']);
-                        $productDetail['warehouse_attribute'] = json_encode($item['warehouse_attribute']);
-                        $addData[] = $productDetail;
-                        unset($item);
-                    }
-                    unset($lcProductList);
-                    $productObj = new LcProductModel();
-                    $productObj->saveAll($addData);
-                    ProductUpdateModel::update(['id' => $lcUpdate['id'], 'page' => $lcUpdate['page'] + 1]);
-                    unset($addData);
-                }
-            }
-
-            // 乐歌产品更新
-            if (date('Ymd') == $leUpdate['date'] && $leUpdate['is_finished'] == 1){
-                echo "success";
-            } else {
-                $leProductParams = ['pageNum' => $leUpdate['page'], 'pageSize' => 50];
-                $leProductRes = ApiClient::LeWarehouseApi("https://app.lecangs.com/api/oms/goods/api/list", "POST", $leProductParams);
-                $leProductList = $leProductRes['data']['list'];
-                if (count($leProductList) <= 0) {
-                    ProductUpdateModel::update(['id' => $leUpdate['id'], 'is_finished' => 1]);
-                } else {
-                    $addData = [];
-                    foreach ($leProductList as $item) {
-                        $productInfo = LeProductModel::get(['code' => $item['code']]);
-                        if (!empty($productInfo)) {
-                            continue;
-                        }
-                        $productDetail = $item;
-                        $addData[] = $productDetail;
-                        unset($item);
-                    }
-                    unset($leProductList);
-                    $productObj = new LeProductModel();
-                    $productObj->saveAll($addData);
-                    ProductUpdateModel::update(['id' => $leUpdate['id'], 'page' => $leUpdate['page'] + 1]);
                     unset($addData);
                 }
             }
