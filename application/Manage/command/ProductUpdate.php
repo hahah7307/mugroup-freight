@@ -49,7 +49,7 @@ class ProductUpdate extends Command
             } else {
                 $ecProductRes = ApiClient::EcWarehouseApi(Config::get("ec_wms_uri"), "getProductList", '{"page":' . $ecUpdate['page'] . '}');
                 $ecProductList = $ecProductRes['data'];
-                if (count($ecProductList) <= 0) {
+                if (!empty($ecProductRes['data']) && count($ecProductList) <= 0) {
                     ProductUpdateModel::update(['id' => $ecUpdate['id'], 'is_finished' => 1]);
                 } else {
                     $addData = [];
