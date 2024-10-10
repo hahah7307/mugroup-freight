@@ -66,6 +66,7 @@
                         <dd><a layui-href="{:url('SkuReport/category')}">类目报表</a></dd>
                         <dd><a layui-href="{:url('SkuReport/daily')}">日销报表</a></dd>
                         <dd><a layui-href="{:url('SkuReport/store')}">日库存报表</a></dd>
+                        <dd><a layui-href="{:url('SkuReport/stock_sale')}">库存库龄月销量报表</a></dd>
                         <dd><a layui-href="{:url('SkuReport/growth')}">销量月增长报表</a></dd>
                         <dd><a layui-href="{:url('SkuReport/wayfair')}">各平台销量报表</a></dd>
                         <dd><a layui-href="{:url('Echarts/index')}">美国各州销量热力图</a></dd>

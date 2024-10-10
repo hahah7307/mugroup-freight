@@ -1738,4 +1738,118 @@ FROM
         $this->assign('sku', $sku);
         return view();
     }
+
+    /**
+     * @throws PDOException
+     * @throws BindParamException
+     */
+    public function stock_sale(): \think\response\View
+    {
+        $date = $this->request->get('date', date('Y-m-d'));
+        $this->assign('date', $date);
+
+        $date = date('Ymd', strtotime($date));
+        $last_date = date('Ymd', strtotime('-1 month', strtotime($date)));
+        $day = intval((strtotime($date) - strtotime($last_date)) / 24 /60 /60);
+
+        $model = new ProductModel();
+        $data1 = $model->query('
+SELECT
+	a.product_sku,
+	a.warehouse_code,
+	b.qty month_qty,
+	a.qty now_qty,
+	b.qty - a.qty sale_qty,
+	a.stock_age,
+	c.productImages,
+	d.user_name 
+FROM
+	( SELECT SUM( sellable_quantity ) qty, product_sku, warehouse_code, stock_age FROM mu_lc_inventory_batch WHERE created_date = ' . $date . ' GROUP BY product_sku, warehouse_code, stock_age ) a
+	LEFT JOIN (
+	SELECT
+		SUM( sellable_quantity ) qty,
+		product_sku,
+		warehouse_code,
+		stock_age + ' . $day . ' stock_age 
+	FROM
+		mu_lc_inventory_batch 
+	WHERE
+		created_date = ' . $last_date . ' 
+	GROUP BY
+		product_sku,
+		warehouse_code,
+		stock_age 
+	) b ON a.product_sku = b.product_sku 
+	AND a.warehouse_code = b.warehouse_code 
+	AND a.stock_age = b.stock_age
+	LEFT JOIN mu_ecang_product c ON a.product_sku = c.productSku 
+	LEFT JOIN mu_ecang_user d ON c.personSellerId = d.user_id 
+WHERE
+	c.saleStatus != 18 
+	AND c.saleStatus != 19 
+ORDER BY
+	stock_age DESC,
+	product_sku,
+	warehouse_code;
+        ');
+        $this->assign('lc_list', $data1);
+
+
+        $data2 = $model->query('
+SELECT
+	a.lecangsCode,
+	a.warehouseCode,
+	b.qty month_qty,
+	a.qty now_qty,
+	b.qty - a.qty sale_qty,
+	a.inventoryAge,
+	c.productImages,
+	d.user_name 
+FROM
+	(
+	SELECT
+		SUM( goodsNum ) qty,
+		SUBSTR( lecangsCode FROM 7 ) lecangsCode,
+		warehouseCode,
+		inventoryAge 
+	FROM
+		mu_le_inventory_batch 
+	WHERE
+		created_date = ' . $date . ' 
+	GROUP BY
+		lecangsCode,
+		warehouseCode,
+		inventoryAge 
+	) a
+	LEFT JOIN (
+	SELECT
+		SUM( goodsNum ) qty,
+		SUBSTR( lecangsCode FROM 7 ) lecangsCode,
+		warehouseCode,
+		inventoryAge + ' . $day . ' inventoryAge 
+	FROM
+		mu_le_inventory_batch 
+	WHERE
+		created_date = ' . $last_date . ' 
+	GROUP BY
+		lecangsCode,
+		warehouseCode,
+		inventoryAge 
+	) b ON a.lecangsCode = b.lecangsCode 
+	AND a.warehouseCode = b.warehouseCode 
+	AND a.inventoryAge = b.inventoryAge
+	LEFT JOIN mu_ecang_product c ON a.lecangsCode = c.productSku 
+	LEFT JOIN mu_ecang_user d ON c.personSellerId = d.user_id 
+WHERE
+	c.saleStatus != 18 
+	AND c.saleStatus != 19 
+ORDER BY
+	inventoryAge DESC,
+	lecangsCode,
+	warehouseCode;
+        ');
+
+        $this->assign('le_list', $data2);
+        return view();
+    }
 }
