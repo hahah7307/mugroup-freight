@@ -440,7 +440,7 @@ FROM
      */
     public function store(): \think\response\View
     {
-        $sale_day = $this->request->get('sale_day', date('Y-m-d', strtotime('-2 day')), 'htmlspecialchars');
+        $sale_day = $this->request->get('sale_day', date('Y-m-d'), 'htmlspecialchars');
         $this->assign('sale_day', $sale_day);
         $sale_day_num = date('Ymd', strtotime($sale_day));
 
@@ -978,7 +978,7 @@ FROM
 	mu_le_inventory_batch a
 	LEFT JOIN mu_ecang_product b ON SUBSTRING( a.lecangsCode, 7 ) = b.productSku 
 WHERE
-	created_date = ' . date('Ymd', strtotime('-1 month', strtotime($sale_day_num))) . ' 
+	created_date = ' . date('Ymd', strtotime('-7 day', strtotime($sale_day_num))) . ' 
 	AND b.saleStatus != 18
 	AND b.saleStatus != 19 UNION ALL
 SELECT
@@ -988,7 +988,7 @@ FROM
 	mu_lc_inventory_batch a
 	LEFT JOIN mu_ecang_product b ON a.product_sku = b.productSku 
 WHERE
-	created_date = ' . date('Ymd', strtotime('-1 month', strtotime($sale_day_num))) . ' 
+	created_date = ' . date('Ymd', strtotime('-7 day', strtotime($sale_day_num))) . ' 
 	AND b.saleStatus != 18
 	AND b.saleStatus != 19
 	) a;        
@@ -1002,8 +1002,10 @@ FROM
 	mu_ecang_order a
 	LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id 
 WHERE
-	a.`status` = 4 
-	AND a.datePaidPlatform >= "' . date('Y-m-d H:i:s', strtotime('-1 month', strtotime($sale_day_num))) . '" 
+	a.`status` != 5 
+	AND a.`status` != 7 
+	AND a.`status` != 0 
+	AND a.datePaidPlatform >= "' . date('Y-m-d H:i:s', strtotime('-7 day', strtotime($sale_day_num))) . '" 
 	AND a.datePaidPlatform < "' . date('Y-m-d H:i:s', strtotime($sale_day_num)) . ' ";      
         ');
         $this->assign('monthQty', $monthQty);
