@@ -1643,10 +1643,10 @@ ORDER BY
                 echo json_encode(['code' => 1, 'msg' => '出库明细生成成功']);
             } catch (\SoapFault $e) {
                 Db::rollback();
-                echo json_encode(['code' => 0, 'msg' => '生成失败，请重试']);
+                echo json_encode(['code' => 0, 'msg' => $e->getMessage()]);
             } catch (\Exception $e) {
                 Db::rollback();
-                echo json_encode(['code' => 0, 'msg' => '生成失败，请重试']);
+                echo json_encode(['code' => 0, 'msg' => $e->getMessage()]);
             }
         } else {
             echo json_encode(['code' => 0, 'msg' => '异常操作']);
