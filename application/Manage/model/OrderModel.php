@@ -310,6 +310,7 @@ class OrderModel extends Model
             foreach ($orderDetail as $detail) {
                 $detail['warehouseSkuList'] = isset($detail['warehouseSkuList']) ? json_encode($detail['warehouseSkuList']) : json_encode([]);
                 $detail['promotionIdList'] = isset($detail['promotionIdList']) ? json_encode($detail['promotionIdList']) : json_encode([]);
+                $detail['buyerCustomizedInfo'] = isset($detail['buyerCustomizedInfo']) ? json_encode($detail['buyerCustomizedInfo']) : json_encode([]);
                 $detailItem = OrderDetailModel::get(['op_id' => $detail['op_id']]);
                 if ($detailItem) {
                     OrderDetailModel::update($detail, ['op_id' => $detail['op_id']]);
