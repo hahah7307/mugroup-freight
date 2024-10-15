@@ -59,7 +59,8 @@
             {/foreach}
             <div class="layui-form-item" id="sub-dom">
                 <div class="layui-input-block">
-                    <button class="layui-btn w200" lay-submit lay-filter="Search"><i class="layui-icon">&#xe615;</i> 查询</button>
+                    <button class="layui-btn w150" lay-submit lay-filter="Search"><i class="layui-icon">&#xe615;</i> 查询</button>
+                    <button class="layui-btn layui-btn-normal w150" lay-submit lay-filter="Export"><i class="layui-icon">&#xe60a;</i> 导出</button>
                 </div>
             </div>
         </form>
@@ -96,6 +97,23 @@
         // 删除属性
         form.on('submit(attrDel)', function(data) {
             $(this).parent().remove();
+        });
+
+        // 导出
+        form.on('submit(Export)', function(data){
+            // location.href = "/Manage/Echarts/export.html&data=" + JSON.stringify(data.field);
+            let string;
+            let sku = "";
+            string = "?sale_start=" + data.field.sale_start + "&sale_end=" + data.field.sale_end;
+            // console.log($(".input-sku").length());
+            $(".input-sku").each(function(index, element){
+                console.log($(this).val());
+                sku += ',"' + $(this).val() + '"'
+            })
+
+            location.href = "/Manage/Echarts/export.html" + string + "&sku=" + sku.substring(1);
+
+            return false;
         });
     });
 </script>

@@ -2,6 +2,8 @@
 namespace app\Manage\controller;
 
 use app\Manage\model\OrderModel;
+use PHPExcel;
+use PHPExcel_IOFactory;
 use think\db\exception\BindParamException;
 use think\exception\PDOException;
 
@@ -53,6 +55,72 @@ ORDER BY
         $this->assign('quantity', $quantity);
 
         return view();
+    }
+
+    /**
+     * @throws \PHPExcel_Exception
+     * @throws \PHPExcel_Writer_Exception
+     * @throws BindParamException
+     * @throws PDOException
+     * @throws \PHPExcel_Reader_Exception
+     */
+    public function export()
+    {
+        $sale_start = input('sale_start');
+        $sale_end = input('sale_end');
+        $model = new OrderModel();
+        $list = $model->query('
+SELECT
+	b.state name,
+	SUM(c.qty) value
+FROM
+	mu_ecang_order a
+	LEFT JOIN mu_ecang_order_address b ON a.id = b.order_id 
+	LEFT JOIN mu_ecang_order_detail c ON a.id = c.order_id
+WHERE
+	a.`status` = 4 
+	AND a.datePaidPlatform >= "' . $sale_start . ' 00:00:00' . '" 
+	AND a.datePaidPlatform <= "' . $sale_end . ' 23:59:59' . '" 
+	AND b.countryCode = "US" 
+  	AND c.warehouseSku IN(' . input('sku') . ')
+GROUP BY
+	state 
+ORDER BY
+	value DESC;
+        ');
+
+        // phpexcel
+        require_once './static/classes/PHPExcel/Classes/PHPExcel.php';
+        // Create new PHPExcel object
+        $objPHPExcel = new PHPExcel();
+
+        // Set name sheet
+        $objPHPExcel->setActiveSheetIndex(0)->setTitle('Heat map detailed table');
+
+        // Add some data
+        $objPHPExcel->setActiveSheetIndex(0)
+            ->setCellValue('A1', 'State')
+            ->setCellValue('B1', 'Number')
+        ;
+
+        $index = 1;
+        foreach ($list as $item) {
+            $index ++;
+            $objPHPExcel->setActiveSheetIndex(0)
+                ->setCellValue('A' . $index, $item['name'])
+                ->setCellValue('B' . $index, $item['value'])
+            ;
+        }
+
+        // Redirect output to a client’s web browser (Excel5)
+        header('Content-Type: application/vnd.ms-excel');
+        $filename = date("YmdHis") . time() . mt_rand(100000, 999999);
+        ob_end_clean();
+        header('Content-Disposition:attachment;filename="'.$filename.'.xls"');
+        header('Cache-Control: max-age=0');
+
+        $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+        $objWriter->save('php://output');
     }
 
     public function data(): string
