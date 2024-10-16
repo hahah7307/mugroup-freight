@@ -405,8 +405,8 @@ ORDER BY
                                 'seller_sku'    =>  $item['sku'],
                                 'warehouse_sku' =>  $value['warehouse_sku'],
                                 'amount'        =>  $amount,
-                                'percent'       =>  1,
-                                'total'         =>  $amount
+                                'percent'       =>  $value['percent'],
+                                'total'         =>  $amount * $value['percent']
                             ];
                         }
                     } else {

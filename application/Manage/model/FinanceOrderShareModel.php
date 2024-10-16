@@ -175,19 +175,20 @@ WHERE
      * @throws PDOException
      * @throws BindParamException
      */
-    static public function generateSellerListByWarehouseSkuInUserAccount($warehouse_sku, $report, $userAccount)
+    static public function generateSellerListByWarehouseSkuInUserAccount($seller_sku, $report, $userAccount)
     {
         $financeOrderShareObj = new FinanceOrderShareModel();
         return $financeOrderShareObj->query('
 SELECT DISTINCT
     a.warehouse_sku,
     a.user_account,
-    a.seller 
+    a.seller,
+    a.percent
 FROM
     mu_finance_sku_relation a
     LEFT JOIN ( SELECT DISTINCT platform, userAccount FROM mu_finance_table WHERE rid = ' . $report['id'] . ' ) b ON a.user_account = b.userAccount 
 WHERE
-    a.warehouse_sku = "' . $warehouse_sku . '"
+    a.seller_sku = "' . $seller_sku . '"
     AND a.user_account = "' . $userAccount . '"
     AND a.report_id = ' . $report['id'] . ';
         ');
