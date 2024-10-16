@@ -242,7 +242,7 @@ GROUP BY
         $percentSum = 0;
         foreach ($warehouseSaleQty as $key => $item) {
             if ($key + 1 == count($warehouseSaleQty)) {
-                $warehouseSaleQty[$key]['percent'] = 1 - $percentSum;
+                $warehouseSaleQty[$key]['percent'] = round(1 - $percentSum, 4);
             } else {
                 $warehouseSaleQty[$key]['percent'] = round($item['qty'] / $qtySum, 4);
                 $percentSum += round($item['qty'] / $qtySum, 4);

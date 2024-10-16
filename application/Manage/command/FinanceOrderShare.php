@@ -413,12 +413,8 @@ ORDER BY
                         // 无sku映射分摊到所有产品*********************************************************
                         $table = $tableObj->find($item['table_id']);
                         $skuPercent = FinanceOrderShareModel::generateSkuPercentByUserAccount($table);
-                        $percentSum = 0;
-                        foreach ($skuPercent as $key => $value) {
+                        foreach ($skuPercent as $value) {
                             $amount = $item['total'];
-                            if ($key == count($skuPercent) - 1) {
-                                $value['percent'] = 1 - $percentSum;
-                            }
                             $fulfillmentData = FinanceOrderShareModel::generateFulfillmentByWarehouseSkuInUserAccount($value['warehouse_sku'], $report, $table['userAccount']);
                             foreach ($fulfillmentData as $k => $v) {
                                 $shareItem[] = [
@@ -436,7 +432,6 @@ ORDER BY
                                     'total'         =>  $amount * $value['percent'] * $v
                                 ];
                             }
-                            $percentSum += $value['percent'];
                         }
                     }
                 }
