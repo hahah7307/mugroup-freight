@@ -136,41 +136,47 @@ class FinanceWarehouseNotify extends Command
                                             } else {
                                                 $userAccountTotal = $userTotal - $userAccountSum;
                                             }
-                                            $shareData[] = [
-                                                'report_id'     =>  $item['report_id'],
-                                                'user_account'  =>  $userAccount['user_account'],
-                                                'fulfillment'   =>  'FBM',
-                                                'cost_type'     =>  'WAREHOUSE_FBM',
-                                                'share_code'    =>  $shareCode,
-                                                'warehouse_sku' =>  $mainSku,
-                                                'amount'        =>  $item['total'],
-                                                'total'         =>  $userAccountTotal
-                                            ];
+                                            if ($userAccountTotal > 0) {
+                                                $shareData[] = [
+                                                    'report_id'     =>  $item['report_id'],
+                                                    'user_account'  =>  $userAccount['user_account'],
+                                                    'fulfillment'   =>  'FBM',
+                                                    'cost_type'     =>  'WAREHOUSE_FBM',
+                                                    'share_code'    =>  $shareCode,
+                                                    'warehouse_sku' =>  $mainSku,
+                                                    'amount'        =>  $item['total'],
+                                                    'total'         =>  $userAccountTotal
+                                                ];
+                                            }
                                         }
                                     } else {
-                                        $shareData[] = [
-                                            'report_id'     =>  $item['report_id'],
-                                            'user_account'  =>  '',
-                                            'fulfillment'   =>  'FBM',
-                                            'cost_type'     =>  'WAREHOUSE_FBM',
-                                            'share_code'    =>  $shareCode,
-                                            'warehouse_sku' =>  $mainSku,
-                                            'amount'        =>  $item['total'],
-                                            'total'         =>  $userTotal
-                                        ];
+                                        if ($userTotal > 0) {
+                                            $shareData[] = [
+                                                'report_id' => $item['report_id'],
+                                                'user_account' => '',
+                                                'fulfillment' => 'FBM',
+                                                'cost_type' => 'WAREHOUSE_FBM',
+                                                'share_code' => $shareCode,
+                                                'warehouse_sku' => $mainSku,
+                                                'amount' => $item['total'],
+                                                'total' => $userTotal
+                                            ];
+                                        }
                                     }
                                 }
                             } else {
-                                $shareData[] = [
-                                    'report_id'     =>  $item['report_id'],
-                                    'user_account'  =>  '',
-                                    'fulfillment'   =>  'FBM',
-                                    'cost_type'     =>  'WAREHOUSE_FBM',
-                                    'share_code'    =>  $shareCode,
-                                    'warehouse_sku' =>  $mainSku,
-                                    'amount'        =>  $item['total'],
-                                    'total'         =>  $platformTotal
-                                ];
+                                if ($platformTotal > 0) {
+                                    $shareData[] = [
+                                        'report_id'     =>  $item['report_id'],
+                                        'user_account'  =>  '',
+                                        'fulfillment'   =>  'FBM',
+                                        'cost_type'     =>  'WAREHOUSE_FBM',
+                                        'share_code'    =>  $shareCode,
+                                        'warehouse_sku' =>  $mainSku,
+                                        'amount'        =>  $item['total'],
+                                        'total'         =>  $platformTotal
+                                    ];
+                                }
                             }
                         }
                     } else {
@@ -199,41 +205,47 @@ class FinanceWarehouseNotify extends Command
                                         } else {
                                             $userAccountTotal = $userTotal - $userAccountSum;
                                         }
+                                        if ($userAccountTotal > 0) {
+                                            $shareData[] = [
+                                                'report_id'     =>  $item['report_id'],
+                                                'user_account'  =>  $userAccount['user_account'],
+                                                'fulfillment'   =>  'FBM',
+                                                'cost_type'     =>  'WAREHOUSE_FBM',
+                                                'share_code'    =>  $shareCode,
+                                                'warehouse_sku' =>  $mainSku,
+                                                'amount'        =>  $item['total'],
+                                                'total'         =>  $userAccountTotal
+                                            ];
+                                        }
+                                    }
+                                } else {
+                                    if ($userTotal > 0) {
                                         $shareData[] = [
                                             'report_id'     =>  $item['report_id'],
-                                            'user_account'  =>  $userAccount['user_account'],
+                                            'user_account'  =>  '',
                                             'fulfillment'   =>  'FBM',
                                             'cost_type'     =>  'WAREHOUSE_FBM',
                                             'share_code'    =>  $shareCode,
                                             'warehouse_sku' =>  $mainSku,
                                             'amount'        =>  $item['total'],
-                                            'total'         =>  $userAccountTotal
+                                            'total'         =>  $userTotal
                                         ];
                                     }
-                                } else {
-                                    $shareData[] = [
-                                        'report_id'     =>  $item['report_id'],
-                                        'user_account'  =>  '',
-                                        'fulfillment'   =>  'FBM',
-                                        'cost_type'     =>  'WAREHOUSE_FBM',
-                                        'share_code'    =>  $shareCode,
-                                        'warehouse_sku' =>  $mainSku,
-                                        'amount'        =>  $item['total'],
-                                        'total'         =>  $userTotal
-                                    ];
                                 }
                             }
                         } else {
-                            $shareData[] = [
-                                'report_id'     =>  $item['report_id'],
-                                'user_account'  =>  '',
-                                'fulfillment'   =>  'FBM',
-                                'cost_type'     =>  'WAREHOUSE_FBM',
-                                'share_code'    =>  $shareCode,
-                                'warehouse_sku' =>  $mainSku,
-                                'amount'        =>  $item['total'],
-                                'total'         =>  $item['total']
-                            ];
+                            if ($item['total'] > 0) {
+                                $shareData[] = [
+                                    'report_id'     =>  $item['report_id'],
+                                    'user_account'  =>  '',
+                                    'fulfillment'   =>  'FBM',
+                                    'cost_type'     =>  'WAREHOUSE_FBM',
+                                    'share_code'    =>  $shareCode,
+                                    'warehouse_sku' =>  $mainSku,
+                                    'amount'        =>  $item['total'],
+                                    'total'         =>  $item['total']
+                                ];
+                            }
                         }
                     }
 
