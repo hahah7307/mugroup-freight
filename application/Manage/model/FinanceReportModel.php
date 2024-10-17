@@ -714,6 +714,7 @@ FROM
 		WHERE
 			reportDateMonth = "' . $month . '" 
 			AND ( a.sharedLiquidationsFees != 0 OR a.fbaLiquidationProceeds != 0 ) 
+			AND a.sharedLiquidationsFees + a.fbaLiquidationProceeds != 0
 			AND is_fba = 1 
 		GROUP BY
 			platform,
@@ -1546,6 +1547,7 @@ FROM
 		WHERE
 			reportDateMonth = "' . $month . '" 
 			AND ( a.sharedLiquidationsFees != 0 OR a.fbaLiquidationProceeds != 0 ) 
+			AND a.sharedLiquidationsFees + a.fbaLiquidationProceeds != 0
 			AND is_fba = 0 
 		GROUP BY
 			platform,
