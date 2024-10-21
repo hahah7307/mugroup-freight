@@ -30,12 +30,13 @@ class EchartsController extends BaseController
         $model = new OrderModel();
         $list = $model->query('
 SELECT
-	b.state name,
+	d.warehouse_state name,
 	SUM(c.qty) value
 FROM
 	mu_ecang_order a
 	LEFT JOIN mu_ecang_order_address b ON a.id = b.order_id 
 	LEFT JOIN mu_ecang_order_detail c ON a.id = c.order_id
+	LEFT JOIN mu_storage_state d ON b.state = d.state
 WHERE
 	a.`status` = 4 
 	AND a.datePaidPlatform >= "' . $sale_start . ' 00:00:00' . '" 
@@ -43,7 +44,7 @@ WHERE
 	AND b.countryCode = "US" 
   	AND c.warehouseSku IN(' . $skuStr . ')
 GROUP BY
-	state 
+	warehouse_state 
 ORDER BY
 	value DESC;
         ');
@@ -71,20 +72,36 @@ ORDER BY
         $model = new OrderModel();
         $list = $model->query('
 SELECT
-	b.state name,
-	SUM(c.qty) value
+	d.warehouse_state name,
+	SUM( c.qty ) value,
+	CONCAT(
+		ROUND(
+			SUM( c.qty ) / (
+			SELECT
+				SUM( b.qty ) 
+			FROM
+				mu_ecang_order a
+				LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id 
+			WHERE
+				a.`status` = 4 
+				AND a.datePaidPlatform >= "' . $sale_start . ' 00:00:00" 
+				AND a.datePaidPlatform <= "' . $sale_end . ' 23:59:59" 
+				AND b.warehouseSku IN ( ' . input('sku') . ' ) 
+			) * 100, 2 ), "%" 
+	) percent 
 FROM
 	mu_ecang_order a
-	LEFT JOIN mu_ecang_order_address b ON a.id = b.order_id 
+	LEFT JOIN mu_ecang_order_address b ON a.id = b.order_id
 	LEFT JOIN mu_ecang_order_detail c ON a.id = c.order_id
+	LEFT JOIN mu_storage_state d ON b.state = d.state 
 WHERE
 	a.`status` = 4 
-	AND a.datePaidPlatform >= "' . $sale_start . ' 00:00:00' . '" 
-	AND a.datePaidPlatform <= "' . $sale_end . ' 23:59:59' . '" 
+	AND a.datePaidPlatform >= "' . $sale_start . ' 00:00:00" 
+	AND a.datePaidPlatform <= "' . $sale_end . ' 23:59:59" 
 	AND b.countryCode = "US" 
-  	AND c.warehouseSku IN(' . input('sku') . ')
+	AND c.warehouseSku IN ( ' . input('sku') . ' ) 
 GROUP BY
-	state 
+	warehouse_state 
 ORDER BY
 	value DESC;
         ');
@@ -101,6 +118,7 @@ ORDER BY
         $objPHPExcel->setActiveSheetIndex(0)
             ->setCellValue('A1', 'State')
             ->setCellValue('B1', 'Number')
+            ->setCellValue('C1', 'Percent')
         ;
 
         $index = 1;
@@ -109,6 +127,7 @@ ORDER BY
             $objPHPExcel->setActiveSheetIndex(0)
                 ->setCellValue('A' . $index, $item['name'])
                 ->setCellValue('B' . $index, $item['value'])
+                ->setCellValue('C' . $index, $item['percent'])
             ;
         }
 
