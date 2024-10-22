@@ -30,25 +30,59 @@ class EchartsController extends BaseController
         $model = new OrderModel();
         $list = $model->query('
 SELECT
-	d.warehouse_state name,
-	SUM(c.qty) value
+	*
+FROM
+(
+SELECT
+	d.state_tag name,
+	SUM( c.qty ) value
 FROM
 	mu_ecang_order a
-	LEFT JOIN mu_ecang_order_address b ON a.id = b.order_id 
+	LEFT JOIN mu_ecang_order_address b ON a.id = b.order_id
 	LEFT JOIN mu_ecang_order_detail c ON a.id = c.order_id
-	LEFT JOIN mu_storage_state d ON b.state = d.state
+	LEFT JOIN mu_storage_state d ON b.state = d.state 
 WHERE
 	a.`status` = 4 
-	AND a.datePaidPlatform >= "' . $sale_start . ' 00:00:00' . '" 
-	AND a.datePaidPlatform <= "' . $sale_end . ' 23:59:59' . '" 
+	AND a.datePaidPlatform >= "' . $sale_start . ' 00:00:00" 
+	AND a.datePaidPlatform <= "' . $sale_end . ' 23:59:59" 
 	AND b.countryCode = "US" 
-  	AND c.warehouseSku IN(' . $skuStr . ')
+	AND c.warehouseSku IN ( ' . $skuStr . ' ) 
+	AND d.state_tag NOT IN ( "CA", "GA", "NJ", "TX" ) 
 GROUP BY
-	warehouse_state 
-ORDER BY
-	value DESC;
+	state_tag UNION ALL
+SELECT
+	d.warehouse_state name,
+	SUM( c.qty ) value	
+FROM
+	mu_ecang_order a
+	LEFT JOIN mu_ecang_order_address b ON a.id = b.order_id
+	LEFT JOIN mu_ecang_order_detail c ON a.id = c.order_id
+	LEFT JOIN mu_storage_state d ON b.state = d.state 
+WHERE
+	a.`status` = 4 
+	AND a.datePaidPlatform >= "' . $sale_start . ' 00:00:00" 
+	AND a.datePaidPlatform <= "' . $sale_end . ' 23:59:59" 
+	AND b.countryCode = "US" 
+	AND c.warehouseSku IN ( ' . $skuStr . ' ) 
+GROUP BY
+	warehouse_state
+) a
+ORDER BY value DESC;
         ');
-        $sum = array_sum(array_column($list, 'value'));
+
+        $sumData = $model->query('
+SELECT
+	SUM( b.qty ) qty
+FROM
+	mu_ecang_order a
+	LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id 
+WHERE
+	a.`status` = 4 
+	AND a.datePaidPlatform >= "' . $sale_start . ' 00:00:00" 
+	AND a.datePaidPlatform <= "' . $sale_end . ' 23:59:59" 
+	AND b.warehouseSku IN ( ' . $skuStr . ' );
+        ');
+        $sum = empty($sumData[0]['qty']) ? 0 : $sumData[0]['qty'];
         $this->assign('sum', empty($sum) ? 100 : $sum);
         $this->assign('list', json_encode($list));
 
