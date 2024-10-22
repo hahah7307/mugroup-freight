@@ -3944,6 +3944,7 @@ SELECT
 	SUM( sale_qty ) sale_qty,
 	SUM( refund_qty ) refund_qty,
 	SUM( ROUND( sale_amount, 7 ) ) sale_amount,
+	SUM( ROUND( sale_tax, 7 ) ) sale_tax,
 	SUM( ROUND( refund_amount, 7 ) ) refund_amount,
 	SUM( ROUND( sale_selling_fees, 7 ) ) sale_selling_fees,
 	SUM( ROUND( refund_selling_fees, 7 ) ) refund_selling_fees,
@@ -3962,24 +3963,24 @@ SELECT
 	ROUND( SUM( IFNULL( calcuRes, 0 ) ) / SUM( IFNULL( sale_amount, 0 ) ) * - 1, 4 ) tail_percent,
 	ROUND( SUM( IFNULL( ddp, 0 ) ) / SUM( IFNULL( sale_amount, 0 ) ) * - 1, 4 ) ddp_percent,
 	ROUND(
-		SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( lc_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + ROUND( SUM( IFNULL( operation_expenses, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_factory, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_delivery, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ),
+		SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( lc_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + ROUND( SUM( IFNULL( operation_expenses, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = 8 ), 2 ) + ROUND( SUM( IFNULL( operation_factory, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = 8 ), 2 ) + ROUND( SUM( IFNULL( operation_delivery, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = 8 ), 2 ),
 		2 
 	) profit,
 	ROUND(
 		(
-			SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( lc_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + ROUND( SUM( IFNULL( operation_expenses, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_factory, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_delivery, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) 
+			SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( lc_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + ROUND( SUM( IFNULL( operation_expenses, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = 8 ), 2 ) + ROUND( SUM( IFNULL( operation_factory, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = 8 ), 2 ) + ROUND( SUM( IFNULL( operation_delivery, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = 8 ), 2 ) 
 		) / SUM( IFNULL( sale_amount, 0 ) ),
 		4 
 	) gross_profit_margin,
 	SUM( ROUND( evaluation_qty, 3 ) ) evaluation_qty,
 	SUM( ROUND( evaluation_amount, 2 ) ) evaluation_amount,
 	ROUND(
-		SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( lc_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + ROUND( SUM( IFNULL( operation_expenses, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_factory, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_delivery, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + SUM( IFNULL( evaluation_amount, 0 ) ),
+		SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( lc_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + ROUND( SUM( IFNULL( operation_expenses, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = 8 ), 2 ) + ROUND( SUM( IFNULL( operation_factory, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = 8 ), 2 ) + ROUND( SUM( IFNULL( operation_delivery, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = 8 ), 2 ) + SUM( IFNULL( evaluation_amount, 0 ) ),
 		2 
 	) profit_include_evaluation,
 	ROUND(
 		(
-			SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( lc_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + ROUND( SUM( IFNULL( operation_expenses, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_factory, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_delivery, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + SUM( IFNULL( evaluation_amount, 0 ) ) 
+			SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( lc_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + ROUND( SUM( IFNULL( operation_expenses, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = 8 ), 2 ) + ROUND( SUM( IFNULL( operation_factory, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = 8 ), 2 ) + ROUND( SUM( IFNULL( operation_delivery, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = 8 ), 2 ) + SUM( IFNULL( evaluation_amount, 0 ) ) 
 		) / SUM( IFNULL( sale_amount, 0 ) ),
 		2 
 	) gross_profit_margin_include_evaluation,
@@ -3994,6 +3995,7 @@ FROM
 		SUM( sale_qty ) sale_qty,
 		SUM( refund_qty ) * - 1 refund_qty,
 		SUM( ROUND( sale_amount, 7 ) ) sale_amount,
+		SUM( ROUND( sale_tax, 7 ) ) sale_tax,
 		SUM( ROUND( refund_amount, 7 ) ) refund_amount,
 		SUM( ROUND( sale_selling_fees, 7 ) ) * - 1 sale_selling_fees,
 		SUM( ROUND( refund_selling_fees, 7 ) ) refund_selling_fees,
@@ -4018,6 +4020,7 @@ FROM
 			SUM( sale_qty ) sale_qty,
 			SUM( refund_qty ) refund_qty,
 			SUM( ROUND( sale_amount, 7 ) ) sale_amount,
+			SUM( ROUND( sale_tax, 7 ) ) sale_tax,
 			SUM( ROUND( refund_amount, 7 ) ) refund_amount,
 			SUM( ROUND( sale_selling_fees, 7 ) ) sale_selling_fees,
 			SUM( ROUND( refund_selling_fees, 7 ) ) refund_selling_fees,
@@ -4045,6 +4048,7 @@ FROM
 				b.qty sale_qty,
 				NULL AS refund_qty,
 				ROUND( b.sale_amount, 7 ) sale_amount,
+				NULL AS sale_tax,
 				NULL AS refund_amount,
 				ROUND( b.selling_fee, 7 ) sale_selling_fees,
 				NULL AS refund_selling_fees,
@@ -4083,6 +4087,7 @@ FROM
 				NULL AS sale_qty,
 				NULL AS refund_qty,
 				NULL AS sale_amount,
+				NULL AS sale_tax,
 				NULL AS refund_amount,
 				NULL AS sale_selling_fees,
 				NULL AS refund_selling_fees,
@@ -4114,6 +4119,42 @@ FROM
 			WHERE
 				b.payment_id IS NOT NULL UNION ALL
 			SELECT
+				a.platform,
+				a.userAccount,
+				a.payment_id,
+				b.saleOrderCode,
+				b.seller_sku,
+				b.warehouse_sku,
+				NULL AS sale_qty,
+				NULL AS refund_qty,
+				NULL AS sale_amount,
+				ROUND( b.tax * - 1, 7 ) sale_tax,
+				NULL AS refund_amount,
+				NULL AS sale_selling_fees,
+				NULL AS refund_selling_fees,
+				NULL AS calcuRes,
+				NULL AS ddp,
+				NULL AS adCost,
+				NULL AS warehouse_rent,
+				NULL AS adjustment,
+				NULL AS lc_adjustment,
+				NULL AS le_adjustment 
+			FROM
+				(
+				SELECT DISTINCT
+					report_id,
+					payment_id,
+					platform,
+					userAccount 
+				FROM
+					mu_finance_order_sale a
+					LEFT JOIN mu_finance_table b ON a.table_id = b.id 
+				WHERE
+					report_id = ' . $report_id . ' 
+					AND b.platform = "ebay" 
+				) a
+				LEFT JOIN mu_finance_order_statistics b ON a.payment_id = b.payment_id UNION ALL
+			SELECT
 				b.platform,
 				b.userAccount,
 				a.payment_id,
@@ -4123,6 +4164,7 @@ FROM
 				NULL AS sale_qty,
 				a.quantity * c.qty refund_qty,
 				NULL AS sale_amount,
+				NULL AS sale_tax,
 				ROUND( ( product_sales ) * c.percent * c.qty, 7 ) refund_amount,
 				NULL AS sale_selling_fees,
 				ROUND( selling_fees * c.percent * c.qty, 7 ) refund_selling_fees,
@@ -4151,6 +4193,7 @@ FROM
 				NULL AS sale_qty,
 				NULL AS refund_qty,
 				NULL AS sale_amount,
+				NULL AS sale_tax,
 				NULL AS refund_amount,
 				NULL AS sale_selling_fees,
 				NULL AS refund_selling_fees,
@@ -4178,6 +4221,7 @@ FROM
 				NULL AS sale_qty,
 				NULL AS refund_qty,
 				NULL AS sale_amount,
+				NULL AS sale_tax,
 				NULL AS refund_amount,
 				NULL AS sale_selling_fees,
 				NULL AS refund_selling_fees,
@@ -4207,6 +4251,7 @@ FROM
 				NULL AS sale_qty,
 				NULL AS refund_qty,
 				NULL AS sale_amount,
+				NULL AS sale_tax,
 				NULL AS refund_amount,
 				NULL AS sale_selling_fees,
 				NULL AS refund_selling_fees,
@@ -4236,6 +4281,7 @@ FROM
 				NULL AS sale_qty,
 				NULL AS refund_qty,
 				NULL AS sale_amount,
+				NULL AS sale_tax,
 				NULL AS refund_amount,
 				NULL AS sale_selling_fees,
 				NULL AS refund_selling_fees,
@@ -4269,6 +4315,7 @@ FROM
 			NULL AS sale_qty,
 			NULL AS refund_qty,
 			NULL AS sale_amount,
+			NULL AS sale_tax,
 			NULL AS refund_amount,
 			NULL AS sale_selling_fees,
 			NULL AS refund_selling_fees,
@@ -4300,6 +4347,7 @@ FROM
 			NULL AS sale_qty,
 			NULL AS refund_qty,
 			NULL AS sale_amount,
+			NULL AS sale_tax,
 			NULL AS refund_amount,
 			NULL AS sale_selling_fees,
 			NULL AS refund_selling_fees,
@@ -4327,6 +4375,7 @@ FROM
 			NULL AS sale_qty,
 			NULL AS refund_qty,
 			NULL AS sale_amount,
+			NULL AS sale_tax,
 			NULL AS refund_amount,
 			NULL AS sale_selling_fees,
 			NULL AS refund_selling_fees,
@@ -4357,6 +4406,7 @@ FROM
 			NULL AS sale_qty,
 			NULL AS refund_qty,
 			NULL AS sale_amount,
+			NULL AS sale_tax,
 			NULL AS refund_amount,
 			NULL AS sale_selling_fees,
 			NULL AS refund_selling_fees,
@@ -4387,6 +4437,7 @@ FROM
 			NULL AS sale_qty,
 			NULL AS refund_qty,
 			NULL AS sale_amount,
+			NULL AS sale_tax,
 			NULL AS refund_amount,
 			NULL AS sale_selling_fees,
 			NULL AS refund_selling_fees,

@@ -1353,7 +1353,8 @@ class AmazonPayment extends Model
                     "table_id"                  =>  $tableId,
                     "payment_id"                =>  $item[2],
                     "fulfillment"               =>  "Seller",
-                    "product_sales"             =>  sprintf('%.2f', str_replace(',', '', $item[34])),
+                    "product_sales"             =>  round(str_replace(',', '', $item[34]), 2)
+                        + round(str_replace(',', '', $item[25]), 2),
                     "selling_fees"              =>  round(str_replace(',', '', $item[26]), 2)
                         + round(str_replace(',', '', $item[27]), 2)
                         + round(str_replace(',', '', $item[31]), 2),
