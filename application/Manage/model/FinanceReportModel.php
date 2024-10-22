@@ -162,25 +162,6 @@ GROUP BY
         ';
     }
 
-    static public function getWarehouseRentSql($report_id): string
-    {
-        return '
-SELECT
-	sku,
-	c.user_name user_name,
-	SUM( total ) total 
-FROM
-	mu_finance_warehouse a
-	LEFT JOIN mu_ecang_product b ON a.sku = b.productSku
-	LEFT JOIN mu_ecang_user c ON b.personSellerId = c.id 
-WHERE
-	report_id = ' . $report_id . ' 
-GROUP BY
-	sku,
-	user_name;    
-        ';
-    }
-
     static public function getPaymentNoOutboundSql($report_id): string
     {
         return '
