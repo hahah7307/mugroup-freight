@@ -23,6 +23,7 @@ use app\Manage\model\FinanceOrderShippingServiceModel;
 use app\Manage\model\FinanceOrderStatisticsEditModel;
 use app\Manage\model\FinanceOrderStatisticsModel;
 use app\Manage\model\FinanceOrderSubscriptionModel;
+use app\Manage\model\FinanceOrderTemuDetailModel;
 use app\Manage\model\FinanceOrderTransferModel;
 use app\Manage\model\FinanceOrderWayfairModel;
 use app\Manage\model\FinanceReportModel;
@@ -391,6 +392,7 @@ class FinanceController extends BaseController
         $payment_type = input('payment_type');
         $payment_type_new = strpos($payment_type, 'amazon') !== false ? 'amazon' : $payment_type;
         $payment_type_new = $payment_type == 'shein_semi_managed' ? 'shein' : $payment_type_new;
+        $payment_type_new = $payment_type == 'temu_detail' ? 'temu' : $payment_type_new;
         $file= "./upload/excel/" . $filename;
         $excelReader = PHPExcel_IOFactory::createReaderForFile($file);
         $excelObj = $excelReader->load($file);
@@ -499,6 +501,11 @@ class FinanceController extends BaseController
                         throw new \think\Exception('Payment导入失败！');
                     }
 
+                    $financeOrderTemuDetailObj = new FinanceOrderTemuDetailModel();
+                    if (!$financeOrderTemuDetailObj->saveAll($paymentData['orderTemuDetails'])) {
+                        throw new \think\Exception('Payment导入失败！');
+                    }
+
                     if (!FinanceTableModel::update(['userAccount' => $paymentData['userAccount'], 'sale_amount' => $sale_amount, 'refund_amount' => $refund_amount, 'promotion' => $promotionSum, 'shipping_service' => $shippingServiceSum, 'liquidation' => $liquidationSum, 'adjustment' => $adjustmentSum], ['id' => $tableId])) {
                         throw new \think\Exception('店铺号同步失败！');
                     }
@@ -552,6 +559,12 @@ class FinanceController extends BaseController
 
                 $financeWayfairCoreObj = new FinanceWayfairCoreModel();
                 $financeWayfairCoreObj->where('table_id', $post['id'])->delete();
+
+                $financeOrderSubscriptionObj = new FinanceOrderSubscriptionModel();
+                $financeOrderSubscriptionObj->where('table_id', $post['id'])->delete();
+
+                $financeOrderTemuDetailObj = new FinanceOrderTemuDetailModel();
+                $financeOrderTemuDetailObj->where('table_id', $post['id'])->delete();
 
                 Db::commit();
                 echo json_encode(['code' => 1, 'msg' => '删除成功']);

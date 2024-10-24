@@ -33,6 +33,8 @@ class AmazonPayment extends Model
 
     public $orderWayfairCoreRefundAdjust = [];
 
+    public $orderTemuDetails = [];
+
     /**
      * @throws DbException
      * @throws ModelNotFoundException
@@ -1330,6 +1332,53 @@ class AmazonPayment extends Model
             'orderAdjustmentNew'        =>  $this->orderAdjustmentNew,
             'orderFbaInventory'         =>  $this->orderFbaInventory,
             'orderTransferNew'          =>  $this->orderTransferNew
+        ];
+    }
+
+    /**
+     * @throws ModelNotFoundException
+     * @throws DbException
+     * @throws DataNotFoundException
+     */
+    public function temu_detail($excel, $tableId, $reportId): array
+    {
+
+        foreach ($excel as $k => $item) {
+            $orderObj = new OrderModel();
+            $order = $orderObj->with(['details'])->where(['refNo|saleOrderCode' => $item[0]])->find();
+            if ($order && $order['userAccount'] != $this->userAccount) {
+                $this->userAccount = $order['userAccount'];
+            }
+
+            if ($k >= 1) {
+                $this->orderTemuDetails[] = [
+                    "report_id"                 =>  $reportId,
+                    "table_id"                  =>  $tableId,
+                    "order_id"                  =>  $item[0],
+                    "order_status"              =>  $item[1],
+                    "order_item_id"             =>  $item[2],
+                    "order_item_status"         =>  $item[3],
+                    "product_name"              =>  $item[4],
+                    "variation"                 =>  $item[5],
+                    "contribution_sku"          =>  trim($item[6]),
+                    "sku_id"                    =>  trim($item[7]),
+                    "quantity_purchased"        =>  trim($item[8]),
+                    "quantity_shipped"          =>  trim($item[9]),
+                    "quantity_to_ship"          =>  trim($item[10]),
+                    "purchase_date"             =>  date('Y-m-d H:i:s', strtotime($item[20])),
+                    "latest_shipping_time"      =>  date('Y-m-d H:i:s', strtotime($item[21])),
+                    "latest_delivery_time"      =>  date('Y-m-d H:i:s', strtotime($item[22])),
+                    "activity_goods_base_price" =>  sprintf('%.2f', str_replace(',', '', round(substr($item[25], 0, strlen($item[25])), 2))),
+                    "base_price_total"          =>  sprintf('%.2f', str_replace(',', '', round(substr($item[26], 0, strlen($item[26])), 2))),
+                    "tracking_number"           =>  trim($item[27]),
+                    "carrier"                   =>  trim($item[28]),
+                ];
+            }
+        }
+
+        return [
+            'userAccount'               =>  $this->userAccount,
+            'orderTemuDetails'          =>  $this->orderTemuDetails,
         ];
     }
 
