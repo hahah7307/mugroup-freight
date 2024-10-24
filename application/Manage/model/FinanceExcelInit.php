@@ -1091,6 +1091,141 @@ class FinanceExcelInit extends Model
         }
     }
 
+    /**
+     * @throws PDOException
+     * @throws BindParamException
+     * @throws \PHPExcel_Exception
+     */
+    public function generateSaleAmountDiffSheet($index, $report_id)
+    {
+        $saleAmountDiff = $this->model->query(FinanceReportModel::getSaleAmountDiffSql($report_id));
+
+        if ($index) {
+            // create new sheet
+            $this->objPHPExcel->createSheet();
+        }
+
+        // Set name sheet
+        $this->objPHPExcel->setActiveSheetIndex($index)->setTitle('销售差异');
+
+        // Add some data
+        $this->objPHPExcel->setActiveSheetIndex($index)
+            ->setCellValue('A1', '店铺')
+            ->setCellValue('B1', '订单号')
+            ->setCellValue('C1', '易仓参考号')
+            ->setCellValue('D1', '销售SKU')
+            ->setCellValue('E1', '仓库SKU')
+            ->setCellValue('F1', '订单销售')
+            ->setCellValue('G1', '订单统计销售')
+            ->setCellValue('H1', '订单统计税')
+            ->setCellValue('I1', '订单统计ID')
+        ;
+
+        $saleAmountIndex = 1;
+        foreach ($saleAmountDiff as $saleAmountItem) {
+            $saleAmountIndex ++;
+            $this->objPHPExcel->setActiveSheetIndex($index)
+                ->setCellValue('A' . $saleAmountIndex, $saleAmountItem['order_statistic_user_account'])
+                ->setCellValue('B' . $saleAmountIndex, $saleAmountItem['payment'])
+                ->setCellValue('C' . $saleAmountIndex, $saleAmountItem['saleOrderCode'])
+                ->setCellValue('D' . $saleAmountIndex, $saleAmountItem['seller_sku'])
+                ->setCellValue('E' . $saleAmountIndex, $saleAmountItem['warehouse_sku'])
+                ->setCellValue('F' . $saleAmountIndex, $saleAmountItem['payment_sale_amount'])
+                ->setCellValue('G' . $saleAmountIndex, $saleAmountItem['order_statistic_sale_amount'])
+                ->setCellValue('H' . $saleAmountIndex, $saleAmountItem['order_statistic_tax'])
+                ->setCellValue('I' . $saleAmountIndex, $saleAmountItem['order_statistics_id'])
+            ;
+        }
+    }
+
+    /**
+     * @throws PDOException
+     * @throws BindParamException
+     */
+    public function generateSellingFeeDiffSheet($index, $report_id)
+    {
+        $sellingFeeDiff = $this->model->query(FinanceReportModel::getSellingFeeDiffSql($report_id));
+
+        if ($index) {
+            // create new sheet
+            $this->objPHPExcel->createSheet();
+        }
+
+        // Set name sheet
+        $this->objPHPExcel->setActiveSheetIndex($index)->setTitle('佣金差异');
+
+        // Add some data
+        $this->objPHPExcel->setActiveSheetIndex($index)
+            ->setCellValue('A1', '店铺')
+            ->setCellValue('B1', '订单号')
+            ->setCellValue('C1', '易仓参考号')
+            ->setCellValue('D1', '销售SKU')
+            ->setCellValue('E1', '仓库SKU')
+            ->setCellValue('F1', '订单佣金')
+            ->setCellValue('G1', '订单统计佣金')
+            ->setCellValue('H1', '订单统计ID')
+        ;
+
+        $sellingFeeIndex = 1;
+        foreach ($sellingFeeDiff as $sellingFeeItem) {
+            $sellingFeeIndex ++;
+            $this->objPHPExcel->setActiveSheetIndex($index)
+                ->setCellValue('A' . $sellingFeeIndex, $sellingFeeItem['order_statistic_user_account'])
+                ->setCellValue('B' . $sellingFeeIndex, $sellingFeeItem['payment'])
+                ->setCellValue('C' . $sellingFeeIndex, $sellingFeeItem['saleOrderCode'])
+                ->setCellValue('D' . $sellingFeeIndex, $sellingFeeItem['seller_sku'])
+                ->setCellValue('E' . $sellingFeeIndex, $sellingFeeItem['warehouse_sku'])
+                ->setCellValue('F' . $sellingFeeIndex, $sellingFeeItem['payment_selling_fees'])
+                ->setCellValue('G' . $sellingFeeIndex, $sellingFeeItem['order_statistic_selling_fees'])
+                ->setCellValue('H' . $sellingFeeIndex, $sellingFeeItem['order_statistics_id'])
+            ;
+        }
+    }
+
+    /**
+     * @throws PDOException
+     * @throws BindParamException
+     */
+    public function generateFbaFeeDiffSheet($index, $report_id)
+    {
+        $fbaFeeDiff = $this->model->query(FinanceReportModel::getFbaFeeDiffSql($report_id));
+
+        if ($index) {
+            // create new sheet
+            $this->objPHPExcel->createSheet();
+        }
+
+        // Set name sheet
+        $this->objPHPExcel->setActiveSheetIndex($index)->setTitle('佣金差异');
+
+        // Add some data
+        $this->objPHPExcel->setActiveSheetIndex($index)
+            ->setCellValue('A1', '店铺')
+            ->setCellValue('B1', '订单号')
+            ->setCellValue('C1', '易仓参考号')
+            ->setCellValue('D1', '销售SKU')
+            ->setCellValue('E1', '仓库SKU')
+            ->setCellValue('F1', '订单FBA尾程')
+            ->setCellValue('G1', '订单统计FBA尾程')
+            ->setCellValue('H1', '订单统计ID')
+        ;
+
+        $fbaFeeIndex = 1;
+        foreach ($fbaFeeDiff as $fbaFeeItem) {
+            $fbaFeeIndex ++;
+            $this->objPHPExcel->setActiveSheetIndex($index)
+                ->setCellValue('A' . $fbaFeeIndex, $fbaFeeItem['order_statistic_user_account'])
+                ->setCellValue('B' . $fbaFeeIndex, $fbaFeeItem['payment'])
+                ->setCellValue('C' . $fbaFeeIndex, $fbaFeeItem['saleOrderCode'])
+                ->setCellValue('D' . $fbaFeeIndex, $fbaFeeItem['seller_sku'])
+                ->setCellValue('E' . $fbaFeeIndex, $fbaFeeItem['warehouse_sku'])
+                ->setCellValue('F' . $fbaFeeIndex, $fbaFeeItem['payment_fba_fees'])
+                ->setCellValue('G' . $fbaFeeIndex, $fbaFeeItem['order_statistic_fba_fees'])
+                ->setCellValue('H' . $fbaFeeIndex, $fbaFeeItem['order_statistics_id'])
+            ;
+        }
+    }
+
     public function excelSheetSet()
     {
         return $this->objPHPExcel;

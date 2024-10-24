@@ -4633,4 +4633,220 @@ WHERE
 	a.report_id = ' . $report_id . ';
         ';
     }
+
+    static public function getSaleAmountDiffSql($report_id): string
+    {
+        return '
+SELECT
+	a.*,
+	b.id order_statistics_id,
+	b.saleOrderCode,
+	b.sale_amount,
+	b.selling_fee,
+	b.fba_fee,
+	b.seller_sku,
+	b.warehouse_sku 
+FROM
+	(
+	SELECT DISTINCT
+		order_statistic_user_account,
+		payment,
+		payment_sale_amount,
+		payment_selling_fees,
+		payment_fba_fees,
+		order_statistic_payment,
+		order_statistic_sale_amount,
+		order_statistic_selling_fees,
+		order_statistic_fba_fees,
+		order_statistic_tax
+	FROM
+		(
+		SELECT
+			a.payment_id order_statistic_payment,
+			a.userAccount order_statistic_user_account,
+			ROUND( SUM( b.sale_amount ), 7 ) order_statistic_sale_amount,
+			ROUND( SUM( b.selling_fee ), 7 ) order_statistic_selling_fees,
+			ROUND( SUM( b.fba_fee ), 7 ) order_statistic_fba_fees,
+			ROUND( SUM( b.tax ), 7 ) order_statistic_tax 
+		FROM
+			(
+			SELECT DISTINCT
+				report_id,
+				payment_id,
+				platform,
+				userAccount 
+			FROM
+				mu_finance_order_sale a
+				LEFT JOIN mu_finance_table b ON a.table_id = b.id 
+			WHERE
+				report_id = ' . $report_id . ' 	
+			) a
+			LEFT JOIN mu_finance_order_statistics b ON a.payment_id = b.payment_id 
+		GROUP BY
+			order_statistic_payment,
+			order_statistic_user_account 
+		) a
+		LEFT JOIN (
+		SELECT
+			payment_id payment,
+			SUM( product_sales + shipping_credits + gift_wrap_credits + regulatory_fee + promotional_rebates ) payment_sale_amount,
+			SUM( selling_fees ) payment_selling_fees,
+			SUM( fba_fees ) payment_fba_fees 
+		FROM
+			mu_finance_order_sale 
+		WHERE
+			report_id = ' . $report_id . ' 
+		GROUP BY
+			payment 
+		) b ON a.order_statistic_payment = b.payment 
+	WHERE
+		a.order_statistic_sale_amount != b.payment_sale_amount
+	) a
+	LEFT JOIN mu_finance_order_statistics b ON a.payment = b.payment_id;
+        ';
+    }
+
+    static public function getSellingFeeDiffSql($report_id): string
+    {
+        return '
+SELECT
+	a.*,
+	b.id order_statistics_id,
+	b.saleOrderCode,
+	b.sale_amount,
+	b.selling_fee,
+	b.fba_fee,
+	b.seller_sku,
+	b.warehouse_sku 
+FROM
+	(
+	SELECT DISTINCT
+		order_statistic_user_account,
+		payment,
+		payment_sale_amount,
+		payment_selling_fees,
+		payment_fba_fees,
+		order_statistic_payment,
+		order_statistic_sale_amount,
+		order_statistic_selling_fees,
+		order_statistic_fba_fees,
+		order_statistic_tax
+	FROM
+		(
+		SELECT
+			a.payment_id order_statistic_payment,
+			a.userAccount order_statistic_user_account,
+			ROUND( SUM( b.sale_amount ), 7 ) order_statistic_sale_amount,
+			ROUND( SUM( b.selling_fee ), 7 ) order_statistic_selling_fees,
+			ROUND( SUM( b.fba_fee ), 7 ) order_statistic_fba_fees,
+			ROUND( SUM( b.tax ), 7 ) order_statistic_tax 
+		FROM
+			(
+			SELECT DISTINCT
+				report_id,
+				payment_id,
+				platform,
+				userAccount 
+			FROM
+				mu_finance_order_sale a
+				LEFT JOIN mu_finance_table b ON a.table_id = b.id 
+			WHERE
+				report_id = ' . $report_id . ' 	
+			) a
+			LEFT JOIN mu_finance_order_statistics b ON a.payment_id = b.payment_id 
+		GROUP BY
+			order_statistic_payment,
+			order_statistic_user_account 
+		) a
+		LEFT JOIN (
+		SELECT
+			payment_id payment,
+			SUM( product_sales + shipping_credits + gift_wrap_credits + regulatory_fee + promotional_rebates ) payment_sale_amount,
+			SUM( selling_fees ) payment_selling_fees,
+			SUM( fba_fees ) payment_fba_fees 
+		FROM
+			mu_finance_order_sale 
+		WHERE
+			report_id = ' . $report_id . ' 
+		GROUP BY
+			payment 
+		) b ON a.order_statistic_payment = b.payment 
+	WHERE
+ 		a.order_statistic_selling_fees != b.payment_selling_fees * - 1
+	) a
+	LEFT JOIN mu_finance_order_statistics b ON a.payment = b.payment_id;
+        ';
+    }
+
+    static public function getFbaFeeDiffSql($report_id): string
+    {
+        return '
+SELECT
+	a.*,
+	b.id order_statistics_id,
+	b.saleOrderCode,
+	b.sale_amount,
+	b.selling_fee,
+	b.fba_fee,
+	b.seller_sku,
+	b.warehouse_sku 
+FROM
+	(
+	SELECT DISTINCT
+		order_statistic_user_account,
+		payment,
+		payment_sale_amount,
+		payment_selling_fees,
+		payment_fba_fees,
+		order_statistic_payment,
+		order_statistic_sale_amount,
+		order_statistic_selling_fees,
+		order_statistic_fba_fees,
+		order_statistic_tax
+	FROM
+		(
+		SELECT
+			a.payment_id order_statistic_payment,
+			a.userAccount order_statistic_user_account,
+			ROUND( SUM( b.sale_amount ), 7 ) order_statistic_sale_amount,
+			ROUND( SUM( b.selling_fee ), 7 ) order_statistic_selling_fees,
+			ROUND( SUM( b.fba_fee ), 7 ) order_statistic_fba_fees,
+			ROUND( SUM( b.tax ), 7 ) order_statistic_tax 
+		FROM
+			(
+			SELECT DISTINCT
+				report_id,
+				payment_id,
+				platform,
+				userAccount 
+			FROM
+				mu_finance_order_sale a
+				LEFT JOIN mu_finance_table b ON a.table_id = b.id 
+			WHERE
+				report_id = ' . $report_id . ' 	
+			) a
+			LEFT JOIN mu_finance_order_statistics b ON a.payment_id = b.payment_id 
+		GROUP BY
+			order_statistic_payment,
+			order_statistic_user_account 
+		) a
+		LEFT JOIN (
+		SELECT
+			payment_id payment,
+			SUM( product_sales + shipping_credits + gift_wrap_credits + regulatory_fee + promotional_rebates ) payment_sale_amount,
+			SUM( selling_fees ) payment_selling_fees,
+			SUM( fba_fees ) payment_fba_fees 
+		FROM
+			mu_finance_order_sale 
+		WHERE
+			report_id = ' . $report_id . ' 
+		GROUP BY
+			payment 
+		) b ON a.order_statistic_payment = b.payment 
+	WHERE
+ 		a.order_statistic_fba_fees != b.payment_fba_fees * -1
+	) a
+	LEFT JOIN mu_finance_order_statistics b ON a.payment = b.payment_id;
+        ';
+    }
 }

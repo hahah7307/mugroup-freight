@@ -39,7 +39,9 @@
             </div>
             <button type="button" class="layui-btn  layui-btn-normal" id="excel">导入</button><br><br>
             <a href="{:url('index_wayfair', ['id' => $report_id])}" class="layui-btn">Wayfair</a>
-            <button type="button" class="layui-btn  layui-btn-{if condition='$edit'}disabled{else/}normal{/if}" lay-submit lay-filter="Edit">修正</button>
+            <button type="button" class="layui-btn  layui-btn-normal" lay-submit lay-filter="Temu">Temu订单销售同步</button>
+            <button type="button" class="layui-btn  layui-btn-normal" lay-submit lay-filter="Export">销售差异导出</button>
+            <button type="button" class="layui-btn  layui-btn-{if condition='$edit'}disabled{else/}normal{/if}" lay-submit lay-filter="Edit">佣金修正</button>
             <span class="total">销售合计：{$sale_amount}</span>
             <span class="total">退款合计：{$refund_amount}</span>
             <span class="total">促销合计：{$promotion}</span>
@@ -171,6 +173,43 @@
                     });
                 return false;
             });
+        });
+
+        // Temu订单销售同步
+        form.on('submit(Temu)', function(data){
+            var text = $(this).text(),
+                button = $(this),
+                id = {$report_id};
+            layer.prompt({formType:0,title:'请输入数据表id，用英文逗号隔开，如(333,334)'},function(value, index, elem){
+                $('button').attr('disabled',true);
+                button.text('请稍候...');
+                axios.post("{:url('order_statistics_temu_sale')}", {data:value, id:id})
+                    .then(function (response) {
+                        var res = response.data;
+                        if (res.code === 1) {
+                            layer.alert(res.msg,{icon:1,closeBtn:0,title:false,btnAlign:'c',},function(){
+                                location.reload();
+                            });
+                        } else {
+                            layer.alert(res.msg,{icon:2,closeBtn:0,title:false,btnAlign:'c'},function(index){
+                                layer.close(index);
+                                $('button').attr('disabled',false);
+                                button.text(text);
+                            });
+                        }
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    });
+                return false;
+            });
+        });
+
+        // 导出
+        form.on('submit(Export)', function(data){
+            location.href = "/Manage/Finance/order_statistics_diff_export.html?id=" + {$report_id};
+
+            return false;
         });
 
         // 修正

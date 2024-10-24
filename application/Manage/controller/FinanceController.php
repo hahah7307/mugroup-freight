@@ -176,6 +176,7 @@ class FinanceController extends BaseController
 
         // phpexcel
         require_once './static/classes/PHPExcel/Classes/PHPExcel.php';
+        // Create new PHPExcel object
         $objPHPExcel = new PHPExcel();
         $financeExcelInit = new FinanceExcelInit($objPHPExcel);
         $financeExcelInit->generateSaleRefundSheet(0, $report_id);
@@ -1261,6 +1262,104 @@ FROM
             echo json_encode(['code' => 0, 'msg' => '异常操作']);
         }
         exit;
+    }
+
+    /**
+     * @throws PDOException
+     * @throws BindParamException
+     * @throws \Exception
+     */
+    public function order_statistics_temu_sale()
+    {
+        if ($this->request->isPost()) {
+            $post = $this->request->post();
+            $tableIds = explode(',', $post['data']);
+            $report_id = $post['id'];
+            if (count(array_unique($tableIds)) != 2) {
+                echo json_encode(['code' => 0, 'msg' => '格式错误']);
+                exit;
+            }
+
+            $tableObj = new FinanceTableModel();
+            foreach ($tableIds as $id) {
+                $table = $tableObj->find($id);
+                if ($table['platform'] != "temu" || $table['userAccount'] != "TEMU_TOLEAD_HOME") {
+                    echo json_encode(['code' => 0, 'msg' => '你输入的表ID不正确']);
+                    exit;
+                }
+            }
+
+            $editData = $tableObj->query('
+SELECT
+	c.id,
+	ROUND( b.total * d.percent / b.qty, 3 ) sale_amount 
+FROM
+	mu_finance_order_sale a
+	LEFT JOIN (
+	SELECT
+		order_id,
+		contribution_sku,
+		SUM( quantity_shipped ) qty,
+		SUM( base_price_total * quantity_shipped ) total 
+	FROM
+		mu_finance_order_temu_detail 
+	WHERE
+		table_id = ' . $tableIds[1] . ' 
+	GROUP BY
+		order_id,
+		contribution_sku 
+	) b ON a.payment_id = b.order_id
+	LEFT JOIN mu_finance_order_statistics c ON a.payment_id = c.payment_id
+	LEFT JOIN mu_finance_sku_relation d ON b.contribution_sku = d.seller_sku 
+	AND c.warehouse_sku = d.warehouse_sku 
+WHERE
+	a.table_id = ' . $tableIds[0] . ' 
+	AND d.report_id = ' . $report_id . ' 
+	AND d.user_account = "TEMU_TOLEAD_HOME";
+            ');
+
+            $financeOrderStatisticObj = new FinanceOrderStatisticsModel();
+            if ($financeOrderStatisticObj->saveAll($editData)) {
+                echo json_encode(['code' => 1, 'msg' => '操作完成']);
+            } else {
+                echo json_encode(['code' => 0, 'msg' => '操作失败，请重试']);
+            }
+        } else {
+            echo json_encode(['code' => 0, 'msg' => '异常操作']);
+        }
+        exit;
+    }
+
+    /**
+     * @throws \PHPExcel_Exception
+     * @throws \PHPExcel_Writer_Exception
+     * @throws BindParamException
+     * @throws PDOException
+     * @throws \PHPExcel_Reader_Exception
+     */
+    public function order_statistics_diff_export()
+    {
+        $report_id = input('id');
+        $model = new FinanceReportModel();
+
+        // phpexcel
+        require_once './static/classes/PHPExcel/Classes/PHPExcel.php';
+        $objPHPExcel = new PHPExcel();
+        $financeExcelInit = new FinanceExcelInit($objPHPExcel);
+        $financeExcelInit->generateSaleAmountDiffSheet(0, $report_id);
+        $financeExcelInit->generateSellingFeeDiffSheet(1, $report_id);
+        $financeExcelInit->generateFbaFeeDiffSheet(2, $report_id);
+        $objPHPExcel = $financeExcelInit->excelSheetSet();
+
+        // Redirect output to a client’s web browser (Excel5)
+        header('Content-Type: application/vnd.ms-excel');
+        $filename = date("YmdHis") . time() . mt_rand(100000, 999999);
+        ob_end_clean();
+        header('Content-Disposition:attachment;filename="'.$filename.'.xls"');
+        header('Cache-Control: max-age=0');
+
+        $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+        $objWriter->save('php://output');
     }
 
     /**
