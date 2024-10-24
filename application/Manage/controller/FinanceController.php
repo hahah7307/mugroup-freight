@@ -618,98 +618,6 @@ class FinanceController extends BaseController
         return view();
     }
 
-    /**
-     * @throws DataNotFoundException
-     * @throws \PHPExcel_Writer_Exception
-     * @throws \PHPExcel_Exception
-     * @throws DbException
-     * @throws PHPExcel_Reader_Exception
-     * @throws ModelNotFoundException
-     */
-    public function export()
-    {
-        $start_time = input('start_time');
-        $end_time = input('end_time', date('Y-m-d'));
-
-        if (empty($start_time)) {
-            $this->error('缺少开始时间');
-        }
-        $financeOrderObj = new FinanceOrderSaleModel();
-        $orderList = $financeOrderObj->whereBetween('created_date', [$start_time, $end_time])->select();
-
-        // phpexcel
-        require_once './static/classes/PHPExcel/Classes/PHPExcel.php';
-        // Create new PHPExcel object
-        $objPHPExcel = new PHPExcel();
-
-        // Set background color
-        // A1 - Z1
-        for ($s = 65; $s <= 90; $s ++) {
-            $objPHPExcel->getActiveSheet()->getStyle(chr($s) . '1')->getFill()->setFillType(PHPExcel_Style_Fill::FILL_SOLID)->getStartColor()->setRGB('BDD7EE');
-        }
-
-        // Add some data
-        $objPHPExcel->setActiveSheetIndex(0)
-            ->setCellValue('A1', '参考单号')
-            ->setCellValue('B1', '销售单号')
-            ->setCellValue('C1', '系统单号')
-            ->setCellValue('D1', '仓库单号')
-            ->setCellValue('E1', '仓库代码')
-            ->setCellValue('F1', '计费重')
-            ->setCellValue('G1', '邮编')
-            ->setCellValue('H1', 'Zone')
-            ->setCellValue('I1', '出库费')
-            ->setCellValue('J1', '基础运费')
-            ->setCellValue('K1', 'AHS附加费')
-            ->setCellValue('L1', '偏远附加费')
-            ->setCellValue('M1', '住宅地址附加费')
-            ->setCellValue('N1', 'AHS旺季附加费')
-            ->setCellValue('O1', '住宅旺季附加费')
-            ->setCellValue('P1', '燃油费')
-            ->setCellValue('Q1', '总费用')
-            ->setCellValue('R1', '订单创建时间')
-        ;
-
-        foreach ($orderList as $k => $item) {
-            $objPHPExcel->setActiveSheetIndex(0)
-                ->setCellValue('A' . ($k + 2), $item['refNo'])
-                ->setCellValue('B' . ($k + 2), $item['saleOrderCode'])
-                ->setCellValue('C' . ($k + 2), $item['sysOrderCode'])
-                ->setCellValue('D' . ($k + 2), $item['warehouseOrderCode'])
-                ->setCellValue('E' . ($k + 2), $item['warehouseCode'])
-                ->setCellValue('F' . ($k + 2), $item['charged_weight'])
-                ->setCellValue('G' . ($k + 2), $item['postalFormat'])
-                ->setCellValue('H' . ($k + 2), $item['zoneFormat'])
-                ->setCellValue('I' . ($k + 2), $item['outbound'])
-                ->setCellValue('J' . ($k + 2), $item['base'])
-                ->setCellValue('K' . ($k + 2), $item['ahs'])
-                ->setCellValue('L' . ($k + 2), $item['das'])
-                ->setCellValue('M' . ($k + 2), $item['rdcFee'])
-                ->setCellValue('N' . ($k + 2), $item['ahsds'])
-                ->setCellValue('O' . ($k + 2), $item['drdcFee'])
-                ->setCellValue('P' . ($k + 2), $item['fuelCost'])
-                ->setCellValue('Q' . ($k + 2), $item['calcuRes'])
-                ->setCellValue('R' . ($k + 2), $item['created_date'])
-            ;
-        }
-
-        // Rename sheet
-        $objPHPExcel->getActiveSheet()->setTitle('尾程费用');
-
-        // Set active sheet index to the first sheet, so Excel opens this as the first sheet
-        $objPHPExcel->setActiveSheetIndex(0);
-
-        // Redirect output to a client’s web browser (Excel5)
-        header('Content-Type: application/vnd.ms-excel');
-        $filename = date("YmdHis") . time() . mt_rand(100000, 999999);
-        ob_end_clean();
-        header('Content-Disposition:attachment;filename="'.$filename.'.xls"');
-        header('Cache-Control: max-age=0');
-
-        $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
-        $objWriter->save('php://output');
-    }
-
     public function cost($id): \think\response\View
     {
         $report_id = input('id');
@@ -754,29 +662,7 @@ class FinanceController extends BaseController
             Db::startTrans();
             try {
                 $outboundObj = new FinanceOrderOutboundModel();
-                $sql = "
-SELECT DISTINCT
-	a.report_id,
-	a.table_id,
-	b.platform,
-	b.user_account,
-	b.payment_id,
-	b.saleOrderCode,
-	b.paid_time,
-	b.shipping_time,
-	b.platform_sku seller_sku,
-	b.warehouse_sku,
-	a.fulfillment,
-	b.qty 
-FROM
-	mu_finance_order_sale a
-	LEFT JOIN mu_finance_order_statistics b ON a.payment_id = b.payment_id 
-WHERE
-	a.report_id = " . $report_id . "
-	AND b.saleOrderCode IS NOT NULL
-ORDER BY
-	b.shipping_time;
-                ";
+                $sql = FinanceReportModel::generateOutboundSql($report_id);
                 $outboundData = $outboundObj->query($sql);
                 $outboundObj->insertAll($outboundData);
                 FinanceReportModel::update(['is_share' => 1], ['id' => $report_id]);
@@ -884,9 +770,7 @@ ORDER BY
         $this->assign('report_id', $id);
 
         $this->assign('available_qty', $order->where($where)->sum('available_quantity'));
-        $sum = $order->query('
-SELECT SUM(available_quantity * sku_ddp_unit) sum FROM mu_finance_store WHERE report_id = ' . $id . ';
-        ');
+        $sum = $order->query('SELECT SUM(available_quantity * sku_ddp_unit) sum FROM mu_finance_store WHERE report_id = ' . $id . ';');
         $this->assign('available_sum', $sum[0]['sum']);
 
         return view();
@@ -1123,137 +1007,10 @@ SELECT SUM(available_quantity * sku_ddp_unit) sum FROM mu_finance_store WHERE re
         if ($this->request->isPost()) {
             $post = $this->request->post();
             $reportId = $post['id'];
-
             $editObj = new FinanceOrderStatisticsEditModel();
-            $dataSelling = $editObj->query('
-SELECT
-    ' . $reportId . ' AS report_id,
-    "SELLING_FEE" AS type,
-	a.*,
-	b.id order_statistics_id,
-	b.saleOrderCode,
-	b.sale_amount,
-	b.selling_fee,
-	b.fba_fee,
-	b.seller_sku,
-	b.warehouse_sku 
-FROM
-	(
-	SELECT DISTINCT
-		order_statistic_user_account,
-		payment,
-		payment_sale_amount,
-		payment_selling_fees,
-		payment_fba_fees 
-	FROM
-		(
-		SELECT
-			a.payment_id order_statistic_payment,
-			a.userAccount order_statistic_user_account,
-			ROUND( SUM( b.sale_amount ), 7 ) order_statistic_sale_amount,
-			ROUND( SUM( b.selling_fee ), 7 ) order_statistic_selling_fees,
-			ROUND( SUM( b.fba_fee ), 7 ) order_statistic_fba_fees 
-		FROM
-			(
-			SELECT DISTINCT
-				report_id,
-				payment_id,
-				platform,
-				userAccount 
-			FROM
-				mu_finance_order_sale a
-				LEFT JOIN mu_finance_table b ON a.table_id = b.id 
-			WHERE
-				report_id = ' . $reportId . ' 
-			) a
-			LEFT JOIN mu_finance_order_statistics b ON a.payment_id = b.payment_id 
-		GROUP BY
-			order_statistic_payment,
-			order_statistic_user_account 
-		) a
-		LEFT JOIN (
-		SELECT
-			payment_id payment,
-			SUM( product_sales + shipping_credits + gift_wrap_credits + regulatory_fee + promotional_rebates ) payment_sale_amount,
-			SUM( selling_fees ) payment_selling_fees,
-			SUM( fba_fees ) payment_fba_fees 
-		FROM
-			mu_finance_order_sale
-        WHERE
-            report_id = ' . $reportId . ' 
-		GROUP BY
-			payment 
-		) b ON a.order_statistic_payment = b.payment 
-	WHERE
-		a.order_statistic_selling_fees != b.payment_selling_fees * - 1
-	) a
-	LEFT JOIN mu_finance_order_statistics b ON a.payment = b.payment_id;
-            ');
-
-            $dataFba = $editObj->query('
-SELECT
-	' . $reportId . ' AS report_id,
-	"FBA_FEE" AS type,
-	a.*,
-	b.id order_statistics_id,
-	b.saleOrderCode,
-	b.sale_amount,
-	b.selling_fee,
-	b.fba_fee,
-	b.seller_sku,
-	b.warehouse_sku 
-FROM
-	(
-	SELECT DISTINCT
-		order_statistic_user_account,
-		payment,
-		payment_sale_amount,
-		payment_selling_fees,
-		payment_fba_fees 
-	FROM
-		(
-		SELECT
-			a.payment_id order_statistic_payment,
-			a.userAccount order_statistic_user_account,
-			ROUND( SUM( b.sale_amount ), 7 ) order_statistic_sale_amount,
-			ROUND( SUM( b.selling_fee ), 7 ) order_statistic_selling_fees,
-			ROUND( SUM( b.fba_fee ), 7 ) order_statistic_fba_fees 
-		FROM
-			(
-			SELECT DISTINCT
-				report_id,
-				payment_id,
-				platform,
-				userAccount 
-			FROM
-				mu_finance_order_sale a
-				LEFT JOIN mu_finance_table b ON a.table_id = b.id 
-			WHERE
-				report_id = ' . $reportId . '
-				AND b.platform = "amazon"
-			) a
-			LEFT JOIN mu_finance_order_statistics b ON a.payment_id = b.payment_id 
-		GROUP BY
-			order_statistic_payment,
-			order_statistic_user_account 
-		) a
-		LEFT JOIN (
-		SELECT
-			payment_id payment,
-			SUM( product_sales + shipping_credits + gift_wrap_credits + regulatory_fee + promotional_rebates ) payment_sale_amount,
-			SUM( selling_fees ) payment_selling_fees,
-			SUM( fba_fees ) payment_fba_fees 
-		FROM
-			mu_finance_order_sale
-		GROUP BY
-			payment 
-		) b ON a.order_statistic_payment = b.payment 
-	WHERE
-		a.order_statistic_fba_fees != b.payment_fba_fees * -1
-	) a
-	LEFT JOIN mu_finance_order_statistics b ON a.payment = b.payment_id
-            ');
-            if ($editObj->insertAll($dataSelling) && $editObj->insertAll($dataFba)) {
+            $dataSelling = $editObj->query(FinanceReportModel::getOrderStatisticSellingFeesAutoEditSql($reportId));
+            $dataFba = $editObj->query(FinanceReportModel::getOrderStatisticSellingFeesAutoEditSql($reportId));
+            if ($editObj->insertAll($dataSelling) || $editObj->insertAll($dataFba)) {
                 echo json_encode(['code' => 1, 'msg' => '操作完成']);
             } else {
                 echo json_encode(['code' => 0, 'msg' => '操作失败，请重试']);
@@ -1289,35 +1046,7 @@ FROM
                 }
             }
 
-            $editData = $tableObj->query('
-SELECT
-	c.id,
-	ROUND( b.total * d.percent / b.qty, 3 ) sale_amount 
-FROM
-	mu_finance_order_sale a
-	LEFT JOIN (
-	SELECT
-		order_id,
-		contribution_sku,
-		SUM( quantity_shipped ) qty,
-		SUM( base_price_total * quantity_shipped ) total 
-	FROM
-		mu_finance_order_temu_detail 
-	WHERE
-		table_id = ' . $tableIds[1] . ' 
-	GROUP BY
-		order_id,
-		contribution_sku 
-	) b ON a.payment_id = b.order_id
-	LEFT JOIN mu_finance_order_statistics c ON a.payment_id = c.payment_id
-	LEFT JOIN mu_finance_sku_relation d ON b.contribution_sku = d.seller_sku 
-	AND c.warehouse_sku = d.warehouse_sku 
-WHERE
-	a.table_id = ' . $tableIds[0] . ' 
-	AND d.report_id = ' . $report_id . ' 
-	AND d.user_account = "TEMU_TOLEAD_HOME";
-            ');
-
+            $editData = $tableObj->query(FinanceReportModel::getOrderStatisticsTemuSaleSync($tableIds, $report_id));
             $financeOrderStatisticObj = new FinanceOrderStatisticsModel();
             if ($financeOrderStatisticObj->saveAll($editData)) {
                 echo json_encode(['code' => 1, 'msg' => '操作完成']);
@@ -1437,19 +1166,7 @@ WHERE
                 $report = FinanceReportModel::get($report_id);
                 $lastDay = $report['month'] . '-' . date('t', strtotime($report['month'] . '-01'));
                 $model = new FinanceWarehouseFbmModel();
-                $data = $model->query('
-SELECT
-	' . $report_id . ' AS report_id,
-	a.sku,
-	a.main_platform,
-	a.total,
-	IFNULL( quantity, 0 ) quantity 
-FROM
-	( SELECT sku, main_platform, SUM( total ) total FROM mu_finance_warehouse WHERE report_id = ' . $report_id . ' GROUP BY sku, main_platform ) a
-	LEFT JOIN ( SELECT sku, SUM( quantity ) quantity FROM mu_finance_warehouse WHERE report_id = ' . $report_id . ' AND date = "' . $lastDay . '" GROUP BY sku ) b ON a.sku = b.sku 
-WHERE
-	total != 0;
-                ');
+                $data = $model->query(FinanceReportModel::getWarehouseRentJoinSql($lastDay, $report_id));
                 $model->insertAll($data);
             } else {
                 throw new Exception("导入失败！");
