@@ -1196,7 +1196,7 @@ class FinanceExcelInit extends Model
         }
 
         // Set name sheet
-        $this->objPHPExcel->setActiveSheetIndex($index)->setTitle('佣金差异');
+        $this->objPHPExcel->setActiveSheetIndex($index)->setTitle('FBA尾程差异');
 
         // Add some data
         $this->objPHPExcel->setActiveSheetIndex($index)
