@@ -69,6 +69,8 @@ class FinanceWarehouseNotify extends Command
                     foreach ($saleList as $v) {
                         if ($v['platform'] == 'wayfairnew') {
                             $v['platform'] = 'wayfair';
+                        } elseif ($v['platform'] == 'semitemu') {
+                            $v['platform'] = 'temu';
                         }
                         if ($v['platform'] == $item['main_platform']) {
                             $isMainPlatform = true;
@@ -90,6 +92,8 @@ class FinanceWarehouseNotify extends Command
                             // 销售平台为wayfair的情况需要调整平台名称
                             if ($platformData['platform'] == 'wayfairnew') {
                                 $platformData['platform'] = 'wayfair';
+                            } elseif ($platformData['platform'] == 'semitemu') {
+                                $platformData['platform'] = 'temu';
                             }
 
                             // 查询该主件sku在该平台的销售人员，根据销售人员数量均摊仓储费
