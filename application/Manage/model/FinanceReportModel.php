@@ -639,7 +639,7 @@ FROM
 			NULL AS fba_inventory,
 			NULL AS adjustment,
 			NULL AS liquidation,
-			SUM( ( a.sharedLdFee + a.sharedCouponFee ) * d.percent * d.qty ) promotion,
+			SUM( ( a.sharedLdFee + a.sharedCouponFee + a.sharedVineFee ) * d.percent * d.qty ) promotion,
 			NULL AS shipping_service,
 			NULL AS operation_expenses,
 			NULL AS operation_factory,
@@ -654,7 +654,7 @@ FROM
 			AND a.msku = d.seller_sku 
 		WHERE
 			reportDateMonth = "' . $month . '" 
-			AND ( a.sharedLdFee != 0 OR a.sharedCouponFee != 0 ) 
+	        AND a.sharedLdFee + a.sharedCouponFee + a.sharedVineFee != 0 
 			AND is_fba = 1 
 		GROUP BY
 			platform,
@@ -694,8 +694,7 @@ FROM
 			AND a.msku = d.seller_sku 
 		WHERE
 			reportDateMonth = "' . $month . '" 
-			AND ( a.sharedLiquidationsFees != 0 OR a.fbaLiquidationProceeds != 0 ) 
-			AND a.sharedLiquidationsFees + a.fbaLiquidationProceeds != 0
+	        AND a.sharedLiquidationsFees + a.fbaLiquidationProceeds != 0
 			AND is_fba = 1 
 		GROUP BY
 			platform,
@@ -1469,7 +1468,7 @@ FROM
 			NULL AS warehouse_rent,
 			NULL AS adjustment,
 			NULL AS liquidation,
-			SUM( ( a.sharedLdFee + a.sharedCouponFee ) * d.percent * d.qty ) promotion,
+			SUM( ( a.sharedLdFee + a.sharedCouponFee + a.sharedVineFee ) * d.percent * d.qty ) promotion,
 			NULL AS shipping_service,
 			NULL AS lc_adjustment,
 			NULL AS le_adjustment,
@@ -1486,7 +1485,7 @@ FROM
 			AND a.msku = d.seller_sku 
 		WHERE
 			reportDateMonth = "' . $month . '" 
-			AND ( a.sharedLdFee != 0 OR a.sharedCouponFee != 0 ) 
+	        AND a.sharedLdFee + a.sharedCouponFee + a.sharedVineFee != 0
 			AND is_fba = 0 
 		GROUP BY
 			platform,
@@ -1527,8 +1526,7 @@ FROM
 			AND a.msku = d.seller_sku 
 		WHERE
 			reportDateMonth = "' . $month . '" 
-			AND ( a.sharedLiquidationsFees != 0 OR a.fbaLiquidationProceeds != 0 ) 
-			AND a.sharedLiquidationsFees + a.fbaLiquidationProceeds != 0
+	        AND a.sharedLiquidationsFees + a.fbaLiquidationProceeds != 0
 			AND is_fba = 0 
 		GROUP BY
 			platform,
