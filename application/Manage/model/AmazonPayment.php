@@ -115,6 +115,7 @@ class AmazonPayment extends Model
                     "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[29])),
                 ];
             } elseif (($item[2] == 'Service Fee' && strpos($item[5], 'Coupon') !== false)
+                || ($item[2] == 'Service Fee' && strpos($item[5], 'Vine Enrollment Fee') !== false)
                 ||  $item[2] == 'Deal Fee'
             ) {
                 $this->orderPromotionNew[] = [
@@ -264,6 +265,7 @@ class AmazonPayment extends Model
                     "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[26])),
                 ];
             } elseif (($item[2] == 'Service Fee' && strpos($item[5], 'Coupon') !== false)
+                || ($item[2] == 'Service Fee' && strpos($item[5], 'Vine Enrollment Fee') !== false)
                 ||  $item[2] == 'Deal Fee'
             ) {
                 $this->orderPromotionNew[] = [
@@ -411,14 +413,6 @@ class AmazonPayment extends Model
                     "other"                     =>  sprintf('%.2f', str_replace(',', '.', str_replace('.', '', $item[25]))),
                     "total"                     =>  sprintf('%.2f', str_replace(',', '.', str_replace('.', '', $item[26]))),
                 ];
-            } elseif (($item[2] == 'Servicegebühr' && strpos($item[5], 'Werbekosten') !== false)
-                ) {
-                $this->orderPromotionNew[] = [
-                    "report_id"                 =>  $reportId,
-                    "table_id"                  =>  $tableId,
-                    "description"               =>  $item[5],
-                    "total"                     =>  sprintf('%.2f', str_replace(',', '.', str_replace('.', '', $item[26]))),
-                ];
             } elseif ($item[2] == 'Shipping Services') {
                 $this->orderShippingServiceNew[] = [
                     "report_id"                 =>  $reportId,
@@ -549,15 +543,6 @@ class AmazonPayment extends Model
                     "other"                     =>  sprintf('%.2f', str_replace(',', '.', str_replace('.', '', $item[25]))),
                     "total"                     =>  sprintf('%.2f', str_replace(',', '.', str_replace('.', '', $item[26]))),
                 ];
-            } elseif ($item[2] == 'Tarifa de prestación de servicio'
-                || $item[2] == 'Tarifa de Oferta flash'
-            ) {
-                $this->orderPromotionNew[] = [
-                    "report_id"                 =>  $reportId,
-                    "table_id"                  =>  $tableId,
-                    "description"               =>  $item[5],
-                    "total"                     =>  sprintf('%.2f', str_replace(',', '.', str_replace('.', '', $item[26]))),
-                ];
             } elseif ($item[2] == 'Shipping Services') {
                 $this->orderShippingServiceNew[] = [
                     "report_id"                 =>  $reportId,
@@ -686,13 +671,6 @@ class AmazonPayment extends Model
                     "other"                     =>  sprintf('%.2f', str_replace(',', '.', str_replace('.', '', $item[25]))),
                     "total"                     =>  sprintf('%.2f', str_replace(',', '.', str_replace('.', '', $item[26]))),
                 ];
-            } elseif ($item[2] == 'Frais de service') {
-                $this->orderPromotionNew[] = [
-                    "report_id"                 =>  $reportId,
-                    "table_id"                  =>  $tableId,
-                    "description"               =>  $item[5],
-                    "total"                     =>  sprintf('%.2f', str_replace(',', '.', str_replace('.', '', $item[26]))),
-                ];
             } elseif ($item[2] == 'Shipping Services') {
                 $this->orderShippingServiceNew[] = [
                     "report_id"                 =>  $reportId,
@@ -819,13 +797,6 @@ class AmazonPayment extends Model
                     "fba_fees"                  =>  sprintf('%.2f', str_replace(',', '.', str_replace('.', '', $item[23]))),
                     "other_transaction_fees"    =>  sprintf('%.2f', str_replace(',', '.', str_replace('.', '', $item[24]))),
                     "other"                     =>  sprintf('%.2f', str_replace(',', '.', str_replace('.', '', $item[25]))),
-                    "total"                     =>  sprintf('%.2f', str_replace(',', '.', str_replace('.', '', $item[26]))),
-                ];
-            } elseif ($item[2] == 'Commissione di servizio') {
-                $this->orderPromotionNew[] = [
-                    "report_id"                 =>  $reportId,
-                    "table_id"                  =>  $tableId,
-                    "description"               =>  $item[5],
                     "total"                     =>  sprintf('%.2f', str_replace(',', '.', str_replace('.', '', $item[26]))),
                 ];
             } elseif ($item[2] == 'Shipping Services') {
