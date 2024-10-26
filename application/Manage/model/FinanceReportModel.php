@@ -285,7 +285,8 @@ SELECT
 		2 
 	) gross_profit_margin_include_evaluation,
 	b.product_name product_name,
-	b.seller seller 
+	b.seller seller,
+	d.user_name purchaser 
 FROM
 	(
 	SELECT
@@ -937,13 +938,16 @@ FROM
 	) a
 	LEFT JOIN ( SELECT DISTINCT user_account, warehouse_sku, seller, product_name FROM mu_finance_sku_relation WHERE report_id = ' . $report_id . ' ) b ON a.userAccount = b.user_account 
 	AND a.warehouse_sku = b.warehouse_sku 
+	LEFT JOIN mu_ecang_product c ON a.warehouse_sku = c.productSku
+	LEFT JOIN mu_ecang_user d ON c.personOpraterId = d.user_id 
 GROUP BY
 	platform,
 	userAccount,
 	warehouse_sku,
 	fba_sale_amount,
 	product_name,
-	seller;
+	seller,
+	purchaser;
         ';
     }
 
@@ -1002,7 +1006,8 @@ SELECT
 		4 
 	) gross_profit_margin_include_evaluation,
 	b.product_name product_name,
-	b.seller seller 
+	b.seller seller,
+	d.user_name purchaser 
 FROM
 	(
 	SELECT
@@ -1727,13 +1732,16 @@ FROM
 	) a
 	LEFT JOIN ( SELECT DISTINCT user_account, warehouse_sku, seller, product_name FROM mu_finance_sku_relation WHERE report_id = ' . $report_id . ' ) b ON a.userAccount = b.user_account 
 	AND a.warehouse_sku = b.warehouse_sku 
+	LEFT JOIN mu_ecang_product c ON a.warehouse_sku = c.productSku
+	LEFT JOIN mu_ecang_user d ON c.personOpraterId = d.user_id 
 GROUP BY
 	platform,
 	userAccount,
 	warehouse_sku,
 	fbm_sale_amount,
 	product_name,
-	seller;
+	seller,
+	purchaser;
         ';
     }
 
@@ -1791,7 +1799,8 @@ SELECT
 		2 
 	) gross_profit_margin_include_evaluation,
 	b.product_name product_name,
-	b.seller seller 
+	b.seller seller,
+	d.user_name purchaser 
 FROM
 	(
 	SELECT
@@ -2409,13 +2418,16 @@ FROM
 	) a
 	LEFT JOIN ( SELECT DISTINCT user_account, warehouse_sku, seller, product_name FROM mu_finance_sku_relation WHERE report_id = ' . $report_id . ' ) b ON a.userAccount = b.user_account 
 	AND a.warehouse_sku = b.warehouse_sku 
+	LEFT JOIN mu_ecang_product c ON a.warehouse_sku = c.productSku
+	LEFT JOIN mu_ecang_user d ON c.personOpraterId = d.user_id 
 GROUP BY
 	platform,
 	userAccount,
 	warehouse_sku,
 	sale_amount,
 	product_name,
-	seller;
+	seller,
+	purchaser;
         ';
     }
 
@@ -2469,7 +2481,8 @@ SELECT
 		2 
 	) gross_profit_margin_include_evaluation,
 	b.product_name product_name,
-	b.seller seller 
+	b.seller seller,
+	d.user_name purchaser 
 FROM
 	(
 	SELECT
@@ -2907,13 +2920,16 @@ FROM
 	) a
 	LEFT JOIN ( SELECT DISTINCT user_account, warehouse_sku, seller, product_name FROM mu_finance_sku_relation WHERE report_id = ' . $report_id . ' ) b ON a.userAccount = b.user_account 
 	AND a.warehouse_sku = b.warehouse_sku 
+	LEFT JOIN mu_ecang_product c ON a.warehouse_sku = c.productSku
+	LEFT JOIN mu_ecang_user d ON c.personOpraterId = d.user_id 
 GROUP BY
 	platform,
 	userAccount,
 	warehouse_sku,
 	sale_amount,
 	product_name,
-	seller;
+	seller,
+	purchaser;
         ';
     }
 
@@ -2967,7 +2983,8 @@ SELECT
 		2 
 	) gross_profit_margin_include_evaluation,
 	b.product_name product_name,
-	b.seller seller 
+	b.seller seller,
+	d.user_name purchaser 
 FROM
 	(
 	SELECT
@@ -3405,13 +3422,16 @@ FROM
 	) a
 	LEFT JOIN ( SELECT DISTINCT user_account, warehouse_sku, seller, product_name FROM mu_finance_sku_relation WHERE report_id = ' . $report_id . ' ) b ON a.userAccount = b.user_account 
 	AND a.warehouse_sku = b.warehouse_sku 
+	LEFT JOIN mu_ecang_product c ON a.warehouse_sku = c.productSku
+	LEFT JOIN mu_ecang_user d ON c.personOpraterId = d.user_id 
 GROUP BY
 	platform,
 	userAccount,
 	warehouse_sku,
 	sale_amount,
 	product_name,
-	seller;
+	seller,
+	purchaser;
         ';
     }
 
@@ -3465,7 +3485,8 @@ SELECT
 		2 
 	) gross_profit_margin_include_evaluation,
 	b.product_name product_name,
-	b.seller seller 
+	b.seller seller,
+	d.user_name purchaser 
 FROM
 	(
 	SELECT
@@ -3903,13 +3924,16 @@ FROM
 	) a
 	LEFT JOIN ( SELECT DISTINCT user_account, warehouse_sku, seller, product_name FROM mu_finance_sku_relation WHERE report_id = ' . $report_id . ' ) b ON a.userAccount = b.user_account 
 	AND a.warehouse_sku = b.warehouse_sku 
+	LEFT JOIN mu_ecang_product c ON a.warehouse_sku = c.productSku
+	LEFT JOIN mu_ecang_user d ON c.personOpraterId = d.user_id 
 GROUP BY
 	platform,
 	userAccount,
 	warehouse_sku,
 	sale_amount,
 	product_name,
-	seller;
+	seller,
+	purchaser;
         ';
     }
 
@@ -3964,7 +3988,8 @@ SELECT
 		2 
 	) gross_profit_margin_include_evaluation,
 	b.product_name product_name,
-	b.seller seller 
+	b.seller seller,
+	d.user_name purchaser 
 FROM
 	(
 	SELECT
@@ -4452,13 +4477,16 @@ FROM
 	) a
 	LEFT JOIN ( SELECT DISTINCT user_account, warehouse_sku, seller, product_name FROM mu_finance_sku_relation WHERE report_id = ' . $report_id . ' ) b ON a.userAccount = b.user_account 
 	AND a.warehouse_sku = b.warehouse_sku 
+	LEFT JOIN mu_ecang_product c ON a.warehouse_sku = c.productSku
+	LEFT JOIN mu_ecang_user d ON c.personOpraterId = d.user_id 
 GROUP BY
 	platform,
 	userAccount,
 	warehouse_sku,
 	sale_amount,
 	product_name,
-	seller;
+	seller,
+	purchaser;
         ';
     }
 
@@ -4533,19 +4561,25 @@ GROUP BY
         ';
     }
 
-    static public function getOrderResend($month): string
+    static public function getOrderResend($report_id, $month): string
     {
         return '
 SELECT
 	a.platform,
 	a.user_account,
-	warehouse_sku,
+	a.warehouse_sku,
 	SUM( qty ) qty,
 	order_status,
-	SUM( b.calcuRes ) tail
+	SUM( b.calcuRes ) tail,
+	c.seller,
+	e.user_name purchaser 
 FROM
 	mu_finance_order_statistics a
-	LEFT JOIN mu_ecang_order b ON a.saleOrderCode = b.saleOrderCode 
+	LEFT JOIN mu_ecang_order b ON a.saleOrderCode = b.saleOrderCode
+	LEFT JOIN ( SELECT DISTINCT user_account, warehouse_sku, seller, product_name FROM mu_finance_sku_relation WHERE report_id = ' . $report_id . ' ) c ON a.user_account = c.user_account 
+	AND a.warehouse_sku = c.warehouse_sku
+	LEFT JOIN mu_ecang_product d ON a.warehouse_sku = d.productSku
+	LEFT JOIN mu_ecang_user e ON d.personOpraterId = e.user_id 
 WHERE
 	paid_time >= "' . $month . '-01 00:00:00" 
 	AND paid_time < "' . date('Y-m', strtotime('+1 month', strtotime($month . '-01'))) . '-01 00:00:00" 
@@ -4555,17 +4589,25 @@ GROUP BY
 	warehouse_sku,
 	order_status,
 	platform,
-	user_account UNION ALL
+	user_account,
+	seller,
+	purchaser UNION ALL
 SELECT
 	a.platform,
 	a.user_account,
-	warehouse_sku,
+	a.warehouse_sku,
 	qty,
 	order_status,
-	SUM( b.calcuRes ) tail
+	SUM( b.calcuRes ) tail,
+	c.seller,
+	e.user_name purchaser 
 FROM
 	mu_finance_order_statistics a
-	LEFT JOIN mu_ecang_order b ON a.saleOrderCode = b.saleOrderCode 
+	LEFT JOIN mu_ecang_order b ON a.saleOrderCode = b.saleOrderCode
+	LEFT JOIN ( SELECT DISTINCT user_account, warehouse_sku, seller, product_name FROM mu_finance_sku_relation WHERE report_id = ' . $report_id . ' ) c ON a.user_account = c.user_account 
+	AND a.warehouse_sku = c.warehouse_sku
+	LEFT JOIN mu_ecang_product d ON a.warehouse_sku = d.productSku
+	LEFT JOIN mu_ecang_user e ON d.personOpraterId = e.user_id 
 WHERE
 	paid_time >= "' . $month . '-01 00:00:00" 
 	AND paid_time < "' . date('Y-m', strtotime('+1 month', strtotime($month . '-01'))) . '-01 00:00:00" 
@@ -4576,7 +4618,9 @@ GROUP BY
 	qty,
 	order_status,
 	platform,
-	user_account;
+	user_account,
+	seller,
+	purchaser;
         ';
     }
 

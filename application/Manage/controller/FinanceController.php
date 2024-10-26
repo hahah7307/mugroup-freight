@@ -191,7 +191,7 @@ class FinanceController extends BaseController
         $financeExcelInit->generateAccountTransferSheet(9, $report_id);
         $financeExcelInit->generateAccountSubscriptionSheet(10, $report_id);
         $financeExcelInit->generateOrderWayfairSheet(11, $report_id);
-        $financeExcelInit->generateOrderResendSheet(12, $report['month']);
+        $financeExcelInit->generateOrderResendSheet(12, $report_id, $report['month']);
         $financeExcelInit->generateOperationExpensesSheet(13, $report_id);
         $financeExcelInit->generateOperationFactorySheet(14, $report_id);
         $financeExcelInit->generateOperationDeliverySheet(15, $report_id);

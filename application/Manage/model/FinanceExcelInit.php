@@ -142,6 +142,7 @@ class FinanceExcelInit extends Model
             ->setCellValue('AG1', '含测评毛利率')
             ->setCellValue('AH1', '品名')
             ->setCellValue('AI1', '运营人员')
+            ->setCellValue('AJ1', '采购人员')
         ;
 
         $fbaIndex = 1;
@@ -183,6 +184,7 @@ class FinanceExcelInit extends Model
                 ->setCellValue('AG' . $fbaIndex, $fbaItem['gross_profit_margin_include_evaluation'])
                 ->setCellValue('AH' . $fbaIndex, $fbaItem['product_name'])
                 ->setCellValue('AI' . $fbaIndex, $fbaItem['seller'])
+                ->setCellValue('AJ' . $fbaIndex, $fbaItem['purchaser'])
             ;
         }
     }
@@ -242,6 +244,7 @@ class FinanceExcelInit extends Model
             ->setCellValue('AH1', '含测评毛利率')
             ->setCellValue('AI1', '品名')
             ->setCellValue('AJ1', '运营人员')
+            ->setCellValue('AK1', '采购人员')
         ;
 
         $fbmIndex = 1;
@@ -284,6 +287,7 @@ class FinanceExcelInit extends Model
                 ->setCellValue('AH' . $fbmIndex, $fbmItem['gross_profit_margin_include_evaluation'])
                 ->setCellValue('AI' . $fbmIndex, $fbmItem['product_name'])
                 ->setCellValue('AJ' . $fbmIndex, $fbmItem['seller'])
+                ->setCellValue('AK' . $fbmIndex, $fbmItem['purchaser'])
             ;
         }
     }
@@ -342,6 +346,7 @@ class FinanceExcelInit extends Model
             ->setCellValue('AG1', '含测评毛利率')
             ->setCellValue('AH1', '品名')
             ->setCellValue('AI1', '运营人员')
+            ->setCellValue('AJ1', '采购人员')
         ;
 
         $walmartIndex = 1;
@@ -383,6 +388,7 @@ class FinanceExcelInit extends Model
                 ->setCellValue('AG' . $walmartIndex, $walmartItem['gross_profit_margin_include_evaluation'])
                 ->setCellValue('AH' . $walmartIndex, $walmartItem['product_name'])
                 ->setCellValue('AI' . $walmartIndex, $walmartItem['seller'])
+                ->setCellValue('AJ' . $walmartIndex, $walmartItem['purchaser'])
             ;
         }
     }
@@ -437,6 +443,7 @@ class FinanceExcelInit extends Model
             ->setCellValue('AC1', '含测评毛利率')
             ->setCellValue('AD1', '品名')
             ->setCellValue('AE1', '运营人员')
+            ->setCellValue('AF1', '采购人员')
         ;
 
         $wayfairIndex = 1;
@@ -474,6 +481,7 @@ class FinanceExcelInit extends Model
                 ->setCellValue('AC' . $wayfairIndex, $wayfairItem['gross_profit_margin_include_evaluation'])
                 ->setCellValue('AD' . $wayfairIndex, $wayfairItem['product_name'])
                 ->setCellValue('AE' . $wayfairIndex, $wayfairItem['seller'])
+                ->setCellValue('AF' . $wayfairIndex, $wayfairItem['purchaser'])
             ;
         }
     }
@@ -528,6 +536,7 @@ class FinanceExcelInit extends Model
             ->setCellValue('AC1', '含测评毛利率')
             ->setCellValue('AD1', '品名')
             ->setCellValue('AE1', '运营人员')
+            ->setCellValue('AF1', '采购人员')
         ;
 
         $sheinIndex = 1;
@@ -565,6 +574,7 @@ class FinanceExcelInit extends Model
                 ->setCellValue('AC' . $sheinIndex, $sheinItem['gross_profit_margin_include_evaluation'])
                 ->setCellValue('AD' . $sheinIndex, $sheinItem['product_name'])
                 ->setCellValue('AE' . $sheinIndex, $sheinItem['seller'])
+                ->setCellValue('AF' . $sheinIndex, $sheinItem['purchaser'])
             ;
         }
     }
@@ -752,9 +762,9 @@ class FinanceExcelInit extends Model
      * @throws BindParamException
      * @throws \PHPExcel_Exception
      */
-    public function generateOrderResendSheet($index, $month)
+    public function generateOrderResendSheet($index, $report_id, $month)
     {
-        $orderResend = $this->model->query(FinanceReportModel::getOrderResend($month));
+        $orderResend = $this->model->query(FinanceReportModel::getOrderResend($report_id, $month));
 
         if ($index) {
             // create new sheet
@@ -772,6 +782,8 @@ class FinanceExcelInit extends Model
             ->setCellValue('D1', '数量')
             ->setCellValue('E1', '订单状态')
             ->setCellValue('F1', '尾程')
+            ->setCellValue('G1', '运营人员')
+            ->setCellValue('H1', '采购人员')
         ;
 
         $orderResendIndex = 1;
@@ -784,6 +796,8 @@ class FinanceExcelInit extends Model
                 ->setCellValue('D' . $orderResendIndex, $orderResendItem['qty'])
                 ->setCellValue('E' . $orderResendIndex, $orderResendItem['order_status'])
                 ->setCellValue('F' . $orderResendIndex, $orderResendItem['tail'])
+                ->setCellValue('G' . $orderResendIndex, $orderResendItem['seller'])
+                ->setCellValue('H' . $orderResendIndex, $orderResendItem['purchaser'])
             ;
         }
     }
