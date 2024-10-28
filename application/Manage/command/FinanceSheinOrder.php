@@ -64,6 +64,25 @@ class FinanceSheinOrder extends Command
                 $orderRefundObj->saveAll($newOrder);
             }
 
+            $orderTemuRefundObj = new FinanceOrderRefundModel();
+            $temuRefund = $orderTemuRefundObj->where('sku', null)->where(['payment_id' => [['like', 'PO-%']]])->limit(100)->select();
+            $newOrderTemu = [];
+            if (count($temuRefund)) {
+                foreach ($temuRefund as $t) {
+                    if ($t) {
+                        $statistic = new FinanceOrderStatisticsModel();
+                        $sheinOrderStatistic = $statistic->where(['payment_id' => $t['payment_id']])->find();
+                        if ($sheinOrderStatistic) {
+                            $t['sku'] = $sheinOrderStatistic['platform_sku'];
+                        } else {
+                            $t['sku'] = '';
+                        }
+                        $newOrderTemu[] = $t->toArray();
+                    }
+                }
+                $orderTemuRefundObj->saveAll($newOrderTemu);
+            }
+
             $orderAdjustmentObj = new FinanceOrderAdjustmentModel();
             $adjustment = $orderAdjustmentObj->where('sku', null)->limit(100)->select();
             $newOrder = [];
