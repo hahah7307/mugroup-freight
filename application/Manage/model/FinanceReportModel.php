@@ -4517,10 +4517,9 @@ SELECT
 	SUM( b.total ) total 
 FROM
 	mu_finance_table a
-	LEFT JOIN mu_finance_order_promotion b ON a.id = b.table_id 
+	LEFT JOIN mu_finance_order_subscription b ON a.id = b.table_id 
 WHERE
 	a.rid = ' . $report_id . ' 
-	AND b.description = "Subscription" 
 GROUP BY
 	platform,
 	userAccount;
