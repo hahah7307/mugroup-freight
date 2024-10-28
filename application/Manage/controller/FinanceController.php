@@ -567,6 +567,9 @@ class FinanceController extends BaseController
                 $financeOrderTemuDetailObj = new FinanceOrderTemuDetailModel();
                 $financeOrderTemuDetailObj->where('table_id', $post['id'])->delete();
 
+                $financeOrderAdjustmentWfsObj = new FinanceOrderAdjustmentWfsModel();
+                $financeOrderAdjustmentWfsObj->where('table_id', $post['id'])->delete();
+
                 Db::commit();
                 echo json_encode(['code' => 1, 'msg' => '删除成功']);
             } catch (Exception $e) {
