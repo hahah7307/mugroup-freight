@@ -4914,7 +4914,7 @@ WHERE
 	a.report_id = ' . $report_id . '
 	AND b.saleOrderCode IS NOT NULL
 ORDER BY
-	b.shipping_time;
+	b.paid_time;
         ';
     }
 

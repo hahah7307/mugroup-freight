@@ -33,7 +33,7 @@ class FinanceOutboundNotify extends Command
         Db::startTrans();
         try {
             $financeOutboundObj = new FinanceOrderOutboundModel();
-            $list = $financeOutboundObj->where(['is_notify' => 0])->limit(Config::get('finance_notify_num'))->order('shipping_time asc')->select();
+            $list = $financeOutboundObj->where(['is_notify' => 0])->limit(Config::get('finance_notify_num'))->order('paid_time asc')->select();
             if (count($list)) {
                 $financeStoreObj = new FinanceStoreModel();
                 foreach ($list as $item) {
