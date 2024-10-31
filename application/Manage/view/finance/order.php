@@ -67,7 +67,7 @@
                 <thead>
                 <tr>
                     <th>ID</th>
-                    <th>原始单号</th>
+                    <th>payment单号</th>
                     <th>SKU</th>
                     <th>QTY</th>
                     <th>发货类型</th>

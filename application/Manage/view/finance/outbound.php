@@ -42,12 +42,12 @@
                 </colgroup>
                 <thead>
                 <tr>
-                    <th>ID</th>
+                    <th>探路者ID</th>
                     <th>账单ID</th>
                     <th>平台</th>
                     <th>店铺名</th>
-                    <th>参考单号</th>
-                    <th>Payment</th>
+                    <th>易仓发货推送号</th>
+                    <th>Payment订单号</th>
                     <th>外销合同号</th>
                     <th>采购单号</th>
                     <th>店铺SKU</th>
@@ -55,8 +55,8 @@
                     <th>发货方式</th>
                     <th>支付时间</th>
                     <th>发货时间</th>
-                    <th>数量</th>
-                    <th>DDP</th>
+                    <th>数量(个)</th>
+                    <th>DDP(元)</th>
                     <th class="tc">是否核算</th>
                 </tr>
                 </thead>
@@ -77,7 +77,7 @@
                     <td>{$v.paid_time}</td>
                     <td>{$v.shipping_time}</td>
                     <td class="tr">{$v.qty}</td>
-                    <td class="tr">{$v.store.sku_ddp_unit}</td>
+                    <td class="tr">{$v.store.sku_ddp_unit * $v.qty}</td>
                     <td class="tc">
                         {if condition="$v.is_notify eq 0"}
                             <p class="blue">待核算</p>

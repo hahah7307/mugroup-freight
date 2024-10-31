@@ -50,16 +50,16 @@
                     <th>店铺</th>
                     <th>发货时间</th>
                     <th>订单状态</th>
-                    <th>仓库单号</th>
+                    <th>易仓自生成单号</th>
                     <th>跟踪号</th>
                     <th>发货批次号</th>
-                    <th>Payment</th>
-                    <th>参考号</th>
+                    <th>Payment订单号</th>
+                    <th>易仓发货推送号</th>
                     <th>平台sku</th>
                     <th>仓库sku</th>
                     <th>数量</th>
                     <th>单价</th>
-                    <th>总额</th>
+                    <th>总额(加运费去coupon原币种)</th>
                     <th>运费</th>
                     <th>佣金</th>
                     <th>FBA尾程</th>
