@@ -153,6 +153,9 @@ class FinanceOperationShare extends Command
                     $shareItem = [];
                     $shareCode = FinanceOrderShareModel::generateRandomCode();
                     $seller = FinanceOrderShareModel::generateSellerInPlatformListByWarehouseSku($item['sku'], $reportItem);
+                    $seller[] = ['platform' => 'walmart', 'seller' => '李郁'];
+                    $seller[] = ['platform' => 'wayfair', 'seller' => '陈瑜'];
+                    $seller = array_map("unserialize", array_unique(array_map("serialize", $seller)));
                     if ($seller) {
                         $seller = FinanceOperationExpensesModel::generateSellerPercentByWarehouseSku($item['sku'], $seller);
                         $percentSum = array_sum(array_column($seller, 'percent'));
