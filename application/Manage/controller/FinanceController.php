@@ -180,8 +180,8 @@ class FinanceController extends BaseController
         $objPHPExcel = new PHPExcel();
         $financeExcelInit = new FinanceExcelInit($objPHPExcel);
         $financeExcelInit->generateSaleRefundSheet(0, $report_id);
-        $financeExcelInit->generateFbaSheet(2, $report_id, $report['month']);
         $financeExcelInit->generateFbmSheet(1, $report_id, $report['month']);
+        $financeExcelInit->generateFbaSheet(2, $report_id, $report['month']);
         $financeExcelInit->generateWalmartSheet(3, $report_id, $report['month']);
         $financeExcelInit->generateWayfairSheet(4, $report_id, $report['month']);
         $financeExcelInit->generateSheinSheet(5, $report_id, $report['month']);
