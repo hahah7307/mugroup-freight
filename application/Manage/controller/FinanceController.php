@@ -167,6 +167,7 @@ class FinanceController extends BaseController
     {
         $report_id = input('id');
         $month = input('month');
+        $monthInt = date('Ym', strtotime($month . '-01'));
 
         $financeReportObj = new FinanceReportModel();
         $report = $financeReportObj->find($report_id);
@@ -195,6 +196,7 @@ class FinanceController extends BaseController
         $financeExcelInit->generateOperationExpensesSheet(13, $report_id);
         $financeExcelInit->generateOperationFactorySheet(14, $report_id);
         $financeExcelInit->generateOperationDeliverySheet(15, $report_id);
+        $financeExcelInit->generateOperationFactoryClaimSheet(16, $monthInt);
         $objPHPExcel = $financeExcelInit->excelSheetSet();
 
         // Redirect output to a client’s web browser (Excel5)

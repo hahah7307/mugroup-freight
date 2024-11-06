@@ -1250,6 +1250,45 @@ class FinanceExcelInit extends Model
         }
     }
 
+    /**
+     * @throws PDOException
+     * @throws BindParamException
+     * @throws \PHPExcel_Exception
+     */
+    public function generateOperationFactoryClaimSheet($index, $month)
+    {
+        $operationFactory = $this->model->query(FinanceReportModel::getOperationFactoryClaim($month));
+
+        if ($index) {
+            // create new sheet
+            $this->objPHPExcel->createSheet();
+        }
+
+        // Set name sheet
+        $this->objPHPExcel->setActiveSheetIndex($index)->setTitle('工厂索赔');
+
+        // Add some data
+        $this->objPHPExcel->setActiveSheetIndex($index)
+            ->setCellValue('A1', '费用类型')
+            ->setCellValue('B1', '币种')
+            ->setCellValue('C1', 'SKU')
+            ->setCellValue('D1', '费用')
+            ->setCellValue('E1', '备注')
+        ;
+
+        $operationFactoryIndex = 1;
+        foreach ($operationFactory as $operationFactoryItem) {
+            $operationFactoryIndex ++;
+            $this->objPHPExcel->setActiveSheetIndex($index)
+                ->setCellValue('A' . $operationFactoryIndex, $operationFactoryItem['type'])
+                ->setCellValue('B' . $operationFactoryIndex, $operationFactoryItem['currency'])
+                ->setCellValue('C' . $operationFactoryIndex, $operationFactoryItem['sku'])
+                ->setCellValue('D' . $operationFactoryIndex, $operationFactoryItem['total'])
+                ->setCellValue('E' . $operationFactoryIndex, $operationFactoryItem['content'])
+            ;
+        }
+    }
+
     public function excelSheetSet()
     {
         return $this->objPHPExcel;

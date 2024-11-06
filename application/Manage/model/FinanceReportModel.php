@@ -5088,7 +5088,7 @@ WHERE
         ';
     }
 
-    static function getWarehouseRentJoinSql($lastDay, $report_id): string
+    static public function getWarehouseRentJoinSql($lastDay, $report_id): string
     {
         return '
 SELECT
@@ -5102,6 +5102,18 @@ FROM
 	LEFT JOIN ( SELECT sku, SUM( quantity ) quantity FROM mu_finance_warehouse WHERE report_id = ' . $report_id . ' AND date = "' . $lastDay . '" GROUP BY sku ) b ON a.sku = b.sku 
 WHERE
 	total != 0;
+        ';
+    }
+
+    static public function getOperationFactoryClaim($month): string
+    {
+        return '
+SELECT
+	* 
+FROM
+	mu_finance_operation_factory_claim 
+WHERE
+	`month` = ' . $month . ';
         ';
     }
 }
