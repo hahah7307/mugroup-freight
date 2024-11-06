@@ -24,8 +24,9 @@
         </form>
 
         <a href="{:url('expenses')}" class="layui-btn">国内广告</a>
-        <a href="{:url('factory')}" class="layui-btn">工厂费用</a>
-        <a href="{:url('delivery')}" class="layui-btn">国际快递</a><br><br>
+        <a href="{:url('factory')}" class="layui-btn">工厂运费</a>
+        <a href="{:url('delivery')}" class="layui-btn">国际快递</a>
+        <a href="{:url('factory_claim')}" class="layui-btn">工厂索赔</a><br><br>
 
         <span class="total">国内广告合计：{$list1_sum|number_format=###, 2}</span>
         <span class="total">工厂费用合计：{$list2_sum|number_format=###, 2}</span>

@@ -3,6 +3,7 @@ namespace app\Manage\controller;
 
 use app\Manage\model\FinanceOperationDeliveryModel;
 use app\Manage\model\FinanceOperationExpensesModel;
+use app\Manage\model\FinanceOperationFactoryClaimModel;
 use app\Manage\model\FinanceOperationFactoryModel;
 use Exception;
 use PHPExcel_IOFactory;
@@ -289,6 +290,93 @@ class FinanceOperationController extends BaseController
         if ($this->request->isPost()) {
             $post = $this->request->post();
             $skuRelationObj = new FinanceOperationDeliveryModel();
+            if ($skuRelationObj->where('id', $post['id'])->delete()) {
+                echo json_encode(['code' => 1, 'msg' => '删除成功']);
+            } else {
+                echo json_encode(['code' => 0, 'msg' => '删除失败，请重试']);
+            }
+        } else {
+            echo json_encode(['code' => 0, 'msg' => '异常操作']);
+        }
+        exit;
+    }
+
+    /**
+     * @throws DbException
+     */
+    public function factory_claim(): \think\response\View
+    {
+        $keyword = $this->request->get('keyword', '', 'htmlspecialchars');
+        $this->assign('keyword', $keyword);
+        if ($keyword) {
+            $where['sku|type|content'] = ['like', '%' . $keyword . '%'];
+        } else {
+            $where = [];
+        }
+
+        $month = $this->request->get('month', date('Y-m', strtotime('-1 month')));
+        $calculate_month = date('Ym', strtotime($month . '-01'));
+        $where['month'] = $calculate_month;
+        $this->assign('month', $month);
+
+        $page_num = $this->request->get('page_num', Config::get('PAGE_NUM'));
+        $this->assign('page_num', $page_num);
+
+        //
+        $factory_claim = new FinanceOperationFactoryClaimModel();
+        $list = $factory_claim->where($where)->order('id asc')->paginate($page_num, false, ['query' => ['keyword' => $keyword, 'page_num' => $page_num]]);
+        $this->assign('list', $list);
+        $this->assign('list_sum', $factory_claim->where($where)->sum('total'));
+
+        Session::set(Config::get('BACK_URL'), $this->request->url(), 'manage');
+        return view();
+    }
+
+    /**
+     * @throws PHPExcel_Reader_Exception
+     */
+    public function factory_claim_import()
+    {
+        // phpexcel
+        require_once './static/classes/PHPExcel/Classes/PHPExcel.php';
+
+        $filename = input('filename');
+        $file= "./upload/excel/" . $filename;
+        $excelReader = PHPExcel_IOFactory::createReaderForFile($file);
+        $excelObj = $excelReader->load($file);
+        $worksheet = $excelObj->getSheet(0);
+        $data = $worksheet->toArray();
+        unset($data[0]);
+
+        Db::startTrans();
+        try {
+            $factory_claimData = [];
+            $financeOperationFactoryObj = new FinanceOperationFactoryClaimModel();
+            foreach ($data as $item) {
+                $factory_claimData[] = [
+                    "month"                 =>  intval($item[0]),
+                    "sku"                   =>  $item[1],
+                    "currency"              =>  $item[3],
+                    "total"                 =>  $item[2],
+                    "content"               =>  $item[4],
+                    "type"                  =>  $item[5],
+                ];
+            }
+            $financeOperationFactoryObj->insertAll($factory_claimData);
+
+            Db::commit();
+        } catch (Exception $e) {
+            Db::rollback();
+            $this->error($e->getMessage(), url('factory_claim'));
+        }
+        $this->redirect(url('factory_claim'));
+    }
+
+    public function factory_claim_delete()
+    {
+        if ($this->request->isPost()) {
+            $post = $this->request->post();
+            $skuRelationObj = new FinanceOperationFactoryClaimModel();
             if ($skuRelationObj->where('id', $post['id'])->delete()) {
                 echo json_encode(['code' => 1, 'msg' => '删除成功']);
             } else {

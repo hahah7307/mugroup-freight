@@ -1,14 +1,20 @@
 
 {include file="public/header" /}
 
+<style>
+    .total {padding: 0 10px}
+</style>
 <!-- 主体内容 -->
 <div class="layui-body" id="LAY_app_body">
     <div class="right">
         <a href="{:url('index')}" class="layui-btn layui-btn-danger layui-btn-sm fr"><i class="layui-icon">&#xe603;</i>返回上一页</a>
-        <div class="title">工厂运费列表</div>
+        <div class="title">工厂索赔列表</div>
         <form class="layui-form search-form" method="get">
             <div class="layui-inline w200">
                 <input type="text" class="layui-input" name="keyword" value="{$keyword}" placeholder="payment/销售SKU/仓库SKU">
+            </div>
+            <div class="layui-input-inline">
+                <input type="text" class="layui-input" id="month" name="month" value="{$month}" placeholder="核算月份">
             </div>
             <div class="layui-inline w100">
                 <input type="text" class="layui-input" name="page_num" value="{$page_num}" placeholder="每页条数">
@@ -20,9 +26,9 @@
 
         <div class="layui-form">
             <button type="button" class="layui-btn  layui-btn-normal" id="excel">导入</button>
+            <span class="total">工厂索赔合计：{$list_sum|number_format=###, 2}</span>
             <table class="layui-table" lay-size="sm">
                 <colgroup>
-                    <col>
                     <col>
                     <col>
                     <col>
@@ -39,7 +45,6 @@
                     <th>总费用</th>
                     <th>备注</th>
                     <th>类型</th>
-                    <th>核算月份</th>
                     <th>操作</th>
                 </tr>
                 </thead>
@@ -52,7 +57,6 @@
                     <td class="tr">{$v.total}</td>
                     <td>{$v.content}</td>
                     <td>{$v.type}</td>
-                    <td class="tr">{$v.calculate_month}</td>
                     <td class="tc">
                         <button data-id="{$v.id}" class="layui-btn layui-btn-sm layui-btn-danger ml0" lay-submit lay-filter="Detele">删除</button>
                     </td>
@@ -69,7 +73,14 @@
     layui.use(['form', 'jquery', 'upload', 'laydate'], function(){
         let $ = layui.jquery,
             form = layui.form,
-            upload = layui.upload;
+            upload = layui.upload,
+            laydate = layui.laydate;
+
+        //执行一个laydate实例
+        laydate.render({
+            elem: '#month' //指定元素
+            ,type: 'month'
+        });
 
         // 上传
         let uploadInst = upload.render({
@@ -83,7 +94,7 @@
             ,done: function(res){
                 //上传完毕回调
                 if (res.code === 1) {
-                    location.href = "/Manage/FinanceOperation/factory_import/filename/" + res.data + "/origin/" + res.origin;
+                    location.href = "/Manage/FinanceOperation/factory_claim_import/filename/" + res.data + "/origin/" + res.origin;
                 } else {
                     layer.alert(res.msg,{icon:2,closeBtn:0,title:false,btnAlign:'c'},function(){
                         layer.closeAll();
@@ -103,7 +114,7 @@
             layer.confirm('确定删除吗？',{icon:3,closeBtn:0,title:false,btnAlign:'c'},function(){
                 $('button').attr('disabled',true);
                 button.text('请稍候...');
-                axios.post("{:url('factory_delete')}", {id:id})
+                axios.post("{:url('factory_claim_delete')}", {id:id})
                     .then(function (response) {
                         var res = response.data;
                         if (res.code === 1) {
