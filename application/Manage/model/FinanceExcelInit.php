@@ -1018,6 +1018,7 @@ class FinanceExcelInit extends Model
             ->setCellValue('C1', '运送方式')
             ->setCellValue('D1', 'SKU')
             ->setCellValue('E1', '费用')
+            ->setCellValue('F1', '备注')
         ;
 
         $operationExpensesIndex = 1;
@@ -1029,6 +1030,7 @@ class FinanceExcelInit extends Model
                 ->setCellValue('C' . $operationExpensesIndex, $operationExpensesItem['fulfillment'])
                 ->setCellValue('D' . $operationExpensesIndex, $operationExpensesItem['warehouse_sku'])
                 ->setCellValue('E' . $operationExpensesIndex, $operationExpensesItem['total'])
+                ->setCellValue('F' . $operationExpensesIndex, $operationExpensesItem['content'])
             ;
         }
     }

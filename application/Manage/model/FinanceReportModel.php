@@ -4631,7 +4631,8 @@ SELECT
 	b.user_account,
 	b.fulfillment,
 	b.warehouse_sku,
-	b.total
+	b.total,
+	a.content
 FROM
 	mu_finance_operation_expenses a
 	LEFT JOIN mu_finance_order_share b ON a.share_code = b.share_code 
