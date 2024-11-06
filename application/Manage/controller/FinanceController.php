@@ -1,13 +1,16 @@
 <?php
 namespace app\Manage\controller;
 
+use app\Manage\command\AkAdCost;
 use app\Manage\model\AkAdCostCreateModel;
+use app\Manage\model\AkAdCostModel;
 use app\Manage\model\AmazonPayment;
 use app\Manage\model\FinanceAdCostModel;
 use app\Manage\model\FinanceEvaluationModel;
 use app\Manage\model\FinanceExcelInit;
 use app\Manage\model\FinanceOperationDeliveryModel;
 use app\Manage\model\FinanceOperationExpensesModel;
+use app\Manage\model\FinanceOperationFactoryClaimModel;
 use app\Manage\model\FinanceOperationFactoryModel;
 use app\Manage\model\FinanceOrderAdditionalModel;
 use app\Manage\model\FinanceOrderAdjustmentModel;
@@ -2108,6 +2111,36 @@ class FinanceController extends BaseController
     /**
      * @throws DbException
      */
+    public function operation_factory_claim($id): \think\response\View
+    {
+        $keyword = $this->request->get('keyword', '', 'htmlspecialchars');
+        $this->assign('keyword', $keyword);
+        if ($keyword) {
+            $where['month|sku|content|type'] = ['like', '%' . $keyword . '%'];
+        } else {
+            $where = [];
+        }
+
+        $page_num = $this->request->get('page_num', Config::get('PAGE_NUM'));
+        $this->assign('page_num', $page_num);
+
+        // 列表
+        $report = FinanceReportModel::get($id);
+        $order = new FinanceOperationFactoryClaimModel();
+        $where['month'] = date('Ym', strtotime($report['month'] . '-01'));
+        $list = $order->where($where)->order('id asc')->paginate($page_num, false, ['query' => ['keyword' => $keyword]]);
+        $this->assign('list', $list);
+        $this->assign('report_id', $id);
+        $this->assign('sum', $order->where($where)->sum('total'));
+
+        Session::set(Config::get('BACK_URL'), $this->request->url(), 'manage');
+
+        return view();
+    }
+
+    /**
+     * @throws DbException
+     */
     public function wfs_fulfillment($id): \think\response\View
     {
         $keyword = $this->request->get('keyword', '', 'htmlspecialchars');
@@ -2130,6 +2163,41 @@ class FinanceController extends BaseController
 
         $this->assign('wfs_tail', $order->where($where)->where('is_fulfillment', 1)->sum('total'));
         $this->assign('wfs_return', $order->where($where)->where('is_return_shipping', 1)->sum('total'));
+
+        Session::set(Config::get('BACK_URL'), $this->request->url(), 'manage');
+
+        return view();
+    }
+
+    /**
+     * @throws DbException
+     */
+    public function ak_ad_cost($id): \think\response\View
+    {
+        $keyword = $this->request->get('keyword', '', 'htmlspecialchars');
+        $this->assign('keyword', $keyword);
+        if ($keyword) {
+            $where['msku|countryCode'] = ['like', '%' . $keyword . '%'];
+        } else {
+            $where = [];
+        }
+
+        $page_num = $this->request->get('page_num', Config::get('PAGE_NUM'));
+        $this->assign('page_num', $page_num);
+
+        // 列表
+        $report = FinanceReportModel::get($id);
+        $where['reportDateMonth'] = $report['month'];
+        $akAdCostModel = new AkAdCostModel();
+        $list = $akAdCostModel->where($where)->order('id asc')->paginate($page_num, false, ['query' => ['keyword' => $keyword]]);
+        $this->assign('list', $list);
+        $this->assign('report_id', $id);
+
+        $this->assign('ad_sum', $akAdCostModel->where($where)->sum('totalAdsCost'));
+        $this->assign('warehouse_sum', $akAdCostModel->where($where)->field('sum(sharedFbaStorageFee + sharedLabelingFee + fbaStorageFee + longTermStorageFee + sharedFbaDisposalFee + sharedAmazonPartneredCarrierShipmentFee + sharedFbaInboundConvenienceFee + sharedFbaInboundDefectFee) total')->find()['total']);
+        $this->assign('liquidation_1', $akAdCostModel->where($where)->field('sum(fbaLiquidationProceeds + sharedLiquidationsFees) total')->find()['total']);
+        $this->assign('liquidation_2', $akAdCostModel->where($where)->where(['countryCode' => ['neq', 'US']])->sum('taxCollected'));
+        $this->assign('promotion', $akAdCostModel->where($where)->field('sum(sharedLdFee + sharedCouponFee + sharedVineFee) total')->find()['total']);
 
         Session::set(Config::get('BACK_URL'), $this->request->url(), 'manage');
 

@@ -5,7 +5,7 @@
 <div class="layui-body" id="LAY_app_body">
     <div class="right">
         <a href="{:url('cost', ['id' => $report_id])}" class="layui-btn layui-btn-danger layui-btn-sm fr"><i class="layui-icon">&#xe603;</i>返回上一页</a>
-        <div class="title">国内广告费列表</div>
+        <div class="title">工厂索赔列表</div>
         <form class="layui-form search-form" method="get">
             <div class="layui-inline w200">
                 <input type="text" class="layui-input" name="keyword" value="{$keyword}" placeholder="">
@@ -20,14 +20,9 @@
 
         <div class="layui-form">
             <span class="total">合计：{$sum|number_format=###,2}</span>
-            <span class="total">公司承担：{$company ? number_format($company, 2) : 0}</span>
             <table class="layui-table" lay-size="sm">
                 <colgroup>
                     <col width="80">
-                    <col>
-                    <col>
-                    <col>
-                    <col>
                     <col>
                     <col>
                     <col>
@@ -40,14 +35,10 @@
                     <th>ID</th>
                     <th>支付月份</th>
                     <th>SKU</th>
-                    <th>申请人</th>
                     <th>币种</th>
                     <th>总金额</th>
                     <th>描述</th>
                     <th>类型</th>
-                    <th>汇出平台</th>
-                    <th>核算月份</th>
-                    <th>分摊唯一标识号</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -56,14 +47,10 @@
                     <td class="tr">{$v.id}</td>
                     <td>{$v.month}</td>
                     <td>{$v.sku}</td>
-                    <td>{$v.applicant}</td>
                     <td>{$v.currency}</td>
                     <td>{$v.total}</td>
                     <td>{$v.content}</td>
                     <td>{$v.type}</td>
-                    <td>{$v.export_platform}</td>
-                    <td>{$v.calculate_month}</td>
-                    <td>{$v.share_code}</td>
                 </tr>
                 {/foreach}
                 </tbody>
