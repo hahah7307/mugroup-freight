@@ -414,7 +414,8 @@ class AmazonPayment extends Model
                         "table_id"                  =>  $tableId,
                         "payment_id"                =>  $item[3],
                         "sku"                       =>  $item[4],
-                        "total"                     =>  sprintf('%.2f', str_replace(',', '.', str_replace('.', '', $item[14])) * -1),
+                        "total"                     =>  str_replace(',', '.', str_replace('.', '', $item[14]))
+                            + str_replace(',', '.', str_replace('.', '', $item[21])),
                         "is_amazon"                 =>  1,
                     ];
                 }
@@ -452,7 +453,8 @@ class AmazonPayment extends Model
                         "table_id"                  =>  $tableId,
                         "payment_id"                =>  $item[3],
                         "sku"                       =>  $item[4],
-                        "total"                     =>  sprintf('%.2f', str_replace(',', '.', str_replace('.', '', $item[14])) * -1),
+                        "total"                     =>  str_replace(',', '.', str_replace('.', '', $item[14]))
+                            + str_replace(',', '.', str_replace('.', '', $item[21])),
                         "is_amazon"                 =>  1,
                     ];
                 }
@@ -566,7 +568,8 @@ class AmazonPayment extends Model
                         "table_id"                  =>  $tableId,
                         "payment_id"                =>  $item[3],
                         "sku"                       =>  $item[4],
-                        "total"                     =>  sprintf('%.2f', str_replace(',', '.', str_replace('.', '', $item[14])) * -1),
+                        "total"                     =>  str_replace(',', '.', str_replace('.', '', $item[14]))
+                            + str_replace(',', '.', str_replace('.', '', $item[21])),
                         "is_amazon"                 =>  1,
                     ];
                 }
@@ -604,7 +607,8 @@ class AmazonPayment extends Model
                         "table_id"                  =>  $tableId,
                         "payment_id"                =>  $item[3],
                         "sku"                       =>  $item[4],
-                        "total"                     =>  sprintf('%.2f', str_replace(',', '.', str_replace('.', '', $item[14])) * -1),
+                        "total"                     =>  str_replace(',', '.', str_replace('.', '', $item[14]))
+                            + str_replace(',', '.', str_replace('.', '', $item[21])),
                         "is_amazon"                 =>  1,
                     ];
                 }
@@ -716,7 +720,8 @@ class AmazonPayment extends Model
                         "table_id"                  =>  $tableId,
                         "payment_id"                =>  $item[3],
                         "sku"                       =>  $item[4],
-                        "total"                     =>  sprintf('%.2f', str_replace(',', '.', str_replace('.', '', $item[14])) * -1),
+                        "total"                     =>  str_replace(',', '.', str_replace('.', '', $item[14]))
+                            + str_replace(',', '.', str_replace('.', '', $item[21])),
                         "is_amazon"                 =>  1,
                     ];
                 }
@@ -754,7 +759,8 @@ class AmazonPayment extends Model
                         "table_id"                  =>  $tableId,
                         "payment_id"                =>  $item[3],
                         "sku"                       =>  $item[4],
-                        "total"                     =>  sprintf('%.2f', str_replace(',', '.', str_replace('.', '', $item[14])) * -1),
+                        "total"                     =>  str_replace(',', '.', str_replace('.', '', $item[14]))
+                            + str_replace(',', '.', str_replace('.', '', $item[21])),
                         "is_amazon"                 =>  1,
                     ];
                 }
@@ -866,7 +872,8 @@ class AmazonPayment extends Model
                         "table_id"                  =>  $tableId,
                         "payment_id"                =>  $item[3],
                         "sku"                       =>  $item[4],
-                        "total"                     =>  sprintf('%.2f', str_replace(',', '.', str_replace('.', '', $item[14])) * -1),
+                        "total"                     =>  str_replace(',', '.', str_replace('.', '', $item[14]))
+                            + str_replace(',', '.', str_replace('.', '', $item[21])),
                         "is_amazon"                 =>  1,
                     ];
                 }
@@ -904,7 +911,8 @@ class AmazonPayment extends Model
                         "table_id"                  =>  $tableId,
                         "payment_id"                =>  $item[3],
                         "sku"                       =>  $item[4],
-                        "total"                     =>  sprintf('%.2f', str_replace(',', '.', str_replace('.', '', $item[14])) * -1),
+                        "total"                     =>  str_replace(',', '.', str_replace('.', '', $item[14]))
+                            + str_replace(',', '.', str_replace('.', '', $item[21])),
                         "is_amazon"                 =>  1,
                     ];
                 }
