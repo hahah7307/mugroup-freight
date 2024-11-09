@@ -39,6 +39,7 @@
             </div>
             <button type="button" class="layui-btn  layui-btn-normal" id="excel">导入</button><br><br>
             <a href="{:url('index_wayfair', ['id' => $report_id])}" class="layui-btn">Wayfair</a>
+            <a href="{:url('index_no_outbound', ['id' => $report_id])}" class="layui-btn">未出库</a>
             <button type="button" class="layui-btn  layui-btn-normal" lay-submit lay-filter="Temu">Temu订单销售同步</button>
             <button type="button" class="layui-btn  layui-btn-normal" lay-submit lay-filter="Export">销售差异导出</button>
             <button type="button" class="layui-btn  layui-btn-{if condition='$edit'}disabled{else/}normal{/if}" lay-submit lay-filter="Edit">佣金修正</button>

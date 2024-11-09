@@ -249,6 +249,20 @@ class FinanceController extends BaseController
 
     /**
      * @throws DbException
+     * @throws Exception
+     */
+    public function index_no_outbound($id): \think\response\View
+    {
+        $model = new FinanceReportModel();
+        $paymentNoOutbound = $model->query(FinanceReportModel::getPaymentNoOutboundSql($id));
+        $this->assign('list', $paymentNoOutbound);
+        $this->assign('id', $id);
+
+        return view();
+    }
+
+    /**
+     * @throws DbException
      * @throws ModelNotFoundException
      * @throws DataNotFoundException
      * @throws \PHPExcel_Exception
