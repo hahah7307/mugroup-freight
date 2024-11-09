@@ -1289,6 +1289,60 @@ class FinanceExcelInit extends Model
         }
     }
 
+    /**
+     * @throws PDOException
+     * @throws BindParamException
+     * @throws \PHPExcel_Exception
+     */
+    public function getTablesByFinanceReport($index, $report)
+    {
+        $model = new FinanceTableModel();
+        $table = $model->where(['rid' => $report['id']])->select();
+
+        if ($index) {
+            // create new sheet
+            $this->objPHPExcel->createSheet();
+        }
+
+        // Set name sheet
+        $this->objPHPExcel->setActiveSheetIndex($index)->setTitle('财报账单列表');
+
+        // Add some data
+        $this->objPHPExcel->setActiveSheetIndex($index)
+            ->setCellValue('A1', '账单ID')
+            ->setCellValue('B1', '账单文件名')
+            ->setCellValue('C1', '所属平台')
+            ->setCellValue('D1', '所属店铺')
+            ->setCellValue('E1', '所属国家')
+            ->setCellValue('F1', '销售')
+            ->setCellValue('G1', '退款')
+            ->setCellValue('H1', '促销')
+            ->setCellValue('I1', '退运')
+            ->setCellValue('J1', '清算')
+            ->setCellValue('K1', '调整')
+            ->setCellValue('L1', '导入时间')
+        ;
+
+        $tableIndex = 1;
+        foreach ($table as $tableItem) {
+            $tableIndex ++;
+            $this->objPHPExcel->setActiveSheetIndex($index)
+                ->setCellValue('A' . $tableIndex, $tableItem['id'])
+                ->setCellValue('B' . $tableIndex, $tableItem['table_name'])
+                ->setCellValue('C' . $tableIndex, $tableItem['platform'])
+                ->setCellValue('D' . $tableIndex, $tableItem['userAccount'])
+                ->setCellValue('E' . $tableIndex, $tableItem['country'])
+                ->setCellValue('F' . $tableIndex, $tableItem['sale_amount'])
+                ->setCellValue('G' . $tableIndex, $tableItem['refund_amount'])
+                ->setCellValue('H' . $tableIndex, $tableItem['promotion'])
+                ->setCellValue('I' . $tableIndex, $tableItem['shipping_service'])
+                ->setCellValue('J' . $tableIndex, $tableItem['liquidation'])
+                ->setCellValue('K' . $tableIndex, $tableItem['adjustment'])
+                ->setCellValue('L' . $tableIndex, $tableItem['created_at'])
+            ;
+        }
+    }
+
     public function excelSheetSet()
     {
         return $this->objPHPExcel;

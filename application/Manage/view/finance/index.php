@@ -42,6 +42,7 @@
             <button type="button" class="layui-btn  layui-btn-normal" lay-submit lay-filter="Temu">Temu订单销售同步</button>
             <button type="button" class="layui-btn  layui-btn-normal" lay-submit lay-filter="Export">销售差异导出</button>
             <button type="button" class="layui-btn  layui-btn-{if condition='$edit'}disabled{else/}normal{/if}" lay-submit lay-filter="Edit">佣金修正</button>
+            <a href="{:url('index_export', ['id' => $report_id])}" class="layui-btn layui-btn-normal">导出</a>
             <span class="total">销售合计：{$sale_amount}</span>
             <span class="total">退款合计：{$refund_amount}</span>
             <span class="total">促销合计：{$promotion}</span>

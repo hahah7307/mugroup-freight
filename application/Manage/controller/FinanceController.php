@@ -249,6 +249,41 @@ class FinanceController extends BaseController
 
     /**
      * @throws DbException
+     * @throws ModelNotFoundException
+     * @throws DataNotFoundException
+     * @throws \PHPExcel_Exception
+     */
+    public function index_export()
+    {
+        $report_id = input('id');
+
+        $financeReportObj = new FinanceReportModel();
+        $report = $financeReportObj->find($report_id);
+        if (empty($report)) {
+            $this->error('异常操作！', url('report'));
+        }
+
+        // phpexcel
+        require_once './static/classes/PHPExcel/Classes/PHPExcel.php';
+        // Create new PHPExcel object
+        $objPHPExcel = new PHPExcel();
+        $financeExcelInit = new FinanceExcelInit($objPHPExcel);
+        $financeExcelInit->getTablesByFinanceReport(0, $report);
+        $objPHPExcel = $financeExcelInit->excelSheetSet();
+
+        // Redirect output to a client’s web browser (Excel5)
+        header('Content-Type: application/vnd.ms-excel');
+        $filename = date("YmdHis") . time() . mt_rand(100000, 999999);
+        ob_end_clean();
+        header('Content-Disposition:attachment;filename="'.$filename.'.xls"');
+        header('Cache-Control: max-age=0');
+
+        $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+        $objWriter->save('php://output');
+    }
+
+    /**
+     * @throws DbException
      */
     public function index_wayfair($id): \think\response\View
     {
