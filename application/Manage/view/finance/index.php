@@ -2,7 +2,7 @@
 {include file="public/header" /}
 
 <style>
-    .total {padding: 0 10px}
+    .total {padding: 0 20px 0 0}
 </style>
 <!-- 主体内容 -->
 <div class="layui-body" id="LAY_app_body">
@@ -40,10 +40,11 @@
             <button type="button" class="layui-btn  layui-btn-normal" id="excel">导入</button><br><br>
             <a href="{:url('index_wayfair', ['id' => $report_id])}" class="layui-btn">Wayfair</a>
             <a href="{:url('index_no_outbound', ['id' => $report_id])}" class="layui-btn">未出库</a>
+            <a href="{:url('index_no_accounting', ['id' => $report_id])}" class="layui-btn">未核算</a>
             <button type="button" class="layui-btn  layui-btn-normal" lay-submit lay-filter="Temu">Temu订单销售同步</button>
             <button type="button" class="layui-btn  layui-btn-normal" lay-submit lay-filter="Export">销售差异导出</button>
             <button type="button" class="layui-btn  layui-btn-{if condition='$edit'}disabled{else/}normal{/if}" lay-submit lay-filter="Edit">佣金修正</button>
-            <a href="{:url('index_export', ['id' => $report_id])}" class="layui-btn layui-btn-normal">导出</a>
+            <a href="{:url('index_export', ['id' => $report_id])}" class="layui-btn layui-btn-normal">导出</a><br><br>
             <span class="total">销售合计：{$sale_amount}</span>
             <span class="total">退款合计：{$refund_amount}</span>
             <span class="total">促销合计：{$promotion}</span>

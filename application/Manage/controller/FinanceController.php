@@ -263,6 +263,29 @@ class FinanceController extends BaseController
 
     /**
      * @throws DbException
+     * @throws Exception
+     */
+    public function index_no_accounting($id): \think\response\View
+    {
+        $reportObj = new FinanceReportModel();
+        $report = $reportObj->find($id);
+
+        $where['is_finished'] = 0;
+        if ($report['month']) {
+            $t = date('t', strtotime($report['month'] . '-01 00:00:00'));
+            $where['paid_time'] = ['between', [$report['month'] . '-01 00:00:00', $report['month'] . '-' . $t . ' 00:00:00']];
+        }
+
+        // 表格列表
+        $order = new FinanceOrderStatisticsModel();
+        $list = $order->where($where)->order('paid_time asc')->paginate(30);
+        $this->assign('list', $list);
+
+        return view();
+    }
+
+    /**
+     * @throws DbException
      * @throws ModelNotFoundException
      * @throws DataNotFoundException
      * @throws \PHPExcel_Exception

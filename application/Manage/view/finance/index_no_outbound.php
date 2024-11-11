@@ -1,14 +1,11 @@
 
 {include file="public/header" /}
 
-<style>
-    .total {padding: 0 10px}
-</style>
 <!-- 主体内容 -->
 <div class="layui-body" id="LAY_app_body">
     <div class="right">
         <a href="{:session('back_url', '', 'manage')}" class="layui-btn layui-btn-danger layui-btn-sm fr"><i class="layui-icon">&#xe603;</i>返回上一页</a>
-        <div class="title">未出库列表</div>
+        <div class="title">本月已核算未出库订单列表</div>
 
         <div class="layui-form">
             <table class="layui-table" lay-size="sm">
