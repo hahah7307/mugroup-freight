@@ -707,6 +707,13 @@ class FinanceController extends BaseController
         $this->assign('report_id', $id);
         $this->assign('report', FinanceReportModel::get($id));
 
+        $outboundAccounting = Cache::get('outboundAccounting');
+        if (empty($outboundAccounting)) {
+            $this->assign('outboundAccounting', 0);
+        } else {
+            $this->assign('outboundAccounting', 1);
+        }
+
         return view();
     }
 
@@ -732,6 +739,32 @@ class FinanceController extends BaseController
             } catch (\Exception $e) {
                 Db::rollback();
                 echo json_encode(['code' => 0, 'msg' => $e->getMessage()]);
+            }
+        } else {
+            echo json_encode(['code' => 0, 'msg' => '异常操作']);
+        }
+        exit;
+    }
+
+    /**
+     * @throws DbException
+     * @throws ModelNotFoundException
+     * @throws DataNotFoundException
+     */
+    public function outbound_accounting()
+    {
+        if ($this->request->isPost()) {
+            $post = $this->request->post();
+            $report_id = $post['id'];
+
+            $outboundObj = new FinanceOrderOutboundModel();
+            $list = $outboundObj->where(['report_id' => $report_id])->select()->column('saleOrderCode');
+
+            $outboundAccounting = Cache::get('outboundAccounting');
+            if (Cache::set('outboundAccounting', array_merge((array)$outboundAccounting, (array)$list), 48 * 60 * 60)) {
+                echo json_encode(['code' => 1, 'msg' => '操作成功']);
+            } else {
+                echo json_encode(['code' => 0, 'msg' => '操作失败']);
             }
         } else {
             echo json_encode(['code' => 0, 'msg' => '异常操作']);
@@ -933,12 +966,25 @@ class FinanceController extends BaseController
             $where = [];
         }
 
+        $is_finished = $this->request->get('is_finished', 2);
+        $this->assign('is_finished', $is_finished);
+        if ($is_finished != 2) {
+            $where['is_finished'] = $is_finished;
+        }
+
+        $month = $this->request->get('month', date('Y-m', ''));
+        if ($month) {
+            $t = date('t', strtotime($month . '-01 00:00:00'));
+            $where['paid_time'] = ['between', [$month . '-01 00:00:00', $month . '-' . $t . ' 00:00:00']];
+        }
+        $this->assign('month', $month);
+
         $page_num = $this->request->get('page_num', Config::get('PAGE_NUM'));
         $this->assign('page_num', $page_num);
 
         // 订单列表
         $order = new FinanceOrderStatisticsModel();
-        $list = $order->where($where)->order('id asc')->paginate($page_num, false, ['query' => ['keyword' => $keyword]]);
+        $list = $order->where($where)->order('id asc')->paginate($page_num, false, ['query' => ['keyword' => $keyword, 'is_finished' => $is_finished, 'month' => $month, 'page_num' => $page_num]]);
         $this->assign('list', $list);
 
         Session::set(Config::get('BACK_URL'), $this->request->url(), 'manage');

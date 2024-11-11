@@ -9,6 +9,16 @@
             <div class="layui-inline w200">
                 <input type="text" class="layui-input" name="keyword" value="{$keyword}" placeholder="SKU/PAYMENT/参考号">
             </div>
+            <div class="layui-input-inline">
+                <input type="text" class="layui-input" id="month" name="month" value="{$month}" placeholder="核算月份">
+            </div>
+            <div class="layui-input-inline w100">
+                <select name="is_finished">
+                    <option value="2" {if condition="$is_finished eq 2"}selected{/if}>全部状态</option>
+                    <option value="1" {if condition="$is_finished eq 1"}selected{/if}>已核算</option>
+                    <option value="0" {if condition="$is_finished eq 0"}selected{/if}>未核算</option>
+                </select>
+            </div>
             <div class="layui-inline w100">
                 <input type="text" class="layui-input" name="page_num" value="{$page_num}" placeholder="每页条数">
             </div>
@@ -43,12 +53,13 @@
                     <col>
                     <col>
                     <col>
+                    <col>
                 </colgroup>
                 <thead>
                 <tr>
                     <th>平台</th>
                     <th>店铺</th>
-                    <th>发货时间</th>
+                    <th>支付时间</th>
                     <th>订单状态</th>
                     <th>易仓自生成单号</th>
                     <th>跟踪号</th>
@@ -64,6 +75,7 @@
                     <th>佣金</th>
                     <th>FBA尾程</th>
                     <th>税</th>
+                    <th>是否核算</th>
                     <th>操作</th>
                 </tr>
                 </thead>
@@ -72,7 +84,7 @@
                 <tr>
                     <td>{$v.platform}</td>
                     <td>{$v.user_account}</td>
-                    <td>{$v.shipping_time}</td>
+                    <td>{$v.paid_time}</td>
                     <td>{$v.order_status}</td>
                     <td>{$v.warehouse_no}</td>
                     <td>{$v.shipping_no}</td>
@@ -88,6 +100,13 @@
                     <td class="tr">{$v.selling_fee}</td>
                     <td class="tr">{$v.fba_fee}</td>
                     <td class="tr">{$v.tax}</td>
+                    <td class="tc">
+                        {if condition="$v.is_finished eq 1"}
+                        <p class="green">已核算</p>
+                        {else/}
+                        <p class="blue">未核算</p>
+                        {/if}
+                    </td>
                     <td class="tc">
                         <a href="{:url('order_statistics_edit', ['id' => $v.id])}" class="layui-btn layui-btn-normal layui-btn-sm">修正</a>
                     </td>
@@ -106,6 +125,12 @@
             form = layui.form,
             upload = layui.upload,
             laydate = layui.laydate;
+
+        //执行一个laydate实例
+        laydate.render({
+            elem: '#month' //指定元素
+            ,type: 'month'
+        });
 
         // 上传
         let uploadInst = upload.render({

@@ -20,6 +20,7 @@
 
         <div class="layui-form">
             <button type="button" class="layui-btn  layui-btn-{if condition='$edit'}disabled{else/}normal{/if}" lay-submit lay-filter="Generate">Generate</button>
+            <button type="button" class="layui-btn  layui-btn-{if condition='$outboundAccounting'}disabled{else/}normal{/if}" {if condition='$outboundAccounting'}disabled{/if} lay-submit lay-filter="Accounting">核算</button>
             <button data-id="{$report_id}" class="layui-btn layui-btn-danger ml0" lay-submit lay-filter="Detele">清空</button>
             <table class="layui-table" lay-size="sm">
                 <colgroup>
@@ -57,7 +58,7 @@
                     <th>发货时间</th>
                     <th>数量(个)</th>
                     <th>DDP(元)</th>
-                    <th class="tc">是否核算</th>
+                    <th class="tc">DDP状态</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -80,9 +81,9 @@
                     <td class="tr">{$v.store.sku_ddp_unit * $v.qty}</td>
                     <td class="tc">
                         {if condition="$v.is_notify eq 0"}
-                            <p class="blue">待核算</p>
+                            <p class="blue">待匹配</p>
                         {elseif condition="$v.is_notify eq 1" /}
-                            <p class="green">已核算</p>
+                            <p class="green">已完成</p>
                         {elseif condition="$v.is_notify eq 2" /}
                             <p class="red">未通过</p>
                         {/if}
@@ -110,6 +111,37 @@
                 $('button').attr('disabled',true);
                 button.text('请稍候...');
                 axios.post("{:url('outbound_generate')}", {id:id})
+                    .then(function (response) {
+                        var res = response.data;
+                        if (res.code === 1) {
+                            layer.alert(res.msg,{icon:1,closeBtn:0,title:false,btnAlign:'c',},function(){
+                                location.reload();
+                            });
+                        } else {
+                            layer.alert(res.msg,{icon:2,closeBtn:0,title:false,btnAlign:'c'},function(){
+                                layer.closeAll();
+                                $('button').attr('disabled',false);
+                                button.text(text);
+                            });
+                        }
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    });
+                return false;
+            });
+        });
+
+        // 核算
+        form.on('submit(Accounting)', function(data){
+            var text = $(this).text(),
+                button = $(this),
+                id = {$report_id};
+            console.log($(this).attr('disabled'));
+            layer.confirm('确认核算吗？一旦核算无法退回',{icon:3,closeBtn:0,title:false,btnAlign:'c'},function(){
+                $('button').attr('disabled',true);
+                button.text('请稍候...');
+                axios.post("{:url('outbound_accounting')}", {id:id})
                     .then(function (response) {
                         var res = response.data;
                         if (res.code === 1) {

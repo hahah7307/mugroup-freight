@@ -48,4 +48,5 @@ return [
     'app\Manage\command\AkAdCostDeliveryMethod', //
     'app\Manage\command\FinanceSheinOrder', //
     'app\Manage\command\FinanceOperationShare', //
+    'app\Manage\command\FinanceOutboundAccounting', //
 ];
