@@ -1300,7 +1300,7 @@ class AmazonPayment extends Model
                     "payment_id"                =>  $item[1],
                     "quantity"                  =>  $item[8],
                     "fulfillment"               =>  "Seller",
-                    "product_sales"             =>  FinanceOrderSaleModel::sheinNumberFormat($item[10]),
+                    "product_sales"             =>  FinanceOrderSaleModel::sheinNumberFormat($item[11]),
                     "selling_fees"              =>  0,
                     "shipping_credits"          =>  0,
                     "gift_wrap_credits"         =>  0,
@@ -1315,7 +1315,7 @@ class AmazonPayment extends Model
                     "payment_id"                =>  $item[1],
                     "quantity"                  =>  $item[8],
                     "fulfillment"               =>  "Seller",
-                    "product_sales"             =>  FinanceOrderSaleModel::sheinNumberFormat($item[10]),
+                    "product_sales"             =>  FinanceOrderSaleModel::sheinNumberFormat($item[11]),
                     "selling_fees"              =>  0,
                     "shipping_credits"          =>  0,
                     "gift_wrap_credits"         =>  0,
@@ -1329,14 +1329,14 @@ class AmazonPayment extends Model
                     "report_id"                 =>  $reportId,
                     "table_id"                  =>  $tableId,
                     "payment_id"                =>  $item[1],
-                    "total"                     =>  FinanceOrderSaleModel::sheinNumberFormat($item[10]),
+                    "total"                     =>  FinanceOrderSaleModel::sheinNumberFormat($item[11]),
                 ];
             } elseif ($item[2] == '退货履约服务费') {
                 $this->orderAdjustmentNew[] = [
                     "report_id"                 =>  $reportId,
                     "table_id"                  =>  $tableId,
                     "payment_id"                =>  $item[1],
-                    "total"                     =>  FinanceOrderSaleModel::sheinNumberFormat($item[10]),
+                    "total"                     =>  FinanceOrderSaleModel::sheinNumberFormat($item[11]),
                 ];
             }
         }
