@@ -1173,7 +1173,9 @@ class FinanceController extends BaseController
             $editObj = new FinanceOrderStatisticsEditModel();
             $dataSelling = $editObj->query(FinanceReportModel::getOrderStatisticSellingFeesAutoEditSql($reportId));
             $dataFba = $editObj->query(FinanceReportModel::getOrderStatisticFbaFeesAutoEditSql($reportId));
-            if ($editObj->insertAll($dataSelling) || $editObj->insertAll($dataFba)) {
+            $sellingRes = $editObj->insertAll($dataSelling);
+            $fbaRes = $editObj->insertAll($dataFba);
+            if ($sellingRes || $fbaRes) {
                 echo json_encode(['code' => 1, 'msg' => '操作完成']);
             } else {
                 echo json_encode(['code' => 0, 'msg' => '操作失败，请重试']);
