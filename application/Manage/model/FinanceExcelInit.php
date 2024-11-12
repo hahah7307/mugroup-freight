@@ -4,6 +4,9 @@ namespace app\Manage\model;
 
 use PHPExcel;
 use think\db\exception\BindParamException;
+use think\db\exception\DataNotFoundException;
+use think\db\exception\ModelNotFoundException;
+use think\exception\DbException;
 use think\exception\PDOException;
 use think\Model;
 
@@ -1339,6 +1342,55 @@ class FinanceExcelInit extends Model
                 ->setCellValue('J' . $tableIndex, $tableItem['liquidation'])
                 ->setCellValue('K' . $tableIndex, $tableItem['adjustment'])
                 ->setCellValue('L' . $tableIndex, $tableItem['created_at'])
+            ;
+        }
+    }
+
+    /**
+     * @throws DbException
+     * @throws ModelNotFoundException
+     * @throws DataNotFoundException
+     */
+    public function getOutboundAccountingByReport($index, $report)
+    {
+        $accounting = $this->model->query(FinanceReportModel::getOutboundAccountingByReport($report['id']));
+
+        if ($index) {
+            // create new sheet
+            $this->objPHPExcel->createSheet();
+        }
+
+        // Set name sheet
+        $this->objPHPExcel->setActiveSheetIndex($index)->setTitle('已核算再出库列表');
+
+        // Add some data
+        $this->objPHPExcel->setActiveSheetIndex($index)
+            ->setCellValue('A1', '平台')
+            ->setCellValue('B1', '店铺')
+            ->setCellValue('C1', 'Payment')
+            ->setCellValue('D1', '易仓订单号')
+            ->setCellValue('E1', '支付时间')
+            ->setCellValue('F1', '发货时间')
+            ->setCellValue('G1', '销售SKU')
+            ->setCellValue('H1', '仓库SKU')
+            ->setCellValue('I1', '发货方式')
+            ->setCellValue('J1', '销售数量')
+        ;
+
+        $accountingIndex = 1;
+        foreach ($accounting as $accountingItem) {
+            $accountingIndex ++;
+            $this->objPHPExcel->setActiveSheetIndex($index)
+                ->setCellValue('A' . $accountingIndex, $accountingItem['platform'])
+                ->setCellValue('B' . $accountingIndex, $accountingItem['user_account'])
+                ->setCellValue('C' . $accountingIndex, $accountingItem['payment_id'])
+                ->setCellValue('D' . $accountingIndex, $accountingItem['saleOrderCode'])
+                ->setCellValue('E' . $accountingIndex, $accountingItem['paid_time'])
+                ->setCellValue('F' . $accountingIndex, $accountingItem['shipping_time'])
+                ->setCellValue('G' . $accountingIndex, $accountingItem['seller_sku'])
+                ->setCellValue('H' . $accountingIndex, $accountingItem['warehouse_sku'])
+                ->setCellValue('I' . $accountingIndex, $accountingItem['fulfillment'])
+                ->setCellValue('J' . $accountingIndex, $accountingItem['qty'])
             ;
         }
     }

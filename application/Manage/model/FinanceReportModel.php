@@ -5116,4 +5116,31 @@ WHERE
 	`month` = ' . $month . ';
         ';
     }
+
+    static public function getOutboundAccountingByReport($report_id): string
+    {
+        return '
+SELECT DISTINCT
+	b.platform,
+	b.user_account,
+	b.payment_id,
+	b.saleOrderCode,
+	b.paid_time,
+	b.shipping_time,
+	b.platform_sku seller_sku,
+	b.warehouse_sku,
+	a.fulfillment,
+	b.qty,
+	b.is_finished is_accounting 
+FROM
+	mu_finance_order_sale a
+	LEFT JOIN mu_finance_order_statistics b ON a.payment_id = b.payment_id 
+WHERE
+	a.report_id = ' . $report_id . ' 
+	AND b.saleOrderCode IS NOT NULL 
+	AND b.is_finished = 1 
+ORDER BY
+	b.paid_time;
+        ';
+    }
 }

@@ -19,8 +19,9 @@
         </form>
 
         <div class="layui-form">
-            <button type="button" class="layui-btn  layui-btn-{if condition='$edit'}disabled{else/}normal{/if}" lay-submit lay-filter="Generate">Generate</button>
+            <button type="button" class="layui-btn  layui-btn-{if condition='$generate'}disabled{else/}normal{/if}" {if condition='$generate'}disabled{/if} lay-submit lay-filter="Generate">Generate</button>
             <button type="button" class="layui-btn  layui-btn-{if condition='$outboundAccounting'}disabled{else/}normal{/if}" {if condition='$outboundAccounting'}disabled{/if} lay-submit lay-filter="Accounting">核算</button>
+            <a href="{:url('outbound_accounting_export', ['id' => $report_id])}" class="layui-btn layui-btn-normal">导出已核算</a>
             <button data-id="{$report_id}" class="layui-btn layui-btn-danger ml0" lay-submit lay-filter="Detele">清空</button>
             <table class="layui-table" lay-size="sm">
                 <colgroup>
@@ -39,6 +40,7 @@
                     <col width="140">
                     <col>
                     <col>
+                    <col width="80">
                     <col width="80">
                 </colgroup>
                 <thead>
@@ -59,6 +61,7 @@
                     <th>数量(个)</th>
                     <th>DDP(元)</th>
                     <th class="tc">DDP状态</th>
+                    <th class="tc">核算状态</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -86,6 +89,13 @@
                             <p class="green">已完成</p>
                         {elseif condition="$v.is_notify eq 2" /}
                             <p class="red">未通过</p>
+                        {/if}
+                    </td>
+                    <td class="tc">
+                        {if condition="$v.statistic.is_finished"}
+                        <p class="green">已核算</p>
+                        {else/}
+                        <p class="blue">未核算</p>
                         {/if}
                     </td>
                 </tr>
