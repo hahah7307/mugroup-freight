@@ -150,6 +150,7 @@ class FinanceNotify extends Command
                     }
 
                     $financeReportObj->save(['is_notify' => 1], ['id' => $report['id']]);
+                    $financeReportObj->save(['is_share' => 0], ['id' => $report['id']]);
                     unset($report);
                 }
             }
