@@ -26,6 +26,7 @@
 
         <div class="layui-form">
             <button type="button" class="layui-btn  layui-btn-normal" id="excel">导入</button>
+            <a href="{:url('factory_claim_export')}" class="layui-btn layui-btn-normal">导出</a>
             <span class="total">工厂索赔合计：{$list_sum|number_format=###, 2}</span>
             <table class="layui-table" lay-size="sm">
                 <colgroup>

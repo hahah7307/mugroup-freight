@@ -1395,6 +1395,178 @@ class FinanceExcelInit extends Model
         }
     }
 
+    /**
+     * @throws DbException
+     * @throws ModelNotFoundException
+     * @throws DataNotFoundException
+     */
+    public function getFinanceOperationExpensesExport($index, $list)
+    {
+        if ($index) {
+            // create new sheet
+            $this->objPHPExcel->createSheet();
+        }
+
+        // Set name sheet
+        $this->objPHPExcel->setActiveSheetIndex($index)->setTitle('国内广告列表');
+
+        // Add some data
+        $this->objPHPExcel->setActiveSheetIndex($index)
+            ->setCellValue('A1', '支付月份')
+            ->setCellValue('B1', '仓库SKU')
+            ->setCellValue('C1', '申请人')
+            ->setCellValue('D1', '币种')
+            ->setCellValue('E1', '合计金额')
+            ->setCellValue('F1', '备注')
+            ->setCellValue('G1', '类型')
+            ->setCellValue('H1', '平台')
+            ->setCellValue('I1', '核算月份')
+        ;
+
+        $expensesIndex = 1;
+        foreach ($list as $expensesItem) {
+            $expensesIndex ++;
+            $this->objPHPExcel->setActiveSheetIndex($index)
+                ->setCellValue('A' . $expensesIndex, $expensesItem['month'])
+                ->setCellValue('B' . $expensesIndex, $expensesItem['sku'])
+                ->setCellValue('C' . $expensesIndex, $expensesItem['applicant'])
+                ->setCellValue('D' . $expensesIndex, $expensesItem['currency'])
+                ->setCellValue('E' . $expensesIndex, $expensesItem['total'])
+                ->setCellValue('F' . $expensesIndex, $expensesItem['content'])
+                ->setCellValue('G' . $expensesIndex, $expensesItem['type'])
+                ->setCellValue('H' . $expensesIndex, $expensesItem['export_platform'])
+                ->setCellValue('I' . $expensesIndex, $expensesItem['calculate_month'])
+            ;
+        }
+    }
+
+    /**
+     * @throws DbException
+     * @throws ModelNotFoundException
+     * @throws DataNotFoundException
+     */
+    public function getFinanceOperationFactoryExport($index, $list)
+    {
+        if ($index) {
+            // create new sheet
+            $this->objPHPExcel->createSheet();
+        }
+
+        // Set name sheet
+        $this->objPHPExcel->setActiveSheetIndex($index)->setTitle('工厂运费列表');
+
+        // Add some data
+        $this->objPHPExcel->setActiveSheetIndex($index)
+            ->setCellValue('A1', '支付月份')
+            ->setCellValue('B1', '仓库SKU')
+            ->setCellValue('C1', '合计金额')
+            ->setCellValue('D1', '币种')
+            ->setCellValue('E1', '备注')
+            ->setCellValue('F1', '类型')
+            ->setCellValue('G1', '核算月份')
+        ;
+
+        $expensesIndex = 1;
+        foreach ($list as $expensesItem) {
+            $expensesIndex ++;
+            $this->objPHPExcel->setActiveSheetIndex($index)
+                ->setCellValue('A' . $expensesIndex, $expensesItem['month'])
+                ->setCellValue('B' . $expensesIndex, $expensesItem['sku'])
+                ->setCellValue('C' . $expensesIndex, $expensesItem['total'])
+                ->setCellValue('D' . $expensesIndex, $expensesItem['currency'])
+                ->setCellValue('E' . $expensesIndex, $expensesItem['content'])
+                ->setCellValue('F' . $expensesIndex, $expensesItem['type'])
+                ->setCellValue('G' . $expensesIndex, $expensesItem['calculate_month'])
+            ;
+        }
+    }
+
+    /**
+     * @throws DbException
+     * @throws ModelNotFoundException
+     * @throws DataNotFoundException
+     */
+    public function getFinanceOperationDeliveryExport($index, $list)
+    {
+        if ($index) {
+            // create new sheet
+            $this->objPHPExcel->createSheet();
+        }
+
+        // Set name sheet
+        $this->objPHPExcel->setActiveSheetIndex($index)->setTitle('国内快递列表');
+
+        // Add some data
+        $this->objPHPExcel->setActiveSheetIndex($index)
+            ->setCellValue('A1', '支付月份')
+            ->setCellValue('B1', '单号')
+            ->setCellValue('C1', '日期')
+            ->setCellValue('D1', '发送人')
+            ->setCellValue('E1', '归属人')
+            ->setCellValue('F1', '平台')
+            ->setCellValue('G1', '店铺')
+            ->setCellValue('H1', 'SKU')
+            ->setCellValue('I1', '合计金额')
+            ->setCellValue('J1', '核算月份')
+        ;
+
+        $expensesIndex = 1;
+        foreach ($list as $expensesItem) {
+            $expensesIndex ++;
+            $this->objPHPExcel->setActiveSheetIndex($index)
+                ->setCellValue('A' . $expensesIndex, $expensesItem['month'])
+                ->setCellValue('B' . $expensesIndex, $expensesItem['tracking_number'])
+                ->setCellValue('C' . $expensesIndex, $expensesItem['delivery_date'])
+                ->setCellValue('D' . $expensesIndex, $expensesItem['sender'])
+                ->setCellValue('E' . $expensesIndex, $expensesItem['seller'])
+                ->setCellValue('F' . $expensesIndex, $expensesItem['platform'])
+                ->setCellValue('G' . $expensesIndex, $expensesItem['user_account'])
+                ->setCellValue('H' . $expensesIndex, $expensesItem['sku'])
+                ->setCellValue('I' . $expensesIndex, $expensesItem['total'])
+                ->setCellValue('J' . $expensesIndex, $expensesItem['calculate_month'])
+            ;
+        }
+    }
+
+    /**
+     * @throws DbException
+     * @throws ModelNotFoundException
+     * @throws DataNotFoundException
+     */
+    public function getFinanceOperationFactoryClaimExport($index, $list)
+    {
+        if ($index) {
+            // create new sheet
+            $this->objPHPExcel->createSheet();
+        }
+
+        // Set name sheet
+        $this->objPHPExcel->setActiveSheetIndex($index)->setTitle('工厂索赔列表');
+
+        // Add some data
+        $this->objPHPExcel->setActiveSheetIndex($index)
+            ->setCellValue('A1', '支付月份')
+            ->setCellValue('B1', '仓库SKU')
+            ->setCellValue('C1', '合计金额')
+            ->setCellValue('D1', '币种')
+            ->setCellValue('E1', '备注')
+            ->setCellValue('F1', '类型')
+        ;
+
+        $expensesIndex = 1;
+        foreach ($list as $expensesItem) {
+            $expensesIndex ++;
+            $this->objPHPExcel->setActiveSheetIndex($index)
+                ->setCellValue('A' . $expensesIndex, $expensesItem['month'])
+                ->setCellValue('B' . $expensesIndex, $expensesItem['sku'])
+                ->setCellValue('C' . $expensesIndex, $expensesItem['total'])
+                ->setCellValue('D' . $expensesIndex, $expensesItem['currency'])
+                ->setCellValue('E' . $expensesIndex, $expensesItem['content'])
+                ->setCellValue('F' . $expensesIndex, $expensesItem['type'])
+            ;
+        }
+    }
+
     public function excelSheetSet()
     {
         return $this->objPHPExcel;

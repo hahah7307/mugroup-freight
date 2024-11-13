@@ -20,6 +20,7 @@
 
         <div class="layui-form">
             <button type="button" class="layui-btn  layui-btn-normal" id="excel">导入</button>
+            <a href="{:url('delivery_export')}" class="layui-btn layui-btn-normal">导出</a>
             <table class="layui-table" lay-size="sm">
                 <colgroup>
                     <col>

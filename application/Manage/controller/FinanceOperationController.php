@@ -1,14 +1,18 @@
 <?php
 namespace app\Manage\controller;
 
+use app\Manage\model\FinanceExcelInit;
 use app\Manage\model\FinanceOperationDeliveryModel;
 use app\Manage\model\FinanceOperationExpensesModel;
 use app\Manage\model\FinanceOperationFactoryClaimModel;
 use app\Manage\model\FinanceOperationFactoryModel;
 use Exception;
+use PHPExcel;
 use PHPExcel_IOFactory;
 use PHPExcel_Reader_Exception;
 use think\Db;
+use think\db\exception\DataNotFoundException;
+use think\db\exception\ModelNotFoundException;
 use think\exception\DbException;
 use think\Session;
 use think\Config;
@@ -120,6 +124,40 @@ class FinanceOperationController extends BaseController
         $this->redirect(url('expenses'));
     }
 
+    /**
+     * @throws DataNotFoundException
+     * @throws \PHPExcel_Writer_Exception
+     * @throws ModelNotFoundException
+     * @throws PHPExcel_Reader_Exception
+     * @throws DbException
+     */
+    public function expenses_export()
+    {
+        $financeOperationExpensesObj = new FinanceOperationExpensesModel();
+        $list = $financeOperationExpensesObj->select();
+        if (empty($list)) {
+            $this->error('异常操作！', url('report'));
+        }
+
+        // phpexcel
+        require_once './static/classes/PHPExcel/Classes/PHPExcel.php';
+        // Create new PHPExcel object
+        $objPHPExcel = new PHPExcel();
+        $financeExcelInit = new FinanceExcelInit($objPHPExcel);
+        $financeExcelInit->getFinanceOperationExpensesExport(0, $list);
+        $objPHPExcel = $financeExcelInit->excelSheetSet();
+
+        // Redirect output to a client’s web browser (Excel5)
+        header('Content-Type: application/vnd.ms-excel');
+        $filename = date("YmdHis") . time() . mt_rand(100000, 999999);
+        ob_end_clean();
+        header('Content-Disposition:attachment;filename="'.$filename.'.xls"');
+        header('Cache-Control: max-age=0');
+
+        $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+        $objWriter->save('php://output');
+    }
+
     public function expenses_delete()
     {
         if ($this->request->isPost()) {
@@ -199,6 +237,40 @@ class FinanceOperationController extends BaseController
             $this->error($e->getMessage(), url('factory'));
         }
         $this->redirect(url('factory'));
+    }
+
+    /**
+     * @throws DataNotFoundException
+     * @throws \PHPExcel_Writer_Exception
+     * @throws ModelNotFoundException
+     * @throws PHPExcel_Reader_Exception
+     * @throws DbException
+     */
+    public function factory_export()
+    {
+        $financeOperationFactoryObj = new FinanceOperationFactoryModel();
+        $list = $financeOperationFactoryObj->select();
+        if (empty($list)) {
+            $this->error('异常操作！', url('report'));
+        }
+
+        // phpexcel
+        require_once './static/classes/PHPExcel/Classes/PHPExcel.php';
+        // Create new PHPExcel object
+        $objPHPExcel = new PHPExcel();
+        $financeExcelInit = new FinanceExcelInit($objPHPExcel);
+        $financeExcelInit->getFinanceOperationFactoryExport(0, $list);
+        $objPHPExcel = $financeExcelInit->excelSheetSet();
+
+        // Redirect output to a client’s web browser (Excel5)
+        header('Content-Type: application/vnd.ms-excel');
+        $filename = date("YmdHis") . time() . mt_rand(100000, 999999);
+        ob_end_clean();
+        header('Content-Disposition:attachment;filename="'.$filename.'.xls"');
+        header('Cache-Control: max-age=0');
+
+        $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+        $objWriter->save('php://output');
     }
 
     public function factory_delete()
@@ -283,6 +355,40 @@ class FinanceOperationController extends BaseController
             $this->error($e->getMessage(), url('delivery'));
         }
         $this->redirect(url('delivery'));
+    }
+
+    /**
+     * @throws DataNotFoundException
+     * @throws \PHPExcel_Writer_Exception
+     * @throws ModelNotFoundException
+     * @throws PHPExcel_Reader_Exception
+     * @throws DbException
+     */
+    public function delivery_export()
+    {
+        $financeOperationDeliveryObj = new FinanceOperationDeliveryModel();
+        $list = $financeOperationDeliveryObj->select();
+        if (empty($list)) {
+            $this->error('异常操作！', url('report'));
+        }
+
+        // phpexcel
+        require_once './static/classes/PHPExcel/Classes/PHPExcel.php';
+        // Create new PHPExcel object
+        $objPHPExcel = new PHPExcel();
+        $financeExcelInit = new FinanceExcelInit($objPHPExcel);
+        $financeExcelInit->getFinanceOperationDeliveryExport(0, $list);
+        $objPHPExcel = $financeExcelInit->excelSheetSet();
+
+        // Redirect output to a client’s web browser (Excel5)
+        header('Content-Type: application/vnd.ms-excel');
+        $filename = date("YmdHis") . time() . mt_rand(100000, 999999);
+        ob_end_clean();
+        header('Content-Disposition:attachment;filename="'.$filename.'.xls"');
+        header('Cache-Control: max-age=0');
+
+        $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+        $objWriter->save('php://output');
     }
 
     public function delivery_delete()
@@ -370,6 +476,40 @@ class FinanceOperationController extends BaseController
             $this->error($e->getMessage(), url('factory_claim'));
         }
         $this->redirect(url('factory_claim'));
+    }
+
+    /**
+     * @throws DataNotFoundException
+     * @throws \PHPExcel_Writer_Exception
+     * @throws ModelNotFoundException
+     * @throws PHPExcel_Reader_Exception
+     * @throws DbException
+     */
+    public function factory_claim_export()
+    {
+        $financeOperationFactoryClaimObj = new FinanceOperationFactoryClaimModel();
+        $list = $financeOperationFactoryClaimObj->select();
+        if (empty($list)) {
+            $this->error('异常操作！', url('report'));
+        }
+
+        // phpexcel
+        require_once './static/classes/PHPExcel/Classes/PHPExcel.php';
+        // Create new PHPExcel object
+        $objPHPExcel = new PHPExcel();
+        $financeExcelInit = new FinanceExcelInit($objPHPExcel);
+        $financeExcelInit->getFinanceOperationFactoryClaimExport(0, $list);
+        $objPHPExcel = $financeExcelInit->excelSheetSet();
+
+        // Redirect output to a client’s web browser (Excel5)
+        header('Content-Type: application/vnd.ms-excel');
+        $filename = date("YmdHis") . time() . mt_rand(100000, 999999);
+        ob_end_clean();
+        header('Content-Disposition:attachment;filename="'.$filename.'.xls"');
+        header('Cache-Control: max-age=0');
+
+        $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+        $objWriter->save('php://output');
     }
 
     public function factory_claim_delete()
