@@ -4654,7 +4654,8 @@ SELECT
 	b.user_account,
 	b.fulfillment,
 	b.warehouse_sku,
-	b.total
+	b.total,
+	a.content
 FROM
 	mu_finance_operation_factory a
 	LEFT JOIN mu_finance_order_share b ON a.share_code = b.share_code 
@@ -4672,7 +4673,8 @@ SELECT
 	b.user_account,
 	b.fulfillment,
 	b.warehouse_sku,
-	b.total
+	b.total,
+	a.tracking_number
 FROM
 	mu_finance_operation_delivery a
 	LEFT JOIN mu_finance_order_share b ON a.share_code = b.share_code 

@@ -1062,6 +1062,7 @@ class FinanceExcelInit extends Model
             ->setCellValue('C1', '运送方式')
             ->setCellValue('D1', 'SKU')
             ->setCellValue('E1', '费用')
+            ->setCellValue('F1', '备注')
         ;
 
         $operationFactoryIndex = 1;
@@ -1073,6 +1074,7 @@ class FinanceExcelInit extends Model
                 ->setCellValue('C' . $operationFactoryIndex, $operationFactoryItem['fulfillment'])
                 ->setCellValue('D' . $operationFactoryIndex, $operationFactoryItem['warehouse_sku'])
                 ->setCellValue('E' . $operationFactoryIndex, $operationFactoryItem['total'])
+                ->setCellValue('F' . $operationFactoryIndex, $operationFactoryItem['content'])
             ;
         }
     }
@@ -1102,6 +1104,7 @@ class FinanceExcelInit extends Model
             ->setCellValue('D1', '运送方式')
             ->setCellValue('E1', 'SKU')
             ->setCellValue('F1', '费用')
+            ->setCellValue('G1', '快递单号')
         ;
 
         $operationDeliveryIndex = 1;
@@ -1114,6 +1117,7 @@ class FinanceExcelInit extends Model
                 ->setCellValue('D' . $operationDeliveryIndex, $operationDeliveryItem['fulfillment'])
                 ->setCellValue('E' . $operationDeliveryIndex, $operationDeliveryItem['warehouse_sku'])
                 ->setCellValue('F' . $operationDeliveryIndex, $operationDeliveryItem['total'])
+                ->setCellValue('G' . $operationDeliveryIndex, $operationDeliveryItem['tracking_number'])
             ;
         }
     }
