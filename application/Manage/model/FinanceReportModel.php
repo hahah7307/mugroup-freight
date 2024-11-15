@@ -1900,7 +1900,8 @@ FROM
 				LEFT JOIN mu_finance_order_statistics b ON a.payment_id = b.payment_id
 				LEFT JOIN mu_ecang_order c ON b.saleOrderCode = c.saleOrderCode 
 			WHERE
-				b.payment_id IS NOT NULL UNION ALL
+				b.payment_id IS NOT NULL
+				AND c.`status` = 4 UNION ALL
 			SELECT
 				a.platform,
 				a.userAccount,
@@ -2570,7 +2571,8 @@ FROM
 				LEFT JOIN mu_finance_order_statistics b ON a.payment_id = b.payment_id
 				LEFT JOIN mu_ecang_order c ON b.saleOrderCode = c.saleOrderCode 
 			WHERE
-				b.payment_id IS NOT NULL UNION ALL
+				b.payment_id IS NOT NULL
+				AND c.`status` = 4 UNION ALL
 			SELECT
 				a.platform,
 				a.userAccount,
@@ -3072,7 +3074,8 @@ FROM
 				LEFT JOIN mu_finance_order_statistics b ON a.payment_id = b.payment_id
 				LEFT JOIN mu_ecang_order c ON b.saleOrderCode = c.saleOrderCode 
 			WHERE
-				b.payment_id IS NOT NULL UNION ALL
+				b.payment_id IS NOT NULL
+				AND c.`status` = 4 UNION ALL
 			SELECT
 				a.platform,
 				a.userAccount,
@@ -3574,7 +3577,8 @@ FROM
 				LEFT JOIN mu_finance_order_statistics b ON a.payment_id = b.payment_id
 				LEFT JOIN mu_ecang_order c ON b.saleOrderCode = c.saleOrderCode 
 			WHERE
-				b.payment_id IS NOT NULL UNION ALL
+				b.payment_id IS NOT NULL
+				AND c.`status` = 4 UNION ALL
 			SELECT
 				a.platform,
 				a.userAccount,
@@ -4080,7 +4084,8 @@ FROM
 				LEFT JOIN mu_finance_order_statistics b ON a.payment_id = b.payment_id
 				LEFT JOIN mu_ecang_order c ON b.saleOrderCode = c.saleOrderCode 
 			WHERE
-				b.payment_id IS NOT NULL UNION ALL
+				b.payment_id IS NOT NULL
+				AND c.`status` = 4 UNION ALL
 			SELECT
 				a.platform,
 				a.userAccount,

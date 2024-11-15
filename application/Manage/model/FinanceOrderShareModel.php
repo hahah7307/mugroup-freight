@@ -233,7 +233,7 @@ FROM
 	LEFT JOIN mu_finance_order_statistics b ON a.payment_id = b.payment_id
 	LEFT JOIN mu_ecang_product c ON b.warehouse_sku = c.productSku 
 WHERE
-	c.saleStatus = 2 
+	b.warehouse_sku IS NOT NULL
 GROUP BY
 	warehouse_sku;
             ');
@@ -242,10 +242,10 @@ GROUP BY
         $percentSum = 0;
         foreach ($warehouseSaleQty as $key => $item) {
             if ($key + 1 == count($warehouseSaleQty)) {
-                $warehouseSaleQty[$key]['percent'] = round(1 - $percentSum, 4);
+                $warehouseSaleQty[$key]['percent'] = round(1 - $percentSum, 5);
             } else {
-                $warehouseSaleQty[$key]['percent'] = round($item['qty'] / $qtySum, 4);
-                $percentSum += round($item['qty'] / $qtySum, 4);
+                $warehouseSaleQty[$key]['percent'] = round($item['qty'] / $qtySum, 5);
+                $percentSum += round($item['qty'] / $qtySum, 5);
             }
         }
 
