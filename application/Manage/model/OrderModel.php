@@ -283,11 +283,12 @@ class OrderModel extends Model
         unset($order['orderDetails']);
         unset($order['orderAddress']);
         $model = new OrderModel();
-        $orders = $model->where(['saleOrderCode' => $item['saleOrderCode']])->select();
+        $orders = $model->where(['saleOrderCode' => $item['saleOrderCode']])->order('id asc')->select();
         if (empty($orders)) {
             return false;
         }
 
+        // 删除重复数据
         $orderItem = [];
         foreach ($orders as $v) {
             if ($v['order_id'] != $item['order_id']) {
@@ -296,7 +297,15 @@ class OrderModel extends Model
                     OrderDetailModel::destroy(['order_id' => $v['id']]);
                 }
             } else {
-                $orderItem = $v;
+                if (!empty($orderItem)) {
+                    if (OrderModel::destroy($orderItem['id'])) {
+                        OrderAddressModel::destroy(['order_id' => $orderItem['id']]);
+                        OrderDetailModel::destroy(['order_id' => $orderItem['id']]);
+                        $orderItem = $v;
+                    }
+                } else {
+                    $orderItem = $v;
+                }
             }
         }
         if (empty($orderItem)) {
