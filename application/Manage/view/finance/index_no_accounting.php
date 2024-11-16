@@ -1,6 +1,9 @@
 
 {include file="public/header" /}
 
+<style>
+    .total {padding: 0 20px 0 0}
+</style>
 <!-- 主体内容 -->
 <div class="layui-body" id="LAY_app_body">
     <div class="right">
@@ -8,6 +11,8 @@
         <div class="title">本月已出库未核算订单列表</div>
 
         <div class="layui-form">
+            <span class="total">销售合计：{$sale_amount|number_format="###", 2}</span>
+            <span class="total">数量合计：{$qty_amount|number_format="###"}</span>
             <table class="layui-table" lay-size="sm">
                 <colgroup>
                     <col>
