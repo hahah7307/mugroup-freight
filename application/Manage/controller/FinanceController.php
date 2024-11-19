@@ -925,6 +925,7 @@ class FinanceController extends BaseController
         $this->assign('available_qty', $order->where($where)->sum('available_quantity'));
         $sum = $order->query('SELECT SUM(available_quantity * sku_ddp_unit) sum FROM mu_finance_store WHERE report_id = ' . $id . ';');
         $this->assign('available_sum', $sum[0]['sum']);
+        $this->assign('accrual_total',  $order->where($where)->sum('accrual_total'));
 
         return view();
     }
@@ -952,29 +953,51 @@ class FinanceController extends BaseController
             $storeData = [];
             foreach ($data as $item) {
                 if (!empty($item[0])) {
+                    if (!strtotime($item[1])) {
+                        $item[1] = DateTime::createFromFormat('m-d-y', $item[1])->format('Y/m/d');
+                    }
+                    if (!strtotime($item[13])) {
+                        $item[13] = DateTime::createFromFormat('m-d-y', $item[13])->format('Y/m/d');
+                    }
+                    if (!empty($item[27]) && !strtotime($item[27])) {
+                        $item[27] = DateTime::createFromFormat('m-d-y', $item[27])->format('Y/m/d');
+                    }
+                    if (!strtotime($item[29])) {
+                        $item[29] = DateTime::createFromFormat('m-d-y', $item[29])->format('Y/m/d');
+                    }
                     $storeData[] = [
                         'report_id'                 =>  $report_id,
-                        'entering_date'             =>  date('Ymd', strtotime($item[0])),
-                        'currency'                  =>  $item[1],
-                        'quantity_amount'           =>  $item[2],
-                        'purchase_amount'           =>  $item[3],
-                        'cost_amount'               =>  $item[4],
-                        'arriving_date'             =>  date('Ymd', strtotime($item[5])),
-                        'export_no'                 =>  $item[6],
-                        'shipment_date'             =>  date('Ymd', strtotime($item[7])),
-                        'sku'                       =>  $item[8],
-                        'cn_name'                   =>  $item[9],
-                        'entering_quantity'         =>  $item[10],
-                        'sku_purchase_unit'         =>  $item[11],
-                        'sku_purchase_amount'       =>  $item[12],
-                        'sku_ddp_unit'              =>  $item[13],
-                        'sku_ddp_amount'            =>  $item[14],
-                        'outbound_quantity'         =>  $item[15],
-                        'available_quantity'        =>  $item[16],
-                        'seller'                    =>  $item[17],
-                        'purchaser'                 =>  $item[18],
-                        'content'                   =>  $item[19],
-                        'created_date'              =>  date('Y-m-d H:i:s')
+                        'inbound_number'            =>  $item[0],
+                        'entering_date'             =>  date('Ymd', strtotime($item[1])),
+                        'currency'                  =>  $item[7],
+                        'quantity_amount'           =>  $item[8],
+                        'purchase_amount'           =>  $item[9],
+                        'cost_amount'               =>  $item[10],
+                        'content'                   =>  $item[11],
+                        'export_no'                 =>  $item[12],
+                        'shipment_date'             =>  date('Ymd', strtotime($item[13])),
+                        'sku'                       =>  $item[14],
+                        'cn_name'                   =>  $item[15],
+                        'entering_quantity'         =>  $item[16],
+                        'sku_purchase_unit'         =>  $item[17],
+                        'sku_purchase_amount'       =>  $item[18],
+                        'sku_ddp_unit'              =>  $item[19],
+                        'sku_ddp_amount'            =>  $item[20],
+                        'outbound_quantity'         =>  $item[21],
+                        'available_quantity'        =>  $item[22],
+                        'seller'                    =>  $item[23],
+                        'purchaser'                 =>  $item[24],
+                        'arriving_date'             =>  date('Ymd', strtotime($item[27])),
+                        'contact_no'                =>  $item[25] . $item[28],
+                        'accrual_date'              =>  date('Ymd', strtotime($item[29])),
+                        'days'                      =>  $item[30],
+                        'overdue_for_sale_1'        =>  $item[31],
+                        'overdue_for_sale_2'        =>  $item[32],
+                        'overdue_for_sale_3'        =>  $item[33],
+                        'accrual_amount_1'          =>  $item[34],
+                        'accrual_amount_2'          =>  $item[35],
+                        'accrual_amount_3'          =>  $item[36],
+                        'accrual_total'             =>  $item[37],
                     ];
                 }
             }

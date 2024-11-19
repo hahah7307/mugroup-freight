@@ -26,6 +26,7 @@
             <button data-id="{$report_id}" class="layui-btn layui-btn-danger ml0" lay-submit lay-filter="Detele">清空</button>
             <span class="total">未结算数量合计：{$available_qty|number_format=###,2}</span>
             <span class="total">未结算金额合计：{$available_sum|number_format=###,2}</span>
+            <span class="total">计提金额合计：{$accrual_total|number_format=###,2}</span>
             <table class="layui-table" lay-size="sm">
                 <colgroup>
                     <col>
@@ -53,16 +54,14 @@
                 <thead>
                 <tr>
                     <th>ID</th>
-                    <th>入库时间</th>
                     <th>入库币种</th>
-                    <th>数量合计</th>
-                    <th>采购金额合计</th>
-                    <th>成本汇总合计</th>
-                    <th>到港时间</th>
-                    <th>外销合同</th>
+                    <th>入库日期</th>
                     <th>出运日期</th>
+                    <th>到港日期</th>
                     <th>产品编号</th>
                     <th>中文品名</th>
+                    <th>采购合同号</th>
+                    <th>外销编号</th>
                     <th>入库数量</th>
                     <th>采购单价</th>
                     <th>采购总价</th>
@@ -72,33 +71,35 @@
                     <th>未结算数量</th>
                     <th>运营</th>
                     <th>采购</th>
-                    <th>采购合同号</th>
+                    <th>库龄</th>
+                    <th>计提日期</th>
+                    <th>计提金额</th>
                 </tr>
                 </thead>
                 <tbody>
                 {foreach name="list" item="v"}
                 <tr>
-                    <td>{$v.id}</td>
-                    <td>{$v.entering_date}</td>
+                    <td class="tr">{$v.id}</td>
                     <td>{$v.currency}</td>
-                    <td>{$v.quantity_amount}</td>
-                    <td>{$v.purchase_amount}</td>
-                    <td>{$v.cost_amount}</td>
-                    <td>{$v.arriving_date}</td>
-                    <td>{$v.export_no}</td>
-                    <td>{$v.shipment_date}</td>
+                    <td class="tr">{$v.entering_date}</td>
+                    <td class="tr">{$v.shipment_date}</td>
+                    <td class="tr">{$v.arriving_date}</td>
                     <td>{$v.sku}</td>
                     <td>{$v.cn_name}</td>
-                    <td>{$v.entering_quantity}</td>
-                    <td>{$v.sku_purchase_unit}</td>
-                    <td>{$v.sku_purchase_amount}</td>
-                    <td>{$v.sku_ddp_unit}</td>
-                    <td>{$v.sku_ddp_amount}</td>
-                    <td>{$v.outbound_quantity}</td>
-                    <td>{$v.available_quantity}</td>
+                    <td>{$v.contact_no}</td>
+                    <td>{$v.export_no}</td>
+                    <td class="tr">{$v.entering_quantity}</td>
+                    <td class="tr">{$v.sku_purchase_unit}</td>
+                    <td class="tr">{$v.sku_purchase_amount}</td>
+                    <td class="tr">{$v.sku_ddp_unit}</td>
+                    <td class="tr">{$v.sku_ddp_amount}</td>
+                    <td class="tr">{$v.outbound_quantity}</td>
+                    <td class="tr">{$v.available_quantity}</td>
                     <td>{$v.seller}</td>
                     <td>{$v.purchaser}</td>
-                    <td>{$v.content}</td>
+                    <td class="tr">{$v.days}</td>
+                    <td class="tr">{$v.accrual_date}</td>
+                    <td class="tr">{$v.accrual_total}</td>
                 </tr>
                 {/foreach}
                 </tbody>
