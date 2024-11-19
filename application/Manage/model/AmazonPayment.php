@@ -1248,6 +1248,14 @@ class AmazonPayment extends Model
                     "promotional_rebates"       =>  0,
                     "fba_fees"                  =>  0,
                 ];
+                if ($item[14] != '/') {
+                    $this->orderAdjustmentNew[] = [
+                        "report_id"                 =>  $reportId,
+                        "table_id"                  =>  $tableId,
+                        "payment_id"                =>  $item[1],
+                        "total"                     =>  FinanceOrderSaleModel::sheinNumberFormat($item[14]),
+                    ];
+                }
             } elseif ($item[2] == '违规处罚扣款'
             || $item[2] == '订单调整') {
                 $this->orderAdjustmentNew[] = [
