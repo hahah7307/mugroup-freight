@@ -1024,6 +1024,13 @@ class FinanceController extends BaseController
                 $storeObj = new FinanceStoreModel();
                 $storeObj->where('report_id', $reportId)->delete();
 
+                $outboundObj = new FinanceOrderOutboundModel();
+                $outboundObj->where('report_id', $reportId)->update(['store_id' => null, 'is_notify' => 0]);
+
+                $financeReportObj = new FinanceReportModel();
+                $financeReportObj->save(['is_share' => 1], ['id' => $reportId]);
+                $financeReportObj->save(['is_notify' => 0], ['id' => $reportId]);
+
                 Db::commit();
                 echo json_encode(['code' => 1, 'msg' => '清空完成']);
             } catch (\SoapFault $e) {
