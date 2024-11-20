@@ -21,7 +21,7 @@ class InventoryTurnover extends Command
     protected function execute(Input $input, Output $output)
     {
         $model = new InventoryTurnoverModel();
-        $data = $model->where(['date' => date('Ymd')])->find();
+        $data = $model->where(['date' => date('Ymd', strtotime('-2 days'))])->find();
         if ($data) {
             $output->writeln("success");exit();
         }
@@ -41,7 +41,7 @@ FROM
 	mu_le_inventory_batch a
 	LEFT JOIN mu_ecang_product b ON SUBSTRING( a.lecangsCode, 7 ) = b.productSku 
 WHERE
-	created_date = ' . date('Ymd') . ' 
+	created_date = ' . date('Ymd', strtotime('-2 day')) . ' 
 	AND b.saleStatus != 18
 	AND b.saleStatus != 19 UNION ALL
 SELECT
@@ -51,7 +51,7 @@ FROM
 	mu_lc_inventory_batch a
 	LEFT JOIN mu_ecang_product b ON a.product_sku = b.productSku 
 WHERE
-	created_date = ' . date('Ymd') . '
+	created_date = ' . date('Ymd', strtotime('-2 day')) . '
 	AND b.saleStatus != 18
 	AND b.saleStatus != 19
 	) a;
@@ -70,7 +70,7 @@ FROM
 	mu_le_inventory_batch a
 	LEFT JOIN mu_ecang_product b ON SUBSTRING( a.lecangsCode, 7 ) = b.productSku 
 WHERE
-	created_date = ' . date('Ymd', strtotime('-7 day')) . ' 
+	created_date = ' . date('Ymd', strtotime('-9 day')) . ' 
 	AND b.saleStatus != 18
 	AND b.saleStatus != 19 UNION ALL
 SELECT
@@ -80,7 +80,7 @@ FROM
 	mu_lc_inventory_batch a
 	LEFT JOIN mu_ecang_product b ON a.product_sku = b.productSku 
 WHERE
-	created_date = ' . date('Ymd', strtotime('-7 day')) . ' 
+	created_date = ' . date('Ymd', strtotime('-9 day')) . ' 
 	AND b.saleStatus != 18
 	AND b.saleStatus != 19
 	) a;
@@ -96,14 +96,15 @@ WHERE
 	a.`status` != 5 
 	AND a.`status` != 7 
 	AND a.`status` != 0 
-	AND a.datePaidPlatform >= "' . date('Y-m-d H:i:s', strtotime('-7 day')) . '" 
-	AND a.datePaidPlatform < "' . date('Y-m-d H:i:s') . ' ";
+	AND a.datePaidPlatform >= "' . date('Y-m-d 16:00:00', strtotime('-9 day')) . '" 
+	AND a.datePaidPlatform < "' . date('Y-m-d 16:00:00', strtotime('-2 day')) . '";
         ');
             $data = [
                 'turnover'      =>  round($monthQty[0]['qty'] / (($last_sum[0]['value'] + $sum[0]['value']) / 2) * 52, 2),
-                'date'          =>  date('Ymd'),
+                'date'          =>  date('Ymd', strtotime('-2 day')),
                 'created_date'  =>  date('Y-m-d H:i:s')
             ];
+            dump($data);exit();
             if (!$model->insert($data)) {
                 throw new Exception("Failed!");
             }

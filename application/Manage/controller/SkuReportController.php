@@ -440,7 +440,7 @@ FROM
      */
     public function store(): \think\response\View
     {
-        $sale_day = $this->request->get('sale_day', date('Y-m-d'), 'htmlspecialchars');
+        $sale_day = $this->request->get('sale_day', date('Y-m-d', strtotime('-2 day')), 'htmlspecialchars');
         $this->assign('sale_day', $sale_day);
         $sale_day_num = date('Ymd', strtotime($sale_day));
 
@@ -1005,8 +1005,8 @@ WHERE
 	a.`status` != 5 
 	AND a.`status` != 7 
 	AND a.`status` != 0 
-	AND a.datePaidPlatform >= "' . date('Y-m-d H:i:s', strtotime('-7 day', strtotime($sale_day_num))) . '" 
-	AND a.datePaidPlatform < "' . date('Y-m-d H:i:s', strtotime($sale_day_num)) . ' ";      
+	AND a.datePaidPlatform >= "' . date('Y-m-d 16:00:00', strtotime('-7 day', strtotime($sale_day_num))) . '" 
+	AND a.datePaidPlatform < "' . date('Y-m-d 16:00:00', strtotime($sale_day_num)) . '";
         ');
         $this->assign('monthQty', $monthQty);
 
