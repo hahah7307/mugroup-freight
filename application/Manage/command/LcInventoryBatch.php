@@ -59,7 +59,9 @@ class LcInventoryBatch extends Command
                 if (!empty($item['batch_info'])) {
                     $lcInventoryBatch = $item['batch_info'];
                     foreach ($lcInventoryBatch as $batchItem) {
-                        if (LcInventoryBatchModel::get(['receiving_code' => $batchItem['receiving_code'], 'product_sku' => $item['product_sku'], 'warehouse_code' => $item['warehouse_code'], 'created_date' => date('Ymd')])) {
+                        $model = new LcInventoryBatchModel();
+                        $inventory = $model->where(['receiving_code' => $batchItem['receiving_code'], 'product_sku' => $item['product_sku'], 'warehouse_code' => $item['warehouse_code'], 'created_date' => date('Ymd')])->find();
+                        if ($inventory) {
                             continue;
                         }
                         $batchData[] = [
