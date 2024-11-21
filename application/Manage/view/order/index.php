@@ -60,7 +60,7 @@
             </div>
         </form>
 
-        <div class="layui-form">
+        <div class="layui-form" style="overflow-x: auto;">
 <!--            <a class="layui-btn" href="{:url('add')}">添加</a>-->
             <a class="layui-btn layui-btn-normal" lay-submit lay-filter="Calculate">测算</a>
             <a class="layui-btn layui-btn-normal" lay-submit lay-filter="Add">新增</a>
@@ -186,9 +186,8 @@
                 {/foreach}
                 </tbody>
             </table>
-            {$list->render()}
         </div>
-
+        {$list->render()}
     </div>
 </div>
 <script>
