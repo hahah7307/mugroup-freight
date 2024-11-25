@@ -95,6 +95,13 @@
                         <a href="{:url('ak_ad_cost', ['id' => $id])}" class="layui-btn layui-btn layui-btn-sm">查看</a>
                     </td>
                 </tr>
+                <tr>
+                    <td>分摊记录</td>
+                    <td>查看所有有分摊记录的费用</td>
+                    <td class="tc">
+                        <a href="{:url('share', ['id' => $id])}" class="layui-btn layui-btn layui-btn-sm">查看</a>
+                    </td>
+                </tr>
                 </tbody>
             </table>
         </div>

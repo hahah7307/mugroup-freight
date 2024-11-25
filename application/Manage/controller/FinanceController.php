@@ -30,6 +30,7 @@ use app\Manage\model\FinanceOrderTemuDetailModel;
 use app\Manage\model\FinanceOrderTransferModel;
 use app\Manage\model\FinanceOrderWayfairModel;
 use app\Manage\model\FinanceReportModel;
+use app\Manage\model\FinanceReportSnapshotModel;
 use app\Manage\model\FinanceSkuRelationModel;
 use app\Manage\model\FinanceStoreModel;
 use app\Manage\model\FinanceTableModel;
@@ -2392,5 +2393,113 @@ class FinanceController extends BaseController
         Session::set(Config::get('BACK_URL'), $this->request->url(), 'manage');
 
         return view();
+    }
+
+    /**
+     * @throws ModelNotFoundException
+     * @throws DbException
+     * @throws DataNotFoundException
+     */
+    public function snapshot_add()
+    {
+        if ($this->request->isPost()) {
+            $post = $this->request->post();
+            $reportId = $post['id'];
+            $reportObj = new FinanceReportModel();
+            $report = $reportObj->find($reportId);
+            if ($report) {
+                $snapshotObj = new FinanceReportSnapshotModel();
+                $snapshotObj->where(['report_id' => $report['id']])->delete();
+                if (FinanceReportSnapshotModel::FbmSnapshot($report)
+                    && FinanceReportSnapshotModel::FbaSnapshot($report)
+                    && FinanceReportSnapshotModel::WalmartSnapshot($report)
+                    && FinanceReportSnapshotModel::WayfairSnapshot($report)
+                    && FinanceReportSnapshotModel::SheinSnapshot($report)
+                    && FinanceReportSnapshotModel::TemuSnapshot($report)
+                    && FinanceReportSnapshotModel::EbaySnapshot($report)
+                ) {
+                    echo json_encode(['code' => 1, 'msg' => '结存完成']);
+                } else {
+                    echo json_encode(['code' => 0, 'msg' => '结存失败，请重试']);
+                }
+            } else {
+                echo json_encode(['code' => 0, 'msg' => '结存失败，请重试']);
+            }
+        } else {
+            echo json_encode(['code' => 0, 'msg' => '异常操作']);
+        }
+        exit;
+    }
+
+    /**
+     * @throws DbException
+     */
+    public function snapshot(): \think\response\View
+    {
+        $keyword = $this->request->get('keyword', '', 'htmlspecialchars');
+        $this->assign('keyword', $keyword);
+        if ($keyword) {
+            $where['user_account|warehouse_sku|product_name|seller|purchaser'] = ['like', '%' . $keyword . '%'];
+        } else {
+            $where = [];
+        }
+
+        $platform = $this->request->get('platform', 'amazon-FBM', 'htmlspecialchars');
+        $this->assign('platform', $platform);
+        if ($platform) {
+            $where['platform'] = $platform;
+        }
+
+        $month = $this->request->get('month', date('Y-m', strtotime('-2 month')), 'htmlspecialchars');
+        $this->assign('month', $month);
+        if ($month) {
+            $where['month'] = $month;
+        }
+
+        // 列表
+        $reportSnapshotModel = new FinanceReportSnapshotModel();
+        $this->assign('qty_amount', $reportSnapshotModel->where($where)->sum('qty_amount'));
+        $this->assign('amount', $reportSnapshotModel->where($where)->sum('amount'));
+        $this->assign('profit', $reportSnapshotModel->where($where)->sum('profit'));
+
+        return view();
+    }
+
+    /**
+     * @throws DbException
+     * @throws Exception
+     */
+    public function getSnapshot()
+    {
+        $post = $this->request->post();
+        if ($post['keyword']) {
+            $where['user_account|warehouse_sku|product_name|seller|purchaser'] = ['like', '%' . $post['keyword'] . '%'];
+        } else {
+            $where = [];
+        }
+
+        if ($post['platform']) {
+            $where['platform'] = $post['platform'];
+        }
+
+        if ($post['month']) {
+            $where['month'] = $post['month'];
+        }
+
+        $page_num = $this->request->get('page_num', Config::get('PAGE_NUM'));
+//        dump($where);exit();
+
+        // 列表
+        $akAdCostModel = new FinanceReportSnapshotModel();
+        $list = $akAdCostModel->where($where)->order('id asc')->paginate($page_num, '', ['keyword' => $post['keyword']]);
+
+        $response = [
+            "code"      => 0,           // 成功状态码
+            "msg"       => "",           // 提示信息
+            "count"     => $akAdCostModel->where($where)->count(), // 数据总条数
+            "data"      => $list->toArray()['data']         // 数据列表
+        ];
+        header('Content-Type: application/json');
+        echo json_encode($response);
     }
 }

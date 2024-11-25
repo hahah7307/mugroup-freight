@@ -104,7 +104,6 @@ WHERE
                 'date'          =>  date('Ymd', strtotime('-2 day')),
                 'created_date'  =>  date('Y-m-d H:i:s')
             ];
-            dump($data);exit();
             if (!$model->insert($data)) {
                 throw new Exception("Failed!");
             }

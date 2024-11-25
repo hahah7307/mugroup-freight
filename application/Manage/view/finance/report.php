@@ -23,6 +23,7 @@
 
         <div class="layui-form">
             <a class="layui-btn" href="{:url('report_add')}">添加</a>
+            <a class="layui-btn" href="{:url('snapshot')}">结存</a>
             <button class="layui-btn layui-btn-danger" id="introduction">SOP</button>
             <table class="layui-table">
                 <colgroup>
@@ -65,7 +66,7 @@
                         <a href="{:url('relation', ['id' => $v.id])}" class="layui-btn layui-btn-sm">映射</a>
                         <a href="{:url('store', ['id' => $v.id])}" class="layui-btn layui-btn-sm">库存</a>
                         <a href="{:url('outbound', ['id' => $v.id])}" class="layui-btn layui-btn-sm">出库</a>
-                        <a href="{:url('share', ['id' => $v.id])}" class="layui-btn layui-btn-sm">分摊</a>
+                        <button type="button" class="layui-btn layui-btn-normal layui-btn-sm" lay-submit lay-filter="Snapshot" data-id="{$v.id}">结存</button>
                         <a href="{:url('report_edit', ['id' => $v.id])}" class="layui-btn layui-btn-normal layui-btn-sm">编辑</a>
                         <a href="{:url('report_export', ['id' => $v.id, 'month' => $v.month])}" class="layui-btn layui-btn-normal layui-btn-sm">导出</a>
                     </td>
@@ -119,7 +120,7 @@
             });
         });
 
-        // 状态
+        // 营运核算
         form.on('switch(formLock)', function(data){
             // 选中所有复选框
             let boolean = $(this).prop('checked');
@@ -141,15 +142,16 @@
             return false;
         });
 
-        // 删除
-        form.on('submit(Detele)', function(data){
+        // 结存
+        form.on('submit(Snapshot)', function(data){
             var text = $(this).text(),
                 button = $(this),
                 id = $(this).data('id');
-            layer.confirm('确定删除吗？',{icon:3,closeBtn:0,title:false,btnAlign:'c'},function(){
+            layer.confirm('确定结存吗？',{icon:3,closeBtn:0,title:false,btnAlign:'c'},function(){
                 $('button').attr('disabled',true);
                 button.text('请稍候...');
-                axios.post("{:url('delete')}", {id:id})
+                layer.load(1);
+                axios.post("{:url('snapshot_add')}", {id:id})
                     .then(function (response) {
                         var res = response.data;
                         if (res.code === 1) {
