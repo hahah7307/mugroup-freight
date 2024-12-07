@@ -23,6 +23,8 @@
                     <select name="type" lay-verify="">
                         <option value="1" {if condition="$info.type eq 1"}selected{/if}>美西</option>
                         <option value="2" {if condition="$info.type eq 2"}selected{/if}>美东</option>
+                        <option value="3" {if condition="$info.type eq 3"}selected{/if}>美东南</option>
+                        <option value="4" {if condition="$info.type eq 4"}selected{/if}>美南</option>
                     </select>
                 </div>
             </div>

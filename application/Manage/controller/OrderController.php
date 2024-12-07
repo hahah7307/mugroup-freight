@@ -25,10 +25,16 @@ class OrderController extends BaseController
      */
     public function index(): \think\response\View
     {
+        $order = new OrderModel();
         $keyword = $this->request->get('keyword', '', 'htmlspecialchars');
         $this->assign('keyword', $keyword);
+
         if ($keyword) {
-            $where['refNo|saleOrderCode|sysOrderCode'] = ['like', '%' . $keyword . '%'];
+            if (is_numeric($keyword) && $order->find($keyword)) {
+                $where['id'] = $keyword;
+            } else {
+                $where['refNo|saleOrderCode|sysOrderCode'] = ['like', '%' . $keyword . '%'];
+            }
         } else {
             $where = [];
         }
@@ -50,7 +56,6 @@ class OrderController extends BaseController
         $this->assign('page_num', $page_num);
 
         // 订单列表
-        $order = new OrderModel();
         $list = $order->with(['details.product','address'])->where($where)->order('id asc')->paginate($page_num, false, ['query' => ['keyword' => $keyword, 'platform' => $platform, 'status' => $status, 'page_num' => $page_num]]);
         $this->assign('list', $list);
 

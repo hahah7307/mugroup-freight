@@ -23,6 +23,8 @@
                     <select name="type" lay-verify="">
                         <option value="1">美西</option>
                         <option value="2">美东</option>
+                        <option value="3">美东南</option>
+                        <option value="4">美南</option>
                     </select>
                 </div>
             </div>
