@@ -140,7 +140,7 @@ class OrderModel extends Model
             }
 
             // 基础费运算
-            $customerZone = StorageZoneModel::getCustomZone($storage_id, $type, $postalCode);
+            $customerZone = StorageZoneModel::getCustomZone($order, $postalCode);
             if ($customerZone == 0) {
                 continue;
             }
@@ -291,6 +291,7 @@ class OrderModel extends Model
         // 删除重复数据
         $orderItem = [];
         foreach ($orders as $v) {
+            // 有重复的易仓订单只留下最后一条，删除其余
             if ($v['order_id'] != $item['order_id']) {
                 if (OrderModel::destroy($v['id'])) {
                     OrderAddressModel::destroy(['order_id' => $v['id']]);
@@ -307,7 +308,54 @@ class OrderModel extends Model
                     $orderItem = $v;
                 }
             }
+
+
+            // 获取订单详情，删除易仓订单不匹配的脏数据
+            $initDetailSum = 0;
+            $detailsData = OrderDetailModel::get(['order_id' => $v['id']]);
+            foreach ($detailsData as $detailsDatum) {
+                if ($detailsDatum['saleOrderCode'] != $v['saleOrderCode']) {
+                    OrderDetailModel::destroy(['order_id' => $v['id']]);
+                } else {
+                    $initDetailSum ++;
+                }
+            }
+            unset($detailsData);
+            if ($initDetailSum == 0) {
+                // update detail
+                $orderDetail = $item['orderDetails'];
+                foreach ($orderDetail as $detail) {
+                    $detail['warehouseSkuList'] = isset($detail['warehouseSkuList']) ? json_encode($detail['warehouseSkuList']) : json_encode([]);
+                    $detail['promotionIdList'] = isset($detail['promotionIdList']) ? json_encode($detail['promotionIdList']) : json_encode([]);
+                    $detail['buyerCustomizedInfo'] = isset($detail['buyerCustomizedInfo']) ? json_encode($detail['buyerCustomizedInfo']) : json_encode([]);
+                    $detail['order_id'] = $v['id'];
+                    OrderDetailModel::create($detail);
+                    unset($detail);
+                }
+                unset($orderDetail);
+            }
+
+
+            $initAddressSum = 0;
+            $addressModel = new OrderAddressModel();
+            $addressData = $addressModel->where(['order_id' => $v['id']])->select();
+            foreach ($addressData as $addressDatum) {
+                if (!empty($item['orderAddress']['postalCode']) && $addressDatum['postalCode'] != $item['orderAddress']['postalCode']) {
+                    OrderAddressModel::destroy(['id' => $addressDatum['id']]);
+                } else {
+                    $initAddressSum ++;
+                }
+            }
+            unset($addressData);
+            if ($initAddressSum == 0) {
+                // update address
+                $address = $item['orderAddress'];
+                $address = array_filter($address);
+                $address['order_id'] = $orderItem['id'];
+                OrderAddressModel::create($address);
+            }
         }
+
         if (empty($orderItem)) {
             return false;
         }

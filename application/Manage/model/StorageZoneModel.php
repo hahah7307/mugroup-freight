@@ -40,24 +40,22 @@ class StorageZoneModel extends Model
     }
 
     /**
-     * @param $storage
-     * @param $type
-     * @param $postalCode
-     * @return int
      * @throws DataNotFoundException
-     * @throws DbException
      * @throws ModelNotFoundException
+     * @throws DbException
      */
-    static public function getCustomZone($storage, $type, $postalCode): int
+    static public function getCustomZone($order, $postalCode): int
     {
-        if ($storage == StorageModel::LIANGCANGID) {
+        $storageAreaObj = new StorageAreaModel();
+        $area = $storageAreaObj->where(['storage_code' => $order['warehouseCode']])->find();
+        if ($order['area']['storage_id'] == StorageModel::LIANGCANGID) {
             $zip_code = substr($postalCode, 0, 3) . "00";
             $storageZone = new StorageZoneModel();
-            $zone = $storageZone->where(['storage_id' => $storage, 'type' => $type])->where('zip_code', '<=', $zip_code)->order('id desc')->find();
+            $zone = $storageZone->where(['storage_id' => $order['area']['storage_id'], 'type' => $order['area']['type'], 'area_id' => $area['id']])->where('zip_code', '<=', $zip_code)->order('id desc')->find();
             // TODO:邮编不在范围内无法得到分区
             return intval($postalCode) >= $zone['zip_code'] && intval($postalCode) <= $zone['zip_code_bak'] ? $zone['zone'] : 0;
-        } elseif ($storage == StorageModel::LECANGID) {
-            $zone = StorageZoneModel::get(['storage_id' => $storage, 'type' => $type, 'zip_code' => $postalCode]);
+        } elseif ($order['area']['storage_id'] == StorageModel::LECANGID) {
+            $zone = StorageZoneModel::get(['storage_id' => $order['area']['storage_id'], 'type' => $order['area']['type'], 'area_id' => $area['id'], 'zip_code' => $postalCode]);
             return $zone ? $zone['zone'] : 0;
         } else {
             return 0;
