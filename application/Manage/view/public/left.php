@@ -52,6 +52,7 @@
                         <dd><a layui-href="{:url('Finance/report')}">财务报表</a></dd>
                         <dd><a layui-href="{:url('FinanceOperation/index')}">营运费用</a></dd>
                         <dd><a layui-href="{:url('Finance/order_statistics')}">订单统计</a></dd>
+                        <dd><a layui-href="{:url('Finance/wildberries')}">Wildberries</a></dd>
                         <dd><a layui-href="{:url('Finance/wayfair_core')}">Wayfair订单</a></dd>
                         <dd><a layui-href="{:url('SkuRelation/index')}">SKU映射</a></dd>
                     </dl>

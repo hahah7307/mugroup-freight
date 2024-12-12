@@ -35,6 +35,7 @@
                     <option value="temu">temu</option>
                     <option value="temu_detail">temu_detail</option>
                     <option value="ebay">ebay</option>
+                    <option value="wildberries">wildberries</option>
                 </select>
             </div>
             <button type="button" class="layui-btn  layui-btn-normal" id="excel">导入</button><br><br>

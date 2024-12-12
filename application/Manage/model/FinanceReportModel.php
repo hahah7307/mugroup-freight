@@ -5164,4 +5164,126 @@ ORDER BY
 	b.paid_time;
         ';
     }
+
+    static public function getWildberriesWarehouseSkuSql($report_id): string
+    {
+        return '
+SELECT
+	platform,
+	user_account,
+	payment_id,
+	product_name,
+	sku,
+	SUM( sale_qty ) sale_qty,
+	SUM( refund_qty ) refund_qty,
+	SUM( sale_amount ) sale_amount,
+	SUM( refund_amount ) refund_amount,
+	SUM( sale_selling_fees ) sale_selling_fees,
+	SUM( refund_selling_fees ) refund_selling_fees,
+	SUM( sale_regulatory_fee ) sale_regulatory_fee,
+	SUM( refund_regulatory_fee ) refund_regulatory_fee,
+	SUM( sale_total ) sale_total,
+	SUM( refund_total ) refund_total,
+	SUM( shipping_fee ) shipping_fee,
+	SUM( cost ) cost,
+	SUM( domestic_shipping ) domestic_shipping,
+	SUM( adjustment ) adjustment,
+	ROUND( SUM( sale_total + refund_total + shipping_fee - cost - domestic_shipping + adjustment ), 2 ) profit,
+	ROUND( SUM( sale_total + refund_total + shipping_fee - cost - domestic_shipping + adjustment ) / sale_amount, 4 ) gross_profit_margin 
+FROM
+	(
+	SELECT
+		"wildberries" platform,
+		"Wildberries" user_account,
+		c.order_no payment_id,
+		d.product_name,
+		d.sku,
+		d.quantity sale_qty,
+		0 AS refund_qty,
+		a.product_sales sale_amount,
+		0 AS refund_amount,
+		a.selling_fees sale_selling_fees,
+		0 AS refund_selling_fees,
+		a.regulatory_fee sale_regulatory_fee,
+		0 AS refund_regulatory_fee,
+		a.total sale_total,
+		0 AS refund_total,
+		e.shipping_fee,
+		IFNULL( d.total, 0 ) cost,
+		IFNULL( d.shipping_fee, 0 ) domestic_shipping,
+		0 AS adjustment 
+	FROM
+		mu_finance_order_sale a
+		LEFT JOIN mu_finance_table b ON a.table_id = b.id
+		LEFT JOIN mu_finance_wildberries_order c ON a.description = c.fbs_no
+		LEFT JOIN mu_finance_wildberries_fee d ON c.order_no = d.order_no
+		LEFT JOIN mu_finance_wildberries_shipping e ON a.description = e.description 
+	WHERE
+		a.report_id = ' . $report_id . ' 
+		AND b.platform = "wildberries" UNION ALL
+	SELECT
+		"wildberries" platform,
+		"Wildberries" user_account,
+		c.order_no payment_id,
+		d.product_name,
+		d.sku,
+		0 AS sale_qty,
+		d.quantity refund_qty,
+		0 AS sale_amount,
+		a.product_sales refund_amount,
+		0 AS sale_selling_fees,
+		a.selling_fees refund_selling_fees,
+		0 AS sale_regulatory_fee,
+		a.regulatory_fee refund_regulatory_fee,
+		0 AS sale_total,
+		a.total refund_total,
+		0 AS shipping_fee,
+		0 AS cost,
+		0 AS domestic_shipping,
+		0 AS adjustment 
+	FROM
+		mu_finance_order_refund a
+		LEFT JOIN mu_finance_table b ON a.table_id = b.id
+		LEFT JOIN mu_finance_wildberries_order c ON a.description = c.fbs_no
+		LEFT JOIN mu_finance_wildberries_fee d ON c.order_no = d.order_no
+		LEFT JOIN mu_finance_wildberries_shipping e ON a.description = e.description 
+	WHERE
+		a.report_id = ' . $report_id . ' 
+		AND b.platform = "wildberries" UNION ALL
+	SELECT
+		"wildberries" platform,
+		"Wildberries" user_account,
+		"" AS payment_id,
+		"" AS product_name,
+		"" AS sku,
+		0 AS sale_qty,
+		0 refund_qty,
+		0 AS sale_amount,
+		0 refund_amount,
+		0 AS sale_selling_fees,
+		0 refund_selling_fees,
+		0 AS sale_regulatory_fee,
+		0 refund_regulatory_fee,
+		0 AS sale_total,
+		0 refund_total,
+		0 AS shipping_fee,
+		0 AS cost,
+		0 AS domestic_shipping,
+		a.total adjustment 
+	FROM
+		mu_finance_order_adjustment a
+		LEFT JOIN mu_finance_table b ON a.table_id = b.id 
+	WHERE
+		a.report_id = ' . $report_id . ' 
+		AND b.platform = "wildberries" 
+	) a 
+GROUP BY
+	platform,
+	user_account,
+	payment_id,
+	product_name,
+	sku,
+	sale_amount;
+        ';
+    }
 }

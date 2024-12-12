@@ -35,6 +35,8 @@ class AmazonPayment extends Model
 
     public $orderTemuDetails = [];
 
+    public $orderShippingNew = [];
+
     /**
      * @throws DbException
      * @throws ModelNotFoundException
@@ -1415,6 +1417,101 @@ class AmazonPayment extends Model
             'orderAdjustmentNew'        =>  $this->orderAdjustmentNew,
             'orderFbaInventory'         =>  $this->orderFbaInventory,
             'orderTransferNew'          =>  $this->orderTransferNew
+        ];
+    }
+
+    public function wildberries($excel, $tableId, $reportId): array
+    {
+        foreach ($excel as $item) {
+            $this->userAccount = "Wildberries";
+
+            if ($item[9] == 'sale' && ($item[10] == 'Sale' || $item[10] == 'Correct sale')) {
+                $this->orderSaleNew[] = [
+                    "report_id"                 =>  $reportId,
+                    "table_id"                  =>  $tableId,
+                    "payment_id"                =>  trim($item[0]),
+                    "sku"                       =>  $item[3],
+                    "description"               =>  $item[44],
+                    "quantity"                  =>  $item[13],
+                    "fulfillment"               =>  $item[9],
+                    "postal"                    =>  '',
+                    "product_sales"             =>  sprintf('%.2f', str_replace(',', '', $item[19])),
+                    "product_sales_tax"         =>  0,
+                    "shipping_credits"          =>  0,
+                    "shipping_credits_tax"      =>  0,
+                    "gift_wrap_credits"         =>  0,
+                    "gift_wrap_credits_tax"     =>  0,
+                    "regulatory_fee"            =>  sprintf('%.2f', str_replace(',', '', $item[28])) * -1,
+                    "regulatory_fee_tax"        =>  0,
+                    "promotional_rebates"       =>  0,
+                    "promotional_rebates_tax"   =>  0,
+                    "marketplace_withheld_tax"  =>  0,
+                    "selling_fees"              =>  ceil($item[19] * $item[23]) * 0.01 * -1,
+                    "fba_fees"                  =>  0,
+                    "other_transaction_fees"    =>  0,
+                    "other"                     =>  0,
+                    "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[33])),
+                ];
+            } elseif ($item[10] == 'Logistics') {
+                $this->orderShippingNew[] = [
+                    "report_id"                 =>  $reportId,
+                    "table_id"                  =>  $tableId,
+                    "payment_id"                =>  trim($item[0]),
+                    "sku"                       =>  $item[3],
+                    "description"               =>  $item[44],
+                    "shipping_fee"              =>  sprintf('%.2f', str_replace(',', '', $item[36])) * -1,
+                ];
+            } elseif ($item[9] == 'return' && $item[10] == 'Return') {
+                $this->orderRefundNew[] = [
+                    "report_id"                 =>  $reportId,
+                    "table_id"                  =>  $tableId,
+                    "payment_id"                =>  trim($item[0]),
+                    "sku"                       =>  $item[3],
+                    "description"               =>  $item[44],
+                    "quantity"                  =>  $item[13],
+                    "fulfillment"               =>  $item[9],
+                    "postal"                    =>  '',
+                    "product_sales"             =>  sprintf('%.2f', str_replace(',', '', $item[19])) * -1,
+                    "product_sales_tax"         =>  0,
+                    "shipping_credits"          =>  0,
+                    "shipping_credits_tax"      =>  0,
+                    "gift_wrap_credits"         =>  0,
+                    "gift_wrap_credits_tax"     =>  0,
+                    "regulatory_fee"            =>  sprintf('%.2f', str_replace(',', '', $item[28])),
+                    "regulatory_fee_tax"        =>  0,
+                    "promotional_rebates"       =>  0,
+                    "promotional_rebates_tax"   =>  0,
+                    "marketplace_withheld_tax"  =>  0,
+                    "selling_fees"              =>  ceil($item[19] * $item[23]) * 0.01,
+                    "fba_fees"                  =>  0,
+                    "other_transaction_fees"    =>  0,
+                    "other"                     =>  0,
+                    "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[33])) * -1,
+                ];
+            } elseif ($item[9] == 'sale' && $item[10] == 'Compensation for damages') {
+                $this->orderAdjustmentNew[] = [
+                    "report_id"                 =>  $reportId,
+                    "table_id"                  =>  $tableId,
+                    "payment_id"                =>  trim($item[0]),
+                    "sku"                       =>  $item[3],
+                    "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[33])),
+                    "is_amazon"                 =>  0,
+                ];
+            }
+        }
+
+        return [
+            'userAccount'               =>  $this->userAccount,
+            'orderSaleNew'              =>  $this->orderSaleNew,
+            'orderRefundNew'            =>  $this->orderRefundNew,
+            'orderPromotionNew'         =>  $this->orderPromotionNew,
+            'orderShippingServiceNew'   =>  $this->orderShippingServiceNew,
+            'orderLiquidationNew'       =>  $this->orderLiquidationNew,
+            'orderAdjustmentNew'        =>  $this->orderAdjustmentNew,
+            'orderFbaInventory'         =>  $this->orderFbaInventory,
+            'orderTransferNew'          =>  $this->orderTransferNew,
+            'orderSubscriptionNew'      =>  $this->orderSubscriptionNew,
+            'orderShippingNew'          =>  $this->orderShippingNew
         ];
     }
 }

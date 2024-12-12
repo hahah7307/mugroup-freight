@@ -1599,6 +1599,77 @@ class FinanceExcelInit extends Model
         }
     }
 
+    /**
+     * @throws DbException
+     * @throws ModelNotFoundException
+     * @throws DataNotFoundException
+     */
+    public function getWildberriesWarehouseSkuSql($index, $report)
+    {
+        $wildberries = $this->model->query(FinanceReportModel::getWildberriesWarehouseSkuSql($report['id']));
+
+        if ($index) {
+            // create new sheet
+            $this->objPHPExcel->createSheet();
+        }
+
+        // Set name sheet
+        $this->objPHPExcel->setActiveSheetIndex($index)->setTitle('Wildberries');
+
+        // Add some data
+        $this->objPHPExcel->setActiveSheetIndex($index)
+            ->setCellValue('A1', '平台')
+            ->setCellValue('B1', '店铺')
+            ->setCellValue('C1', 'Payment')
+            ->setCellValue('D1', '产品名称')
+            ->setCellValue('E1', 'SKU')
+            ->setCellValue('F1', '销售数量')
+            ->setCellValue('G1', '退款数量')
+            ->setCellValue('H1', '销售金额')
+            ->setCellValue('I1', '退款金额')
+            ->setCellValue('J1', '平台佣金')
+            ->setCellValue('K1', '退款佣金')
+            ->setCellValue('L1', '收单服务费')
+            ->setCellValue('M1', '收单服务费退回')
+            ->setCellValue('N1', '回款金额')
+            ->setCellValue('O1', '退款回款金额')
+            ->setCellValue('P1', '平台运费')
+            ->setCellValue('Q1', '成本合计')
+            ->setCellValue('R1', '国内运费')
+            ->setCellValue('S1', '调整费用')
+            ->setCellValue('T1', '毛利')
+            ->setCellValue('U1', '毛利率')
+        ;
+
+        $wildberriesIndex = 1;
+        foreach ($wildberries as $wildberriesItem) {
+            $wildberriesIndex ++;
+            $this->objPHPExcel->setActiveSheetIndex($index)
+                ->setCellValue('A' . $wildberriesIndex, $wildberriesItem['platform'])
+                ->setCellValue('B' . $wildberriesIndex, $wildberriesItem['user_account'])
+                ->setCellValue('C' . $wildberriesIndex, $wildberriesItem['payment_id'])
+                ->setCellValue('D' . $wildberriesIndex, $wildberriesItem['product_name'])
+                ->setCellValue('E' . $wildberriesIndex, $wildberriesItem['sku'])
+                ->setCellValue('F' . $wildberriesIndex, $wildberriesItem['sale_qty'])
+                ->setCellValue('G' . $wildberriesIndex, $wildberriesItem['refund_qty'])
+                ->setCellValue('H' . $wildberriesIndex, $wildberriesItem['sale_amount'])
+                ->setCellValue('I' . $wildberriesIndex, $wildberriesItem['refund_amount'])
+                ->setCellValue('J' . $wildberriesIndex, $wildberriesItem['sale_selling_fees'])
+                ->setCellValue('K' . $wildberriesIndex, $wildberriesItem['refund_selling_fees'])
+                ->setCellValue('L' . $wildberriesIndex, $wildberriesItem['sale_regulatory_fee'])
+                ->setCellValue('M' . $wildberriesIndex, $wildberriesItem['refund_regulatory_fee'])
+                ->setCellValue('N' . $wildberriesIndex, $wildberriesItem['sale_total'])
+                ->setCellValue('O' . $wildberriesIndex, $wildberriesItem['refund_total'])
+                ->setCellValue('P' . $wildberriesIndex, $wildberriesItem['shipping_fee'])
+                ->setCellValue('Q' . $wildberriesIndex, $wildberriesItem['cost'])
+                ->setCellValue('R' . $wildberriesIndex, $wildberriesItem['domestic_shipping'])
+                ->setCellValue('S' . $wildberriesIndex, $wildberriesItem['adjustment'])
+                ->setCellValue('T' . $wildberriesIndex, $wildberriesItem['profit'])
+                ->setCellValue('U' . $wildberriesIndex, $wildberriesItem['gross_profit_margin'])
+            ;
+        }
+    }
+
     public function excelSheetSet()
     {
         return $this->objPHPExcel;
