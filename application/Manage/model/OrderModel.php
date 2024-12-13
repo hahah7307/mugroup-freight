@@ -288,7 +288,7 @@ class OrderModel extends Model
             return false;
         }
 
-        // 删除重复数据
+        // 删除易仓订单的重复数据
         $orderItem = [];
         foreach ($orders as $v) {
             // 有重复的易仓订单只留下最后一条，删除其余
@@ -308,84 +308,45 @@ class OrderModel extends Model
                     $orderItem = $v;
                 }
             }
-
-
-            // 获取订单详情，删除易仓订单不匹配的脏数据
-            $initDetailSum = 0;
-            $detailsData = OrderDetailModel::get(['order_id' => $v['id']]);
-            foreach ($detailsData as $detailsDatum) {
-                if ($detailsDatum['saleOrderCode'] != $v['saleOrderCode']) {
-                    OrderDetailModel::destroy(['order_id' => $v['id']]);
-                } else {
-                    $initDetailSum ++;
-                }
-            }
-            unset($detailsData);
-            if ($initDetailSum == 0) {
-                // update detail
-                $orderDetail = $item['orderDetails'];
-                foreach ($orderDetail as $detail) {
-                    $detail['warehouseSkuList'] = isset($detail['warehouseSkuList']) ? json_encode($detail['warehouseSkuList']) : json_encode([]);
-                    $detail['promotionIdList'] = isset($detail['promotionIdList']) ? json_encode($detail['promotionIdList']) : json_encode([]);
-                    $detail['buyerCustomizedInfo'] = isset($detail['buyerCustomizedInfo']) ? json_encode($detail['buyerCustomizedInfo']) : json_encode([]);
-                    $detail['order_id'] = $v['id'];
-                    OrderDetailModel::create($detail);
-                    unset($detail);
-                }
-                unset($orderDetail);
-            }
-
-
-            $initAddressSum = 0;
-            $addressModel = new OrderAddressModel();
-            $addressData = $addressModel->where(['order_id' => $v['id']])->select();
-            foreach ($addressData as $addressDatum) {
-                if (!empty($item['orderAddress']['postalCode']) && $addressDatum['postalCode'] != $item['orderAddress']['postalCode']) {
-                    OrderAddressModel::destroy(['id' => $addressDatum['id']]);
-                } else {
-                    $initAddressSum ++;
-                }
-            }
-            unset($addressData);
-            if ($initAddressSum == 0) {
-                // update address
-                $address = $item['orderAddress'];
-                $address = array_filter($address);
-                $address['order_id'] = $orderItem['id'];
-                OrderAddressModel::create($address);
-            }
         }
 
-        if (empty($orderItem)) {
+        // 删除后不存在可修改的易仓订单则返回，数据交给新增
+        if (count($orderItem) == 0) {
             return false;
         }
 
         Db::startTrans();
         try {
+            // 存在order_id一样的数据，操作更新
+            // 获取订单详情，由于op_id不一定强绑定。所有直接删除原数据新增
+            OrderDetailModel::destroy(['order_id' => $orderItem['id']]);
+
             // update detail
             $orderDetail = $item['orderDetails'];
             foreach ($orderDetail as $detail) {
                 $detail['warehouseSkuList'] = isset($detail['warehouseSkuList']) ? json_encode($detail['warehouseSkuList']) : json_encode([]);
                 $detail['promotionIdList'] = isset($detail['promotionIdList']) ? json_encode($detail['promotionIdList']) : json_encode([]);
                 $detail['buyerCustomizedInfo'] = isset($detail['buyerCustomizedInfo']) ? json_encode($detail['buyerCustomizedInfo']) : json_encode([]);
-                $detailItem = OrderDetailModel::get(['op_id' => $detail['op_id']]);
-                if ($detailItem) {
-                    OrderDetailModel::update($detail, ['op_id' => $detail['op_id']]);
-                } else {
-                    $detail['order_id'] = $orderItem['id'];
-                    OrderDetailModel::create($detail);
-                }
+                $detail['order_id'] = $orderItem['id'];
+                OrderDetailModel::create($detail);
+                unset($detail);
             }
 
-            // 保留地址数据保留邮编，用于就算尾程
             // update address
-            $address = $item['orderAddress'];
-            $address = array_filter($address);
-            $addressItem = OrderAddressModel::get(['order_id' => $orderItem['id']]);
-            if ($addressItem) {
-                $address['id'] = $addressItem['id'];
-                OrderAddressModel::update($address);
-            } else {
+            // 保留地址数据保留邮编，用于计算尾程
+            $isUpdateAddress = false;
+            $addressModel = new OrderAddressModel();
+            $addressData = $addressModel->where(['order_id' => $orderItem['id']])->select();
+            foreach ($addressData as $addressDatum) {
+                if (!empty($item['orderAddress']['postalCode']) && $addressDatum['postalCode'] != $item['orderAddress']['postalCode']) {
+                    OrderAddressModel::destroy(['id' => $addressDatum['id']]);
+                    $isUpdateAddress = true;
+                }
+            }
+            unset($addressData);
+            if ($isUpdateAddress) {
+                $address = $item['orderAddress'];
+                $address = array_filter($address);
                 $address['order_id'] = $orderItem['id'];
                 OrderAddressModel::create($address);
             }

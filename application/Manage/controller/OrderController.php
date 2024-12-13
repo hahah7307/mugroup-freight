@@ -177,14 +177,23 @@ class OrderController extends BaseController
         if ($this->request->isPost()) {
             $post = $this->request->post();
             array_shift($post['id']);
+            $updateOrder = [];
             foreach ($post['id'] as $item) {
                 if ($orderItem = OrderModel::get($item)) {
-                    $orderNew = OrderModel::saleOrderCodes2Order($orderItem['saleOrderCode']);
-                    OrderModel::orderUpdate($orderNew[0]);
+                    $updateOrder[] = $orderItem->toArray();
                 } else {
                     continue;
                 }
             }
+            $list = array_column($updateOrder, 'saleOrderCode');
+            $code = implode('","', $list);
+            $orderList = OrderModel::saleOrderCodes2Order($code);
+            foreach ($orderList as $item) {
+                if ($item) {
+                    OrderModel::orderUpdate($item);
+                }
+            }
+
             echo json_encode(['code' => 1, 'msg' => '更新完成']);
         } else {
             echo json_encode(['code' => 0, 'msg' => '更新失败']);
