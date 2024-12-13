@@ -528,7 +528,10 @@ class FinanceController extends BaseController
                             $promotional = $financeOrderSaleObj->where(['table_id' => $tableId])->sum('promotional_rebates');
                             if (in_array($payment_type, ['amazon_uk', 'amazon_de', 'amazon_es', 'amazon_fr', 'amazon_it'])) {
                                 $productSaleTax = $financeOrderSaleObj->where(['table_id' => $tableId])->sum('product_sales_tax');
-                                $sale_amount = round($productSale + $productSaleTax + $shipping + $gift + $regulatory + $promotional, 2);
+                                $shippingCreditsTax = $financeOrderSaleObj->where(['table_id' => $tableId])->sum('shipping_credits_tax');
+                                $giftWrapCreditsTax = $financeOrderSaleObj->where(['table_id' => $tableId])->sum('gift_wrap_credits_tax');
+                                $promotionalRebatesTax = $financeOrderSaleObj->where(['table_id' => $tableId])->sum('promotional_rebates_tax');
+                                $sale_amount = round($productSale + $productSaleTax + $shipping + $shippingCreditsTax + $gift + $giftWrapCreditsTax + $promotional + $promotionalRebatesTax, 2);
                             } else {
                                 $sale_amount = round($productSale + $shipping + $gift + $regulatory + $promotional, 2);
                             }
