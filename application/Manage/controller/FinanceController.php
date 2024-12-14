@@ -2078,9 +2078,9 @@ class FinanceController extends BaseController
                 $product = $productModel->where(['productSku' => $post['warehouse_sku']])->find();
                 if ($product) {
                     $post['report_id'] = $id;
-                    $post['product_name'] = $product['productTitle'] . '[' . $product['productTitleEn'] . ']';
+                    $post['product_name'] = $product['productTitle'];
                     $post['unit_price'] = $product['sp_unit_price'];
-                    $post['warehouse_name'] = 'ALL';
+                    $post['warehouse_name'] = '全部仓库';
                 } else {
                     echo json_encode(['code' => 0, 'msg' => '仓库SKU不存在']);
                     exit;
@@ -2119,9 +2119,9 @@ class FinanceController extends BaseController
                 $productModel = new ProductModel();
                 $product = $productModel->where(['productSku' => $post['warehouse_sku']])->find();
                 if ($product) {
-                    $post['product_name'] = $product['productTitle'] . '[' . $product['productTitleEn'] . ']';
+                    $post['product_name'] = $product['productTitle'];
                     $post['unit_price'] = $product['sp_unit_price'];
-                    $post['warehouse_name'] = 'ALL';
+                    $post['warehouse_name'] = '全部仓库';
                 } else {
                     echo json_encode(['code' => 0, 'msg' => '仓库SKU不存在']);
                     exit;
