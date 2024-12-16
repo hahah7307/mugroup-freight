@@ -389,6 +389,16 @@ class AmazonPayment extends Model
                     "other"                     =>  sprintf('%.2f', str_replace(',', '.', str_replace('.', '', $item[25]))),
                     "total"                     =>  sprintf('%.2f', str_replace(',', '.', str_replace('.', '', $item[26]))),
                 ];
+                if (sprintf('%.2f', str_replace(',', '.', str_replace('.', '', $item[24]))) != 0) {
+                    $this->orderAdjustmentNew[] = [
+                        "report_id"                 =>  $reportId,
+                        "table_id"                  =>  $tableId,
+                        "payment_id"                =>  $item[3],
+                        "sku"                       =>  $item[4],
+                        "total"                     =>  sprintf('%.2f', str_replace(',', '.', str_replace('.', '', $item[24]))),
+                        "is_amazon"                 =>  1,
+                    ];
+                }
             } elseif ($item[2] == 'Erstattung') {
                 $this->orderRefundNew[] = [
                     "report_id"                 =>  $reportId,
@@ -416,6 +426,16 @@ class AmazonPayment extends Model
                     "other"                     =>  sprintf('%.2f', str_replace(',', '.', str_replace('.', '', $item[25]))),
                     "total"                     =>  sprintf('%.2f', str_replace(',', '.', str_replace('.', '', $item[26]))),
                 ];
+                if (sprintf('%.2f', str_replace(',', '.', str_replace('.', '', $item[24]))) != 0) {
+                    $this->orderAdjustmentNew[] = [
+                        "report_id"                 =>  $reportId,
+                        "table_id"                  =>  $tableId,
+                        "payment_id"                =>  $item[3],
+                        "sku"                       =>  $item[4],
+                        "total"                     =>  sprintf('%.2f', str_replace(',', '.', str_replace('.', '', $item[24]))),
+                        "is_amazon"                 =>  1,
+                    ];
+                }
             } elseif ($item[2] == 'Shipping Services') {
                 $this->orderShippingServiceNew[] = [
                     "report_id"                 =>  $reportId,
@@ -519,6 +539,16 @@ class AmazonPayment extends Model
                     "other"                     =>  sprintf('%.2f', str_replace(',', '.', str_replace('.', '', $item[25]))),
                     "total"                     =>  sprintf('%.2f', str_replace(',', '.', str_replace('.', '', $item[26]))),
                 ];
+                if (sprintf('%.2f', str_replace(',', '.', str_replace('.', '', $item[24]))) != 0) {
+                    $this->orderAdjustmentNew[] = [
+                        "report_id"                 =>  $reportId,
+                        "table_id"                  =>  $tableId,
+                        "payment_id"                =>  $item[3],
+                        "sku"                       =>  $item[4],
+                        "total"                     =>  sprintf('%.2f', str_replace(',', '.', str_replace('.', '', $item[24]))),
+                        "is_amazon"                 =>  1,
+                    ];
+                }
             } elseif ($item[2] == 'Reembolso') {
                 $this->orderRefundNew[] = [
                     "report_id"                 =>  $reportId,
@@ -546,6 +576,16 @@ class AmazonPayment extends Model
                     "other"                     =>  sprintf('%.2f', str_replace(',', '.', str_replace('.', '', $item[25]))),
                     "total"                     =>  sprintf('%.2f', str_replace(',', '.', str_replace('.', '', $item[26]))),
                 ];
+                if (sprintf('%.2f', str_replace(',', '.', str_replace('.', '', $item[24]))) != 0) {
+                    $this->orderAdjustmentNew[] = [
+                        "report_id"                 =>  $reportId,
+                        "table_id"                  =>  $tableId,
+                        "payment_id"                =>  $item[3],
+                        "sku"                       =>  $item[4],
+                        "total"                     =>  sprintf('%.2f', str_replace(',', '.', str_replace('.', '', $item[24]))),
+                        "is_amazon"                 =>  1,
+                    ];
+                }
             } elseif ($item[2] == 'Shipping Services') {
                 $this->orderShippingServiceNew[] = [
                     "report_id"                 =>  $reportId,
@@ -647,6 +687,16 @@ class AmazonPayment extends Model
                     "other"                     =>  sprintf('%.2f', str_replace(',', '.', str_replace('.', '', $item[25]))),
                     "total"                     =>  sprintf('%.2f', str_replace(',', '.', str_replace('.', '', $item[26]))),
                 ];
+                if (sprintf('%.2f', str_replace(',', '.', str_replace('.', '', $item[24]))) != 0) {
+                    $this->orderAdjustmentNew[] = [
+                        "report_id"                 =>  $reportId,
+                        "table_id"                  =>  $tableId,
+                        "payment_id"                =>  $item[3],
+                        "sku"                       =>  $item[4],
+                        "total"                     =>  sprintf('%.2f', str_replace(',', '.', str_replace('.', '', $item[24]))),
+                        "is_amazon"                 =>  1,
+                    ];
+                }
             } elseif ($item[2] == 'Remboursement') {
                 $this->orderRefundNew[] = [
                     "report_id"                 =>  $reportId,
@@ -674,6 +724,16 @@ class AmazonPayment extends Model
                     "other"                     =>  sprintf('%.2f', str_replace(',', '.', str_replace('.', '', $item[25]))),
                     "total"                     =>  sprintf('%.2f', str_replace(',', '.', str_replace('.', '', $item[26]))),
                 ];
+                if (sprintf('%.2f', str_replace(',', '.', str_replace('.', '', $item[24]))) != 0) {
+                    $this->orderAdjustmentNew[] = [
+                        "report_id"                 =>  $reportId,
+                        "table_id"                  =>  $tableId,
+                        "payment_id"                =>  $item[3],
+                        "sku"                       =>  $item[4],
+                        "total"                     =>  sprintf('%.2f', str_replace(',', '.', str_replace('.', '', $item[24]))),
+                        "is_amazon"                 =>  1,
+                    ];
+                }
             } elseif ($item[2] == 'Shipping Services') {
                 $this->orderShippingServiceNew[] = [
                     "report_id"                 =>  $reportId,
@@ -775,6 +835,16 @@ class AmazonPayment extends Model
                     "other"                     =>  sprintf('%.2f', str_replace(',', '.', str_replace('.', '', $item[25]))),
                     "total"                     =>  sprintf('%.2f', str_replace(',', '.', str_replace('.', '', $item[26]))),
                 ];
+                if (sprintf('%.2f', str_replace(',', '.', str_replace('.', '', $item[24]))) != 0) {
+                    $this->orderAdjustmentNew[] = [
+                        "report_id"                 =>  $reportId,
+                        "table_id"                  =>  $tableId,
+                        "payment_id"                =>  $item[3],
+                        "sku"                       =>  $item[4],
+                        "total"                     =>  sprintf('%.2f', str_replace(',', '.', str_replace('.', '', $item[24]))),
+                        "is_amazon"                 =>  1,
+                    ];
+                }
             } elseif ($item[2] == 'Rimborso') {
                 $this->orderRefundNew[] = [
                     "report_id"                 =>  $reportId,
@@ -802,6 +872,16 @@ class AmazonPayment extends Model
                     "other"                     =>  sprintf('%.2f', str_replace(',', '.', str_replace('.', '', $item[25]))),
                     "total"                     =>  sprintf('%.2f', str_replace(',', '.', str_replace('.', '', $item[26]))),
                 ];
+                if (sprintf('%.2f', str_replace(',', '.', str_replace('.', '', $item[24]))) != 0) {
+                    $this->orderAdjustmentNew[] = [
+                        "report_id"                 =>  $reportId,
+                        "table_id"                  =>  $tableId,
+                        "payment_id"                =>  $item[3],
+                        "sku"                       =>  $item[4],
+                        "total"                     =>  sprintf('%.2f', str_replace(',', '.', str_replace('.', '', $item[24]))),
+                        "is_amazon"                 =>  1,
+                    ];
+                }
             } elseif ($item[2] == 'Shipping Services') {
                 $this->orderShippingServiceNew[] = [
                     "report_id"                 =>  $reportId,
@@ -920,7 +1000,7 @@ class AmazonPayment extends Model
                     "quantity"                  =>  $item[7],
                     "fulfillment"               =>  "Seller",
                     "postal"                    =>  $item[18],
-                    "product_sales"             =>  sprintf('%.2f', str_replace(',', '', $item[25])),
+                    "product_sales"             =>  sprintf('%.2f', str_replace(',', '', $item[25]) + str_replace(',', '', $item[28])),
                     "selling_fees"              =>  sprintf('%.2f', str_replace(',', '', $item[22])) * -1,
                     "shipping_credits"          =>  0,
                     "gift_wrap_credits"         =>  0,
@@ -1395,6 +1475,23 @@ class AmazonPayment extends Model
                     "promotional_rebates"       =>  0,
                     "fba_fees"                  =>  0,
                 ];
+            } elseif ($item[1] == '退款') {
+                $this->orderRefundNew[] = [
+                    "report_id"                 =>  $reportId,
+                    "table_id"                  =>  $tableId,
+                    "payment_id"                =>  $item[2],
+                    "fulfillment"               =>  "Seller",
+                    "product_sales"             =>  round(str_replace(',', '', $item[34]), 2)
+                        + round(str_replace(',', '', $item[25]), 2),
+                    "selling_fees"              =>  round(str_replace(',', '', $item[26]), 2)
+                        + round(str_replace(',', '', $item[27]), 2)
+                        + round(str_replace(',', '', $item[31]), 2),
+                    "shipping_credits"          =>  0,
+                    "gift_wrap_credits"         =>  0,
+                    "regulatory_fee"            =>  0,
+                    "promotional_rebates"       =>  0,
+                    "fba_fees"                  =>  0,
+                ];
             } elseif ($item[1] == '其他费用') {
                 if (gettype(strpos($item[38], 'Promoted Listings')) == 'integer') {
                     $this->orderPromotionNew[] = [
@@ -1403,7 +1500,20 @@ class AmazonPayment extends Model
                         "description"               =>  $item[38],
                         "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[34])),
                     ];
+                } elseif (gettype(strpos($item[38], 'Subscription Fee')) == 'integer') {
+                    $this->orderSubscriptionNew[] = [
+                        "report_id"                 => $reportId,
+                        "table_id"                  => $tableId,
+                        "description"               => $item[38],
+                        "total"                     => sprintf('%.2f', str_replace(',', '', $item[34])),
+                    ];
                 }
+            } elseif ($item[1] == '收费') {
+                $this->orderAdjustmentNew[] = [
+                    "report_id"                 =>  $reportId,
+                    "table_id"                  =>  $tableId,
+                    "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[34])),
+                ];
             }
         }
 
@@ -1416,7 +1526,8 @@ class AmazonPayment extends Model
             'orderLiquidationNew'       =>  $this->orderLiquidationNew,
             'orderAdjustmentNew'        =>  $this->orderAdjustmentNew,
             'orderFbaInventory'         =>  $this->orderFbaInventory,
-            'orderTransferNew'          =>  $this->orderTransferNew
+            'orderTransferNew'          =>  $this->orderTransferNew,
+            'orderSubscriptionNew'      =>  $this->orderSubscriptionNew
         ];
     }
 
