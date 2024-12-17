@@ -79,8 +79,9 @@ class FinanceController extends BaseController
         }
 
         // 列表
+        $where['id'] = ['egt', 6];
         $order = new FinanceReportModel();
-        $list = $order->where($where)->order('id asc')->paginate(Config::get('PAGE_NUM'), false, ['query' => ['keyword' => $keyword]]);
+        $list = $order->where($where)->order('id desc')->paginate(Config::get('PAGE_NUM'), false, ['query' => ['keyword' => $keyword]]);
         $this->assign('list', $list);
 
         Session::set(Config::get('BACK_URL'), $this->request->url(), 'manage');
