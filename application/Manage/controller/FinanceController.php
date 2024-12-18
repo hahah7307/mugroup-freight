@@ -1736,6 +1736,7 @@ class FinanceController extends BaseController
         $list = $order->where($where)->order('id asc')->paginate($page_num, false, ['query' => ['keyword' => $keyword]]);
         $this->assign('list', $list);
         $this->assign('report_id', $id);
+        $this->assign('sum', $order->where($where)->sum('cny_actual_paid'));
 
         return view();
     }

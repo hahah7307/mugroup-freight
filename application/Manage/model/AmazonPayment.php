@@ -1431,7 +1431,7 @@ class AmazonPayment extends Model
                     "latest_shipping_time"      =>  date('Y-m-d H:i:s', strtotime($item[24])),
                     "latest_delivery_time"      =>  date('Y-m-d H:i:s', strtotime($item[25])),
                     "activity_goods_base_price" =>  sprintf('%.2f', str_replace(',', '', round(substr($item[25], 0, strlen($item[28])), 2))),
-                    "base_price_total"          =>  sprintf('%.2f', str_replace(',', '', round(substr($item[26], 0, strlen($item[29])), 2))),
+                    "base_price_total"          =>  $item[29],
                     "tracking_number"           =>  trim($item[30]),
                     "carrier"                   =>  trim($item[31]),
                 ];
