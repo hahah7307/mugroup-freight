@@ -40,6 +40,7 @@ use app\Manage\model\FinanceWarehouseWFSModel;
 use app\Manage\model\FinanceWayfairCoreModel;
 use app\Manage\model\FinanceWildberriesFeeModel;
 use app\Manage\model\FinanceWildberriesOrderModel;
+use app\Manage\model\FinanceWildberriesOrderNotifyModel;
 use app\Manage\model\FinanceWildberriesShippingModel;
 use app\Manage\model\ProductModel;
 use app\Manage\validate\FinanceOrderStatisticsValidate;
@@ -546,6 +547,13 @@ class FinanceController extends BaseController
                         }
                     }
 
+                    if ($payment_type == "wildberries") {
+                        $financeWildberriesOrderNotifyObj = new FinanceWildberriesOrderNotifyModel();
+                        if (!$financeWildberriesOrderNotifyObj->saveAll($paymentData['wildberriesOrderNotify'])) {
+                            throw new \think\Exception('Payment导入失败！');
+                        }
+                    }
+
                     $financeOrderRefundObj = new FinanceOrderRefundModel();
                     if (!$financeOrderRefundObj->saveAll($paymentData['orderRefundNew'])) {
                         throw new \think\Exception('Payment导入失败！');
@@ -676,6 +684,9 @@ class FinanceController extends BaseController
 
                 $financeWildberriesShippingObj = new FinanceWildberriesShippingModel();
                 $financeWildberriesShippingObj->where('table_id', $post['id'])->delete();
+
+                $financeWildberriesOrderNotifyObj = new FinanceWildberriesOrderNotifyModel();
+                $financeWildberriesOrderNotifyObj->where('table_id', $post['id'])->delete();
 
                 Db::commit();
                 echo json_encode(['code' => 1, 'msg' => '删除成功']);
@@ -2513,7 +2524,6 @@ class FinanceController extends BaseController
         }
 
         $page_num = $this->request->get('page_num', Config::get('PAGE_NUM'));
-//        dump($where);exit();
 
         // 列表
         $akAdCostModel = new FinanceReportSnapshotModel();
@@ -2527,141 +2537,5 @@ class FinanceController extends BaseController
         ];
         header('Content-Type: application/json');
         echo json_encode($response);
-    }
-
-    /**
-     * @throws DbException
-     */
-    public function wildberries(): \think\response\View
-    {
-        $keyword = $this->request->get('keyword', '', 'htmlspecialchars');
-        $this->assign('keyword', $keyword);
-        if ($keyword) {
-            $where['order_no|shipping_no|fbs_no|name|article_wildberries|article_seller'] = ['like', '%' . $keyword . '%'];
-        } else {
-            $where = [];
-        }
-
-        $page_num = $this->request->get('page_num', Config::get('PAGE_NUM'));
-        $this->assign('page_num', $page_num);
-
-        // 订单列表
-        $order = new FinanceWildberriesOrderModel();
-        $list = $order->with(['fee'])->where($where)->order('id asc')->paginate($page_num, false, ['query' => ['keyword' => $keyword, 'page_num' => $page_num]]);
-        $this->assign('list', $list);
-
-        Session::set(Config::get('BACK_URL'), $this->request->url(), 'manage');
-
-        return view();
-    }
-
-    /**
-     * @throws PHPExcel_Reader_Exception
-     */
-    public function wildberries_import()
-    {
-        // phpexcel
-        require_once './static/classes/PHPExcel/Classes/PHPExcel.php';
-
-        $filename = input('filename');
-        $file= "./upload/excel/" . $filename;
-        $excelReader = PHPExcel_IOFactory::createReaderForFile($file);
-        $excelObj = $excelReader->load($file);
-        $worksheet = $excelObj->getSheet(0);
-        $data = $worksheet->toArray();
-        unset($data[0]);
-
-        Db::startTrans();
-        try {
-            $orderData = [];
-            $financeWildberriesOrderObj = new FinanceWildberriesOrderModel();
-            foreach ($data as $item) {
-                $order = $financeWildberriesOrderObj->where(['order_no' => $item[0]])->find();
-                if (!empty($order)) {
-                    continue;
-                }
-                $orderData[] = [
-                    'order_no'	            =>	$item[0],
-                    'shipping_no'	        =>	$item[1],
-                    'fbs_no'	            =>	$item[2],
-                    'box_code'	            =>	$item[3],
-                    'created_date'	        =>	date('Y-m-d H:i:s', strtotime($item[4])),
-                    'scan_date'	            =>	date('Y-m-d H:i:s', strtotime($item[5])),
-                    'name'	                =>	$item[6],
-                    'size'	                =>	$item[7],
-                    'color'	                =>	$item[8],
-                    'barcode'	            =>	$item[9],
-                    'total'	                =>	$item[10],
-                    'currency'	            =>	$item[11],
-                    'article_wildberries'	=>	$item[12],
-                    'article_seller'	    =>	$item[13],
-                    'warehouse_name'	    =>	$item[14],
-                    'delivery_date'	        =>	$item[15],
-                    'status'	            =>	$item[16],
-                    'user_place'	        =>	$item[17],
-                    'user_name'	            =>	$item[18],
-                    'user_phone'	        =>	$item[19],
-                    'item_scan_date'	    =>	date('Y-m-d H:i:s', strtotime($item[20])),
-                    'scan_total'	        =>	$item[21],
-                    'order_time'	        =>	$item[22]
-                ];
-            }
-            $financeWildberriesOrderObj->insertAll($orderData);
-
-            Db::commit();
-        } catch (Exception $e) {
-            Db::rollback();
-            $this->error($e->getMessage(), url('wildberries'));
-        }
-        $this->redirect(url('wildberries'));
-    }
-
-    /**
-     * @throws PHPExcel_Reader_Exception
-     */
-    public function wildberries_fee_import()
-    {
-        // phpexcel
-        require_once './static/classes/PHPExcel/Classes/PHPExcel.php';
-
-        $filename = input('filename');
-        $file= "./upload/excel/" . $filename;
-        $excelReader = PHPExcel_IOFactory::createReaderForFile($file);
-        $excelObj = $excelReader->load($file);
-        $worksheet = $excelObj->getSheet(0);
-        $data = $worksheet->toArray();
-        unset($data[0]);
-
-        Db::startTrans();
-        try {
-            $orderData = [];
-            $financeWildberriesFeeObj = new FinanceWildberriesFeeModel();
-            foreach ($data as $item) {
-                if ($item[0]) {
-                    $order = $financeWildberriesFeeObj->where(['order_no' => $item[0]])->find();
-                    if (!empty($order)) {
-                        continue;
-                    }
-                    $orderData[] = [
-                        'order_no'		    =>	$item[0],
-                        'product_name'		=>	$item[1],
-                        'sku'		        =>	$item[2],
-                        'created_date'		=>	DateTime::createFromFormat('m-d-y', $item[3])->format('Y-m-d'),
-                        'unit_price'		=>	$item[4],
-                        'quantity'		    =>	$item[5],
-                        'total'		        =>	$item[6],
-                        'shipping_fee'		=>	$item[7],
-                        'month'		        =>	substr($item[8], 0, 6)
-                    ];
-                }
-            }
-            $financeWildberriesFeeObj->insertAll($orderData);
-
-            Db::commit();
-        } catch (Exception $e) {
-            Db::rollback();
-            $this->error($e->getMessage(), url('wildberries'));
-        }
-        $this->redirect(url('wildberries'));
     }
 }

@@ -49,4 +49,6 @@ return [
     'app\Manage\command\FinanceSheinOrder', //
     'app\Manage\command\FinanceOperationShare', //
     'app\Manage\command\FinanceOutboundAccounting', //
+    'app\Manage\command\FinanceWildberriesOrder', //
+    'app\Manage\command\FinanceWildberriesFeeEmpty', //
 ];

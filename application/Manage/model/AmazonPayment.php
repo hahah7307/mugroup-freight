@@ -37,6 +37,8 @@ class AmazonPayment extends Model
 
     public $orderShippingNew = [];
 
+    public $wildberriesOrderNotify = [];
+
     /**
      * @throws DbException
      * @throws ModelNotFoundException
@@ -1563,6 +1565,12 @@ class AmazonPayment extends Model
                     "other"                     =>  0,
                     "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[33])),
                 ];
+
+                $this->wildberriesOrderNotify[] = [
+                    "report_id"                 =>  $reportId,
+                    "table_id"                  =>  $tableId,
+                    "payment_id"                =>  trim($item[44])
+                ];
             } elseif ($item[10] == 'Logistics') {
                 $this->orderShippingNew[] = [
                     "report_id"                 =>  $reportId,
@@ -1622,7 +1630,8 @@ class AmazonPayment extends Model
             'orderFbaInventory'         =>  $this->orderFbaInventory,
             'orderTransferNew'          =>  $this->orderTransferNew,
             'orderSubscriptionNew'      =>  $this->orderSubscriptionNew,
-            'orderShippingNew'          =>  $this->orderShippingNew
+            'orderShippingNew'          =>  $this->orderShippingNew,
+            'wildberriesOrderNotify'    =>  $this->wildberriesOrderNotify
         ];
     }
 }

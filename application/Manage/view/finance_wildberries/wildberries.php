@@ -4,6 +4,7 @@
 <!-- 主体内容 -->
 <div class="layui-body" id="LAY_app_body">
     <div class="right">
+        <a href="{:url('index')}" class="layui-btn layui-btn-danger layui-btn-sm fr"><i class="layui-icon">&#xe603;</i>返回上一页</a>
         <div class="title">野莓订单列表</div>
         <form class="layui-form search-form" method="get">
             <div class="layui-inline w200">
@@ -15,14 +16,10 @@
             <div class="layui-inline">
                 <button class="layui-btn" lay-submit lay-filter="Search"><i class="layui-icon">&#xe615;</i> 查询</button>
             </div>
-            <div class="layui-inline">
-                <a class="layui-btn layui-btn-normal" href="{:url('order_statistics')}"><i class="layui-icon">&#xe669;</i> 重置</a>
-            </div>
         </form>
 
         <div class="layui-form">
             <button type="button" class="layui-btn  layui-btn-normal" id="order">归档订单导入</button>
-            <button type="button" class="layui-btn  layui-btn-normal" id="fee">费用导入</button>
             <table class="layui-table" lay-size="sm">
                 <colgroup>
                     <col>
@@ -122,32 +119,7 @@
                 //上传完毕回调
                 console.log(res);
                 if (res.code === 1) {
-                    location.href = "/Manage/Finance/wildberries_import/filename/" + res.data + "/origin/" + res.origin;
-                } else {
-                    layer.alert(res.msg,{icon:2,closeBtn:0,title:false,btnAlign:'c'},function(){
-                        layer.closeAll();
-                    });
-                }
-            }
-            ,error: function(){
-                //请求异常回调
-            }
-        });
-
-        // 上传
-        let uploadFee = upload.render({
-            elem: '#fee' //绑定元素
-            ,url: '/Manage/upload/file_upload' //上传接口
-            ,exts: 'xls|xlsx|csv'
-            ,multiple: true
-            ,before: function (obj){
-                layer.load(1);
-            }
-            ,done: function(res){
-                //上传完毕回调
-                console.log(res);
-                if (res.code === 1) {
-                    location.href = "/Manage/Finance/wildberries_fee_import/filename/" + res.data + "/origin/" + res.origin;
+                    location.href = "/Manage/FinanceWildberries/wildberries_import/filename/" + res.data + "/origin/" + res.origin;
                 } else {
                     layer.alert(res.msg,{icon:2,closeBtn:0,title:false,btnAlign:'c'},function(){
                         layer.closeAll();
