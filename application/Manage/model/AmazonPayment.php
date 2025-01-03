@@ -1634,4 +1634,73 @@ class AmazonPayment extends Model
             'wildberriesOrderNotify'    =>  $this->wildberriesOrderNotify
         ];
     }
+
+    /**
+     * @throws DbException
+     * @throws ModelNotFoundException
+     * @throws DataNotFoundException
+     */
+    public function tiktok($excel, $tableId, $reportId): array
+    {
+        foreach ($excel as $k => $item) {
+            if ($k < 1) {
+                continue;
+            }
+
+            $orderObj = new OrderModel();
+            $order = $orderObj->with(['details'])->where(['refNo|saleOrderCode' => $item[4]])->find();
+            if ($order && $order['userAccount'] != $this->userAccount) {
+                $this->userAccount = $order['userAccount'];
+            }
+
+            if ($item[19] == 0) {
+                $this->orderSaleNew[] = [
+                    "report_id"                 =>  $reportId,
+                    "table_id"                  =>  $tableId,
+                    "payment_id"                =>  $item[4],
+                    "fulfillment"               =>  "Seller",
+                    "product_sales"             =>  round(str_replace(',', '', $item[10]), 2),
+                    "selling_fees"              =>  round(str_replace(',', '', $item[25]), 2)
+                        + round(str_replace(',', '', $item[26]), 2)
+                        + round(str_replace(',', '', $item[31]), 2),
+                    "shipping_credits"          =>  0,
+                    "gift_wrap_credits"         =>  0,
+                    "regulatory_fee"            =>  0,
+                    "promotional_rebates"       =>  0,
+                    "fba_fees"                  =>  round(str_replace(',', '', $item[27]), 2),
+                    "marketplace_withheld_tax"  =>  round(str_replace(',', '', $item[34]), 2)
+                ];
+            } elseif ($item[19] <= 0) {
+                $this->orderRefundNew[] = [
+                    "report_id"                 =>  $reportId,
+                    "table_id"                  =>  $tableId,
+                    "payment_id"                =>  $item[4],
+                    "fulfillment"               =>  "Seller",
+                    "product_sales"             =>  round(str_replace(',', '', $item[10]), 2),
+                    "selling_fees"              =>  round(str_replace(',', '', $item[25]), 2)
+                        + round(str_replace(',', '', $item[26]), 2)
+                        + round(str_replace(',', '', $item[31]), 2),
+                    "shipping_credits"          =>  0,
+                    "gift_wrap_credits"         =>  0,
+                    "regulatory_fee"            =>  0,
+                    "promotional_rebates"       =>  0,
+                    "fba_fees"                  =>  round(str_replace(',', '', $item[27]), 2),
+                    "marketplace_withheld_tax"  =>  round(str_replace(',', '', $item[34]), 2)
+                ];
+            }
+        }
+
+        return [
+            'userAccount'               =>  $this->userAccount,
+            'orderSaleNew'              =>  $this->orderSaleNew,
+            'orderRefundNew'            =>  $this->orderRefundNew,
+            'orderPromotionNew'         =>  $this->orderPromotionNew,
+            'orderShippingServiceNew'   =>  $this->orderShippingServiceNew,
+            'orderLiquidationNew'       =>  $this->orderLiquidationNew,
+            'orderAdjustmentNew'        =>  $this->orderAdjustmentNew,
+            'orderFbaInventory'         =>  $this->orderFbaInventory,
+            'orderTransferNew'          =>  $this->orderTransferNew,
+            'orderSubscriptionNew'      =>  $this->orderSubscriptionNew
+        ];
+    }
 }

@@ -1670,6 +1670,105 @@ class FinanceExcelInit extends Model
         }
     }
 
+    /**
+     * @throws DbException
+     * @throws ModelNotFoundException
+     * @throws DataNotFoundException
+     */
+    public function generateTiktokWarehouseSkuSql($index, $report, $month)
+    {
+        $tiktok = $this->model->query(FinanceReportModel::getTiktokWarehouseSkuSql($report['id']));
+
+        if ($index) {
+            // create new sheet
+            $this->objPHPExcel->createSheet();
+        }
+
+        // Set name sheet
+        $this->objPHPExcel->setActiveSheetIndex($index)->setTitle('Tiktok');
+
+        // Add some data
+        $this->objPHPExcel->setActiveSheetIndex($index)
+            ->setCellValue('A1', '月份')
+            ->setCellValue('B1', '店铺')
+            ->setCellValue('C1', 'SKU')
+            ->setCellValue('D1', '中文品名')
+            ->setCellValue('E1', '运营人员')
+            ->setCellValue('F1', '采购人员')
+            ->setCellValue('G1', '销售数量')
+            ->setCellValue('H1', '退款数量')
+            ->setCellValue('I1', '实际销量')
+            ->setCellValue('J1', '销售总额')
+            ->setCellValue('K1', '退款总额')
+            ->setCellValue('L1', '实际销售总额')
+            ->setCellValue('M1', '平台佣金')
+            ->setCellValue('N1', '平台佣金退款')
+            ->setCellValue('O1', '平台运费')
+            ->setCellValue('P1', '税费')
+            ->setCellValue('Q1', 'FBM尾程')
+            ->setCellValue('R1', '海外仓仓储费')
+            ->setCellValue('S1', '良仓调整')
+            ->setCellValue('T1', '乐歌调整')
+            ->setCellValue('U1', '平台广告费')
+            ->setCellValue('V1', '国内广告费')
+            ->setCellValue('W1', '工厂运费')
+            ->setCellValue('X1', '国内快递费')
+            ->setCellValue('Y1', '产品DDP总值')
+            ->setCellValue('Z1', 'DDP占比')
+            ->setCellValue('AA1', '毛利')
+            ->setCellValue('AB1', '毛利率')
+            ->setCellValue('AC1', '广告费占比')
+            ->setCellValue('AD1', '仓储费占比')
+            ->setCellValue('AE1', '尾程占比')
+            ->setCellValue('AF1', '测评数量')
+            ->setCellValue('AG1', '测评金额')
+            ->setCellValue('AH1', '含测评毛利')
+            ->setCellValue('AI1', '含测评毛利率')
+        ;
+
+        $tiktokIndex = 1;
+        foreach ($tiktok as $tiktokItem) {
+            $tiktokIndex ++;
+            $this->objPHPExcel->setActiveSheetIndex($index)
+                ->setCellValue('A' . $tiktokIndex, $month)
+                ->setCellValue('B' . $tiktokIndex, $tiktokItem['userAccount'])
+                ->setCellValue('C' . $tiktokIndex, $tiktokItem['warehouse_sku'])
+                ->setCellValue('D' . $tiktokIndex, $tiktokItem['product_name'])
+                ->setCellValue('E' . $tiktokIndex, $tiktokItem['seller'])
+                ->setCellValue('F' . $tiktokIndex, $tiktokItem['purchaser'])
+                ->setCellValue('G' . $tiktokIndex, $tiktokItem['sale_qty'])
+                ->setCellValue('H' . $tiktokIndex, $tiktokItem['refund_qty'])
+                ->setCellValue('I' . $tiktokIndex, $tiktokItem['qty_amount'])
+                ->setCellValue('J' . $tiktokIndex, $tiktokItem['sale_amount'])
+                ->setCellValue('K' . $tiktokIndex, $tiktokItem['refund_amount'])
+                ->setCellValue('L' . $tiktokIndex, $tiktokItem['amount'])
+                ->setCellValue('M' . $tiktokIndex, $tiktokItem['sale_selling_fees'])
+                ->setCellValue('N' . $tiktokIndex, $tiktokItem['refund_selling_fees'])
+                ->setCellValue('O' . $tiktokIndex, $tiktokItem['sale_shipping'])
+                ->setCellValue('P' . $tiktokIndex, $tiktokItem['sale_tax'])
+                ->setCellValue('Q' . $tiktokIndex, $tiktokItem['calcuRes'])
+                ->setCellValue('R' . $tiktokIndex, $tiktokItem['warehouse_rent'])
+                ->setCellValue('S' . $tiktokIndex, $tiktokItem['lc_adjustment'])
+                ->setCellValue('T' . $tiktokIndex, $tiktokItem['le_adjustment'])
+                ->setCellValue('U' . $tiktokIndex, $tiktokItem['adCost'])
+                ->setCellValue('V' . $tiktokIndex, $tiktokItem['operation_expenses'])
+                ->setCellValue('W' . $tiktokIndex, $tiktokItem['operation_factory'])
+                ->setCellValue('X' . $tiktokIndex, $tiktokItem['operation_delivery'])
+                ->setCellValue('Y' . $tiktokIndex, $tiktokItem['ddp'])
+                ->setCellValue('Z' . $tiktokIndex, $tiktokItem['ddp_percent'])
+                ->setCellValue('AA' . $tiktokIndex, $tiktokItem['profit'])
+                ->setCellValue('AB' . $tiktokIndex, $tiktokItem['gross_profit_margin'])
+                ->setCellValue('AC' . $tiktokIndex, $tiktokItem['ad_percent'])
+                ->setCellValue('AD' . $tiktokIndex, $tiktokItem['warehouse_percent'])
+                ->setCellValue('AE' . $tiktokIndex, $tiktokItem['tail_percent'])
+                ->setCellValue('AF' . $tiktokIndex, $tiktokItem['evaluation_qty'])
+                ->setCellValue('AG' . $tiktokIndex, $tiktokItem['evaluation_amount'])
+                ->setCellValue('AH' . $tiktokIndex, $tiktokItem['profit_include_evaluation'])
+                ->setCellValue('AI' . $tiktokIndex, $tiktokItem['gross_profit_margin_include_evaluation'])
+            ;
+        }
+    }
+
     public function excelSheetSet()
     {
         return $this->objPHPExcel;

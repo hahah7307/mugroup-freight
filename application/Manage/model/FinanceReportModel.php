@@ -5286,4 +5286,556 @@ GROUP BY
 	sale_amount;
         ';
     }
+
+    static public function getTiktokWarehouseSkuSql($report_id): string
+    {
+        return '
+SELECT
+	platform,
+	userAccount,
+	a.warehouse_sku,
+	SUM( sale_qty ) sale_qty,
+	SUM( refund_qty ) refund_qty,
+	SUM( IFNULL( sale_qty, 0 ) + IFNULL ( refund_qty, 0 ) ) qty_amount,
+	SUM( ROUND( sale_amount, 7 ) ) sale_amount,
+	SUM( ROUND( refund_amount, 7 ) ) refund_amount,
+	SUM( ROUND( IFNULL( sale_amount, 0 ) + IFNULL( refund_amount, 0 ), 7 ) ) amount,
+	SUM( ROUND( sale_selling_fees, 7 ) ) sale_selling_fees,
+	SUM( ROUND( refund_selling_fees, 7 ) ) refund_selling_fees,
+	SUM( ROUND( sale_shipping, 7 ) ) sale_shipping,
+	SUM( ROUND( sale_tax, 7 ) ) sale_tax,
+	SUM( ROUND( calcuRes, 7 ) ) calcuRes,
+	SUM( ROUND( ddp, 2 ) ) ddp,
+	SUM( ROUND( adCost, 7 ) ) adCost,
+	SUM( ROUND( warehouse_rent, 6 ) ) warehouse_rent,
+	SUM( ROUND( lc_adjustment, 6 ) ) lc_adjustment,
+	SUM( ROUND( le_adjustment, 6 ) ) le_adjustment,
+	SUM( ROUND( operation_expenses, 6 ) ) operation_expenses,
+	SUM( ROUND( operation_factory, 6 ) ) operation_factory,
+	SUM( ROUND( operation_delivery, 6 ) ) operation_delivery,
+	ROUND( SUM( IFNULL( adCost, 0 ) ) / SUM( IFNULL( sale_amount, 0 ) ) * - 1, 4 ) ad_percent,
+	ROUND( SUM( IFNULL( warehouse_rent, 0 ) ) / SUM( IFNULL( sale_amount, 0 ) ) * - 1, 4 ) warehouse_percent,
+	ROUND( SUM( IFNULL( calcuRes, 0 ) ) / SUM( IFNULL( sale_amount, 0 ) ) * - 1, 4 ) tail_percent,
+	ROUND( SUM( IFNULL( ddp, 0 ) ) / SUM( IFNULL( sale_amount, 0 ) ) * - 1, 4 ) ddp_percent,
+	ROUND(
+		SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( sale_shipping, 0 ) ) + SUM( IFNULL( sale_tax, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( lc_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + ROUND( SUM( IFNULL( operation_expenses, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_factory, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_delivery, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ),
+		2 
+	) profit,
+	ROUND(
+		(
+			SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( sale_shipping, 0 ) ) + SUM( IFNULL( sale_tax, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( lc_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + ROUND( SUM( IFNULL( operation_expenses, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_factory, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_delivery, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) 
+		) / SUM( IFNULL( sale_amount, 0 ) ),
+		4 
+	) gross_profit_margin,
+	SUM( ROUND( evaluation_qty, 3 ) ) evaluation_qty,
+	SUM( ROUND( evaluation_amount, 2 ) ) evaluation_amount,
+	ROUND(
+		SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( sale_shipping, 0 ) ) + SUM( IFNULL( sale_tax, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( lc_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + ROUND( SUM( IFNULL( operation_expenses, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_factory, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_delivery, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + SUM( IFNULL( evaluation_amount, 0 ) ),
+		2 
+	) profit_include_evaluation,
+	ROUND(
+		(
+			SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( sale_shipping, 0 ) ) + SUM( IFNULL( sale_tax, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( lc_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + ROUND( SUM( IFNULL( operation_expenses, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_factory, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_delivery, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + SUM( IFNULL( evaluation_amount, 0 ) ) 
+		) / SUM( IFNULL( sale_amount, 0 ) ),
+		2 
+	) gross_profit_margin_include_evaluation,
+	b.product_name product_name,
+	b.seller seller,
+	d.user_name purchaser 
+FROM
+	(
+	SELECT
+		platform,
+		userAccount,
+		warehouse_sku,
+		SUM( sale_qty ) sale_qty,
+		SUM( refund_qty ) * - 1 refund_qty,
+		SUM( ROUND( sale_amount, 7 ) ) sale_amount,
+		SUM( ROUND( refund_amount, 7 ) ) refund_amount,
+		SUM( ROUND( sale_selling_fees, 7 ) ) * - 1 sale_selling_fees,
+		SUM( ROUND( refund_selling_fees, 7 ) ) refund_selling_fees,
+		SUM( ROUND( sale_shipping, 7 ) ) sale_shipping,
+		SUM( ROUND( sale_tax, 7 ) ) sale_tax,
+		SUM( ROUND( calcuRes, 7 ) ) * - 1 calcuRes,
+		SUM( ROUND( ddp, 2 ) ) * - 1 ddp,
+		SUM( ROUND( adCost, 7 ) ) adCost,
+		SUM( ROUND( warehouse_rent, 6 ) ) * - 1 warehouse_rent,
+		SUM( ROUND( lc_adjustment, 6 ) ) lc_adjustment,
+		SUM( ROUND( le_adjustment, 6 ) ) le_adjustment,
+		SUM( ROUND( operation_expenses, 6 ) ) operation_expenses,
+		SUM( ROUND( operation_factory, 6 ) ) operation_factory,
+		SUM( ROUND( operation_delivery, 6 ) ) operation_delivery,
+		SUM( ROUND( evaluation_qty, 3 ) ) evaluation_qty,
+		SUM( ROUND( evaluation_amount, 2 ) ) * - 1 evaluation_amount 
+	FROM
+		(
+		SELECT
+			platform,
+			userAccount,
+			warehouse_sku,
+			SUM( sale_qty ) sale_qty,
+			SUM( refund_qty ) refund_qty,
+			SUM( ROUND( sale_amount, 7 ) ) sale_amount,
+			SUM( ROUND( refund_amount, 7 ) ) refund_amount,
+			SUM( ROUND( sale_selling_fees, 7 ) ) sale_selling_fees,
+			SUM( ROUND( refund_selling_fees, 7 ) ) refund_selling_fees,
+			SUM( ROUND( sale_shipping, 7 ) ) sale_shipping,
+			SUM( ROUND( sale_tax, 7 ) ) sale_tax,
+			SUM( ROUND( calcuRes, 7 ) ) calcuRes,
+			SUM( ROUND( ddp, 2 ) ) ddp,
+			NULL AS adCost,
+			SUM( ROUND( warehouse_rent, 6 ) ) warehouse_rent,
+			SUM( ROUND( lc_adjustment, 6 ) ) lc_adjustment,
+			SUM( ROUND( le_adjustment, 6 ) ) le_adjustment,
+			NULL AS operation_expenses,
+			NULL AS operation_factory,
+			NULL AS operation_delivery,
+			NULL AS evaluation_qty,
+			NULL AS evaluation_amount 
+		FROM
+			(
+			SELECT
+				a.platform,
+				a.userAccount,
+				a.payment_id,
+				b.saleOrderCode,
+				b.platform_sku seller_sku,
+				b.warehouse_sku,
+				b.qty sale_qty,
+				NULL AS refund_qty,
+				ROUND( b.sale_amount, 7 ) sale_amount,
+				NULL AS refund_amount,
+				ROUND( b.selling_fee, 7 ) sale_selling_fees,
+				NULL AS refund_selling_fees,
+				b.sale_shipping,
+				b.tax sale_tax,
+				c.calcuRes calcuRes,
+				NULL AS ddp,
+				NULL AS adCost,
+				NULL AS warehouse_rent,
+				NULL AS lc_adjustment,
+				NULL AS le_adjustment 
+			FROM
+				(
+				SELECT DISTINCT
+					report_id,
+					payment_id,
+					platform,
+					userAccount 
+				FROM
+					mu_finance_order_sale a
+					LEFT JOIN mu_finance_table b ON a.table_id = b.id 
+				WHERE
+					report_id = ' . $report_id . ' 
+					AND b.platform = "tiktok" 
+				) a
+				LEFT JOIN mu_finance_order_statistics b ON a.payment_id = b.payment_id
+				LEFT JOIN mu_ecang_order c ON b.saleOrderCode = c.saleOrderCode 
+			WHERE
+				b.payment_id IS NOT NULL 
+				AND c.`status` = 4 UNION ALL
+			SELECT
+				a.platform,
+				a.userAccount,
+				a.payment_id,
+				b.saleOrderCode,
+				b.seller_sku,
+				b.warehouse_sku,
+				NULL AS sale_qty,
+				NULL AS refund_qty,
+				NULL AS sale_amount,
+				NULL AS refund_amount,
+				NULL AS sale_selling_fees,
+				NULL AS refund_selling_fees,
+				NULL AS sale_shipping,
+				NULL AS sale_tax,
+				NULL AS calcuRes,
+				c.sku_ddp_unit * b.qty / d.USD ddp,
+				NULL AS adCost,
+				NULL AS warehouse_rent,
+				NULL AS lc_adjustment,
+				NULL AS le_adjustment 
+			FROM
+				(
+				SELECT DISTINCT
+					report_id,
+					payment_id,
+					platform,
+					userAccount 
+				FROM
+					mu_finance_order_sale a
+					LEFT JOIN mu_finance_table b ON a.table_id = b.id 
+				WHERE
+					report_id = ' . $report_id . ' 
+					AND b.platform = "tiktok" 
+				) a
+				LEFT JOIN mu_finance_order_outbound b ON b.payment_id = a.payment_id 
+				AND b.report_id = ' . $report_id . '
+				LEFT JOIN mu_finance_store c ON b.store_id = c.id
+				LEFT JOIN mu_finance_report d ON b.report_id = d.id 
+			WHERE
+				b.payment_id IS NOT NULL UNION ALL
+			SELECT
+				b.platform,
+				b.userAccount,
+				a.payment_id,
+				NULL AS saleOrderCode,
+				a.sku seller_sku,
+				c.warehouse_sku warehouse_sku,
+				NULL AS sale_qty,
+				a.quantity * c.qty refund_qty,
+				NULL AS sale_amount,
+				ROUND( ( product_sales ) * c.percent, 7 ) refund_amount,
+				NULL AS sale_selling_fees,
+				ROUND( selling_fees * c.percent, 7 ) refund_selling_fees,
+				NULL AS sale_shipping,
+				NULL AS sale_tax,
+				NULL AS calcuRes,
+				NULL AS ddp,
+				NULL AS adCost,
+				NULL AS warehouse_rent,
+				NULL AS lc_adjustment,
+				NULL AS le_adjustment 
+			FROM
+				mu_finance_order_refund a
+				LEFT JOIN mu_finance_table b ON a.table_id = b.id
+				LEFT JOIN ( SELECT DISTINCT user_account, seller_sku, warehouse_sku, qty, percent, seller FROM mu_finance_sku_relation WHERE report_id = ' . $report_id . ' ) c ON b.userAccount = c.user_account 
+				AND a.sku = c.seller_sku 
+			WHERE
+				report_id = ' . $report_id . ' 
+				AND b.platform = "tiktok" UNION ALL
+			SELECT
+				"tiktok" AS platform,
+				b.user_account userAccount,
+				NULL AS payment_id,
+				NULL AS saleOrderCode,
+				NULL AS seller_sku,
+				b.warehouse_sku warehouse_sku,
+				NULL AS sale_qty,
+				NULL AS refund_qty,
+				NULL AS sale_amount,
+				NULL AS refund_amount,
+				NULL AS sale_selling_fees,
+				NULL AS refund_selling_fees,
+				NULL AS sale_shipping,
+				NULL AS sale_tax,
+				NULL AS calcuRes,
+				NULL AS ddp,
+				NULL AS adCost,
+				NULL AS warehouse_rent,
+				NULL AS lc_adjustment,
+				NULL AS le_adjustment 
+			FROM
+				mu_finance_order_additional a
+				LEFT JOIN mu_finance_order_share b ON a.share_code = b.share_code 
+				AND a.report_id = b.report_id
+				LEFT JOIN ( SELECT DISTINCT platform, userAccount FROM mu_finance_table WHERE rid = ' . $report_id . ' ) c ON b.user_account = c.userAccount 
+			WHERE
+				a.report_id = ' . $report_id . ' 
+				AND c.platform = "tiktok" 
+				AND lc_adjustment IS NOT NULL UNION ALL
+			SELECT
+				"tiktok" AS platform,
+				b.user_account userAccount,
+				NULL AS payment_id,
+				NULL AS saleOrderCode,
+				NULL AS seller_sku,
+				b.warehouse_sku warehouse_sku,
+				NULL AS sale_qty,
+				NULL AS refund_qty,
+				NULL AS sale_amount,
+				NULL AS refund_amount,
+				NULL AS sale_selling_fees,
+				NULL AS refund_selling_fees,
+				NULL AS sale_shipping,
+				NULL AS sale_tax,
+				NULL AS calcuRes,
+				NULL AS ddp,
+				NULL AS adCost,
+				NULL AS warehouse_rent,
+				NULL AS lc_adjustment,
+				NULL AS le_adjustment 
+			FROM
+				mu_finance_order_additional a
+				LEFT JOIN mu_finance_order_share b ON a.share_code = b.share_code 
+				AND a.report_id = b.report_id
+				LEFT JOIN ( SELECT DISTINCT platform, userAccount FROM mu_finance_table WHERE rid = ' . $report_id . ' ) c ON b.user_account = c.userAccount 
+			WHERE
+				a.report_id = ' . $report_id . ' 
+				AND c.platform = "tiktok" 
+				AND le_adjustment IS NOT NULL UNION ALL
+			SELECT
+				"tiktok" AS platform,
+				b.user_account userAccount,
+				NULL AS payment_id,
+				NULL AS saleOrderCode,
+				NULL AS seller_sku,
+				b.warehouse_sku warehouse_sku,
+				NULL AS sale_qty,
+				NULL AS refund_qty,
+				NULL AS sale_amount,
+				NULL AS refund_amount,
+				NULL AS sale_selling_fees,
+				NULL AS refund_selling_fees,
+				NULL AS sale_shipping,
+				NULL AS sale_tax,
+				NULL AS calcuRes,
+				NULL AS ddp,
+				NULL AS adCost,
+				ROUND( SUM( b.total ), 6 ) warehouse_rent,
+				NULL AS lc_adjustment,
+				NULL AS le_adjustment 
+			FROM
+				mu_finance_warehouse_fbm a
+				LEFT JOIN mu_finance_order_share b ON a.share_code = b.share_code
+				LEFT JOIN ( SELECT DISTINCT platform, userAccount FROM mu_finance_table WHERE rid = ' . $report_id . ' ) c ON b.user_account = c.userAccount 
+			WHERE
+				a.report_id = ' . $report_id . ' 
+				AND c.platform = "tiktok" 
+			GROUP BY
+				platform,
+				user_account,
+				warehouse_sku UNION ALL
+			SELECT
+				"tiktok" AS platform,
+				b.user_account userAccount,
+				NULL AS payment_id,
+				NULL AS saleOrderCode,
+				NULL AS seller_sku,
+				b.warehouse_sku warehouse_sku,
+				NULL AS sale_qty,
+				NULL AS refund_qty,
+				NULL AS sale_amount,
+				NULL AS refund_amount,
+				NULL AS sale_selling_fees,
+				NULL AS refund_selling_fees,
+				NULL AS sale_shipping,
+				NULL AS sale_tax,
+				NULL AS calcuRes,
+				NULL AS ddp,
+				NULL AS adCost,
+				NULL AS warehouse_rent,
+				b.total lc_adjustment,
+				NULL AS le_adjustment 
+			FROM
+				mu_finance_order_additional a
+				LEFT JOIN mu_finance_order_share b ON a.share_code = b.share_code 
+				AND a.report_id = b.report_id
+				LEFT JOIN ( SELECT DISTINCT platform, userAccount FROM mu_finance_table WHERE rid = ' . $report_id . ' ) c ON b.user_account = c.userAccount 
+			WHERE
+				a.report_id = ' . $report_id . ' 
+				AND c.platform = "tiktok" 
+				AND lc_adjustment IS NOT NULL UNION ALL
+			SELECT
+				"tiktok" AS platform,
+				b.user_account userAccount,
+				NULL AS payment_id,
+				NULL AS saleOrderCode,
+				NULL AS seller_sku,
+				b.warehouse_sku warehouse_sku,
+				NULL AS sale_qty,
+				NULL AS refund_qty,
+				NULL AS sale_amount,
+				NULL AS refund_amount,
+				NULL AS sale_selling_fees,
+				NULL AS refund_selling_fees,
+				NULL AS sale_shipping,
+				NULL AS sale_tax,
+				NULL AS calcuRes,
+				NULL AS ddp,
+				NULL AS adCost,
+				NULL AS warehouse_rent,
+				NULL AS lc_adjustment,
+				b.total le_adjustment 
+			FROM
+				mu_finance_order_additional a
+				LEFT JOIN mu_finance_order_share b ON a.share_code = b.share_code 
+				AND a.report_id = b.report_id
+				LEFT JOIN ( SELECT DISTINCT platform, userAccount FROM mu_finance_table WHERE rid = ' . $report_id . ' ) c ON b.user_account = c.userAccount 
+			WHERE
+				a.report_id = ' . $report_id . ' 
+				AND c.platform = "tiktok" 
+				AND le_adjustment IS NOT NULL 
+			) a 
+		GROUP BY
+			platform,
+			userAccount,
+			warehouse_sku UNION ALL
+		SELECT
+			"tiktok" AS platform,
+			d.userAccount userAccount,
+			a.warehouse_sku warehouse_sku,
+			NULL AS sale_qty,
+			NULL AS refund_qty,
+			NULL AS sale_amount,
+			NULL AS refund_amount,
+			NULL AS sale_selling_fees,
+			NULL AS refund_selling_fees,
+			NULL AS sale_shipping,
+			NULL AS sale_tax,
+			NULL AS calcuRes,
+			NULL AS ddp,
+			NULL AS adCost,
+			NULL AS warehouse_rent,
+			NULL AS lc_adjustment,
+			NULL AS le_adjustment,
+			NULL AS operation_expenses,
+			NULL AS operation_factory,
+			NULL AS operation_delivery,
+			b.qty evaluation_qty,
+			ROUND( a.cny_actual_paid / c.USD, 2 ) evaluation_amount 
+		FROM
+			mu_finance_evaluation a
+			LEFT JOIN mu_finance_order_statistics b ON a.payment = b.saleOrderCode
+			LEFT JOIN mu_finance_report c ON a.report_id = c.id
+			LEFT JOIN mu_ecang_order d ON a.payment = d.saleOrderCode 
+		WHERE
+			d.fulfillmentType = 1 
+			AND a.report_id = ' . $report_id . ' 
+			AND b.platform = "tiktok" UNION ALL
+		SELECT
+			"tiktok" AS platform,
+			user_account userAccount,
+			warehouse_sku warehouse_sku,
+			NULL AS sale_qty,
+			NULL AS refund_qty,
+			NULL AS sale_amount,
+			NULL AS refund_amount,
+			NULL AS sale_selling_fees,
+			NULL AS refund_selling_fees,
+			NULL AS sale_shipping,
+			NULL AS sale_tax,
+			NULL AS calcuRes,
+			NULL AS ddp,
+			total adCost,
+			NULL AS warehouse_rent,
+			NULL AS lc_adjustment,
+			NULL AS le_adjustment,
+			NULL AS operation_expenses,
+			NULL AS operation_factory,
+			NULL AS operation_delivery,
+			NULL AS evaluation_qty,
+			NULL AS evaluation_amount 
+		FROM
+			mu_finance_ad_cost 
+		WHERE
+			report_id = ' . $report_id . ' 
+			AND platform = "tiktok" UNION ALL
+		SELECT
+			c.platform AS platform,
+			c.userAccount userAccount,
+			b.warehouse_sku warehouse_sku,
+			NULL AS sale_qty,
+			NULL AS refund_qty,
+			NULL AS sale_amount,
+			NULL AS refund_amount,
+			NULL AS sale_selling_fees,
+			NULL AS refund_selling_fees,
+			NULL AS sale_shipping,
+			NULL AS sale_tax,
+			NULL AS calcuRes,
+			NULL AS ddp,
+			NULL AS adCost,
+			NULL AS warehouse_rent,
+			NULL AS lc_adjustment,
+			NULL AS le_adjustment,
+			b.total operation_expenses,
+			NULL AS operation_factory,
+			NULL AS operation_delivery,
+			NULL AS evaluation_qty,
+			NULL AS evaluation_amount 
+		FROM
+			mu_finance_operation_expenses a
+			LEFT JOIN mu_finance_order_share b ON a.share_code = b.share_code
+			LEFT JOIN ( SELECT DISTINCT platform, userAccount FROM mu_finance_table WHERE rid = ' . $report_id . ' ) c ON b.user_account = c.userAccount
+			LEFT JOIN mu_finance_report d ON a.report_id = d.id 
+		WHERE
+			a.report_id = ' . $report_id . ' 
+			AND c.platform = "tiktok" UNION ALL
+		SELECT
+			c.platform AS platform,
+			c.userAccount userAccount,
+			b.warehouse_sku warehouse_sku,
+			NULL AS sale_qty,
+			NULL AS refund_qty,
+			NULL AS sale_amount,
+			NULL AS refund_amount,
+			NULL AS sale_selling_fees,
+			NULL AS refund_selling_fees,
+			NULL AS sale_shipping,
+			NULL AS sale_tax,
+			NULL AS calcuRes,
+			NULL AS ddp,
+			NULL AS adCost,
+			NULL AS warehouse_rent,
+			NULL AS lc_adjustment,
+			NULL AS le_adjustment,
+			NULL AS operation_expenses,
+			b.total operation_factory,
+			NULL AS operation_delivery,
+			NULL AS evaluation_qty,
+			NULL AS evaluation_amount 
+		FROM
+			mu_finance_operation_factory a
+			LEFT JOIN mu_finance_order_share b ON a.share_code = b.share_code
+			LEFT JOIN ( SELECT DISTINCT platform, userAccount FROM mu_finance_table WHERE rid = ' . $report_id . ' ) c ON b.user_account = c.userAccount
+			LEFT JOIN mu_finance_report d ON a.report_id = d.id 
+		WHERE
+			a.report_id = ' . $report_id . ' 
+			AND c.platform = "tiktok" UNION ALL
+		SELECT
+			c.platform AS platform,
+			c.userAccount userAccount,
+			b.warehouse_sku warehouse_sku,
+			NULL AS sale_qty,
+			NULL AS refund_qty,
+			NULL AS sale_amount,
+			NULL AS refund_amount,
+			NULL AS sale_selling_fees,
+			NULL AS refund_selling_fees,
+			NULL AS sale_shipping,
+			NULL AS sale_tax,
+			NULL AS calcuRes,
+			NULL AS ddp,
+			NULL AS adCost,
+			NULL AS warehouse_rent,
+			NULL AS lc_adjustment,
+			NULL AS le_adjustment,
+			NULL AS operation_expenses,
+			NULL AS operation_factory,
+			b.total operation_delivery,
+			NULL AS evaluation_qty,
+			NULL AS evaluation_amount 
+		FROM
+			mu_finance_operation_delivery a
+			LEFT JOIN mu_finance_order_share b ON a.share_code = b.share_code
+			LEFT JOIN ( SELECT DISTINCT platform, userAccount FROM mu_finance_table WHERE rid = ' . $report_id . ' ) c ON b.user_account = c.userAccount
+			LEFT JOIN mu_finance_report d ON a.report_id = d.id 
+		WHERE
+			a.report_id = ' . $report_id . ' 
+			AND c.platform = "tiktok" 
+		) a 
+	GROUP BY
+		platform,
+		userAccount,
+		warehouse_sku 
+	ORDER BY
+		platform,
+		userAccount,
+		warehouse_sku 
+	) a
+	LEFT JOIN ( SELECT DISTINCT user_account, warehouse_sku, seller, product_name FROM mu_finance_sku_relation WHERE report_id = ' . $report_id . ' ) b ON a.userAccount = b.user_account 
+	AND a.warehouse_sku = b.warehouse_sku
+	LEFT JOIN mu_ecang_product c ON a.warehouse_sku = c.productSku
+	LEFT JOIN mu_ecang_user d ON c.personOpraterId = d.user_id 
+GROUP BY
+	platform,
+	userAccount,
+	warehouse_sku,
+	sale_amount,
+	product_name,
+	seller,
+	purchaser;
+        ';
+    }
 }
