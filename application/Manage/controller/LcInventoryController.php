@@ -16,7 +16,7 @@ class LcInventoryController extends BaseController
         $keyword = $this->request->get('keyword', '', 'htmlspecialchars');
         $this->assign('keyword', $keyword);
         if ($keyword) {
-            $where['receiving_code|product_sku|lc_code'] = ['like', '%' . $keyword . '%'];
+            $where['receiving_code|product_sku|lc_code|warehouse_code'] = ['like', '%' . $keyword . '%'];
         } else {
             $where = [];
         }
