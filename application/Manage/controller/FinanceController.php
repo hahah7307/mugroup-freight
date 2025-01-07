@@ -1000,9 +1000,9 @@ class FinanceController extends BaseController
                     if (!empty($item[27]) && !strtotime($item[27])) {
                         $item[27] = DateTime::createFromFormat('m-d-y', $item[27])->format('Y/m/d');
                     }
-                    if (!strtotime($item[29])) {
-                        $item[29] = DateTime::createFromFormat('m-d-y', $item[29])->format('Y/m/d');
-                    }
+//                    if (!strtotime($item[29])) {
+//                        $item[29] = DateTime::createFromFormat('m-d-y', $item[29])->format('Y/m/d');
+//                    }
                     $storeData[] = [
                         'report_id'                 =>  $report_id,
                         'inbound_number'            =>  $item[0],
@@ -1027,15 +1027,15 @@ class FinanceController extends BaseController
                         'purchaser'                 =>  $item[24],
                         'arriving_date'             =>  date('Ymd', strtotime($item[27])),
                         'contact_no'                =>  $item[25] . $item[28],
-                        'accrual_date'              =>  date('Ymd', strtotime($item[29])),
-                        'days'                      =>  $item[30],
-                        'overdue_for_sale_1'        =>  $item[31],
-                        'overdue_for_sale_2'        =>  $item[32],
-                        'overdue_for_sale_3'        =>  $item[33],
-                        'accrual_amount_1'          =>  $item[34],
-                        'accrual_amount_2'          =>  $item[35],
-                        'accrual_amount_3'          =>  $item[36],
-                        'accrual_total'             =>  $item[37],
+//                        'accrual_date'              =>  date('Ymd', strtotime($item[29])),
+//                        'days'                      =>  $item[30],
+//                        'overdue_for_sale_1'        =>  $item[31],
+//                        'overdue_for_sale_2'        =>  $item[32],
+//                        'overdue_for_sale_3'        =>  $item[33],
+//                        'accrual_amount_1'          =>  $item[34],
+//                        'accrual_amount_2'          =>  $item[35],
+//                        'accrual_amount_3'          =>  $item[36],
+//                        'accrual_total'             =>  $item[37],
                     ];
                 }
             }
