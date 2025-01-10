@@ -1019,6 +1019,15 @@ class AmazonPayment extends Model
                         "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[71])) * -1,
                     ];
                 }
+                if ($item[55] == "Customer Chargeback") {
+                    $this->orderAdjustmentNew[] = [
+                        "report_id"                 =>  $reportId,
+                        "table_id"                  =>  $tableId,
+                        "payment_id"                =>  number_format($item[2], 0, '', ''),
+                        "sku"                       =>  $item[8],
+                        "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[21])) * -1,
+                    ];
+                }
             } elseif ($item[5] == 'ADJMNT') {
                 if ($item[66] == "Walmart-fulfilled(WFS)" && $item[55] == 'WFS Fulfillment fee') {
                     // WFS尾程
