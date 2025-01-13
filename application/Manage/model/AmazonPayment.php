@@ -1662,7 +1662,7 @@ class AmazonPayment extends Model
                 $this->userAccount = $order['userAccount'];
             }
 
-            if ($item[19] == 0) {
+            if ($item[19] == 0 && !empty($item[0])) {
                 $this->orderSaleNew[] = [
                     "report_id"                 =>  $reportId,
                     "table_id"                  =>  $tableId,
