@@ -42,9 +42,9 @@ class FinanceOrderShare extends Command
 
         Db::startTrans();
         try {
-            self::promotionShare();
+//            self::promotionShare();
             self::shippingServiceShare();
-            self::liquidationShare();
+//            self::liquidationShare();
             self::adjustmentShare();
             self::adjustmentWfsShare();
             self::warehouseAdjustmentShare();
