@@ -1505,7 +1505,7 @@ class AmazonPayment extends Model
                 ];
             } elseif ($item[1] == '其他费用') {
                 if (gettype(strpos($item[38], 'Promoted Listings')) == 'integer') {
-                    $this->orderPromotionNew[] = [
+                    $this->orderAdjustmentNew[] = [
                         "report_id"                 =>  $reportId,
                         "table_id"                  =>  $tableId,
                         "description"               =>  $item[38],
