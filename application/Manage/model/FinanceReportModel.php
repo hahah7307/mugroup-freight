@@ -721,7 +721,7 @@ FROM
 			NULL AS fba_adCost,
 			NULL AS fba_inventory,
 			NULL AS adjustment,
-			SUM( a.taxCollected * d.percent ) liquidation,
+			SUM( (a.taxCollected + a.taxRefunded) * d.percent ) liquidation,
 			NULL AS promotion,
 			NULL AS shipping_service,
 			NULL AS operation_expenses,
@@ -738,7 +738,7 @@ FROM
 		WHERE
 			reportDateMonth = "' . $month . '" 
 			AND a.countryCode != "US" 
-			AND a.taxCollected != 0 
+			AND (a.taxCollected + a.taxRefunded) != 0 
 			AND is_fba = 1 
 		GROUP BY
 			platform,
@@ -1558,7 +1558,7 @@ FROM
 			NULL AS fbm_adCost,
 			NULL AS warehouse_rent,
 			NULL AS adjustment,
-			SUM( a.taxCollected * d.percent ) liquidation,
+			SUM( (a.taxCollected + a.taxRefunded) * d.percent ) liquidation,
 			NULL AS promotion,
 			NULL AS shipping_service,
 			NULL AS lc_adjustment,
@@ -1577,7 +1577,7 @@ FROM
 		WHERE
 			reportDateMonth = "' . $month . '" 
 			AND a.countryCode != "US" 
-			AND a.taxCollected != 0 
+			AND (a.taxCollected + a.taxRefunded) != 0 
 			AND is_fba = 0 
 		GROUP BY
 			platform,
@@ -2579,8 +2579,7 @@ FROM
 				LEFT JOIN mu_finance_order_statistics b ON a.payment_id = b.payment_id
 				LEFT JOIN mu_ecang_order c ON b.saleOrderCode = c.saleOrderCode 
 			WHERE
-				b.payment_id IS NOT NULL
-				AND c.`status` != 0 UNION ALL
+				b.payment_id IS NOT NULL UNION ALL
 			SELECT
 				a.platform,
 				a.userAccount,
