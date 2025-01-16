@@ -1580,7 +1580,7 @@ class AmazonPayment extends Model
                     "table_id"                  =>  $tableId,
                     "payment_id"                =>  trim($item[44])
                 ];
-            } elseif ($item[10] == 'Logistics') {
+            } elseif ($item[10] == 'Logistics' || $item[10] == 'Reversal of logistics') {
                 $this->orderShippingNew[] = [
                     "report_id"                 =>  $reportId,
                     "table_id"                  =>  $tableId,
@@ -1589,7 +1589,7 @@ class AmazonPayment extends Model
                     "description"               =>  $item[44],
                     "shipping_fee"              =>  sprintf('%.2f', str_replace(',', '', $item[36])) * -1,
                 ];
-            } elseif ($item[9] == 'return' && $item[10] == 'Return') {
+            } elseif ($item[9] == 'return') {
                 $this->orderRefundNew[] = [
                     "report_id"                 =>  $reportId,
                     "table_id"                  =>  $tableId,
