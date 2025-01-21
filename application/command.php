@@ -51,4 +51,5 @@ return [
     'app\Manage\command\FinanceOutboundAccounting', //
     'app\Manage\command\FinanceWildberriesOrder', //
     'app\Manage\command\FinanceWildberriesFeeEmpty', //
+    'app\Manage\command\AkAmazonListing', //
 ];
