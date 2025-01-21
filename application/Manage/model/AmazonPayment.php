@@ -1589,6 +1589,12 @@ class AmazonPayment extends Model
                     "description"               =>  $item[44],
                     "shipping_fee"              =>  sprintf('%.2f', str_replace(',', '', $item[36])) * -1,
                 ];
+
+                $this->wildberriesOrderNotify[] = [
+                    "report_id"                 =>  $reportId,
+                    "table_id"                  =>  $tableId,
+                    "payment_id"                =>  trim($item[44])
+                ];
             } elseif ($item[9] == 'return') {
                 $this->orderRefundNew[] = [
                     "report_id"                 =>  $reportId,
@@ -1620,9 +1626,18 @@ class AmazonPayment extends Model
                 $this->orderAdjustmentNew[] = [
                     "report_id"                 =>  $reportId,
                     "table_id"                  =>  $tableId,
-                    "payment_id"                =>  trim($item[0]),
+                    "payment_id"                =>  trim($item[44]),
                     "sku"                       =>  $item[3],
                     "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[33])),
+                    "is_amazon"                 =>  0,
+                ];
+            } elseif ($item[10] == 'Fines and surcharges') {
+                $this->orderAdjustmentNew[] = [
+                    "report_id"                 =>  $reportId,
+                    "table_id"                  =>  $tableId,
+                    "payment_id"                =>  trim($item[44]),
+                    "sku"                       =>  $item[3],
+                    "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[41])),
                     "is_amazon"                 =>  0,
                 ];
             }

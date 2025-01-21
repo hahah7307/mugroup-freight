@@ -5171,24 +5171,24 @@ SELECT
 	platform,
 	user_account,
 	payment_id,
-	product_name,
-	c.sku,
-	SUM( sale_qty ) sale_qty,
-	SUM( refund_qty ) refund_qty,
-	SUM( sale_amount ) sale_amount,
-	SUM( refund_amount ) refund_amount,
-	SUM( sale_selling_fees ) sale_selling_fees,
-	SUM( refund_selling_fees ) refund_selling_fees,
-	SUM( sale_regulatory_fee ) sale_regulatory_fee,
-	SUM( refund_regulatory_fee ) refund_regulatory_fee,
-	ROUND( SUM( sale_total ), 2 ) sale_total,
-	SUM( refund_total ) refund_total,
-	SUM( c.shipping_fee ) shipping_fee,
-	SUM( b.total ) cost,
-	SUM( b.shipping_fee ) domestic_shipping,
-	SUM( adjustment ) adjustment,
-	ROUND( SUM( sale_total + refund_total + c.shipping_fee - b.total - b.shipping_fee + adjustment ), 2 ) profit,
-	ROUND( SUM( sale_total + refund_total + c.shipping_fee - b.total - b.shipping_fee + adjustment ) / SUM( sale_amount ), 4 ) gross_profit_margin 
+	b.product_name,
+	b.sku,
+	sale_qty,
+	refund_qty,
+	sale_amount,
+	refund_amount,
+	sale_selling_fees,
+	refund_selling_fees,
+	sale_regulatory_fee,
+	refund_regulatory_fee,
+	sale_total,
+	refund_total,
+	a.shipping_fee,
+	IFNULL( b.total, 0 ) cost,
+	IFNULL( b.shipping_fee, 0 ) domestic_shipping,
+	adjustment,
+	sale_total + refund_total + a.shipping_fee - IFNULL( b.total, 0 ) - IFNULL( b.shipping_fee, 0 ) + adjustment profit,
+	ROUND( (sale_total + refund_total + a.shipping_fee - IFNULL( b.total, 0 ) - IFNULL( b.shipping_fee, 0 ) + adjustment ) / sale_amount, 4 ) gross_profit_margin 
 FROM
 	(
 	SELECT
@@ -5196,7 +5196,6 @@ FROM
 		user_account,
 		payment_id,
 		description,
-		order_no,
 		SUM( sale_qty ) sale_qty,
 		SUM( refund_qty ) refund_qty,
 		SUM( sale_amount ) sale_amount,
@@ -5205,113 +5204,171 @@ FROM
 		SUM( refund_selling_fees ) refund_selling_fees,
 		SUM( sale_regulatory_fee ) sale_regulatory_fee,
 		SUM( refund_regulatory_fee ) refund_regulatory_fee,
-		SUM( sale_total ) sale_total,
+		ROUND( SUM( sale_total ), 2 ) sale_total,
 		SUM( refund_total ) refund_total,
+		SUM( a.shipping_fee ) shipping_fee,
 		SUM( adjustment ) adjustment 
 	FROM
 		(
 		SELECT
+			platform,
+			user_account,
+			payment_id,
+			description,
+			SUM( sale_qty ) sale_qty,
+			SUM( refund_qty ) refund_qty,
+			SUM( sale_amount ) sale_amount,
+			SUM( refund_amount ) refund_amount,
+			SUM( sale_selling_fees ) sale_selling_fees,
+			SUM( refund_selling_fees ) refund_selling_fees,
+			SUM( sale_regulatory_fee ) sale_regulatory_fee,
+			SUM( refund_regulatory_fee ) refund_regulatory_fee,
+			ROUND( SUM( sale_total ), 2 ) sale_total,
+			SUM( refund_total ) refund_total,
+			ROUND( SUM( a.shipping_fee ), 2 ) shipping_fee,
+			SUM( adjustment ) adjustment 
+		FROM
+			(
+			SELECT
+				platform,
+				user_account,
+				payment_id,
+				description,
+				SUM( sale_qty ) sale_qty,
+				SUM( refund_qty ) refund_qty,
+				SUM( sale_amount ) sale_amount,
+				SUM( refund_amount ) refund_amount,
+				SUM( sale_selling_fees ) sale_selling_fees,
+				SUM( refund_selling_fees ) refund_selling_fees,
+				SUM( sale_regulatory_fee ) sale_regulatory_fee,
+				SUM( refund_regulatory_fee ) refund_regulatory_fee,
+				SUM( sale_total ) sale_total,
+				SUM( refund_total ) refund_total,
+				SUM( shipping_fee ) shipping_fee,
+				SUM( adjustment ) adjustment 
+			FROM
+				(
+				SELECT
+					"wildberries" platform,
+					"Wildberries" user_account,
+					c.order_no payment_id,
+					a.description,
+					a.quantity sale_qty,
+					0 AS refund_qty,
+					a.product_sales sale_amount,
+					0 AS refund_amount,
+					a.selling_fees sale_selling_fees,
+					0 AS refund_selling_fees,
+					a.regulatory_fee sale_regulatory_fee,
+					0 AS refund_regulatory_fee,
+					a.total sale_total,
+					0 AS refund_total,
+					0 AS shipping_fee,
+					0 AS adjustment 
+				FROM
+					mu_finance_order_sale a
+					LEFT JOIN mu_finance_table b ON a.table_id = b.id
+					LEFT JOIN mu_finance_wildberries_order c ON a.description = c.fbs_no 
+				WHERE
+					a.report_id = ' . $report_id . ' 
+					AND b.platform = "wildberries" UNION ALL
+				SELECT
+					"wildberries" platform,
+					"Wildberries" user_account,
+					c.order_no payment_id,
+					a.description,
+					0 AS sale_qty,
+					a.quantity refund_qty,
+					0 AS sale_amount,
+					a.product_sales refund_amount,
+					0 AS sale_selling_fees,
+					a.selling_fees refund_selling_fees,
+					0 AS sale_regulatory_fee,
+					a.regulatory_fee refund_regulatory_fee,
+					0 AS sale_total,
+					a.total refund_total,
+					0 AS shipping_fee,
+					0 AS adjustment 
+				FROM
+					mu_finance_order_refund a
+					LEFT JOIN mu_finance_table b ON a.table_id = b.id
+					LEFT JOIN mu_finance_wildberries_order c ON a.description = c.fbs_no 
+				WHERE
+					a.report_id = ' . $report_id . ' 
+					AND b.platform = "wildberries" UNION ALL
+				SELECT
+					"wildberries" platform,
+					"Wildberries" user_account,
+					"" AS payment_id,
+					0 AS description,
+					0 AS sale_qty,
+					0 refund_qty,
+					0 AS sale_amount,
+					0 refund_amount,
+					0 AS sale_selling_fees,
+					0 refund_selling_fees,
+					0 AS sale_regulatory_fee,
+					0 refund_regulatory_fee,
+					0 AS sale_total,
+					0 refund_total,
+					0 AS shipping_fee,
+					a.total adjustment 
+				FROM
+					mu_finance_order_adjustment a
+					LEFT JOIN mu_finance_table b ON a.table_id = b.id 
+				WHERE
+					a.report_id = ' . $report_id . ' 
+					AND b.platform = "wildberries" 
+				) a 
+			GROUP BY
+				platform,
+				user_account,
+				payment_id,
+				description 
+			) a 
+		GROUP BY
+			platform,
+			user_account,
+			payment_id,
+			description,
+			sale_amount UNION ALL
+		SELECT
 			"wildberries" platform,
 			"Wildberries" user_account,
 			c.order_no payment_id,
 			a.description,
-			c.order_no,
-			a.quantity sale_qty,
+			0 sale_qty,
 			0 AS refund_qty,
-			a.product_sales sale_amount,
+			0 sale_amount,
 			0 AS refund_amount,
-			a.selling_fees sale_selling_fees,
+			0 sale_selling_fees,
 			0 AS refund_selling_fees,
-			a.regulatory_fee sale_regulatory_fee,
+			0 sale_regulatory_fee,
 			0 AS refund_regulatory_fee,
-			a.total sale_total,
+			0 sale_total,
 			0 AS refund_total,
+			SUM( shipping_fee ) shipping_fee,
 			0 AS adjustment 
 		FROM
-			mu_finance_order_sale a
+			mu_finance_wildberries_shipping a
 			LEFT JOIN mu_finance_table b ON a.table_id = b.id
 			LEFT JOIN mu_finance_wildberries_order c ON a.description = c.fbs_no 
-		WHERE
-			a.report_id = ' . $report_id . ' 
-			AND b.platform = "wildberries" UNION ALL
-		SELECT
-			"wildberries" platform,
-			"Wildberries" user_account,
-			c.order_no payment_id,
-			a.description,
-			c.order_no,
-			0 AS sale_qty,
-			a.quantity refund_qty,
-			0 AS sale_amount,
-			a.product_sales refund_amount,
-			0 AS sale_selling_fees,
-			a.selling_fees refund_selling_fees,
-			0 AS sale_regulatory_fee,
-			a.regulatory_fee refund_regulatory_fee,
-			0 AS sale_total,
-			a.total refund_total,
-			0 AS adjustment 
-		FROM
-			mu_finance_order_refund a
-			LEFT JOIN mu_finance_table b ON a.table_id = b.id
-			LEFT JOIN mu_finance_wildberries_order c ON a.description = c.fbs_no 
-		WHERE
-			a.report_id = ' . $report_id . ' 
-			AND b.platform = "wildberries" UNION ALL
-		SELECT
-			"wildberries" platform,
-			"Wildberries" user_account,
-			"" AS payment_id,
-			0 AS description,
-			0 AS order_no,
-			0 AS sale_qty,
-			0 refund_qty,
-			0 AS sale_amount,
-			0 refund_amount,
-			0 AS sale_selling_fees,
-			0 refund_selling_fees,
-			0 AS sale_regulatory_fee,
-			0 refund_regulatory_fee,
-			0 AS sale_total,
-			0 refund_total,
-			a.total adjustment 
-		FROM
-			mu_finance_order_adjustment a
-			LEFT JOIN mu_finance_table b ON a.table_id = b.id 
 		WHERE
 			a.report_id = ' . $report_id . ' 
 			AND b.platform = "wildberries" 
+		GROUP BY
+			platform,
+			user_account,
+			order_no,
+			description 
 		) a 
 	GROUP BY
 		platform,
 		user_account,
 		payment_id,
-		description,
-		order_no 
-	) a
-	LEFT JOIN mu_finance_wildberries_fee b ON a.order_no = b.order_no
-	LEFT JOIN (
-	SELECT
-		sku,
-		description,
-		SUM( shipping_fee ) shipping_fee 
-	FROM
-		mu_finance_wildberries_shipping a
-		LEFT JOIN mu_finance_table b ON a.table_id = b.id 
-	WHERE
-		a.report_id = ' . $report_id . ' 
-		AND b.platform = "wildberries" 
-	GROUP BY
-		sku,
 		description 
-	) c ON a.description = c.description 
-GROUP BY
-	platform,
-	user_account,
-	payment_id,
-	product_name,
-	c.sku,
-	sale_amount
+	) a
+	LEFT JOIN mu_finance_wildberries_fee b ON a.payment_id = b.order_no;
         ';
     }
 
