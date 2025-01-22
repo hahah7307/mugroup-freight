@@ -1,11 +1,15 @@
 <?php
 namespace app\Manage\controller;
 
+use app\Manage\command\AkAmazonListing;
+use app\Manage\model\AkAmazonListingModel;
 use app\Manage\model\OrderModel;
 use PHPExcel;
 use PHPExcel_IOFactory;
+use think\Config;
 use think\db\exception\BindParamException;
 use think\exception\PDOException;
+use think\Session;
 
 class EchartsController extends BaseController
 {
@@ -10511,5 +10515,84 @@ ORDER BY
     }
   ]
 }';
+    }
+
+    /**
+     * @throws PDOException
+     * @throws BindParamException
+     */
+    public function listing(): \think\response\View
+    {
+        $keyword = $this->request->get('keyword', '', 'htmlspecialchars');
+        $this->assign('keyword', $keyword);
+        if ($keyword) {
+            $search = '
+AND (asin = "' . $keyword . '"
+OR parent_asin = "' . $keyword . '"
+OR seller_sku = "' . $keyword . '")
+            ';
+        } else {
+            $search = '';
+        }
+
+        $order = $this->request->get('order', 'ASC', 'htmlspecialchars');
+        $this->assign('order', $order);
+
+        $start = $this->request->get('start', date('Y-m-d'), 'htmlspecialchars');
+        $this->assign('start', $start);
+
+        $model = new AkAmazonListingModel();
+        $list = $model->query('
+SELECT
+	* 
+FROM
+	mu_ak_amazon_listing 
+WHERE
+	`status` = 1 
+	AND created_date = ' . date('Ymd', strtotime($start)) . ' 
+	AND JSON_LENGTH(small_rank) != 0 
+	' . $search . '
+ORDER BY
+	JSON_EXTRACT( small_rank, "$[0].rank" ) ' . $order . ';
+        ');
+        $this->assign('list', $list);
+
+        Session::set(Config::get('BACK_URL'), $this->request->url(), 'manage');
+        return view();
+    }
+
+    /**
+     * @throws PDOException
+     * @throws BindParamException
+     */
+    public function rank_change($asin): \think\response\View
+    {
+        $model = new AkAmazonListingModel();
+        $data = $model->query('
+SELECT
+	* 
+FROM
+	(
+	SELECT
+		JSON_EXTRACT( small_rank, "$[0].rank" ) AS small_rank,
+		DATE_FORMAT( created_date, "%Y-%m-%d" ) AS created_date 
+	FROM
+		mu_ak_amazon_listing 
+	WHERE
+		asin = "' . $asin . '" 
+		AND `status` = 1 
+		AND JSON_LENGTH( small_rank ) != 0 
+	ORDER BY
+		created_date DESC 
+		LIMIT 14 
+	) a 
+ORDER BY
+	created_date ASC;
+        ');
+        $this->assign('small_rank', json_encode(array_column($data, 'small_rank')));
+        $this->assign('created_date', json_encode(array_column($data, 'created_date')));
+        $this->assign('asin', $asin);
+
+        return view();
     }
 }
