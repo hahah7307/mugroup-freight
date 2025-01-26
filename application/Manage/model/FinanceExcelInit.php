@@ -1769,8 +1769,96 @@ class FinanceExcelInit extends Model
         }
     }
 
+    /**
+     * @throws DbException
+     * @throws ModelNotFoundException
+     * @throws DataNotFoundException
+     */
+    public function generateListingRankExport($index, $data, $dateList)
+    {
+        if ($index) {
+            // create new sheet
+            $this->objPHPExcel->createSheet();
+        }
+
+        // Set name sheet
+        $this->objPHPExcel->setActiveSheetIndex($index)->setTitle(date('Y-m-d') . '_listing_rank');
+
+        $columnList = ['A', 'B', 'C', 'D', 'E', 'F'];
+        $fieldNameList = ['asin', 'parent_asin', 'seller_sku', 'local_sku', 'local_name', 'principal_info'];
+        $recentAsc = 'F';
+        foreach ($dateList as $dateItem) {
+            $asc = FinanceExcelInit::getNextExcelColumn($recentAsc);
+            $columnList[] = $asc;
+            $fieldNameList[] = 'rank_' . $dateItem['created_date'];
+            $asc = FinanceExcelInit::getNextExcelColumn($asc);
+            $columnList[] = $asc;
+            $fieldNameList[] = 'star_' . $dateItem['created_date'];
+            $recentAsc = $asc;
+        }
+
+        // Add some data
+        $this->objPHPExcel->setActiveSheetIndex($index)
+            ->setCellValue('A1', 'Asin')
+            ->setCellValue('B1', '父级Asin')
+            ->setCellValue('C1', '销售SKU')
+            ->setCellValue('D1', '仓库SKU')
+            ->setCellValue('E1', '品名')
+            ->setCellValue('F1', '运营人员');
+
+        foreach ($columnList as $key => $column) {
+            if ($key >= 6) {
+                $this->objPHPExcel->setActiveSheetIndex($index)->setCellValue($column . '1', $fieldNameList[$key]);
+            }
+        }
+
+        $listingIndex = 1;
+        foreach ($data as $dataItem) {
+            $listingIndex ++;
+            foreach ($columnList as $k => $listingItem) {
+                if ($k == 5) {
+                    $cellVal = json_decode($dataItem[$fieldNameList[$k]], true)[0]['principal_name'];
+                } elseif ($k % 2 == 0 && $k >= 6) {
+                    $cellVal = json_decode($dataItem[$fieldNameList[$k]], true)[0]['rank'];
+                } else {
+                    $cellVal = $dataItem[$fieldNameList[$k]];
+                }
+                $this->objPHPExcel->setActiveSheetIndex($index)->setCellValue($listingItem . $listingIndex, $cellVal);
+            }
+        }
+    }
+
     public function excelSheetSet()
     {
         return $this->objPHPExcel;
+    }
+
+    static public function getNextExcelColumn($currentColumn): string
+    {
+        $nextColumn = '';
+        $carry = true; // 进位标志
+
+        // 从右到左遍历列名
+        for ($i = strlen($currentColumn) - 1; $i >= 0; $i--) {
+            $char = $currentColumn[$i];
+
+            if ($carry) {
+                if ($char == 'Z') {
+                    $nextColumn = 'A' . $nextColumn;
+                } else {
+                    $nextColumn = chr(ord($char) + 1) . $nextColumn;
+                    $carry = false;
+                }
+            } else {
+                $nextColumn = $char . $nextColumn;
+            }
+        }
+
+        // 如果循环结束仍有进位，则需要在最前面加一个 'A'
+        if ($carry) {
+            $nextColumn = 'A' . $nextColumn;
+        }
+
+        return $nextColumn;
     }
 }

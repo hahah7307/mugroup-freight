@@ -3,11 +3,13 @@ namespace app\Manage\controller;
 
 use app\Manage\command\AkAmazonListing;
 use app\Manage\model\AkAmazonListingModel;
+use app\Manage\model\FinanceExcelInit;
 use app\Manage\model\OrderModel;
 use PHPExcel;
 use PHPExcel_IOFactory;
 use think\Config;
 use think\db\exception\BindParamException;
+use think\Exception;
 use think\exception\PDOException;
 use think\Session;
 
@@ -10564,6 +10566,7 @@ ORDER BY
     /**
      * @throws PDOException
      * @throws BindParamException
+     * @throws Exception
      */
     public function rank_change($asin): \think\response\View
     {
@@ -10591,8 +10594,98 @@ ORDER BY
         ');
         $this->assign('small_rank', json_encode(array_column($data, 'small_rank')));
         $this->assign('created_date', json_encode(array_column($data, 'created_date')));
-        $this->assign('asin', $asin);
+
+        $listing = $model->where(['asin' => $asin, 'created_date' => date('Ymd')])->find();
+        $this->assign('listing', $listing->toArray());
 
         return view();
+    }
+
+    public function listing_export(): \think\response\View
+    {
+
+        return view();
+    }
+
+    /**
+     * @throws \PHPExcel_Writer_Exception
+     * @throws BindParamException
+     * @throws PDOException
+     * @throws \PHPExcel_Reader_Exception
+     */
+    public function rank_export($local_name, $local_sku)
+    {
+        $localNameSql = '';
+        $localSkuSql = '';
+        if (!empty($local_name)) {
+            $nameList = explode(',', $local_name);
+            $nameSql = [];
+            foreach ($nameList as $name) {
+                $nameSql[] = 'local_name LIKE "%' . $name . '%"';
+            }
+            $localNameSql = ' AND (' . implode(' OR ', $nameSql) . ')';
+        }
+
+        if (!empty($local_sku)) {
+            $skuList = explode(',', $local_sku);
+            $skuSql = [];
+            foreach ($skuList as $sku) {
+                $skuSql[] = 'local_sku LIKE "%' . $sku . '%"';
+            }
+            $localSkuSql = ' AND (' . implode(' OR ', $skuSql) . ')';
+        }
+
+        $model = new AkAmazonListingModel();
+        $dateList = array_reverse($model->query('
+SELECT DISTINCT created_date FROM mu_ak_amazon_listing ORDER BY created_date DESC LIMIT 14;
+        '));
+
+        $sqlArr = [];
+        foreach ($dateList as $item) {
+            $sqlArr[] = 'MAX( CASE WHEN created_date = ' . $item['created_date'] . ' THEN small_rank END ) AS rank_' . $item['created_date'];
+            $sqlArr[] = 'MAX( CASE WHEN created_date = ' . $item['created_date'] . ' THEN last_star END ) AS star_' . $item['created_date'];
+        }
+
+        $data = $model->query('
+SELECT
+	b.asin,
+	b.parent_asin,
+	b.seller_sku,
+	b.local_sku,
+	b.local_name,
+	b.principal_info,
+	a.*
+FROM
+(
+SELECT
+	listing_id,' . implode(',', $sqlArr) . ' 
+FROM
+	mu_ak_amazon_listing 
+WHERE
+	`status` = 1 ' . $localNameSql . $localSkuSql . ' 
+GROUP BY
+	listing_id
+) a LEFT JOIN mu_ak_amazon_listing b ON a.listing_id = b.listing_id
+WHERE b.`status` = 1  AND b.created_date = ' . date('Ymd') . ' 
+ORDER BY parent_asin ASC, local_sku ASC, local_name ASC;
+        ');
+
+        // phpexcel
+        require_once './static/classes/PHPExcel/Classes/PHPExcel.php';
+        // Create new PHPExcel object
+        $objPHPExcel = new PHPExcel();
+        $financeExcelInit = new FinanceExcelInit($objPHPExcel);
+        $financeExcelInit->generateListingRankExport(0, $data, $dateList);
+        $objPHPExcel = $financeExcelInit->excelSheetSet();
+
+        // Redirect output to a client’s web browser (Excel5)
+        header('Content-Type: application/vnd.ms-excel');
+        $filename = date("YmdHis") . time() . mt_rand(100000, 999999);
+        ob_end_clean();
+        header('Content-Disposition:attachment;filename="'.$filename.'.xls"');
+        header('Cache-Control: max-age=0');
+
+        $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+        $objWriter->save('php://output');
     }
 }

@@ -24,6 +24,9 @@
             <div class="layui-inline">
                 <button class="layui-btn" lay-submit lay-filter="Search"><i class="layui-icon">&#xe615;</i> 查询</button>
             </div>
+            <div class="layui-inline">
+                <a href="{:url('Echarts/listing_export')}" class="layui-btn"><i class="layui-icon">&#xe63c;</i> 导出</a>
+            </div>
         </form>
 
         <div class="layui-form table-flex">

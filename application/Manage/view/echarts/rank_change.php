@@ -10,7 +10,7 @@
 <div class="layui-body" id="LAY_app_body">
     <div class="right">
         <a href="{:session('back_url', '', 'manage')}" class="layui-btn layui-btn-danger layui-btn-sm fr"><i class="layui-icon">&#xe603;</i>返回上一页</a>
-        <div class="title">{$asin}小类排名折线图</div>
+        <div class="title">{$listing.local_name}({$listing.asin})小类排名折线图</div>
 
         <div class="layui-form">
             <div id="main" style="height:1000px;"></div>
