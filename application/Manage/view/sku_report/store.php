@@ -26,12 +26,14 @@
                 <col>
                 <col>
                 <col>
+                <col>
             </colgroup>
             <thead>
             <tr>
                 <th class="tr">上周库存数量(个)</th>
                 <th class="tr">今日库存数量(个)</th>
                 <th class="tr">上周销售库存数量(个)</th>
+                <th class="tr">今日发货包裹数(个)</th>
                 <th class="tr">周库存周转率</th>
                 <th class="tr">年库存周转率</th>
             </tr>
@@ -41,6 +43,7 @@
                     <td class="tr">{$last_sum.0.value|number_format}</td>
                     <td class="tr">{$sum.0.value|number_format}</td>
                     <td class="tr">{$monthQty.0.qty|number_format}</td>
+                    <td class="tr">{$orderQty.0.count|number_format}</td>
                     <td class="tr">{$monthQty.0.qty / (($last_sum.0.value + $sum.0.value) / 2)|round=###,2}</td>
                     <td class="tr"><a href="{:url('inventory_turnover')}">{$monthQty.0.qty / (($last_sum.0.value + $sum.0.value) / 2) * 52|round=###,2}</a></td>
                 </tr>

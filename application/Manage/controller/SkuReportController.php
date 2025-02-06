@@ -1010,6 +1010,21 @@ WHERE
         ');
         $this->assign('monthQty', $monthQty);
 
+        $orderQty = $model->query('
+SELECT
+	COUNT(b.id) count
+FROM
+	mu_ecang_order a
+	LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id 
+WHERE
+	a.`status` != 5 
+	AND a.`status` != 7 
+	AND a.`status` != 0 
+	AND a.datePaidPlatform >= "' . date('Y-m-d 16:00:00', strtotime('-1 day', strtotime($sale_day_num))) . '" 
+	AND a.datePaidPlatform < "' . date('Y-m-d 16:00:00', strtotime($sale_day_num)) . '";
+        ');
+        $this->assign('orderQty', $orderQty);
+
         Session::set(Config::get('BACK_URL'), $this->request->url(), 'manage');
         return view();
     }
