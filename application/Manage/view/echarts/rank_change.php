@@ -30,7 +30,8 @@
                 data: {$created_date}
             },
             yAxis: {
-                type: 'value'
+                type: 'value',
+                inverse: true
             },
             series: [
                 {

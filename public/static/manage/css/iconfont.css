@@ -1,9 +1,9 @@
 /* 在线链接服务仅供平台体验和调试使用，平台不承诺服务的稳定性，企业客户需下载字体包自行发布使用并做好备份。 */
 @font-face {
   font-family: 'iconfont';  /* Project id 2076922 */
-  src: url('//at.alicdn.com/t/c/font_2076922_v4uy65zqstd.woff2?t=1712802180929') format('woff2'),
-  url('//at.alicdn.com/t/c/font_2076922_v4uy65zqstd.woff?t=1712802180929') format('woff'),
-  url('//at.alicdn.com/t/c/font_2076922_v4uy65zqstd.ttf?t=1712802180929') format('truetype');
+  src: url('//at.alicdn.com/t/c/font_2076922_66448p4jj5u.woff2?t=1738742388829') format('woff2'),
+  url('//at.alicdn.com/t/c/font_2076922_66448p4jj5u.woff?t=1738742388829') format('woff'),
+  url('//at.alicdn.com/t/c/font_2076922_66448p4jj5u.ttf?t=1738742388829') format('truetype');
 }
 
 .iconfont {
@@ -140,4 +140,24 @@
 
 .icon-icon:before {
   content: "\e654";
+}
+
+.icon-wenduxiajiang:before {
+  content: "\e9dd";
+  color: #008000;
+}
+
+.icon-wendushangsheng:before {
+  content: "\e623";
+  color: #ce0000;
+}
+
+.icon-xiajiang:before {
+  content: "\e650";
+  color: #008000;
+}
+
+.icon-shangsheng:before {
+  content: "\e64f";
+  color: #ce0000;
 }

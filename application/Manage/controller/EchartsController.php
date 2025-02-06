@@ -10537,6 +10537,32 @@ OR seller_sku = "' . $keyword . '")
             $search = '';
         }
 
+        $local_name = $this->request->get('local_name', '', 'htmlspecialchars');
+        $this->assign('local_name', $local_name);
+        if (!empty($local_name)) {
+            $nameList = preg_split('/\r\n|\r|\n/', $local_name);
+            $nameSql = [];
+            foreach ($nameList as $name) {
+                $nameSql[] = 'local_name LIKE "%' . $name . '%"';
+            }
+            $localNameSql = ' AND (' . implode(' OR ', $nameSql) . ')';
+        } else {
+            $localNameSql = '';
+        }
+
+        $local_sku = $this->request->get('local_sku', '', 'htmlspecialchars');
+        $this->assign('local_sku', $local_sku);
+        if (!empty($local_sku)) {
+            $skuList = preg_split('/\r\n|\r|\n/', $local_sku);
+            $skuSql = [];
+            foreach ($skuList as $sku) {
+                $skuSql[] = 'local_sku LIKE "%' . $sku . '%"';
+            }
+            $localSkuSql = ' AND (' . implode(' OR ', $skuSql) . ')';
+        } else {
+            $localSkuSql = '';
+        }
+
         $order = $this->request->get('order', 'ASC', 'htmlspecialchars');
         $this->assign('order', $order);
 
@@ -10546,6 +10572,31 @@ OR seller_sku = "' . $keyword . '")
         $model = new AkAmazonListingModel();
         $list = $model->query('
 SELECT
+	a.asin,
+	a.small_image_url,
+	a.parent_asin,
+	a.seller_sku,
+	a.local_name,
+	a.local_sku,
+	a.last_star,
+	a.small_rank,
+	a.seller_rank,
+	a.seller_category,
+	a.principal_info,
+	b.asin y_asin,
+	b.small_image_url y_small_image_url,
+	b.parent_asin y_parent_asin,
+	b.seller_sku y_seller_sku,
+	b.local_name y_local_name,
+	b.local_sku y_local_sku,
+	b.last_star y_last_star,
+	b.small_rank y_small_rank,
+	b.seller_rank y_seller_rank,
+	b.seller_category y_seller_category,
+	b.principal_info y_principal_info
+FROM
+(
+SELECT
 	* 
 FROM
 	mu_ak_amazon_listing 
@@ -10553,9 +10604,11 @@ WHERE
 	`status` = 1 
 	AND created_date = ' . date('Ymd', strtotime($start)) . ' 
 	AND JSON_LENGTH(small_rank) != 0 
-	' . $search . '
+	' . $search . $localNameSql . $localSkuSql . '
 ORDER BY
-	JSON_EXTRACT( small_rank, "$[0].rank" ) ' . $order . ';
+	JSON_EXTRACT( small_rank, "$[0].rank" ) ' . $order . '
+) a LEFT JOIN mu_ak_amazon_listing b ON a.listing_id = b.listing_id
+ WHERE b.created_date = ' . date('Ymd', strtotime('-1 day', strtotime($start))) . ';
         ');
         $this->assign('list', $list);
 

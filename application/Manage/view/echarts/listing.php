@@ -3,12 +3,19 @@
 
 <style>
     .sku-item {cursor: pointer}
+    .layui-textarea {min-height: 0}
 </style>
 <!-- 主体内容 -->
 <div class="layui-body" id="LAY_app_body">
     <div class="right">
         <div class="title">Listing排名表</div>
         <form class="layui-form" method="get">
+            <div class="layui-input-inline">
+                <textarea name="local_name" id="local_name" placeholder="品名，多个用回车键分割" class="layui-textarea">{$local_name}</textarea>
+            </div>
+            <div class="layui-input-inline">
+                <textarea name="local_sku" id="local_sku" placeholder="SKU，多个用回车键分割" class="layui-textarea">{$local_sku}</textarea>
+            </div>
             <div class="layui-inline w200">
                 <input type="text" class="layui-input" name="keyword" value="{$keyword}" placeholder="Asin/ParentAsin/销售SKU">
             </div>
@@ -34,7 +41,8 @@
                 <colgroup>
                     <col class="w80">
                     <col>
-                    <col>
+                    <col class="w200">
+                    <col class="w200">
                     <col>
                     <col>
                     <col>
@@ -50,6 +58,7 @@
                     <th>Asin</th>
                     <th>ParentAsin</th>
                     <th>销售SKU</th>
+                    <th>仓库SKU</th>
                     <th>品名</th>
                     <th>评分</th>
                     <th>小类排名</th>
@@ -61,18 +70,38 @@
                 {foreach name="list" key="key" item="v"}
                 <tr>
                     <td class="tr">{$key + 1}</td>
-                    <td class="tc sku-item" data-asin="{$v.asin}"><img src="{$v.small_image_url}" height="80" alt=""></td>
+                    <td class="tc"><img src="{$v.small_image_url}" height="50" alt=""></td>
                     <td>{$v.asin}</td>
                     <td>{$v.parent_asin}</td>
                     <td>{$v.seller_sku}</td>
+                    <td>{$v.local_sku}</td>
                     <td>{$v.local_name}</td>
-                    <td class="tr"><strong class="red fs16">{$v.last_star|round=###,1}</strong></td>
-                    <td class="tr">
-                        <strong class="green">#{:number_format(json_decode($v['small_rank'], true)[0]['rank'])}</strong><br>
+                    <td class="tr sku-item" data-asin="{$v.asin}">
+                        <strong class="grey">{$v.last_star|round=###,1}</strong>
+                        {if condition="round($v['last_star']) gt round($v['y_last_star'])"}
+                        <i class="layui-icon iconfont icon-shangsheng"></i>
+                        {elseif condition="round($v['last_star']) lt round($v['y_last_star'])"/}
+                        <i class="layui-icon iconfont icon-xiajiang"></i>
+                        {/if}
+                    </td>
+                    <td class="tr sku-item" data-asin="{$v.asin}">
+                        <strong class="grey">#{:number_format(json_decode($v['small_rank'], true)[0]['rank'])}</strong>
+                        {if condition="json_decode($v['small_rank'], true)[0]['rank'] gt json_decode($v['y_small_rank'], true)[0]['rank']"}
+                        <i class="layui-icon iconfont icon-xiajiang"></i>
+                        {elseif condition="json_decode($v['small_rank'], true)[0]['rank'] lt json_decode($v['y_small_rank'], true)[0]['rank']"/}
+                        <i class="layui-icon iconfont icon-shangsheng"></i>
+                        {/if}
+                        <br>
                         {:json_decode($v['small_rank'], true)[0]['category']}
                     </td>
-                    <td class="tr">
-                        <strong class="green">#{:number_format($v['seller_rank'])}</strong><br>
+                    <td class="tr sku-item" data-asin="{$v.asin}">
+                        <strong class="grey">#{:number_format($v['seller_rank'])}</strong>
+                        {if condition="$v['seller_rank'] gt $v['y_seller_rank']"}
+                        <i class="layui-icon iconfont icon-xiajiang"></i>
+                        {elseif condition="$v['seller_rank'] lt $v['y_seller_rank']"/}
+                        <i class="layui-icon iconfont icon-shangsheng"></i>
+                        {/if}
+                        <br>
                         {$v.seller_category}
                     </td>
                     <td>{:json_decode($v['principal_info'], true)[0]['principal_name']}</td>
