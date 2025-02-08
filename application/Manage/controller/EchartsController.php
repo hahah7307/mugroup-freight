@@ -10540,7 +10540,7 @@ OR seller_sku = "' . $keyword . '")
         $local_name = $this->request->get('local_name', '', 'htmlspecialchars');
         $this->assign('local_name', $local_name);
         if (!empty($local_name)) {
-            $nameList = preg_split('/\r\n|\r|\n/', $local_name);
+            $nameList = array_filter(preg_split('/\r\n|\r|\n/', $local_name));
             $nameSql = [];
             foreach ($nameList as $name) {
                 $nameSql[] = 'local_name LIKE "%' . $name . '%"';
@@ -10553,14 +10553,22 @@ OR seller_sku = "' . $keyword . '")
         $local_sku = $this->request->get('local_sku', '', 'htmlspecialchars');
         $this->assign('local_sku', $local_sku);
         if (!empty($local_sku)) {
-            $skuList = preg_split('/\r\n|\r|\n/', $local_sku);
+            $skuList = array_filter(preg_split('/\r\n|\r|\n/', $local_sku));
             $skuSql = [];
             foreach ($skuList as $sku) {
-                $skuSql[] = 'local_sku LIKE "%' . $sku . '%"';
+                $skuSql[] = 'local_sku LIKE "%' . strtoupper($sku) . '%"';
             }
             $localSkuSql = ' AND (' . implode(' OR ', $skuSql) . ')';
         } else {
             $localSkuSql = '';
+        }
+
+        $nickname = $this->request->get('nickname', '', 'htmlspecialchars');
+        $this->assign('nickname', $nickname);
+        if (!empty($nickname)) {
+            $nikeNameSql = ' AND JSON_EXTRACT( principal_info, "$[0].principal_name" ) = "' . $nickname . '"';
+        } else {
+            $nikeNameSql = '';
         }
 
         $order = $this->request->get('order', 'ASC', 'htmlspecialchars');
@@ -10604,11 +10612,11 @@ WHERE
 	`status` = 1 
 	AND created_date = ' . date('Ymd', strtotime($start)) . ' 
 	AND JSON_LENGTH(small_rank) != 0 
-	' . $search . $localNameSql . $localSkuSql . '
-ORDER BY
-	JSON_EXTRACT( small_rank, "$[0].rank" ) ' . $order . '
+	' . $search . $localNameSql . $localSkuSql . $nikeNameSql . '
 ) a LEFT JOIN mu_ak_amazon_listing b ON a.listing_id = b.listing_id
- WHERE b.created_date = ' . date('Ymd', strtotime('-1 day', strtotime($start))) . ';
+ WHERE b.created_date = ' . date('Ymd', strtotime('-1 day', strtotime($start))) . '
+ORDER BY
+	JSON_EXTRACT( a.small_rank, "$[0].rank" ) ' . $order . ';
         ');
         $this->assign('list', $list);
 
@@ -10621,7 +10629,7 @@ ORDER BY
      * @throws BindParamException
      * @throws Exception
      */
-    public function rank_change($asin): \think\response\View
+    public function rank_change($asin, $day = 14): \think\response\View
     {
         $model = new AkAmazonListingModel();
         $data = $model->query('
@@ -10640,7 +10648,7 @@ FROM
 		AND JSON_LENGTH( small_rank ) != 0 
 	ORDER BY
 		created_date DESC 
-		LIMIT 14 
+		LIMIT ' . $day . ' 
 	) a 
 ORDER BY
 	created_date ASC;
@@ -10650,6 +10658,8 @@ ORDER BY
 
         $listing = $model->where(['asin' => $asin, 'created_date' => date('Ymd')])->find();
         $this->assign('listing', $listing->toArray());
+        $this->assign('asin', $asin);
+        $this->assign('day', $day);
 
         return view();
     }

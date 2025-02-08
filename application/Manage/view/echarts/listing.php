@@ -4,6 +4,12 @@
 <style>
     .sku-item {cursor: pointer}
     .layui-textarea {min-height: 0}
+    thead {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        background: #fff;
+    }
 </style>
 <!-- 主体内容 -->
 <div class="layui-body" id="LAY_app_body">
@@ -19,10 +25,13 @@
             <div class="layui-inline w200">
                 <input type="text" class="layui-input" name="keyword" value="{$keyword}" placeholder="Asin/ParentAsin/销售SKU">
             </div>
+            <div class="layui-inline w200">
+                <input type="text" class="layui-input" name="nickname" value="{$nickname}" placeholder="主运营人员">
+            </div>
             <div class="layui-inline w120">
                 <select name="order" lay-verify="">
-                    <option value="DESC" {if condition="$order eq 'DESC'"}selected{/if}>从高到低</option>
-                    <option value="ASC" {if condition="$order eq 'ASC'"}selected{/if}>从低到高</option>
+                    <option value="DESC" {if condition="$order eq 'DESC'"}selected{/if}>从后到前</option>
+                    <option value="ASC" {if condition="$order eq 'ASC'"}selected{/if}>从前到后</option>
                 </select>
             </div>
             <div class="layui-input-inline w200">
@@ -49,7 +58,7 @@
                     <col>
                     <col>
                     <col>
-                    <col class="w100">
+                    <col class="w120">
                 </colgroup>
                 <thead>
                 <tr>
@@ -63,14 +72,14 @@
                     <th>评分</th>
                     <th>小类排名</th>
                     <th>大类排名</th>
-                    <th>运营人员</th>
+                    <th>主运营人员</th>
                 </tr>
                 </thead>
                 <tbody>
                 {foreach name="list" key="key" item="v"}
                 <tr>
                     <td class="tr">{$key + 1}</td>
-                    <td class="tc"><img src="{$v.small_image_url}" height="50" alt=""></td>
+                    <td class="tc"><a href="{$v.small_image_url}" target="_blank"><img src="{$v.small_image_url}" height="50" alt=""></a></td>
                     <td>{$v.asin}</td>
                     <td>{$v.parent_asin}</td>
                     <td>{$v.seller_sku}</td>
@@ -82,6 +91,8 @@
                         <i class="layui-icon iconfont icon-shangsheng"></i>
                         {elseif condition="round($v['last_star']) lt round($v['y_last_star'])"/}
                         <i class="layui-icon iconfont icon-xiajiang"></i>
+                        {else/}
+                        <i class="layui-icon iconfont icon-bhenggang"></i>
                         {/if}
                     </td>
                     <td class="tr sku-item" data-asin="{$v.asin}">
@@ -90,6 +101,8 @@
                         <i class="layui-icon iconfont icon-xiajiang"></i>
                         {elseif condition="json_decode($v['small_rank'], true)[0]['rank'] lt json_decode($v['y_small_rank'], true)[0]['rank']"/}
                         <i class="layui-icon iconfont icon-shangsheng"></i>
+                        {else/}
+                        <i class="layui-icon iconfont icon-bhenggang"></i>
                         {/if}
                         <br>
                         {:json_decode($v['small_rank'], true)[0]['category']}
@@ -100,6 +113,8 @@
                         <i class="layui-icon iconfont icon-xiajiang"></i>
                         {elseif condition="$v['seller_rank'] lt $v['y_seller_rank']"/}
                         <i class="layui-icon iconfont icon-shangsheng"></i>
+                        {else/}
+                        <i class="layui-icon iconfont icon-bhenggang"></i>
                         {/if}
                         <br>
                         {$v.seller_category}
