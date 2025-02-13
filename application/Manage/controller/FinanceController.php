@@ -483,6 +483,7 @@ class FinanceController extends BaseController
         $payment_type_new = strpos($payment_type, 'amazon') !== false ? 'amazon' : $payment_type;
         $payment_type_new = $payment_type == 'shein_semi_managed' ? 'shein' : $payment_type_new;
         $payment_type_new = $payment_type == 'temu_detail' ? 'temu' : $payment_type_new;
+        $payment_type_new = $payment_type == 'temu_hk' ? 'temu' : $payment_type_new;
         $file= "./upload/excel/" . $filename;
         $excelReader = PHPExcel_IOFactory::createReaderForFile($file);
         $excelObj = $excelReader->load($file);
@@ -506,7 +507,17 @@ class FinanceController extends BaseController
             if ($tableId = $financeTableObj->insertGetId($tableData)) {
                 $paymentObj = new AmazonPayment();
                 if ($payment_type) {
-                    $paymentData = $paymentObj->$payment_type($data, $tableId, $rid);
+                    if ($payment_type == "temu_hk") {
+                        $paymentData = $paymentObj->$payment_type(
+                            $tableId,
+                            $rid,
+                            $excelObj->getSheet(1)->toArray(),
+                            $excelObj->getSheet(2)->toArray(),
+                            $excelObj->getSheet(3)->toArray()
+                        );
+                    } else {
+                        $paymentData = $paymentObj->$payment_type($data, $tableId, $rid);
+                    }
 
                     $financeOrderSaleObj = new FinanceOrderSaleModel();
                     if ($payment_type == "wayfair") {

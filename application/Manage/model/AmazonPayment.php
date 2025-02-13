@@ -1460,6 +1460,97 @@ class AmazonPayment extends Model
      * @throws ModelNotFoundException
      * @throws DataNotFoundException
      */
+    public function temu_hk($tableId, $reportId, $sheet1, $sheet2, $sheet3): array
+    {
+        foreach ($sheet1 as $key => $item) {
+            if ($key > 0) {
+                $orderObj = new OrderModel();
+                $order = $orderObj->with(['details'])->where(['refNo|saleOrderCode' => substr($item[0], 0, 24)])->find();
+                if ($order && $order['userAccount'] != $this->userAccount) {
+                    dump($order['userAccount']);
+                    $this->userAccount = $order['userAccount'];
+                }
+
+                $this->orderAdjustmentNew[] = [
+                    "report_id"                 =>  $reportId,
+                    "table_id"                  =>  $tableId,
+                    "fulfillment"               =>  "Seller",
+                    "payment_id"                =>  substr($item[0], 0, 24),
+                    "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[2])),
+                ];
+            }
+        }
+
+        foreach ($sheet2 as $key => $item) {
+            if ($key > 0) {
+                $orderObj = new OrderModel();
+                $order = $orderObj->with(['details'])->where(['refNo|saleOrderCode' => $item[0]])->find();
+                if ($order && $order['userAccount'] != $this->userAccount) {
+                    dump($order['userAccount']);
+                    $this->userAccount = $order['userAccount'];
+                }
+
+                $this->orderSaleNew[] = [
+                    "report_id"                 =>  $reportId,
+                    "table_id"                  =>  $tableId,
+                    "payment_id"                =>  $item[0],
+                    "fulfillment"               =>  "Seller",
+                    "product_sales"             =>  sprintf('%.2f', str_replace(',', '', $item[5])),
+                    "selling_fees"              =>  0,
+                    "shipping_credits"          =>  0,
+                    "gift_wrap_credits"         =>  0,
+                    "regulatory_fee"            =>  0,
+                    "promotional_rebates"       =>  0,
+                    "fba_fees"                  =>  0,
+                ];
+            }
+        }
+
+        foreach ($sheet3 as $key => $item) {
+            if ($key > 0) {
+                $orderObj = new OrderModel();
+                $order = $orderObj->with(['details'])->where(['refNo|saleOrderCode' => $item[1]])->find();
+                if ($order && $order['userAccount'] != $this->userAccount) {
+                    dump($order['userAccount']);
+                    $this->userAccount = $order['userAccount'];
+                }
+
+                if (floatval($item[6]) != 0) {
+                    $this->orderRefundNew[] = [
+                        "report_id"                 =>  $reportId,
+                        "table_id"                  =>  $tableId,
+                        "payment_id"                =>  $item[1],
+                        "fulfillment"               =>  "Seller",
+                        "product_sales"             =>  sprintf('%.2f', str_replace(',', '', $item[6])) * -1,
+                        "selling_fees"              =>  0,
+                        "shipping_credits"          =>  0,
+                        "gift_wrap_credits"         =>  0,
+                        "regulatory_fee"            =>  0,
+                        "promotional_rebates"       =>  0,
+                        "fba_fees"                  =>  0,
+                    ];
+                }
+            }
+        }
+
+        return [
+            'userAccount'               =>  $this->userAccount,
+            'orderSaleNew'              =>  $this->orderSaleNew,
+            'orderRefundNew'            =>  $this->orderRefundNew,
+            'orderPromotionNew'         =>  $this->orderPromotionNew,
+            'orderShippingServiceNew'   =>  $this->orderShippingServiceNew,
+            'orderLiquidationNew'       =>  $this->orderLiquidationNew,
+            'orderAdjustmentNew'        =>  $this->orderAdjustmentNew,
+            'orderFbaInventory'         =>  $this->orderFbaInventory,
+            'orderTransferNew'          =>  $this->orderTransferNew
+        ];
+    }
+
+    /**
+     * @throws DbException
+     * @throws ModelNotFoundException
+     * @throws DataNotFoundException
+     */
     public function ebay($excel, $tableId, $reportId): array
     {
         foreach ($excel as $item) {
