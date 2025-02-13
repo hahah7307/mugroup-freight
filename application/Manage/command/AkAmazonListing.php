@@ -26,6 +26,10 @@ class AkAmazonListing extends Command
         // 加载自定义配置
         Config::load(APP_PATH . 'storage.php');
 
+        if (date('H') < 4) {
+            echo "success";exit();
+        }
+
         $pageObj = new AkAmazonListingPageModel();
         $list = $pageObj->where(['date' => ['lt', date('Ymd')]])->select();
         foreach ($list as $item) {
