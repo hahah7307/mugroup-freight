@@ -61,8 +61,13 @@ class StorageBaseModel extends Model
     /**
      * @throws DbException
      */
-    static public function getBase($storage, $lbs, $customerZone, $order)
+    static public function getBase($storage, $lbs, $customerZone, $order, $detail)
     {
+        if (AHS::AHSDimension($detail['product']['productLength'], $detail['product']['productWidth'], $detail['product']['productHeight'])
+            && $order['dateWarehouseShipping'] >= "2025-01-13 00:00:00") {
+            $lbs = max($lbs, 40);
+        }
+
         $condition['storage_id'] = $storage;
         $condition['lbs_weight'] = $lbs;
         $condition['zone'] = $customerZone;

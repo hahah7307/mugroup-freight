@@ -1508,7 +1508,6 @@ class AmazonPayment extends Model
                     $this->orderAdjustmentNew[] = [
                         "report_id"                 =>  $reportId,
                         "table_id"                  =>  $tableId,
-                        "description"               =>  $item[38],
                         "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[34])),
                     ];
                 } elseif (gettype(strpos($item[38], 'Subscription Fee')) == 'integer') {

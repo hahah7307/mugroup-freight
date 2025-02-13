@@ -144,7 +144,7 @@ class OrderModel extends Model
             if ($customerZone == 0) {
                 continue;
             }
-            $baseInfo = StorageBaseModel::getBase($storage_id, $lbs, $customerZone, $order);
+            $baseInfo = StorageBaseModel::getBase($storage_id, $lbs, $customerZone, $order, $detail);
             $base = $baseInfo ? $baseInfo['value'] : 0;
 
             // AHS运算 & AHS旺季附加费
@@ -171,14 +171,8 @@ class OrderModel extends Model
             $fuel_cost = round(($base + $ahs + $dasFee + $ResidentialFee + $AHSPeakSurcharge + $ResidentialPeakSurcharge + $signature) * Config::get('fuel_cost') * 0.01, 2);
 
             // 佣金（过路费）
-            if ($storage_id == StorageModel::LIANGCANGID) {
-                $commission_rate = Config::get('lc_commission');
-            } elseif ($storage_id == StorageModel::LECANGID) {
-                $commission_rate = Config::get('le_commission');
-            } else {
-                $commission_rate = 0;
-            }
-            $commission = round(($base + $ahs + $dasFee + $ResidentialFee + $AHSPeakSurcharge + $ResidentialPeakSurcharge + $signature + $fuel_cost) * $commission_rate * 0.01, 2);
+            $commission_rate = StorageCommissionModel::getCommission($storage_id, $order);
+            $commission = round(($base + $ahs + $dasFee + $ResidentialFee + $AHSPeakSurcharge + $ResidentialPeakSurcharge + $signature + $fuel_cost) * $commission_rate, 2);
 
             // 运费总计
             $price = round($outbound + $base + $ahs + $dasFee + $ResidentialFee + $AHSPeakSurcharge + $ResidentialPeakSurcharge + $signature + $fuel_cost + $commission, 2);
