@@ -69,6 +69,7 @@ class AkAmazonListing extends Command
                         $listing['small_rank'] = isset($listing['small_rank']) ? json_encode($listing['small_rank']) : json_encode([]);
                         $listing['seller_category_new'] = isset($listing['seller_category_new']) ? json_encode($listing['seller_category_new']) : json_encode([]);
                         $listing['principal_info'] = isset($listing['principal_info']) ? json_encode($listing['principal_info']) : json_encode([]);
+                        $listing['global_tags'] = isset($listing['global_tags']) ? json_encode($listing['global_tags']) : json_encode([]);
                         $listing['created_date'] = date('Ymd');
                         $insertData[] = $listing;
                     }

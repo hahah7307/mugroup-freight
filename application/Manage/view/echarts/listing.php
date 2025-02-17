@@ -10,6 +10,7 @@
         z-index: 10;
         background: #fff;
     }
+    .layui-form {margin-bottom: 10px}
 </style>
 <!-- 主体内容 -->
 <div class="layui-body" id="LAY_app_body">
@@ -27,6 +28,14 @@
             </div>
             <div class="layui-inline w200">
                 <input type="text" class="layui-input" name="nickname" value="{$nickname}" placeholder="主运营人员">
+            </div>
+            <div class="layui-inline w180">
+                <select name="group_id" lay-verify="">
+                    <option value="">请选择产品组</option>
+                    {foreach name="listing_group" item="item"}
+                    <option value="{$item.id}" {if condition="$group_id eq $item.id"}selected{/if}>{$item.group_name}</option>
+                    {/foreach}
+                </select>
             </div>
             <div class="layui-inline w120">
                 <select name="order" lay-verify="">
@@ -65,7 +74,7 @@
                     <th>名次</th>
                     <th>产品图片</th>
                     <th>Asin</th>
-                    <th>ParentAsin</th>
+                    <th>Parent Asin</th>
                     <th>销售SKU</th>
                     <th>仓库SKU</th>
                     <th>品名</th>

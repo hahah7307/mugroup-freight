@@ -2,14 +2,21 @@
 namespace app\Manage\controller;
 
 use app\Manage\command\AkAmazonListing;
+use app\Manage\model\AkAmazonListingGroupAsinModel;
+use app\Manage\model\AkAmazonListingGroupModel;
+use app\Manage\model\AkAmazonListingGroupProductModel;
 use app\Manage\model\AkAmazonListingModel;
 use app\Manage\model\FinanceExcelInit;
 use app\Manage\model\OrderModel;
+use app\Manage\validate\AkAmazonListingGroupValidate;
 use PHPExcel;
 use PHPExcel_IOFactory;
+use PHPExcel_Reader_Exception;
 use think\Config;
+use think\Db;
 use think\db\exception\BindParamException;
 use think\Exception;
+use think\exception\DbException;
 use think\exception\PDOException;
 use think\Session;
 
@@ -10522,6 +10529,7 @@ ORDER BY
     /**
      * @throws PDOException
      * @throws BindParamException
+     * @throws DbException
      */
     public function listing(): \think\response\View
     {
@@ -10571,6 +10579,17 @@ OR seller_sku = "' . $keyword . '")
             $nikeNameSql = '';
         }
 
+        $group_id = $this->request->get('group_id', '', 'intval');
+        $this->assign('group_id', $group_id);
+        if (!empty($group_id)) {
+            $groupModel = new AkAmazonListingGroupAsinModel();
+            $asinList = $groupModel->where(['group_id' => $group_id])->column('listing_id');
+            $listingIdStr = implode('","', $asinList);
+            $groupSql = ' AND listing_id IN("' . $listingIdStr . '") ';
+        } else {
+            $groupSql = '';
+        }
+
         $order = $this->request->get('order', 'ASC', 'htmlspecialchars');
         $this->assign('order', $order);
 
@@ -10612,13 +10631,14 @@ WHERE
 	`status` = 1 
 	AND created_date = ' . date('Ymd', strtotime($start)) . ' 
 	AND JSON_LENGTH(small_rank) != 0 
-	' . $search . $localNameSql . $localSkuSql . $nikeNameSql . '
+	' . $search . $localNameSql . $localSkuSql . $nikeNameSql . $groupSql . '
 ) a LEFT JOIN mu_ak_amazon_listing b ON a.listing_id = b.listing_id
  WHERE b.created_date = ' . date('Ymd', strtotime('-1 day', strtotime($start))) . '
 ORDER BY
 	JSON_EXTRACT( a.small_rank, "$[0].rank" ) ' . $order . ';
         ');
         $this->assign('list', $list);
+        $this->assign('listing_group', AkAmazonListingGroupModel::generateListingGroups());
 
         Session::set(Config::get('BACK_URL'), $this->request->url(), 'manage');
         return view();
@@ -10750,5 +10770,213 @@ ORDER BY parent_asin ASC, local_sku ASC, local_name ASC;
 
         $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
         $objWriter->save('php://output');
+    }
+
+    /**
+     * @throws DbException
+     */
+    public function listing_group(): \think\response\View
+    {
+        $where = [];
+        $keyword = $this->request->get('keyword', '', 'htmlspecialchars');
+        $this->assign('keyword', $keyword);
+        if ($keyword) {
+            $where['group_name'] = ['like', '%' . $keyword . '%'];
+        }
+
+        // 列表
+        $model = new AkAmazonListingGroupModel();
+        $list = $model->where($where)->order('id asc')->paginate(Config::get('PAGE_NUM'));
+        $this->assign('list', $list);
+
+        Session::set(Config::get('BACK_URL'), $this->request->url(), 'manage');
+        return view();
+    }
+
+    // 添加
+    public function group_add()
+    {
+        if ($this->request->isPost()) {
+            $post = $this->request->post();
+            $post['status'] = AkAmazonListingGroupModel::STATUS_ACTIVE;
+            $dataValidate = new AkAmazonListingGroupValidate();
+            if ($dataValidate->scene('add')->check($post)) {
+                $model = new AkAmazonListingGroupModel();
+                if ($model->allowField(true)->save($post)) {
+                    echo json_encode(['code' => 1, 'msg' => '添加成功']);
+                    exit;
+                } else {
+                    echo json_encode(['code' => 0, 'msg' => '添加失败，请重试']);
+                    exit;
+                }
+            } else {
+                echo json_encode(['code' => 0, 'msg' => $dataValidate->getError()]);
+                exit;
+            }
+        } else {
+
+            return view();
+        }
+    }
+
+    // 编辑
+    /**
+     * @throws DbException
+     */
+    public function group_edit($id)
+    {
+        if ($this->request->isPost()) {
+            $post = $this->request->post();
+            $dataValidate = new AkAmazonListingGroupValidate();
+            if ($dataValidate->scene('edit')->check($post)) {
+                $model = new AkAmazonListingGroupModel();
+                if ($model->allowField(true)->save($post, ['id' => $id])) {
+                    echo json_encode(['code' => 1, 'msg' => '修改成功']);
+                    exit;
+                } else {
+                    echo json_encode(['code' => 0, 'msg' => '修改失败，请重试']);
+                    exit;
+                }
+            } else {
+                echo json_encode(['code' => 0, 'msg' => $dataValidate->getError()]);
+                exit;
+            }
+        } else {
+            $info = AkAmazonListingGroupModel::get(['id' => $id,]);
+            $this->assign('info', $info);
+
+            return view();
+        }
+    }
+
+    // 删除
+    /**
+     * @throws DbException
+     */
+    public function group_delete()
+    {
+        if ($this->request->isPost()) {
+            $post = $this->request->post();
+            $block = AkAmazonListingGroupModel::get($post['id']);
+            if ($block->delete()) {
+                echo json_encode(['code' => 1, 'msg' => '操作成功']);
+                exit;
+            } else {
+                echo json_encode(['code' => 0, 'msg' => '操作失败，请重试']);
+                exit;
+            }
+        } else {
+            echo json_encode(['code' => 0, 'msg' => '异常操作']);
+            exit;
+        }
+    }
+
+    // 状态切换
+    /**
+     * @throws DbException
+     */
+    public function group_status()
+    {
+        if ($this->request->isPost()) {
+            $post = $this->request->post();
+            $user = AkAmazonListingGroupModel::get($post['id']);
+            $user['status'] = $user['status'] == AkAmazonListingGroupModel::STATUS_ACTIVE ? 0 : AkAmazonListingGroupModel::STATUS_ACTIVE;
+            $user->save();
+            echo json_encode(['code' => 1, 'msg' => '操作成功']);
+            exit;
+        } else {
+            echo json_encode(['code' => 0, 'msg' => '异常操作']);
+            exit;
+        }
+    }
+
+    /**
+     * @throws DbException
+     */
+    public function group_manage($id): \think\response\View
+    {
+        $where = [];
+        $keyword = $this->request->get('keyword', '', 'htmlspecialchars');
+        $this->assign('keyword', $keyword);
+        if ($keyword) {
+            $where['group_name'] = ['like', '%' . $keyword . '%'];
+        }
+
+        // 列表
+        $model = new AkAmazonListingGroupAsinModel();
+        $list = $model->with(['listing'])->where($where)->order('id asc')->paginate(Config::get('PAGE_NUM'));
+        $this->assign('list', $list);
+        $this->assign('group_id', $id);
+        $this->assign('group', AkAmazonListingGroupModel::get(['id' => $id]));
+
+        return view();
+    }
+
+    // 删除
+    /**
+     * @throws DbException
+     */
+    public function asin_delete()
+    {
+        if ($this->request->isPost()) {
+            $post = $this->request->post();
+            $block = AkAmazonListingGroupAsinModel::get($post['id']);
+            if ($block->delete()) {
+                echo json_encode(['code' => 1, 'msg' => '操作成功']);
+                exit;
+            } else {
+                echo json_encode(['code' => 0, 'msg' => '操作失败，请重试']);
+                exit;
+            }
+        } else {
+            echo json_encode(['code' => 0, 'msg' => '异常操作']);
+            exit;
+        }
+    }
+
+    /**
+     * @throws PHPExcel_Reader_Exception
+     */
+    public function group_import()
+    {
+        // phpexcel
+        require_once './static/classes/PHPExcel/Classes/PHPExcel.php';
+
+        $filename = input('filename');
+        $group_id = input('id');
+        $file= "./upload/excel/" . $filename;
+        $excelReader = PHPExcel_IOFactory::createReaderForFile($file);
+        $excelObj = $excelReader->load($file);
+        $worksheet = $excelObj->getSheet(0);
+        $data = $worksheet->toArray();
+        array_filter($data);
+
+        Db::startTrans();
+        try {
+            $dataInsert = [];
+            foreach ($data as $item) {
+                if (empty($item[0])) {
+                    continue;
+                }
+                $where = [];
+                $where['status'] = 1;
+                $where['created_date'] = date('Ymd');
+                $where['listing_id|seller_sku|asin|parent_asin|item_name|local_name|local_sku'] = ['like', '%' . $item[0] . '%'];
+                $listingModel = new AkAmazonListingModel();
+                $listing = $listingModel->where($where)->column('listing_id');
+                foreach ($listing as $listing_id) {
+                    $dataInsert = array_merge([['listing_id' => $listing_id, 'group_id' => $group_id]], $dataInsert);
+                }
+            }
+            $akAmazonListingGroupAsinObj = new AkAmazonListingGroupAsinModel();
+            if(!$akAmazonListingGroupAsinObj->insertAll($dataInsert)) {
+                throw new \think\Exception('导入失败！');
+            }
+            Db::commit();
+        } catch (Exception $e) {
+            Db::rollback();
+            $this->error($e->getMessage(), Session::get(Config::get('BACK_URL')));
+        }
+        $this->redirect(Session::get(Config::get('BACK_URL'), 'manage'));
     }
 }

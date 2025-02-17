@@ -72,6 +72,7 @@
                         <dd><a layui-href="{:url('SkuReport/wayfair')}">各平台销量报表</a></dd>
                         <dd><a layui-href="{:url('Echarts/index')}">美国各州销量热力图</a></dd>
                         <dd><a layui-href="{:url('Echarts/listing')}">Listing排名表</a></dd>
+                        <dd><a layui-href="{:url('Echarts/listing_group')}">Listing产品组</a></dd>
                     </dl>
                 </li>
                 <li data-name="Product" class="layui-nav-item">
