@@ -2,21 +2,35 @@
 {include file="public/header" /}
 
 <style>
-    .total {padding: 0 10px}
+    #excel {margin-top: 10px}
+    thead {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        background: #fff;
+    }
 </style>
 <!-- 主体内容 -->
 <div class="layui-body" id="LAY_app_body">
     <div class="right">
         <a href="{:session('back_url', '', 'manage')}" class="layui-btn layui-btn-danger layui-btn-sm fr"><i class="layui-icon">&#xe603;</i>返回上一页</a>
         <div class="title">Listing管理 - （{$group.group_name}）</div>
-        <form class="layui-form search-form" method="get">
-
+        <form class="layui-form" method="get">
+            <div class="layui-inline w200">
+                <input type="text" class="layui-input" name="keyword" value="{$keyword}" placeholder="Asin/ParentAsin/销售SKU/品名">
+            </div>
+            <div class="layui-inline">
+                <button class="layui-btn" lay-submit lay-filter="Search"><i class="layui-icon">&#xe615;</i> 查询</button>
+            </div>
         </form>
 
         <div class="layui-form">
             <button type="button" class="layui-btn  layui-btn-normal" id="excel">导入</button>
             <table class="layui-table" lay-size="sm">
                 <colgroup>
+                    <col>
+                    <col>
+                    <col>
                     <col>
                     <col>
                     <col>
@@ -38,6 +52,9 @@
                     <th>销售SKU</th>
                     <th>仓库SKU</th>
                     <th>中文品名</th>
+                    <th>评分</th>
+                    <th>小类排名</th>
+                    <th>大类排名</th>
                     <th>主运营人员</th>
                     <th>操作</th>
                 </tr>
@@ -53,6 +70,19 @@
                     <td>{$v.listing.seller_sku}</td>
                     <td>{$v.listing.local_sku}</td>
                     <td>{$v.listing.local_name}</td>
+                    <td class="tr sku-item" data-asin="{$v.listing.asin}">
+                        <strong class="grey">{$v.listing.last_star|round=###,1}</strong>
+                    </td>
+                    <td class="tr sku-item" data-asin="{$v.listing.asin}">
+                        <strong class="grey">#{:number_format(json_decode($v['listing']['small_rank'], true)[0]['rank'])}</strong>
+                        <br>
+                        {:json_decode($v['listing']['small_rank'], true)[0]['category']}
+                    </td>
+                    <td class="tr sku-item" data-asin="{$v.listing.asin}">
+                        <strong class="grey">#{:number_format($v['listing']['seller_rank'])}</strong>
+                        <br>
+                        {$v.listing.seller_category}
+                    </td>
                     <td>{:json_decode($v['listing']['principal_info'], true)[0]['principal_name']}</td>
                     <td class="tc">
                         <button data-id="{$v.id}" class="layui-btn layui-btn-sm layui-btn-danger ml0" lay-submit lay-filter="Detele">删除</button>

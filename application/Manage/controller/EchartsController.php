@@ -1,10 +1,8 @@
 <?php
 namespace app\Manage\controller;
 
-use app\Manage\command\AkAmazonListing;
 use app\Manage\model\AkAmazonListingGroupAsinModel;
 use app\Manage\model\AkAmazonListingGroupModel;
-use app\Manage\model\AkAmazonListingGroupProductModel;
 use app\Manage\model\AkAmazonListingModel;
 use app\Manage\model\FinanceExcelInit;
 use app\Manage\model\OrderModel;
@@ -10635,7 +10633,7 @@ WHERE
 ) a LEFT JOIN mu_ak_amazon_listing b ON a.listing_id = b.listing_id
  WHERE b.created_date = ' . date('Ymd', strtotime('-1 day', strtotime($start))) . '
 ORDER BY
-	JSON_EXTRACT( a.small_rank, "$[0].rank" ) ' . $order . ';
+	JSON_EXTRACT( a.small_rank, "$[0].rank" ) ' . $order . ' ,a.parent_asin asc;
         ');
         $this->assign('list', $list);
         $this->assign('listing_group', AkAmazonListingGroupModel::generateListingGroups());
@@ -10896,15 +10894,18 @@ ORDER BY parent_asin ASC, local_sku ASC, local_name ASC;
     public function group_manage($id): \think\response\View
     {
         $where = [];
+        $where['group_id'] = $id;
         $keyword = $this->request->get('keyword', '', 'htmlspecialchars');
         $this->assign('keyword', $keyword);
         if ($keyword) {
-            $where['group_name'] = ['like', '%' . $keyword . '%'];
+            $listingModel = new AkAmazonListingModel();
+            $listingId = $listingModel->where(['listing_id|asin|parent_asin|local_sku|local_name' => ['like', '%' . $keyword . '%']])->column('listing_id');
+            $where['listing_id'] = ['in', $listingId];
         }
 
         // 列表
         $model = new AkAmazonListingGroupAsinModel();
-        $list = $model->with(['listing'])->where($where)->order('id asc')->paginate(Config::get('PAGE_NUM'));
+        $list = $model->with(['listing'])->where($where)->order('id asc')->paginate(50);
         $this->assign('list', $list);
         $this->assign('group_id', $id);
         $this->assign('group', AkAmazonListingGroupModel::get(['id' => $id]));
