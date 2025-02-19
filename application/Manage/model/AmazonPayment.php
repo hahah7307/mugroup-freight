@@ -1109,7 +1109,7 @@ class AmazonPayment extends Model
                     "selling_fees"              =>  round(sprintf('%.4f', str_replace(',', '', $item[4])) * 0.04 * -1, 2),
                     "fba_fees"                  =>  0,
                 ];
-            } elseif ($item[2] == 'Return') {
+            } elseif (gettype($item[2]) == 'string' && $item[2] == 'Return') {
                 if (is_numeric($item[9])) {
                     $count = FinanceOrderRefundModel::wayfairPaymentSkuCount($item[5]);
                     $this->orderRefundNew[] = [
@@ -1142,7 +1142,7 @@ class AmazonPayment extends Model
                         'user_account'          =>  $this->userAccount
                     ];
                 }
-            } elseif ($item[2] != 'Return') {
+            } else {
                 if (is_numeric($item[9])) {
                     $this->orderAdjustmentNew[] = [
                         "report_id"                 =>  $reportId,
