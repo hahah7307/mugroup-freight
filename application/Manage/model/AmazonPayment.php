@@ -1460,14 +1460,25 @@ class AmazonPayment extends Model
      * @throws ModelNotFoundException
      * @throws DataNotFoundException
      */
-    public function temu_hk($tableId, $reportId, $sheet1, $sheet2, $sheet3): array
+    public function temu_hk($tableId, $reportId, $sheet0, $sheet1, $sheet2, $sheet3): array
     {
+        foreach ($sheet0 as $key => $item) {
+            if ($key > 0 && $item[4] == '退货面单费') {
+                $this->orderAdjustmentNew[] = [
+                    "report_id"                 =>  $reportId,
+                    "table_id"                  =>  $tableId,
+                    "fulfillment"               =>  "Seller",
+                    "payment_id"                =>  '',
+                    "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[3])),
+                ];
+            }
+        }
+
         foreach ($sheet1 as $key => $item) {
             if ($key > 0) {
                 $orderObj = new OrderModel();
                 $order = $orderObj->with(['details'])->where(['refNo|saleOrderCode' => substr($item[0], 0, 24)])->find();
                 if ($order && $order['userAccount'] != $this->userAccount) {
-                    dump($order['userAccount']);
                     $this->userAccount = $order['userAccount'];
                 }
 
@@ -1486,7 +1497,6 @@ class AmazonPayment extends Model
                 $orderObj = new OrderModel();
                 $order = $orderObj->with(['details'])->where(['refNo|saleOrderCode' => $item[0]])->find();
                 if ($order && $order['userAccount'] != $this->userAccount) {
-                    dump($order['userAccount']);
                     $this->userAccount = $order['userAccount'];
                 }
 
@@ -1511,7 +1521,6 @@ class AmazonPayment extends Model
                 $orderObj = new OrderModel();
                 $order = $orderObj->with(['details'])->where(['refNo|saleOrderCode' => $item[1]])->find();
                 if ($order && $order['userAccount'] != $this->userAccount) {
-                    dump($order['userAccount']);
                     $this->userAccount = $order['userAccount'];
                 }
 
@@ -1767,13 +1776,15 @@ class AmazonPayment extends Model
                 $this->userAccount = $order['userAccount'];
             }
 
-            if ($item[19] == 0 && !empty($item[0])) {
+            if (!empty($item[0])) {
                 $this->orderSaleNew[] = [
                     "report_id"                 =>  $reportId,
                     "table_id"                  =>  $tableId,
                     "payment_id"                =>  $item[4],
                     "fulfillment"               =>  "Seller",
-                    "product_sales"             =>  round(str_replace(',', '', $item[10]), 2),
+                    "product_sales"             =>  round(str_replace(',', '', $item[11]), 2)
+                        - round(str_replace(',', '', $item[14]), 2)
+                        + round(str_replace(',', '', $item[17]), 2),
                     "selling_fees"              =>  round(str_replace(',', '', $item[25]), 2)
                         + round(str_replace(',', '', $item[26]), 2)
                         + round(str_replace(',', '', $item[31]), 2),
@@ -1784,13 +1795,16 @@ class AmazonPayment extends Model
                     "fba_fees"                  =>  round(str_replace(',', '', $item[27]), 2),
                     "marketplace_withheld_tax"  =>  round(str_replace(',', '', $item[34]), 2)
                 ];
-            } elseif ($item[19] <= 0) {
+            }
+
+            if ($item[19] < 0) {
                 $this->orderRefundNew[] = [
                     "report_id"                 =>  $reportId,
                     "table_id"                  =>  $tableId,
                     "payment_id"                =>  $item[4],
                     "fulfillment"               =>  "Seller",
-                    "product_sales"             =>  round(str_replace(',', '', $item[10]), 2),
+                    "product_sales"             =>  round(str_replace(',', '', $item[19]), 2)
+                        + round(str_replace(',', '', $item[22]), 2),
                     "selling_fees"              =>  round(str_replace(',', '', $item[25]), 2)
                         + round(str_replace(',', '', $item[26]), 2)
                         + round(str_replace(',', '', $item[31]), 2),

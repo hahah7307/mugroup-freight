@@ -511,6 +511,7 @@ class FinanceController extends BaseController
                         $paymentData = $paymentObj->$payment_type(
                             $tableId,
                             $rid,
+                            $excelObj->getSheet(0)->toArray(),
                             $excelObj->getSheet(1)->toArray(),
                             $excelObj->getSheet(2)->toArray(),
                             $excelObj->getSheet(3)->toArray()
