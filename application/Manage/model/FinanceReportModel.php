@@ -173,12 +173,12 @@ SELECT
 	a.sku,
 	b.warehouse_sku warehouse_sku,
 	a.quantity * b.qty quantity,
-	a.payment_amount * b.percent * b.qty payment_amount,
-	a.payment_selling_fees * b.percent * b.qty payment_selling_fees,
-	a.payment_fba_fees * b.percent * b.qty payment_fba_fees,
-	a.outbound_amount * b.percent * b.qty * - 1 outbound_amount,
-	a.outbound_selling_fee * b.percent * b.qty outbound_selling_fee,
-	a.outbound_fba_fee * b.percent * b.qty outbound_fba_fee 
+	a.payment_amount * b.percent payment_amount,
+	a.payment_selling_fees * b.percent payment_selling_fees,
+	a.payment_fba_fees * b.percent payment_fba_fees,
+	a.outbound_amount * b.percent * - 1 outbound_amount,
+	a.outbound_selling_fee * b.percent outbound_selling_fee,
+	a.outbound_fba_fee * b.percent outbound_fba_fee 
 FROM
 	(
 	SELECT
