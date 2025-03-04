@@ -1646,6 +1646,331 @@ ORDER BY
     }
 
     /**
+     * @throws DbException
+     */
+    public function wayfair_only(): \think\response\View
+    {
+        $platform = $this->request->get('platform', 'wayfairnew', 'htmlspecialchars');
+        $this->assign('platform', $platform);
+
+        $start = $this->request->get('start', date('Y-m-01 00:00:00'), 'htmlspecialchars');
+        $this->assign('start', $start);
+        $end = $this->request->get('end', date('Y-m-d 00:00:00'), 'htmlspecialchars');
+        $this->assign('end', $end);
+
+        $last_diff = $this->request->get('last_diff', 'diff_rate', 'htmlspecialchars');
+        $this->assign('last_diff', $last_diff);
+        $last_order = $this->request->get('last_order', 'DESC', 'htmlspecialchars');
+        $this->assign('last_order', $last_order);
+        $last_start = date('Y-m-01 00:00:00', strtotime('-1 month', strtotime($start)));
+        $last_end = date('Y-m-d 00:00:00', strtotime('-1 month', strtotime($end)));
+
+        $last2_diff = $this->request->get('last2_diff', 'diff_rate', 'htmlspecialchars');
+        $this->assign('last2_diff', $last2_diff);
+        $last2_order = $this->request->get('last2_order', 'DESC', 'htmlspecialchars');
+        $this->assign('last2_order', $last2_order);
+        $last2_start = date('Y-m-01 00:00:00', strtotime('-2 month', strtotime($start)));
+        $last2_end = date('Y-m-d 00:00:00', strtotime('-2 month', strtotime($end)));
+
+        $week_diff = $this->request->get('week_diff', 'diff_rate', 'htmlspecialchars');
+        $this->assign('week_diff', $week_diff);
+        $week_order = $this->request->get('week_order', 'DESC', 'htmlspecialchars');
+        $this->assign('week_order', $week_order);
+        $last_week = date('Y-m-d 00:00:00', strtotime('-7 day', strtotime($end)));
+        $last2_week = date('Y-m-d 00:00:00', strtotime('-14 day', strtotime($end)));
+
+        $model = new ProductModel();
+        $saleList = $model->query('
+SELECT
+	SUM( qty ) current,
+	SUM( last_qty ) last,
+	SUM( qty ) - SUM( last_qty ) diff,
+	ROUND((SUM(qty) - SUM(last_qty)) / SUM(last_qty), 4) diff_rate,
+	warehouseSku,
+	productImages
+FROM
+	(
+	SELECT
+		SUM( b.qty ) qty,
+		0 AS last_qty,
+		b.warehouseSku,
+		c.productImages
+	FROM
+		mu_ecang_order a
+		LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id
+		LEFT JOIN mu_ecang_product c ON b.warehouseSku = c.productSku 
+	WHERE
+		a.datePaidPlatform >= "' . $start . '" 
+		AND a.datePaidPlatform < "' . $end . '" 
+		AND a.platform = "' . $platform . '" 
+		AND c.saleStatus = 2 
+		AND a.`status` = 4
+	GROUP BY
+		warehouseSku,
+		productImages	UNION ALL
+	SELECT 0 AS
+		qty,
+		SUM( b.qty ) last_qty,
+		b.warehouseSku,
+		c.productImages
+	FROM
+		mu_ecang_order a
+		LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id
+		LEFT JOIN mu_ecang_product c ON b.warehouseSku = c.productSku 
+	WHERE
+		a.datePaidPlatform >= "' . $last_start . '" 
+		AND a.datePaidPlatform < "' . $last_end . '" 
+		AND a.platform = "' . $platform . '" 
+		AND c.saleStatus = 2 
+		AND a.`status` = 4
+	GROUP BY
+		warehouseSku,
+		productImages
+	) a 
+GROUP BY
+	warehouseSku,
+	productImages
+ORDER BY
+	' . $last_diff . ' ' . $last_order . ';
+        ');
+        $this->assign('saleList', $saleList);
+
+        $sale2List = $model->query('
+SELECT
+	SUM( qty ) current,
+	SUM( last_qty ) last,
+	SUM( qty ) - SUM( last_qty ) diff,
+	ROUND((SUM(qty) - SUM(last_qty)) / SUM(last_qty), 4) diff_rate,
+	warehouseSku,
+	productImages
+FROM
+	(
+	SELECT
+		SUM( b.qty ) qty,
+		0 AS last_qty,
+		b.warehouseSku,
+		c.productImages
+	FROM
+		mu_ecang_order a
+		LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id
+		LEFT JOIN mu_ecang_product c ON b.warehouseSku = c.productSku 
+	WHERE
+		a.datePaidPlatform >= "' . $start . '" 
+		AND a.datePaidPlatform < "' . $end . '" 
+		AND a.platform = "' . $platform . '" 
+		AND c.saleStatus = 2 
+		AND a.`status` = 4
+	GROUP BY
+		warehouseSku,
+		productImages	UNION ALL
+	SELECT 0 AS
+		qty,
+		SUM( b.qty ) last_qty,
+		b.warehouseSku,
+		c.productImages
+	FROM
+		mu_ecang_order a
+		LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id
+		LEFT JOIN mu_ecang_product c ON b.warehouseSku = c.productSku 
+	WHERE
+		a.datePaidPlatform >= "' . $last2_start . '" 
+		AND a.datePaidPlatform < "' . $last2_end . '" 
+		AND a.platform = "' . $platform . '" 
+		AND c.saleStatus = 2 
+		AND a.`status` = 4
+	GROUP BY
+		warehouseSku,
+		productImages
+	) a 
+GROUP BY
+	warehouseSku,
+	productImages
+ORDER BY
+	' . $last2_diff . ' ' . $last2_order . ';
+        ');
+        $this->assign('sale2List', $sale2List);
+
+        $weekList = $model->query('
+SELECT
+	SUM( qty ) current,
+	SUM( last_qty ) last,
+	SUM( qty ) - SUM( last_qty ) diff,
+	ROUND((SUM(qty) - SUM(last_qty)) / SUM(last_qty), 4) diff_rate,
+	warehouseSku,
+	productImages
+FROM
+	(
+	SELECT
+		SUM( b.qty ) qty,
+		0 AS last_qty,
+		b.warehouseSku,
+		c.productImages
+	FROM
+		mu_ecang_order a
+		LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id
+		LEFT JOIN mu_ecang_product c ON b.warehouseSku = c.productSku 
+	WHERE
+		a.datePaidPlatform >= "' . $last_week . '" 
+		AND a.datePaidPlatform < "' . $end . '" 
+		AND a.platform = "' . $platform . '" 
+		AND c.saleStatus = 2 
+		AND a.`status` = 4
+	GROUP BY
+		warehouseSku,
+		productImages	UNION ALL
+	SELECT 0 AS
+		qty,
+		SUM( b.qty ) last_qty,
+		b.warehouseSku,
+		c.productImages
+	FROM
+		mu_ecang_order a
+		LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id
+		LEFT JOIN mu_ecang_product c ON b.warehouseSku = c.productSku 
+	WHERE
+		a.datePaidPlatform >= "' . $last2_week . '" 
+		AND a.datePaidPlatform < "' . $last_week . '" 
+		AND a.platform = "' . $platform . '" 
+		AND c.saleStatus = 2 
+		AND a.`status` = 4
+	GROUP BY
+		warehouseSku,
+		productImages
+	) a 
+GROUP BY
+	warehouseSku,
+	productImages
+ORDER BY
+	' . $week_diff . ' ' . $week_order . ';
+        ');
+        $this->assign('weekList', $weekList);
+
+        $is_growth = $model->query('
+SELECT
+	is_growth name,
+	COUNT( is_growth ) value 
+FROM
+	(
+	SELECT
+		warehouseSku,
+		SUM( current ) current,
+		SUM( last ) last,
+	CASE	
+			WHEN SUM( current ) > SUM( last ) THEN
+			"增(Sku个数)" 
+			WHEN SUM( current ) = SUM( last ) THEN
+			"平(Sku个数)" ELSE "减(Sku个数)" 
+		END is_growth,
+		SUM( current ) - SUM( last ) growth_num 
+	FROM
+		(
+		SELECT
+			b.warehouseSku,
+			SUM( b.qty ) current,
+			0 AS last 
+		FROM
+			mu_ecang_order a
+			LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id
+			LEFT JOIN mu_ecang_product c ON b.warehouseSku = c.productSku 
+		WHERE
+			a.datePaidPlatform >= "' . $start . '" 
+			AND a.datePaidPlatform < "' . $end . '" 
+			AND a.`status` = 4 
+			AND c.saleStatus = 2 
+			AND a.platform = "' . $platform . '"
+		GROUP BY
+			warehouseSku UNION ALL
+		SELECT
+			b.warehouseSku,
+			0 AS current,
+			SUM( b.qty ) last 
+		FROM
+			mu_ecang_order a
+			LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id
+			LEFT JOIN mu_ecang_product c ON b.warehouseSku = c.productSku 
+		WHERE
+			a.datePaidPlatform >= "' . $last_start . '" 
+			AND a.datePaidPlatform < "' . $last_end . '" 
+			AND a.`status` = 4 
+			AND c.saleStatus = 2 
+			AND a.platform = "' . $platform . '"
+		GROUP BY
+			warehouseSku 
+		) a 
+	GROUP BY
+		warehouseSku 
+	) a 
+GROUP BY
+	is_growth
+ORDER BY
+	`name`;
+        ');
+        $this->assign('is_growth', json_encode($is_growth));
+
+        $growth_num = $model->query('
+SELECT
+	is_growth name,
+	IF
+	( SUM( growth_num ) < 0, - SUM( growth_num ), SUM( growth_num ) ) `value` 
+FROM
+	(
+	SELECT
+		warehouseSku,
+		SUM( current ) current,
+		SUM( last ) last,
+	IF
+		( SUM( current ) > SUM( last ), "增(销量)", "减(销量)" ) is_growth,
+		SUM( current ) - SUM( last ) growth_num 
+	FROM
+		(
+		SELECT
+			b.warehouseSku,
+			SUM( b.qty ) current,
+			0 AS last 
+		FROM
+			mu_ecang_order a
+			LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id
+			LEFT JOIN mu_ecang_product c ON b.warehouseSku = c.productSku 
+		WHERE
+			a.datePaidPlatform >= "' . $start . '" 
+			AND a.datePaidPlatform < "' . $end . '" 
+			AND a.`status` = 4 
+			AND c.saleStatus = 2 
+			AND a.platform = "' . $platform . '"
+		GROUP BY
+			warehouseSku UNION ALL
+		SELECT
+			b.warehouseSku,
+			0 AS current,
+			SUM( b.qty ) last 
+		FROM
+			mu_ecang_order a
+			LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id
+			LEFT JOIN mu_ecang_product c ON b.warehouseSku = c.productSku 
+		WHERE
+			a.datePaidPlatform >= "' . $last_start . '" 
+			AND a.datePaidPlatform < "' . $last_end . '" 
+			AND a.`status` = 4 
+			AND c.saleStatus = 2 
+			AND a.platform = "' . $platform . '"
+		GROUP BY
+			warehouseSku 
+		) a 
+	GROUP BY
+		warehouseSku 
+	) a 
+GROUP BY
+	is_growth
+ORDER BY
+	`name`;        
+        ');
+        $this->assign('growth_num', json_encode($growth_num));
+
+        Session::set(Config::get('BACK_URL'), $this->request->url(), 'manage');
+        return view();
+    }
+
+    /**
      * @throws PDOException
      * @throws BindParamException
      */
