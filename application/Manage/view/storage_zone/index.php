@@ -51,6 +51,10 @@
                         美西
                         {elseif condition="$v.type eq 2"}
                         美东
+                        {elseif condition="$v.type eq 3"}
+                        美东南
+                        {elseif condition="$v.type eq 4"}
+                        美中南
                         {/if}
                     </td>
                     <td>{$v.area.name}</td>
