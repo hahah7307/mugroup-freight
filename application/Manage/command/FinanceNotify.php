@@ -116,16 +116,16 @@ class FinanceNotify extends Command
                         $output->writeln("AdjustmentShare Unready");exit();
                     }
 
-                    $financeOrderLiquidationObj = new FinanceOrderLiquidationModel();
-                    $liquidation = $financeOrderLiquidationObj->where(['report_id' => $report['id']])->where('total', 'neq', 0)->where('share_code', null)->order('id asc')->select();
-                    if (count($liquidation) > 0) {
-                        $output->writeln("LiquidationShare Unready");exit();
-                    }
-
-                    $additionalPromotion = $additionalObj->where(['report_id' => $report['id']])->where('share_code', null)->where('promotion', 'not null')->order('id asc')->select();
-                    if (count($additionalPromotion) > 0) {
-                        $output->writeln("AdditionalPromotionShare Unready");exit();
-                    }
+//                    $financeOrderLiquidationObj = new FinanceOrderLiquidationModel();
+//                    $liquidation = $financeOrderLiquidationObj->where(['report_id' => $report['id']])->where('total', 'neq', 0)->where('share_code', null)->order('id asc')->select();
+//                    if (count($liquidation) > 0) {
+//                        $output->writeln("LiquidationShare Unready");exit();
+//                    }
+//
+//                    $additionalPromotion = $additionalObj->where(['report_id' => $report['id']])->where('share_code', null)->where('promotion', 'not null')->order('id asc')->select();
+//                    if (count($additionalPromotion) > 0) {
+//                        $output->writeln("AdditionalPromotionShare Unready");exit();
+//                    }
 
                     $additionalLcAdjustment = $additionalObj->where(['report_id' => $report['id']])->where('share_code', null)->where('lc_adjustment', 'not null')->order('id asc')->select();
                     if (count($additionalLcAdjustment) > 0) {
