@@ -508,14 +508,7 @@ class FinanceController extends BaseController
                 $paymentObj = new AmazonPayment();
                 if ($payment_type) {
                     if ($payment_type == "temu_hk") {
-                        $paymentData = $paymentObj->$payment_type(
-                            $tableId,
-                            $rid,
-                            $excelObj->getSheet(0)->toArray(),
-                            $excelObj->getSheet(1)->toArray(),
-                            $excelObj->getSheet(2)->toArray(),
-                            $excelObj->getSheet(3)->toArray()
-                        );
+                        $paymentData = $paymentObj->$payment_type($tableId, $rid, $excelObj);
                     } else {
                         $paymentData = $paymentObj->$payment_type($data, $tableId, $rid);
                     }

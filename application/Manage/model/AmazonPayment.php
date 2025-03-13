@@ -1460,84 +1460,99 @@ class AmazonPayment extends Model
      * @throws ModelNotFoundException
      * @throws DataNotFoundException
      */
-    public function temu_hk($tableId, $reportId, $sheet0, $sheet1, $sheet2, $sheet3): array
+    public function temu_hk($tableId, $reportId, $excel): array
     {
-        foreach ($sheet0 as $key => $item) {
-            if ($key > 0 && $item[4] == '退货面单费') {
-                $this->orderAdjustmentNew[] = [
-                    "report_id"                 =>  $reportId,
-                    "table_id"                  =>  $tableId,
-                    "fulfillment"               =>  "Seller",
-                    "payment_id"                =>  '',
-                    "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[3])),
-                ];
-            }
-        }
-
-        foreach ($sheet1 as $key => $item) {
-            if ($key > 0) {
-                $orderObj = new OrderModel();
-                $order = $orderObj->with(['details'])->where(['refNo|saleOrderCode' => substr($item[0], 0, 24)])->find();
-                if ($order && $order['userAccount'] != $this->userAccount) {
-                    $this->userAccount = $order['userAccount'];
+        $sheetNames = $excel->getSheetNames();
+        $orderObj = new OrderModel();
+        foreach ($sheetNames as $k => $sheetName) {
+            if (strpos($sheetName, '账务明细列表') !== false) {
+                foreach ($excel->getSheet($k)->toArray() as $key => $item) {
+                    if ($key > 0 && ($item[4] == '退货面单费' || $item[4] == '退货面单费调整')) {
+                        $this->orderAdjustmentNew[] = [
+                            "report_id"                 =>  $reportId,
+                            "table_id"                  =>  $tableId,
+                            "fulfillment"               =>  "Seller",
+                            "payment_id"                =>  '',
+                            "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[3])),
+                        ];
+                    }
                 }
-
-                $this->orderAdjustmentNew[] = [
-                    "report_id"                 =>  $reportId,
-                    "table_id"                  =>  $tableId,
-                    "fulfillment"               =>  "Seller",
-                    "payment_id"                =>  substr($item[0], 0, 24),
-                    "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[2])),
-                ];
-            }
-        }
-
-        foreach ($sheet2 as $key => $item) {
-            if ($key > 0) {
-                $orderObj = new OrderModel();
-                $order = $orderObj->with(['details'])->where(['refNo|saleOrderCode' => $item[0]])->find();
-                if ($order && $order['userAccount'] != $this->userAccount) {
-                    $this->userAccount = $order['userAccount'];
+            } elseif (strpos($sheetName, '支出-履约违规') !== false) {
+                foreach ($excel->getSheet($k)->toArray() as $key => $item) {
+                    if ($key > 0) {
+                        $this->orderAdjustmentNew[] = [
+                            "report_id"                 => $reportId,
+                            "table_id"                  => $tableId,
+                            "fulfillment"               => "Seller",
+                            "payment_id"                => '',
+                            "total"                     => sprintf('%.2f', str_replace(',', '', $item[3] * -1)),
+                        ];
+                    }
                 }
+            } elseif (strpos($sheetName, '其他-上门服务费') !== false) {
+                foreach ($excel->getSheet($k)->toArray() as $key => $item) {
+                    if ($key > 0) {
+                        $order = $orderObj->with(['details'])->where(['refNo|saleOrderCode' => substr($item[0], 0, 24)])->find();
+                        if ($order && $order['userAccount'] != $this->userAccount) {
+                            $this->userAccount = $order['userAccount'];
+                        }
 
-                $this->orderSaleNew[] = [
-                    "report_id"                 =>  $reportId,
-                    "table_id"                  =>  $tableId,
-                    "payment_id"                =>  $item[0],
-                    "fulfillment"               =>  "Seller",
-                    "product_sales"             =>  sprintf('%.2f', str_replace(',', '', $item[5])),
-                    "selling_fees"              =>  0,
-                    "shipping_credits"          =>  0,
-                    "gift_wrap_credits"         =>  0,
-                    "regulatory_fee"            =>  0,
-                    "promotional_rebates"       =>  0,
-                    "fba_fees"                  =>  0,
-                ];
-            }
-        }
-
-        foreach ($sheet3 as $key => $item) {
-            if ($key > 0) {
-                $orderObj = new OrderModel();
-                $order = $orderObj->with(['details'])->where(['refNo|saleOrderCode' => $item[1]])->find();
-                if ($order && $order['userAccount'] != $this->userAccount) {
-                    $this->userAccount = $order['userAccount'];
+                        $this->orderAdjustmentNew[] = [
+                            "report_id"                 =>  $reportId,
+                            "table_id"                  =>  $tableId,
+                            "fulfillment"               =>  "Seller",
+                            "payment_id"                =>  substr($item[0], 0, 24),
+                            "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[2])),
+                        ];
+                    }
                 }
+            } elseif (strpos($sheetName, '结算-交易收入') !== false) {
+                foreach ($excel->getSheet($k)->toArray() as $key => $item) {
+                    if ($key > 0) {
+                        $order = $orderObj->with(['details'])->where(['refNo|saleOrderCode' => $item[0]])->find();
+                        if ($order && $order['userAccount'] != $this->userAccount) {
+                            $this->userAccount = $order['userAccount'];
+                        }
 
-                if (floatval($item[6]) != 0) {
-                    $this->orderRefundNew[] = [
-                        "report_id"                 =>  $reportId,
-                        "table_id"                  =>  $tableId,
-                        "payment_id"                =>  $item[1],
-                        "fulfillment"               =>  "Seller",
-                        "product_sales"             =>  sprintf('%.2f', str_replace(',', '', $item[6])) * -1,
-                        "selling_fees"              =>  0,
-                        "shipping_credits"          =>  0,
-                        "gift_wrap_credits"         =>  0,
-                        "regulatory_fee"            =>  0,
-                        "promotional_rebates"       =>  0,
-                        "fba_fees"                  =>  0,
-                    ];
+                        $this->orderSaleNew[] = [
+                            "report_id"                 =>  $reportId,
+                            "table_id"                  =>  $tableId,
+                            "payment_id"                =>  $item[0],
+                            "fulfillment"               =>  "Seller",
+                            "product_sales"             =>  sprintf('%.2f', str_replace(',', '', $item[5])),
+                            "selling_fees"              =>  0,
+                            "shipping_credits"          =>  0,
+                            "gift_wrap_credits"         =>  0,
+                            "regulatory_fee"            =>  0,
+                            "promotional_rebates"       =>  0,
+                            "fba_fees"                  =>  0,
+                        ];
+                    }
+                }
+            } elseif (strpos($sheetName, '结算-售后退款') !== false) {
+                foreach ($excel->getSheet($k)->toArray() as $key => $item) {
+                    if ($key > 0) {
+                        $order = $orderObj->with(['details'])->where(['refNo|saleOrderCode' => $item[1]])->find();
+                        if ($order && $order['userAccount'] != $this->userAccount) {
+                            $this->userAccount = $order['userAccount'];
+                        }
+
+                        if (floatval($item[6]) != 0) {
+                            $this->orderRefundNew[] = [
+                                "report_id"                 =>  $reportId,
+                                "table_id"                  =>  $tableId,
+                                "payment_id"                =>  $item[1],
+                                "fulfillment"               =>  "Seller",
+                                "product_sales"             =>  sprintf('%.2f', str_replace(',', '', $item[6])) * -1,
+                                "selling_fees"              =>  0,
+                                "shipping_credits"          =>  0,
+                                "gift_wrap_credits"         =>  0,
+                                "regulatory_fee"            =>  0,
+                                "promotional_rebates"       =>  0,
+                                "fba_fees"                  =>  0,
+                            ];
+                        }
+                    }
                 }
             }
         }
