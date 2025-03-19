@@ -938,30 +938,33 @@ ORDER BY
         $sum = $model->query('
 SELECT
 	SUM( value ) value,
-	SUM( sum ) sum
+	SUM( sum ) sum,
+	SUM( volume ) volume 
 FROM
 	(
-SELECT
-	SUM( goodsNum ) AS value,
-	ROUND( SUM( goodsNum * b.sp_unit_price ), 4) AS sum
-FROM
-	mu_le_inventory_batch a
-	LEFT JOIN mu_ecang_product b ON SUBSTRING( a.lecangsCode, 7 ) = b.productSku 
-WHERE
-	created_date = ' . $sale_day_num . ' 
-	AND b.saleStatus != 18
-	AND b.saleStatus != 19 UNION ALL
-SELECT
-	SUM( sellable_quantity ) AS value,
-	ROUND( SUM( sellable_quantity * b.sp_unit_price ), 4) AS sum
-FROM
-	mu_lc_inventory_batch a
-	LEFT JOIN mu_ecang_product b ON a.product_sku = b.productSku 
-WHERE
-	created_date = ' . $sale_day_num . '
-	AND b.saleStatus != 18
-	AND b.saleStatus != 19
-	) a;        
+	SELECT
+		SUM( goodsNum ) AS value,
+		ROUND( SUM( goodsNum * b.sp_unit_price ), 4 ) AS sum,
+		ROUND( SUM( goodsNum * b.productLength * productWidth * productHeight / 1000000 ), 4 ) AS volume 
+	FROM
+		mu_le_inventory_batch a
+		LEFT JOIN mu_ecang_product b ON SUBSTRING( a.lecangsCode, 7 ) = b.productSku 
+	WHERE
+		created_date = ' . $sale_day_num . ' 
+		AND b.saleStatus != 18 
+		AND b.saleStatus != 19 UNION ALL
+	SELECT
+		SUM( sellable_quantity ) AS value,
+		ROUND( SUM( sellable_quantity * b.sp_unit_price ), 4 ) AS sum,
+		ROUND( SUM( sellable_quantity * b.productLength * productWidth * productHeight / 1000000 ), 4 ) AS volume 
+	FROM
+		mu_lc_inventory_batch a
+		LEFT JOIN mu_ecang_product b ON a.product_sku = b.productSku 
+	WHERE
+		created_date = ' . $sale_day_num . ' 
+		AND b.saleStatus != 18 
+	AND b.saleStatus != 19 
+	) a;
         ');
         $this->assign('sum', $sum);
 

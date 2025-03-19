@@ -118,7 +118,7 @@
         const category_1 = echarts.init(document.getElementById("main_1"));
         category_1.setOption({
             title: {
-                text: '当日海外仓批次库存数量库龄统计饼状图(合计：{$sum.0.value|number_format}个)',
+                text: '当日海外仓批次库存数量库龄统计饼状图(合计：{$sum.0.value|number_format}个    {$sum.0.volume/67|number_format}HQ)',
                 // subtext: 'Fake Data',
                 left: 'center'
             },
