@@ -1094,7 +1094,7 @@ class AmazonPayment extends Model
                 $this->userAccount = $orderRefund['userAccount'];
             }
 
-            if ($item[5] == 'PENDING PAYMENT' && !strpos($item['0'], '_CM')) {
+            if (gettype($item[5]) == 'string' && $item[5] == 'PENDING PAYMENT' && !strpos($item['0'], '_CM')) {
                 $this->orderSaleNew[] = [
                     "report_id"                 =>  $reportId,
                     "table_id"                  =>  $tableId,
