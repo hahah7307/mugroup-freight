@@ -2321,7 +2321,7 @@ class FinanceController extends BaseController
         $keyword = $this->request->get('keyword', '', 'htmlspecialchars');
         $this->assign('keyword', $keyword);
         if ($keyword) {
-            $where['month|sku|content|type'] = ['like', '%' . $keyword . '%'];
+            $where['tracking_number|month|sku|sender|seller|user_account'] = ['like', '%' . $keyword . '%'];
         } else {
             $where = [];
         }
