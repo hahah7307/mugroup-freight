@@ -1586,7 +1586,7 @@ FROM
 		SELECT
 			"amazon" AS platform,
 			b.user_account,
-			b.warehouse_sku,
+			a.warehouse_sku,
 			NULL AS fbm_sale_qty,
 			NULL AS fbm_refund_qty,
 			NULL AS fbm_sale_amount,
@@ -5440,7 +5440,7 @@ FROM
 		SUM( ROUND( sale_selling_fees, 7 ) ) * - 1 sale_selling_fees,
 		SUM( ROUND( refund_selling_fees, 7 ) ) refund_selling_fees,
 		SUM( ROUND( sale_shipping, 7 ) ) sale_shipping,
-		SUM( ROUND( sale_tax, 7 ) ) sale_tax,
+		SUM( ROUND( sale_tax, 7 ) ) * -1 sale_tax,
 		SUM( ROUND( calcuRes, 7 ) ) * - 1 calcuRes,
 		SUM( ROUND( ddp, 2 ) ) * - 1 ddp,
 		SUM( ROUND( adCost, 7 ) ) adCost,
