@@ -156,7 +156,7 @@ class FinanceExcelInit extends Model
             $fbaIndex ++;
             $this->objPHPExcel->setActiveSheetIndex($index)
                 ->setCellValue('A' . $fbaIndex, $month)
-                ->setCellValue('B' . $fbaIndex, 'USD')
+                ->setCellValue('B' . $fbaIndex, self::getCurrencyByUserAccount($fbaItem['userAccount']))
                 ->setCellValue('C' . $fbaIndex, $fbaItem['userAccount'])
                 ->setCellValue('D' . $fbaIndex, $fbaItem['warehouse_sku'])
                 ->setCellValue('E' . $fbaIndex, $fbaItem['product_name'])
@@ -264,7 +264,7 @@ class FinanceExcelInit extends Model
             $fbmIndex ++;
             $this->objPHPExcel->setActiveSheetIndex($index)
                 ->setCellValue('A' . $fbmIndex, $month)
-                ->setCellValue('B' . $fbmIndex, 'USD')
+                ->setCellValue('B' . $fbmIndex, self::getCurrencyByUserAccount($fbmItem['userAccount']))
                 ->setCellValue('C' . $fbmIndex, $fbmItem['userAccount'])
                 ->setCellValue('D' . $fbmIndex, $fbmItem['warehouse_sku'])
                 ->setCellValue('E' . $fbmIndex, $fbmItem['product_name'])
@@ -1860,5 +1860,22 @@ class FinanceExcelInit extends Model
         }
 
         return $nextColumn;
+    }
+
+    static public function getCurrencyByUserAccount($userAccount): string
+    {
+        if (in_array($userAccount,
+        [
+            'TOLEAD_EU_IT',
+            'TOLEAD_EU_DE',
+            'TOLEAD_EU_FR',
+            'TOLEAD_EU_ES'
+        ])) {
+            return 'EUR';
+        } elseif ($userAccount == 'TOLEAD_EU_UK') {
+            return 'GBP';
+        } else {
+            return 'USD';
+        }
     }
 }
