@@ -227,6 +227,8 @@ class FinanceOperationController extends BaseController
                     "total"                 =>  $item[2],
                     "content"               =>  $item[4],
                     "type"                  =>  $item[5],
+                    "factory_type"          =>  $item[6],
+                    "invoice_no"            =>  $item[7]
                 ];
             }
             $financeOperationFactoryObj->insertAll($factoryData);
@@ -466,6 +468,8 @@ class FinanceOperationController extends BaseController
                     "total"                 =>  $item[2],
                     "content"               =>  $item[4],
                     "type"                  =>  $item[5],
+                    "factory_type"          =>  $item[6],
+                    "invoice_no"            =>  $item[7]
                 ];
             }
             $financeOperationFactoryObj->insertAll($factory_claimData);

@@ -1495,7 +1495,9 @@ class FinanceExcelInit extends Model
             ->setCellValue('D1', '币种')
             ->setCellValue('E1', '备注')
             ->setCellValue('F1', '类型')
-            ->setCellValue('G1', '核算月份')
+            ->setCellValue('G1', '工厂费用类型')
+            ->setCellValue('H1', '发票号码')
+            ->setCellValue('I1', '核算月份')
         ;
 
         $expensesIndex = 1;
@@ -1508,7 +1510,9 @@ class FinanceExcelInit extends Model
                 ->setCellValue('D' . $expensesIndex, $expensesItem['currency'])
                 ->setCellValue('E' . $expensesIndex, $expensesItem['content'])
                 ->setCellValue('F' . $expensesIndex, $expensesItem['type'])
-                ->setCellValue('G' . $expensesIndex, $expensesItem['calculate_month'])
+                ->setCellValue('G' . $expensesIndex, $expensesItem['factory_type'])
+                ->setCellValue('H' . $expensesIndex, $expensesItem['invoice_no'])
+                ->setCellValue('I' . $expensesIndex, $expensesItem['calculate_month'])
             ;
         }
     }
@@ -1583,6 +1587,8 @@ class FinanceExcelInit extends Model
             ->setCellValue('D1', '币种')
             ->setCellValue('E1', '备注')
             ->setCellValue('F1', '类型')
+            ->setCellValue('G1', '工厂费用类型')
+            ->setCellValue('H1', '发票号码')
         ;
 
         $expensesIndex = 1;
@@ -1595,6 +1601,8 @@ class FinanceExcelInit extends Model
                 ->setCellValue('D' . $expensesIndex, $expensesItem['currency'])
                 ->setCellValue('E' . $expensesIndex, $expensesItem['content'])
                 ->setCellValue('F' . $expensesIndex, $expensesItem['type'])
+                ->setCellValue('G' . $expensesIndex, $expensesItem['factory_type'])
+                ->setCellValue('H' . $expensesIndex, $expensesItem['invoice_no'])
             ;
         }
     }
