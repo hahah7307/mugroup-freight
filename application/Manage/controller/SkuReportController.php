@@ -2327,4 +2327,101 @@ ORDER BY `month` ASC;
         $this->assign('product', ProductModel::get(['productSku' => $sku]));
         return view();
     }
+
+    /**
+     * @throws DbException
+     */
+    public function four_warehouse(): \think\response\View
+    {
+        $sale_day = $this->request->get('sale_day', date('Y-m-d'), 'htmlspecialchars');
+        $sale_day_num = date('Ymd', strtotime($sale_day));
+        $this->assign('sale_day', $sale_day);
+
+        $model = new ProductModel();
+        $storePercent = $model->query('
+SELECT
+	COUNT( lecangsCode ) count,
+	(
+	SELECT
+		COUNT( lecangsCode ) count 
+	FROM
+		( SELECT DISTINCT SUBSTR( lecangsCode FROM 7 ) lecangsCode FROM mu_le_inventory_batch WHERE created_date = ' . $sale_day_num . ' ) a
+		LEFT JOIN mu_ecang_product b ON a.lecangsCode = b.productSku 
+	WHERE
+		b.saleStatus = 2 
+	) AS countSum,
+	warehouseCount 
+FROM
+	(
+	SELECT
+		COUNT( a.lecangsCode ) warehouseCount,
+		lecangsCode 
+	FROM
+		( SELECT DISTINCT SUBSTR( lecangsCode FROM 7 ) lecangsCode, warehouseCode FROM mu_le_inventory_batch WHERE created_date = ' . $sale_day_num . ' ) a
+		LEFT JOIN mu_ecang_product b ON a.lecangsCode = b.productSku 
+	WHERE
+		b.saleStatus = 2 
+	GROUP BY
+		lecangsCode 
+	) a 
+GROUP BY
+	warehouseCount,
+	countSum
+ORDER BY
+	warehouseCount ASC;
+        ');
+        $this->assign('storePercent', $storePercent);
+
+        $userStore = $model->query('
+SELECT
+	COUNT( lecangsCode ) count,
+	warehouseCount,
+	a.user_name,
+	b.userCount 
+FROM
+	(
+	SELECT
+		COUNT( a.lecangsCode ) warehouseCount,
+		lecangsCode,
+		c.user_name 
+	FROM
+		( SELECT DISTINCT SUBSTR( lecangsCode FROM 7 ) lecangsCode, warehouseCode FROM mu_le_inventory_batch WHERE created_date = ' . $sale_day_num . ' ) a
+		LEFT JOIN mu_ecang_product b ON a.lecangsCode = b.productSku
+		LEFT JOIN mu_ecang_user c ON b.personSellerId = c.user_id 
+	WHERE
+		b.saleStatus = 2 
+	GROUP BY
+		lecangsCode,
+		user_name 
+	) a
+	LEFT JOIN (
+	SELECT
+		COUNT( a.lecangsCode ) userCount,
+		c.user_name 
+	FROM
+		( SELECT DISTINCT SUBSTR( lecangsCode FROM 7 ) lecangsCode FROM mu_le_inventory_batch WHERE created_date = ' . $sale_day_num . ' ) a
+		LEFT JOIN mu_ecang_product b ON a.lecangsCode = b.productSku
+		LEFT JOIN mu_ecang_user c ON b.personSellerId = c.user_id 
+	WHERE
+		b.saleStatus = 2 
+	GROUP BY
+		user_name 
+	) b ON a.user_name = b.user_name 
+GROUP BY
+	warehouseCount,
+	user_name,
+	userCount 
+ORDER BY
+	warehouseCount DESC,
+	count DESC;
+        ');
+        $sellerData = [];
+        foreach ($userStore as $value) {
+            $sellerData[$value['user_name']][$value['warehouseCount']] = number_format($value['count'] / $value['userCount'], 4);
+        }
+        $this->assign('sellerData', $sellerData);
+
+        Session::set(Config::get('BACK_URL'), $this->request->url(), 'manage');
+        return view();
+    }
 }
