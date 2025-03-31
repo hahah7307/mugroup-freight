@@ -2195,4 +2195,136 @@ ORDER BY
         $this->assign('le_list', $data2);
         return view();
     }
+
+    /**
+     * @throws DbException
+     */
+    public function four_zone(): \think\response\View
+    {
+        $sale_order = $this->request->get('sale_order', 'DESC', 'htmlspecialchars');
+        $this->assign('sale_order', $sale_order);
+
+        $sale_start = $this->request->get('sale_start', date('Y-01-01 00:00:00'), 'htmlspecialchars');
+        $this->assign('sale_start', $sale_start);
+
+        $sale_end = $this->request->get('sale_end', date('Y-m-d H:i:s'), 'htmlspecialchars');
+        $this->assign('sale_end', $sale_end);
+
+        $model = new ProductModel();
+        $saleList = $model->query('
+SELECT
+	a.warehouseSku,
+	a.count,
+	b.countSum,
+	a.count / b.countSum percent,
+	c.productImages,
+	c.productTitle
+FROM
+	(
+	SELECT
+	IF
+		( a.zoneFormat < 5, 1, 0 ) fourZone,
+		b.warehouseSku,
+		COUNT( a.id ) count 
+	FROM
+		mu_ecang_order a
+		LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id 
+	WHERE
+		a.datePaidPlatform >= "' . $sale_start . '" 
+	    AND a.datePaidPlatform < "' . $sale_end . '" 
+		AND a.`status` != 0 
+	GROUP BY
+		warehouseSku,
+		fourZone 
+	) a
+	LEFT JOIN (
+	SELECT
+		b.warehouseSku,
+		COUNT( a.id ) countSum 
+	FROM
+		mu_ecang_order a
+		LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id 
+	WHERE
+		a.datePaidPlatform >= "' . $sale_start . '" 
+	    AND a.datePaidPlatform < "' . $sale_end . '"
+		AND a.`status` != 0 
+	GROUP BY
+		warehouseSku 
+	) b ON a.warehouseSku = b.warehouseSku 
+LEFT JOIN mu_ecang_product c ON a.warehouseSku = c.productSku
+WHERE
+	a.fourZone = 1 
+ORDER BY
+	count ' . $sale_order . ';
+        ');
+        $this->assign('saleList', $saleList);
+
+        Session::set(Config::get('BACK_URL'), $this->request->url(), 'manage');
+        return view();
+    }
+
+    /**
+     * @throws PDOException
+     * @throws BindParamException
+     */
+    public function four_zone_detail(): \think\response\View
+    {
+        $sku = input('sku');
+        if (empty($sku)) {
+            $this->error('操作错误！', url('index'));
+        }
+
+        $model = new ProductModel();
+        $list = $model->query('
+SELECT
+	a.warehouseSku,
+	a.`month`,
+	a.count,
+	b.countSum,
+	a.count / b.countSum percent 
+FROM
+	(
+	SELECT
+	IF
+		( a.zoneFormat < 5, 1, 0 ) fourZone,
+		b.warehouseSku,
+		DATE_FORMAT( a.datePaidPlatform, "%Y-%m" ) `month`,
+		COUNT( a.id ) count 
+	FROM
+		mu_ecang_order a
+		LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id 
+	WHERE
+		a.`status` != 0 
+		AND b.warehouseSku = "' . $sku . '" 
+	GROUP BY
+		warehouseSku,
+		fourZone,
+	MONTH 
+	) a
+	LEFT JOIN (
+	SELECT
+		b.warehouseSku,
+		DATE_FORMAT( a.datePaidPlatform, "%Y-%m" ) `month`,
+		COUNT( a.id ) countSum 
+	FROM
+		mu_ecang_order a
+		LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id 
+	WHERE
+		a.`status` != 0 
+		AND b.warehouseSku = "' . $sku . '" 
+	GROUP BY
+		warehouseSku,
+	MONTH 
+	) b ON a.warehouseSku = b.warehouseSku 
+	AND a.`month` = b.`month` 
+WHERE
+	a.fourZone = 1
+ORDER BY `month` ASC;
+        ');
+
+        $this->assign('month', '"' . implode('","', array_column($list, 'month')) . '"');
+        $this->assign('percent', implode(',', array_column($list, 'percent')));
+        $this->assign('product', ProductModel::get(['productSku' => $sku]));
+        return view();
+    }
 }
