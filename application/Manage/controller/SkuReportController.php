@@ -2372,6 +2372,66 @@ ORDER BY
         ');
         $this->assign('storePercent', $storePercent);
 
+        $sumPercent = $model->query('
+SELECT
+	SUM( goodsNum ) sum,
+	goodsNumSum,
+	warehouseCount 
+FROM
+	(
+	SELECT
+		SUM( a.goodsNum ) goodsNum,
+		COUNT( a.warehouseCode ) warehouseCount,
+		lecangsCode,
+		(
+		SELECT
+			SUM( goodsNum ) goodsNum 
+		FROM
+			(
+			SELECT
+				SUM( goodsNum ) goodsNum,
+				SUBSTR( lecangsCode FROM 7 ) lecangsCode,
+				warehouseCode 
+			FROM
+				mu_le_inventory_batch 
+			WHERE
+				created_date = ' . $sale_day_num . ' 
+			GROUP BY
+				lecangsCode,
+				warehouseCode 
+			) a
+			LEFT JOIN mu_ecang_product b ON a.lecangsCode = b.productSku 
+		WHERE
+			b.saleStatus = 2 
+		) AS goodsNumSum 
+	FROM
+		(
+		SELECT
+			SUM( goodsNum ) goodsNum,
+			SUBSTR( lecangsCode FROM 7 ) lecangsCode,
+			warehouseCode 
+		FROM
+			mu_le_inventory_batch 
+		WHERE
+			created_date = ' . $sale_day_num . ' 
+		GROUP BY
+			lecangsCode,
+			warehouseCode 
+		) a
+		LEFT JOIN mu_ecang_product b ON a.lecangsCode = b.productSku 
+	WHERE
+		b.saleStatus = 2 
+	GROUP BY
+		lecangsCode 
+	) a 
+GROUP BY
+	warehouseCount,
+	goodsNumSum 
+ORDER BY
+	warehouseCount ASC;
+        ');
+        $this->assign('sumPercent', $sumPercent);
+
         $userStore = $model->query('
 SELECT
 	COUNT( lecangsCode ) count,
@@ -2420,6 +2480,80 @@ ORDER BY
             $sellerData[$value['user_name']][$value['warehouseCount']] = number_format($value['count'] / $value['userCount'], 4);
         }
         $this->assign('sellerData', $sellerData);
+
+        $userStoreSum = $model->query('
+SELECT
+	SUM( goodsNum ) sum,
+	warehouseCount,
+	a.user_name,
+	b.goodsSumAll 
+FROM
+	(
+	SELECT
+		COUNT( a.lecangsCode ) warehouseCount,
+		SUM( a.goodsNum ) goodsNum,
+		lecangsCode,
+		c.user_name 
+	FROM
+		(
+		SELECT
+			SUM( goodsNum ) goodsNum,
+			SUBSTR( lecangsCode FROM 7 ) lecangsCode,
+			warehouseCode 
+		FROM
+			mu_le_inventory_batch 
+		WHERE
+			created_date = ' . $sale_day_num . ' 
+		GROUP BY
+			lecangsCode,
+			warehouseCode 
+		) a
+		LEFT JOIN mu_ecang_product b ON a.lecangsCode = b.productSku
+		LEFT JOIN mu_ecang_user c ON b.personSellerId = c.user_id 
+	WHERE
+		b.saleStatus = 2 
+	GROUP BY
+		lecangsCode,
+		user_name 
+	) a
+	LEFT JOIN (
+	SELECT
+		SUM( a.goodsNum ) goodsSumAll,
+		c.user_name 
+	FROM
+		(
+		SELECT
+			SUM( goodsNum ) goodsNum,
+			SUBSTR( lecangsCode FROM 7 ) lecangsCode,
+			warehouseCode 
+		FROM
+			mu_le_inventory_batch 
+		WHERE
+			created_date = ' . $sale_day_num . ' 
+		GROUP BY
+			lecangsCode,
+			warehouseCode 
+		) a
+		LEFT JOIN mu_ecang_product b ON a.lecangsCode = b.productSku
+		LEFT JOIN mu_ecang_user c ON b.personSellerId = c.user_id 
+	WHERE
+		b.saleStatus = 2 
+	GROUP BY
+		user_name 
+	) b ON a.user_name = b.user_name 
+GROUP BY
+	warehouseCount,
+	user_name,
+	goodsSumAll 
+ORDER BY
+	warehouseCount DESC,
+	sum DESC;
+        ');
+        $sellerSumData = [];
+        foreach ($userStoreSum as $value) {
+            $sellerSumData[$value['user_name']][$value['warehouseCount']] = number_format($value['sum'] / $value['goodsSumAll'], 4);
+        }
+        $this->assign('sellerSumData', $sellerSumData);
 
         Session::set(Config::get('BACK_URL'), $this->request->url(), 'manage');
         return view();
