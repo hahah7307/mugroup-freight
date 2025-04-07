@@ -17,6 +17,7 @@
             <div class="layui-inline">
                 <button class="layui-btn" lay-submit lay-filter="Search"><i class="layui-icon">&#xe615;</i> 查询</button>
             </div>
+            <span class="total">三仓以上率：{:number_format(($storePercent[2]['count'] + $storePercent[3]['count']) / $storePercent[2]['countSum'], 4) * 100}%</span>
         </form>
 
         <table class="layui-table" lay-size="sm" style="width: 1600px">
