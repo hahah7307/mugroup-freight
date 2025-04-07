@@ -64,7 +64,10 @@
         </table>
 
         <div class="layui-form">
-            <div id="main" style="height:400px;width: 1000px"></div>
+            <div id="main" style="height:450px;width: 1000px;margin: 30px 0"></div>
+        </div>
+        <div class="layui-form">
+            <div id="main2" style="height:450px;width: 1000px;margin: 30px 0"></div>
         </div>
 
         <table class="layui-table" lay-size="sm" style="width: 1000px">
@@ -191,6 +194,55 @@
                     name: '四仓率',
                     type: 'line',
                     data: [{$kindFour}]
+                }
+            ]
+        });
+
+        const myChart2 = echarts.init(document.getElementById("main2"));
+        myChart2.setOption({
+            title: {
+                text: 'SKU总数四仓率折线图'
+            },
+            tooltip: {
+                trigger: 'axis'
+            },
+            legend: {
+                data: ['单仓率', '两仓率', '三仓率', '四仓率']
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                boundaryGap: false,
+                data: [{$date2}]
+            },
+            yAxis: {
+                type: 'value'
+            },
+            series: [
+                {
+                    name: '单仓率',
+                    type: 'line',
+                    data: [{$sumOne}]
+                },
+                {
+                    name: '两仓率',
+                    type: 'line',
+                    data: [{$sumTwo}]
+                },
+                {
+                    name: '三仓率',
+                    type: 'line',
+                    data: [{$sumThree}]
+                },
+                {
+                    name: '四仓率',
+                    type: 'line',
+                    data: [{$sumFour}]
                 }
             ]
         });

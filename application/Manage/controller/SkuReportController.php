@@ -2336,6 +2336,7 @@ ORDER BY `month` ASC;
         $sale_day = $this->request->get('sale_day', date('Y-m-d'), 'htmlspecialchars');
         $sale_day_num = date('Ymd', strtotime($sale_day));
         $this->assign('sale_day', $sale_day);
+        $two_weeks_day = date('Ymd', strtotime('-2 weeks',strtotime($sale_day)));
 
         $model = new ProductModel();
         $storePercent = $model->query('
@@ -2460,7 +2461,7 @@ FROM
 			FROM
 				mu_le_inventory_batch 
 			WHERE
-				created_date >= ' . $sale_day_num . ' 
+				created_date >= ' . $two_weeks_day . ' 
 			GROUP BY
 				lecangsCode,
 				warehouseCode,
@@ -2482,7 +2483,7 @@ FROM
 		COUNT( lecangsCode ) skuDayCount,
 		created_date 
 	FROM
-		( SELECT DISTINCT SUBSTR( lecangsCode FROM 7 ) lecangsCode, created_date FROM mu_le_inventory_batch WHERE created_date >= ' . $sale_day_num . ' GROUP BY lecangsCode, created_date ) a
+		( SELECT DISTINCT SUBSTR( lecangsCode FROM 7 ) lecangsCode, created_date FROM mu_le_inventory_batch WHERE created_date >= ' . $two_weeks_day . ' GROUP BY lecangsCode, created_date ) a
 		LEFT JOIN mu_ecang_product b ON a.lecangsCode = b.productSku 
 	WHERE
 		b.saleStatus = 2 
@@ -2521,6 +2522,109 @@ ORDER BY
         $this->assign('kindFive', implode(',', $kindFive));
         $this->assign('date', implode(',', array_unique(array_column($kindPic,'created_date'))));
         $this->assign('dateString', "'" . implode("','", array_unique(array_column($kindPic,'created_date'))) . "'");
+
+        $sumPic = $model->query('
+SELECT
+	a.created_date,
+	a.warehouseCount,
+	a.goodsNum,
+	b.skuDaySum 
+FROM
+	(
+	SELECT
+		SUM( goodsNum ) goodsNum,
+		warehouseCount,
+		created_date 
+	FROM
+		(
+		SELECT
+			SUM( goodsNum ) goodsNum,
+			COUNT( warehouseCode ) warehouseCount,
+			lecangsCode,
+			created_date 
+		FROM
+			(
+			SELECT
+				SUM( goodsNum ) goodsNum,
+				SUBSTR( lecangsCode FROM 7 ) lecangsCode,
+				warehouseCode,
+				created_date 
+			FROM
+				mu_le_inventory_batch a 
+			WHERE
+				created_date >= ' . $two_weeks_day . ' 
+			GROUP BY
+				lecangsCode,
+				warehouseCode,
+				created_date 
+			) a
+			LEFT JOIN mu_ecang_product b ON a.lecangsCode = b.productSku 
+		WHERE
+			b.saleStatus = 2 
+		GROUP BY
+			lecangsCode,
+			created_date 
+		) a 
+	GROUP BY
+		warehouseCount,
+		created_date 
+	) a
+	LEFT JOIN (
+	SELECT
+		SUM( goodsNum ) skuDaySum,
+		created_date 
+	FROM
+		(
+		SELECT
+			SUM( goodsNum ) goodsNum,
+			SUBSTR( lecangsCode FROM 7 ) lecangsCode,
+			created_date 
+		FROM
+			mu_le_inventory_batch 
+		WHERE
+			created_date >= ' . $two_weeks_day . ' 
+		GROUP BY
+			lecangsCode,
+			created_date 
+		) a
+		LEFT JOIN mu_ecang_product b ON a.lecangsCode = b.productSku 
+	WHERE
+		b.saleStatus = 2 
+	GROUP BY
+		created_date 
+	) b ON a.created_date = b.created_date 
+ORDER BY
+	created_date ASC,
+	warehouseCount ASC;
+        ');
+        $sumOne = [];
+        $sumTwo = [];
+        $sumThree = [];
+        $sumFour = [];
+        $sumFive = [];
+        foreach ($sumPic as $item) {
+            if ($item['warehouseCount'] == 1) {
+                $sumOne[] = round($item['goodsNum'] / $item['skuDaySum'], 4);
+            } elseif ($item['warehouseCount'] == 2) {
+                $sumTwo[] = round($item['goodsNum'] / $item['skuDaySum'], 4);
+            } elseif ($item['warehouseCount'] == 3) {
+                $sumThree[] = round($item['goodsNum'] / $item['skuDaySum'], 4);
+            } elseif ($item['warehouseCount'] == 4) {
+                $sumFour[] = round($item['goodsNum'] / $item['skuDaySum'], 4);
+            } elseif ($item['warehouseCount'] == 5) {
+                $sumFive[] = round($item['goodsNum'] / $item['skuDaySum'], 4);
+            }
+        }
+        foreach ($sumFour as $k => $v) {
+            $sumFour[$k] = $v + $sumFive[$k];
+        }
+        $this->assign('sumOne', implode(',', $sumOne));
+        $this->assign('sumTwo', implode(',', $sumTwo));
+        $this->assign('sumThree', implode(',', $sumThree));
+        $this->assign('sumFour', implode(',', $sumFour));
+        $this->assign('sumFive', implode(',', $sumFive));
+        $this->assign('date2', implode(',', array_unique(array_column($sumPic,'created_date'))));
+        $this->assign('dateString2', "'" . implode("','", array_unique(array_column($sumPic,'created_date'))) . "'");
 
         $userStore = $model->query('
 SELECT
