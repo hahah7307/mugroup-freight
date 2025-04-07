@@ -2432,6 +2432,96 @@ ORDER BY
         ');
         $this->assign('sumPercent', $sumPercent);
 
+
+        $kindPic = $model->query('
+SELECT
+	a.created_date,
+	a.warehouseCount,
+	a.count,
+	b.skuDayCount 
+FROM
+	(
+	SELECT
+		COUNT( lecangsCode ) count,
+		warehouseCount,
+		created_date 
+	FROM
+		(
+		SELECT
+			lecangsCode,
+			COUNT( warehouseCode ) warehouseCount,
+			created_date 
+		FROM
+			(
+			SELECT DISTINCT
+				SUBSTR( lecangsCode FROM 7 ) lecangsCode,
+				warehouseCode,
+				created_date 
+			FROM
+				mu_le_inventory_batch 
+			WHERE
+				created_date >= ' . $sale_day_num . ' 
+			GROUP BY
+				lecangsCode,
+				warehouseCode,
+				created_date 
+			) a
+			LEFT JOIN mu_ecang_product b ON a.lecangsCode = b.productSku 
+		WHERE
+			b.saleStatus = 2 
+		GROUP BY
+			lecangsCode,
+			created_date 
+		) a 
+	GROUP BY
+		created_date,
+		warehouseCount 
+	) a
+	LEFT JOIN (
+	SELECT
+		COUNT( lecangsCode ) skuDayCount,
+		created_date 
+	FROM
+		( SELECT DISTINCT SUBSTR( lecangsCode FROM 7 ) lecangsCode, created_date FROM mu_le_inventory_batch WHERE created_date >= ' . $sale_day_num . ' GROUP BY lecangsCode, created_date ) a
+		LEFT JOIN mu_ecang_product b ON a.lecangsCode = b.productSku 
+	WHERE
+		b.saleStatus = 2 
+	GROUP BY
+		created_date 
+	) b ON a.created_date = b.created_date 
+ORDER BY
+	created_date ASC,
+	warehouseCount ASC
+        ');
+        $kindOne = [];
+        $kindTwo = [];
+        $kindThree = [];
+        $kindFour = [];
+        $kindFive = [];
+        foreach ($kindPic as $item) {
+            if ($item['warehouseCount'] == 1) {
+                $kindOne[] = round($item['count'] / $item['skuDayCount'], 4);
+            } elseif ($item['warehouseCount'] == 2) {
+                $kindTwo[] = round($item['count'] / $item['skuDayCount'], 4);
+            } elseif ($item['warehouseCount'] == 3) {
+                $kindThree[] = round($item['count'] / $item['skuDayCount'], 4);
+            } elseif ($item['warehouseCount'] == 4) {
+                $kindFour[] = round($item['count'] / $item['skuDayCount'], 4);
+            } elseif ($item['warehouseCount'] == 5) {
+                $kindFive[] = round($item['count'] / $item['skuDayCount'], 4);
+            }
+        }
+        foreach ($kindFour as $k => $v) {
+            $kindFour[$k] = $v + $kindFive[$k];
+        }
+        $this->assign('kindOne', implode(',', $kindOne));
+        $this->assign('kindTwo', implode(',', $kindTwo));
+        $this->assign('kindThree', implode(',', $kindThree));
+        $this->assign('kindFour', implode(',', $kindFour));
+        $this->assign('kindFive', implode(',', $kindFive));
+        $this->assign('date', implode(',', array_unique(array_column($kindPic,'created_date'))));
+        $this->assign('dateString', "'" . implode("','", array_unique(array_column($kindPic,'created_date'))) . "'");
+
         $userStore = $model->query('
 SELECT
 	COUNT( lecangsCode ) count,

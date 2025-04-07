@@ -3,6 +3,7 @@
 
 <style>
     .pie-chart {margin-top: 32px}
+    .product-img {position: absolute; right: 250px; top: 250px}
 </style>
 <!-- 主体内容 -->
 <script src="/static/echarts/dist/echarts.min.js"></script>
@@ -61,6 +62,10 @@
                 </tr>
             </tbody>
         </table>
+
+        <div class="layui-form">
+            <div id="main" style="height:400px;width: 1000px"></div>
+        </div>
 
         <table class="layui-table" lay-size="sm" style="width: 1000px">
             <colgroup>
@@ -139,6 +144,55 @@
         laydate.render({
             elem: '#sale_day',
             type: 'date'
+        });
+
+        const myChart = echarts.init(document.getElementById("main"));
+        myChart.setOption({
+            title: {
+                text: 'SKU个数四仓率折线图'
+            },
+            tooltip: {
+                trigger: 'axis'
+            },
+            legend: {
+                data: ['单仓率', '两仓率', '三仓率', '四仓率']
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
+            },
+            xAxis: {
+                type: 'category',
+                boundaryGap: false,
+                data: [{$date}]
+            },
+            yAxis: {
+                type: 'value'
+            },
+            series: [
+                {
+                    name: '单仓率',
+                    type: 'line',
+                    data: [{$kindOne}]
+                },
+                {
+                    name: '两仓率',
+                    type: 'line',
+                    data: [{$kindTwo}]
+                },
+                {
+                    name: '三仓率',
+                    type: 'line',
+                    data: [{$kindThree}]
+                },
+                {
+                    name: '四仓率',
+                    type: 'line',
+                    data: [{$kindFour}]
+                }
+            ]
         });
 
     });
