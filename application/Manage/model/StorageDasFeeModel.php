@@ -54,28 +54,17 @@ class StorageDasFeeModel extends Model
         return self::get($condition)->getData('value');
     }
 
-    static public function order2deliverType($order, $type)
+    static public function order2deliverType($order, $type): string
     {
         if ($type == 3) {
             return 'ALL';
         } else {
-            $storage_id = $order['area']['storage_id'];
-            if ($storage_id == StorageModel::LIANGCANGID) {
-                if (stripos($order['shippingMethod'], 'GROUND')) {
-                    return 'GD';
-                } elseif (stripos($order['shippingMethod'], 'HOME_DELIVERY')) {
-                    return 'HD';
-                } elseif (stripos($order['shippingMethod'], 'HOMEDELIVERY')) {
-                    return 'HD';
-                } elseif (stripos($order['shippingMethod'], 'HOME-DELIVEY')) {
-                    return 'HD';
-                } else {
-                    return false;
-                }
-            } elseif ($storage_id == StorageModel::LECANGID) {
-                return 'ALL';
+            if (stripos($order['shippingMethod'], 'GROUND')) {
+                return 'GD';
+            } elseif (stripos($order['shippingMethod'], 'HOME')) {
+                return 'HD';
             } else {
-                return false;
+                return 'ALL';
             }
         }
     }
