@@ -62,6 +62,7 @@ class ProductUpdateLc extends Command
                             $productDetail = $item;
                             unset($productDetail['warehouse_attribute']);
                             $productDetail['warehouse_attribute'] = json_encode($item['warehouse_attribute']);
+                            $productDetail['product_modify_time'] = empty($item['product_modify_time']) ? null : $item['product_modify_time'];
                             $addData[] = $productDetail;
                             unset($item);
                         }
