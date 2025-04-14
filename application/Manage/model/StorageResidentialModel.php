@@ -64,13 +64,13 @@ class StorageResidentialModel extends Model
 
     static public function order2deliverType($order)
     {
-        if (stripos($order['shippingMethod'], 'GROUND')) {
+        if (stripos($order['shippingMethod'], 'GROUND') !== false) {
             return 'GD';
-        } elseif (stripos($order['shippingMethod'], 'HOME_DELIVERY')) {
+        } elseif (stripos($order['shippingMethod'], 'HOME_DELIVERY') !== false) {
             return 'HD';
-        } elseif (stripos($order['shippingMethod'], 'HOMEDELIVERY')) {
+        } elseif (stripos($order['shippingMethod'], 'HOMEDELIVERY') !== false) {
             return 'HD';
-        } elseif (stripos($order['shippingMethod'], 'HOME-DELIVEY')) {
+        } elseif (stripos($order['shippingMethod'], 'HOME-DELIVEY') !== false) {
             return 'HD';
         } else {
             return false;
