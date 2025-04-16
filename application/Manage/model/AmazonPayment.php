@@ -967,7 +967,7 @@ class AmazonPayment extends Model
                     "quantity"                  =>  $item[7],
                     "fulfillment"               =>  "Seller",
                     "postal"                    =>  $item[18],
-                    "product_sales"             =>  sprintf('%.2f', str_replace(',', '', $item[24]) + str_replace(',', '', $item[27]) + str_replace(',', '', $item[71])),
+                    "product_sales"             =>  sprintf('%.2f', str_replace(',', '', $item[24]) + str_replace(',', '', $item[27])),
                     "selling_fees"              =>  sprintf('%.2f', str_replace(',', '', $item[22])) * -1,
                     "shipping_credits"          =>  0,
                     "gift_wrap_credits"         =>  0,
@@ -1016,7 +1016,7 @@ class AmazonPayment extends Model
                         "table_id"                  =>  $tableId,
                         "payment_id"                =>  number_format($item[2], 0, '', ''),
                         "sku"                       =>  $item[8],
-                        "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[71])) * -1,
+                        "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[71])),
                     ];
                 }
                 if ($item[55] == "Customer Chargeback") {
@@ -1490,6 +1490,23 @@ class AmazonPayment extends Model
                     }
                 }
             } elseif (strpos($sheetName, '其他-上门服务费') !== false) {
+                foreach ($excel->getSheet($k)->toArray() as $key => $item) {
+                    if ($key > 0) {
+                        $order = $orderObj->with(['details'])->where(['refNo|saleOrderCode' => substr($item[0], 0, 24)])->find();
+                        if ($order && $order['userAccount'] != $this->userAccount) {
+                            $this->userAccount = $order['userAccount'];
+                        }
+
+                        $this->orderAdjustmentNew[] = [
+                            "report_id"                 =>  $reportId,
+                            "table_id"                  =>  $tableId,
+                            "fulfillment"               =>  "Seller",
+                            "payment_id"                =>  substr($item[0], 0, 24),
+                            "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[2])),
+                        ];
+                    }
+                }
+            } elseif (strpos($sheetName, '其他-售后运费结算') !== false) {
                 foreach ($excel->getSheet($k)->toArray() as $key => $item) {
                     if ($key > 0) {
                         $order = $orderObj->with(['details'])->where(['refNo|saleOrderCode' => substr($item[0], 0, 24)])->find();
