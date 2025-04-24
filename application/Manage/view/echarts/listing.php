@@ -94,7 +94,7 @@
                     <td>{$v.seller_sku}</td>
                     <td>{$v.local_sku}</td>
                     <td>{$v.local_name}</td>
-                    <td class="tr sku-item" data-asin="{$v.asin}">
+                    <td class="tr sku-item" data-asin="{$v.listing_id}">
                         <strong class="grey">{$v.last_star|round=###,1}</strong>
                         {if condition="round($v['last_star']) gt round($v['y_last_star'])"}
                         <i class="layui-icon iconfont icon-shangsheng"></i>
@@ -104,7 +104,7 @@
                         <i class="layui-icon iconfont icon-bhenggang"></i>
                         {/if}
                     </td>
-                    <td class="tr sku-item" data-asin="{$v.asin}">
+                    <td class="tr sku-item" data-asin="{$v.listing_id}">
                         <strong class="grey">#{:number_format(json_decode($v['small_rank'], true)[0]['rank'])}</strong>
                         {if condition="json_decode($v['small_rank'], true)[0]['rank'] gt json_decode($v['y_small_rank'], true)[0]['rank']"}
                         <i class="layui-icon iconfont icon-xiajiang"></i>
@@ -116,7 +116,7 @@
                         <br>
                         {:json_decode($v['small_rank'], true)[0]['category']}
                     </td>
-                    <td class="tr sku-item" data-asin="{$v.asin}">
+                    <td class="tr sku-item" data-asin="{$v.listing_id}">
                         <strong class="grey">#{:number_format($v['seller_rank'])}</strong>
                         {if condition="$v['seller_rank'] gt $v['y_seller_rank']"}
                         <i class="layui-icon iconfont icon-xiajiang"></i>

@@ -10598,6 +10598,7 @@ OR seller_sku = "' . $keyword . '")
         $list = $model->query('
 SELECT
 	a.asin,
+	a.listing_id,
 	a.small_image_url,
 	a.parent_asin,
 	a.seller_sku,
@@ -10661,7 +10662,7 @@ FROM
 	FROM
 		mu_ak_amazon_listing 
 	WHERE
-		asin = "' . $asin . '" 
+		listing_id = "' . $asin . '" 
 		AND `status` = 1 
 		AND JSON_LENGTH( small_rank ) != 0 
 	ORDER BY
@@ -10674,7 +10675,7 @@ ORDER BY
         $this->assign('small_rank', json_encode(array_column($data, 'small_rank')));
         $this->assign('created_date', json_encode(array_column($data, 'created_date')));
 
-        $listing = $model->where(['asin' => $asin, 'created_date' => date('Ymd')])->find();
+        $listing = $model->where(['listing_id' => $asin, 'created_date' => date('Ymd')])->find();
         $this->assign('listing', $listing->toArray());
         $this->assign('asin', $asin);
         $this->assign('day', $day);
