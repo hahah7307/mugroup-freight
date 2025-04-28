@@ -1823,8 +1823,8 @@ class AmazonPayment extends Model
                     "gift_wrap_credits"         =>  0,
                     "regulatory_fee"            =>  0,
                     "promotional_rebates"       =>  0,
-                    "fba_fees"                  =>  round(str_replace(',', '', $item[27]), 2),
-                    "marketplace_withheld_tax"  =>  round(str_replace(',', '', $item[34]), 2)
+                    "fba_fees"                  =>  round(str_replace(',', '', $item[27]), 2) + round(str_replace(',', '', $item[38]), 2),
+                    "marketplace_withheld_tax"  =>  round(str_replace(',', '', $item[35]), 2)
                 ];
             }
 
