@@ -2752,4 +2752,41 @@ ORDER BY
         Session::set(Config::get('BACK_URL'), $this->request->url(), 'manage');
         return view();
     }
+
+    /**
+     * @throws PDOException
+     * @throws BindParamException
+     */
+    public function amount_paid(): \think\response\View
+    {
+        $platform = $this->request->get('platform', 'wayfairnew', 'htmlspecialchars');
+        $this->assign('platform', $platform);
+
+        $sale_day = $this->request->get('sale_day', date('Y-m-d'), 'htmlspecialchars');
+        $this->assign('sale_day', $sale_day);
+        $six_month_day = date('Y-m-01', strtotime('-6 months', strtotime($sale_day)));
+
+        $model = new ProductModel();
+        $list = $model->query('
+SELECT
+	DATE_FORMAT( datePaidPlatform, "%Y-%m" ) month,
+	ROUND( SUM( amountpaid ), 2 ) amount 
+FROM
+	mu_ecang_order 
+WHERE
+	platform = "' . $platform . '" 
+	AND `status` = 4 
+	AND datePaidPlatform >= "' . $six_month_day . ' 00:00:00" 
+	AND datePaidPlatform < "' . $sale_day . ' 00:00:00" 
+GROUP BY
+	month
+ORDER BY
+    month ASC;
+        ');
+        $this->assign('month', '"' . implode('","', array_column($list, 'month')) . '"');
+        $this->assign('amount', implode(',', array_column($list, 'amount')));
+
+        Session::set(Config::get('BACK_URL'), $this->request->url(), 'manage');
+        return view();
+    }
 }

@@ -70,6 +70,7 @@
                         <dd><a layui-href="{:url('SkuReport/stock_sale')}">库存库龄月销量报表</a></dd>
                         <dd><a layui-href="{:url('SkuReport/growth')}">销量月增长报表</a></dd>
                         <dd><a layui-href="{:url('SkuReport/wayfair')}">各平台销量报表</a></dd>
+                        <dd><a layui-href="{:url('SkuReport/amount_paid')}">各平台销售报表</a></dd>
                         <dd><a layui-href="{:url('SkuReport/wayfair_only')}">Wayfair销量报表-陈瑜</a></dd>
                         <dd><a layui-href="{:url('SkuReport/four_zone')}">SKU发货四区率</a></dd>
                         <dd><a layui-href="{:url('SkuReport/four_warehouse')}">SKU备货四仓率</a></dd>
