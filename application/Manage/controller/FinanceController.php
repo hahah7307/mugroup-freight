@@ -8,6 +8,7 @@ use app\Manage\model\AmazonPayment;
 use app\Manage\model\FinanceAdCostModel;
 use app\Manage\model\FinanceEvaluationModel;
 use app\Manage\model\FinanceExcelInit;
+use app\Manage\model\FinanceObsoleteSkuPercentModel;
 use app\Manage\model\FinanceOperationDeliveryModel;
 use app\Manage\model\FinanceOperationExpensesModel;
 use app\Manage\model\FinanceOperationFactoryClaimModel;
@@ -2475,7 +2476,6 @@ class FinanceController extends BaseController
     }
 
     /**
-     * @throws DbException
      */
     public function snapshot(): \think\response\View
     {
@@ -2543,5 +2543,79 @@ class FinanceController extends BaseController
         ];
         header('Content-Type: application/json');
         echo json_encode($response);
+    }
+
+    /**
+     * @throws DbException
+     * @throws ModelNotFoundException
+     * @throws DataNotFoundException
+     */
+    public function obsolete(): \think\response\View
+    {
+        $page_num = $this->request->get('page_num', Config::get('PAGE_NUM'));
+        $keyword = $this->request->get('keyword', '', 'htmlspecialchars');
+        $this->assign('keyword', $keyword);
+        if ($keyword) {
+            $where['sku|seller_original|seller_current'] = ['like', '%' . $keyword . '%'];
+        } else {
+            $where = [];
+        }
+
+        $month = $this->request->get('month', date('Y-m', strtotime('-1 month')));
+        $this->assign('month', $month);
+        $where['month'] = date('Ym', strtotime($month . '-01'));
+
+        // 列表
+        $model = new FinanceObsoleteSkuPercentModel();
+        $list = $model->where($where)->paginate($page_num, '', ['keyword' => $keyword, 'month' => $month]);
+        $this->assign('list', $list);
+
+        return view();
+    }
+
+    /**
+     * @throws PHPExcel_Reader_Exception
+     */
+    public function obsolete_import()
+    {
+        // phpexcel
+        require_once './static/classes/PHPExcel/Classes/PHPExcel.php';
+
+        $filename = input('filename');
+        $month = input('month');
+        $file= "./upload/excel/" . $filename;
+        $excelReader = PHPExcel_IOFactory::createReaderForFile($file);
+        $excelObj = $excelReader->load($file);
+        $worksheet = $excelObj->getSheet(0);
+        $data = $worksheet->toArray();
+        unset($data[0]);
+
+        Db::startTrans();
+        try {
+            $obsoleteData = [];
+            $obsoleteObj = new FinanceObsoleteSkuPercentModel();
+            foreach ($data as $item) {
+                $obsoleteData[] = [
+                    "type"                      =>  $item[11] == '组内交接' ? 1 : 2,
+                    "sku"                       =>  $item[0],
+                    "seller_original"           =>  $item[2],
+                    "seller_current"            =>  $item[3],
+                    "seller_in_charge"          =>  $item[4],
+                    "warehouse_stock"           =>  $item[5],
+                    "local_stock"               =>  $item[6],
+                    "daily_sale"                =>  $item[8],
+                    "percent"                   =>  $item[9],
+                    "month"                     =>  date('Ym', strtotime($month . '-01')),
+                    "content"                   =>  $item[10],
+                ];
+            }
+            $obsoleteObj->insertAll($obsoleteData);
+
+            Db::commit();
+        } catch (Exception $e) {
+            Db::rollback();
+            $this->error($e->getMessage(), url('obsolete'));
+        }
+        $this->redirect(url('obsolete'));
     }
 }
