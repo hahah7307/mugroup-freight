@@ -8,7 +8,7 @@
 <div class="layui-body" id="LAY_app_body">
     <div class="right">
         <a href="{:session('back_url', '', 'manage')}" class="layui-btn layui-btn-danger layui-btn-sm fr"><i class="layui-icon">&#xe603;</i>返回上一页</a>
-        <div class="title">库存列表</div>
+        <div class="title">计提列表</div>
         <form class="layui-form search-form" method="get">
             <div class="layui-inline w200">
                 <input type="text" class="layui-input" name="keyword" value="{$keyword}" placeholder="SKU/外销合同/采购合同号">
@@ -22,14 +22,15 @@
         </form>
 
         <div class="layui-form">
-            <a href="{:url('provision', ['id' => $report_id])}" class="layui-btn">计提</a>
             <button type="button" class="layui-btn  layui-btn-normal" id="excel">导入</button>
             <button data-id="{$report_id}" class="layui-btn layui-btn-danger ml0" lay-submit lay-filter="Detele">清空</button>
-            <span class="total">未结算数量合计：{$available_qty|number_format=###,2}</span>
-            <span class="total">未结算金额合计：{$available_sum|number_format=###,2}</span>
-            <span class="total">计提金额合计：{$accrual_total|number_format=###,2}</span>
+            <span class="total">计提5%合计：{$provision_percent_1|number_format=###,3}￥</span>
+            <span class="total">计提25%合计：{$provision_percent_2|number_format=###,3}￥</span>
+            <span class="total">计提100%合计：{$provision_percent_3|number_format=###,3}￥</span>
+            <span class="total">未结算金额合计：{$total_unsettled_amount|number_format=###,2}￥</span>
             <table class="layui-table" lay-size="sm">
                 <colgroup>
+                    <col>
                     <col>
                     <col>
                     <col>
@@ -55,52 +56,52 @@
                 <thead>
                 <tr>
                     <th>ID</th>
-                    <th>入库币种</th>
-                    <th>入库日期</th>
-                    <th>出运日期</th>
-                    <th>到港日期</th>
-                    <th>产品编号</th>
-                    <th>中文品名</th>
-                    <th>采购合同号</th>
                     <th>外销编号</th>
+                    <th>出运日期</th>
+                    <th>SKU</th>
+                    <th>中文品名</th>
                     <th>入库数量</th>
                     <th>采购单价</th>
                     <th>采购总价</th>
-                    <th>含头程价</th>
-                    <th>成本汇总</th>
-                    <th>已结算数量</th>
-                    <th>未结算数量</th>
                     <th>运营</th>
                     <th>采购</th>
-                    <th>库龄</th>
+                    <th>到港日期</th>
+                    <th>采购合同号</th>
+                    <th>未核算数量</th>
                     <th>计提日期</th>
-                    <th>计提金额</th>
+                    <th>超过六个月</th>
+                    <th>超过八个月</th>
+                    <th>超过十二个月</th>
+                    <th>计提5%</th>
+                    <th>计提25%</th>
+                    <th>计提100%</th>
+                    <th>未核算总计</th>
                 </tr>
                 </thead>
                 <tbody>
                 {foreach name="list" item="v"}
                 <tr>
                     <td class="tr">{$v.id}</td>
-                    <td>{$v.currency}</td>
-                    <td class="tr">{$v.entering_date}</td>
-                    <td class="tr">{$v.shipment_date}</td>
-                    <td class="tr">{$v.arriving_date}</td>
-                    <td>{$v.sku}</td>
-                    <td>{$v.cn_name}</td>
-                    <td>{$v.contact_no}</td>
                     <td>{$v.export_no}</td>
-                    <td class="tr">{$v.entering_quantity}</td>
-                    <td class="tr">{$v.sku_purchase_unit}</td>
-                    <td class="tr">{$v.sku_purchase_amount}</td>
-                    <td class="tr">{$v.sku_ddp_unit}</td>
-                    <td class="tr">{$v.sku_ddp_amount}</td>
-                    <td class="tr">{$v.outbound_quantity}</td>
-                    <td class="tr">{$v.available_quantity}</td>
+                    <td class="tr">{$v.shipment_date}</td>
+                    <td>{$v.sku}</td>
+                    <td>{$v.name}</td>
+                    <td class="tr">{$v.inbound_qty|intval}</td>
+                    <td class="tr">{$v.unit_price|number_format=###,2}</td>
+                    <td class="tr">{$v.amount|number_format=###,2}</td>
                     <td>{$v.seller}</td>
                     <td>{$v.purchaser}</td>
-                    <td class="tr">{$v.days}</td>
-                    <td class="tr">{$v.accrual_date}</td>
-                    <td class="tr">{$v.accrual_total}</td>
+                    <td class="tr">{$v.arrive_date}</td>
+                    <td>{$v.contact_no}</td>
+                    <td class="tr">{$v.unsettled_qty}</td>
+                    <td class="tr">{$v.provision_date}</td>
+                    <td class="tr">{$v.beyond_6_month|intval}</td>
+                    <td class="tr">{$v.beyond_8_month|intval}</td>
+                    <td class="tr">{$v.beyond_14_month|intval}</td>
+                    <td class="tr">{$v.provision_percent_1|number_format=###,3}</td>
+                    <td class="tr">{$v.provision_percent_2|number_format=###,3}</td>
+                    <td class="tr">{$v.provision_percent_3|number_format=###,3}</td>
+                    <td class="tr">{$v.total_unsettled_amount|number_format=###,2}</td>
                 </tr>
                 {/foreach}
                 </tbody>
@@ -130,7 +131,7 @@
                 //上传完毕回调
                 console.log(res);
                 if (res.code === 1) {
-                    location.href = "/Manage/Finance/store_import/id/{$report_id}/filename/" + res.data + "/origin/" + res.origin;
+                    location.href = "/Manage/Finance/provision_import/id/{$report_id}/filename/" + res.data + "/origin/" + res.origin;
                 } else {
                     layer.alert(res.msg,{icon:2,closeBtn:0,title:false,btnAlign:'c'},function(){
                         layer.closeAll();
@@ -147,10 +148,10 @@
             var text = $(this).text(),
                 button = $(this),
                 id = $(this).data('id');
-            layer.confirm('确定清空库存列表吗？',{icon:3,closeBtn:0,title:false,btnAlign:'c'},function(){
+            layer.confirm('确定清空列表吗？',{icon:3,closeBtn:0,title:false,btnAlign:'c'},function(){
                 $('button').attr('disabled',true);
                 button.text('请稍候...');
-                axios.post("{:url('store_empty')}", {id:id})
+                axios.post("{:url('provision_empty')}", {id:id})
                     .then(function (response) {
                         var res = response.data;
                         if (res.code === 1) {

@@ -30,6 +30,7 @@ use app\Manage\model\FinanceOrderSubscriptionModel;
 use app\Manage\model\FinanceOrderTemuDetailModel;
 use app\Manage\model\FinanceOrderTransferModel;
 use app\Manage\model\FinanceOrderWayfairModel;
+use app\Manage\model\FinanceProvisionModel;
 use app\Manage\model\FinanceReportModel;
 use app\Manage\model\FinanceReportSnapshotModel;
 use app\Manage\model\FinanceSkuRelationModel;
@@ -1032,16 +1033,7 @@ class FinanceController extends BaseController
                         'seller'                    =>  $item[23],
                         'purchaser'                 =>  $item[24],
                         'arriving_date'             =>  date('Ymd', strtotime($item[27])),
-                        'contact_no'                =>  $item[25] . $item[28],
-//                        'accrual_date'              =>  date('Ymd', strtotime($item[29])),
-//                        'days'                      =>  $item[30],
-//                        'overdue_for_sale_1'        =>  $item[31],
-//                        'overdue_for_sale_2'        =>  $item[32],
-//                        'overdue_for_sale_3'        =>  $item[33],
-//                        'accrual_amount_1'          =>  $item[34],
-//                        'accrual_amount_2'          =>  $item[35],
-//                        'accrual_amount_3'          =>  $item[36],
-//                        'accrual_total'             =>  $item[37],
+                        'contact_no'                =>  $item[25] . $item[28]
                     ];
                 }
             }
@@ -2617,5 +2609,130 @@ class FinanceController extends BaseController
             $this->error($e->getMessage(), url('obsolete'));
         }
         $this->redirect(url('obsolete'));
+    }
+
+    /**
+     * @throws DbException
+     */
+    public function provision($id): \think\response\View
+    {
+        $keyword = $this->request->get('keyword', '', 'htmlspecialchars');
+        $this->assign('keyword', $keyword);
+        if ($keyword) {
+            $where['sku|export_no|seller|purchaser|contact_no'] = ['like', '%' . $keyword . '%'];
+        } else {
+            $where = [];
+        }
+
+        $page_num = $this->request->get('page_num', Config::get('PAGE_NUM'));
+        $this->assign('page_num', $page_num);
+
+        // 订单列表
+        $order = new FinanceProvisionModel();
+        $where['report_id'] = $id;
+        $list = $order->where($where)->order('id asc')->paginate($page_num, false, ['query' => ['keyword' => $keyword]]);
+        $this->assign('list', $list);
+        $this->assign('report_id', $id);
+
+        $this->assign('provision_percent_1', $order->where($where)->sum('provision_percent_1'));
+        $this->assign('provision_percent_2', $order->where($where)->sum('provision_percent_2'));
+        $this->assign('provision_percent_3', $order->where($where)->sum('provision_percent_3'));
+        $this->assign('total_unsettled_amount', $order->where($where)->sum('total_unsettled_amount'));
+
+        return view();
+    }
+
+    /**
+     * @throws PHPExcel_Reader_Exception
+     */
+    public function provision_import()
+    {
+        // phpexcel
+        require_once './static/classes/PHPExcel/Classes/PHPExcel.php';
+
+        $filename = input('filename');
+        $report_id = input('id');
+        $file= "./upload/excel/" . $filename;
+        $excelReader = PHPExcel_IOFactory::createReaderForFile($file);
+        $excelObj = $excelReader->load($file);
+        $worksheet = $excelObj->getSheet(0);
+        $data = $worksheet->toArray();
+        unset($data[0]);
+
+        Db::startTrans();
+        try {
+            $provisionData = [];
+            $financeProvisionObj = new FinanceProvisionModel();
+            foreach ($data as $item) {
+                $provisionData[] = [
+                    "report_id"                 =>  $report_id,
+                    "receive_code"				=>	$item[0],
+                    "receive_date"				=>	empty($item[1]) ? null : date('Ymd', strtotime($item[1])),
+                    "preparer"					=>	$item[2],
+                    "company"					=>	$item[3],
+                    "company_name"				=>	$item[4],
+                    "group_name"				=>	$item[5],
+                    "receive_status"			=>	$item[6],
+                    "receive_currency"			=>	$item[7],
+                    "qty"						=>	$item[8],
+                    "purchase_amount"			=>	$item[9],
+                    "cost_amount"				=>	$item[10],
+                    "content"					=>	$item[11],
+                    "export_no"					=>	$item[12],
+                    "shipment_date"				=>	empty($item[13]) ? null : date('Ymd', strtotime($item[13])),
+                    "sku"						=>	$item[14],
+                    "name"						=>	$item[15],
+                    "inbound_qty"				=>	$item[16],
+                    "unit_price"				=>	$item[17],
+                    "amount"					=>	$item[18],
+                    "ddp"						=>	$item[19],
+                    "ddp_amount"				=>	$item[20],
+                    "outbound_qty"				=>	$item[21],
+                    "unsettled_qty"				=>	$item[22],
+                    "seller"					=>	$item[23],
+                    "purchaser"					=>	$item[24],
+                    "content_2"					=>	$item[25],
+                    "receive_type"				=>	$item[26],
+                    "arrive_date"				=>	empty($item[27]) ? null : date('Ymd', strtotime($item[27])),
+                    "contact_no"				=>	$item[28],
+                    "provision_date"			=>	empty($item[29]) ? null : date('Ymd', strtotime($item[29])),
+                    "day_amount"				=>	$item[30],
+                    "beyond_6_month"			=>	$item[31],
+                    "beyond_8_month"			=>	$item[32],
+                    "beyond_14_month"			=>	$item[33],
+                    "provision_percent_1"		=>	$item[34],
+                    "provision_percent_2"		=>	$item[35],
+                    "provision_percent_3"		=>	$item[36],
+                    "total_unsettled_amount"	=>	$item[37],
+                ];
+            }
+            $financeProvisionObj->insertAll($provisionData);
+
+            Db::commit();
+        } catch (Exception $e) {
+            Db::rollback();
+            $this->error($e->getMessage(), url('provision'));
+        }
+        $this->redirect(url('provision', ['id' => $report_id]));
+    }
+
+    public function provision_empty()
+    {
+        if ($this->request->isPost()) {
+            $post = $this->request->post();
+            $reportId = $post['id'];
+            $provisionObj = new FinanceProvisionModel();
+            if ($provisionObj->where('report_id', $reportId)->delete()) {
+                $financeReportObj = new FinanceReportModel();
+                $financeReportObj->save(['is_notify' => 0], ['id' => $reportId]);
+
+                echo json_encode(['code' => 1, 'msg' => '清空完成']);
+            } else {
+                echo json_encode(['code' => 0, 'msg' => '清空失败，请重试']);
+            }
+        } else {
+            echo json_encode(['code' => 0, 'msg' => '异常操作']);
+        }
+        exit;
     }
 }
