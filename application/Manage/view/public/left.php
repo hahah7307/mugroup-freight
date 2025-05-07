@@ -56,6 +56,7 @@
                         <dd><a layui-href="{:url('Finance/wayfair_core')}">Wayfair订单</a></dd>
                         <dd><a layui-href="{:url('Finance/obsolete')}">滞销产品</a></dd>
                         <dd><a layui-href="{:url('SkuRelation/index')}">SKU映射</a></dd>
+                        <dd><a layui-href="{:url('WarehouseTail/index')}">海外仓尾程</a></dd>
                     </dl>
                 </li>
                 <li data-name="SkuReport" class="layui-nav-item">
