@@ -4584,10 +4584,12 @@ GROUP BY
 SELECT
 	a.platform,
 	a.user_account,
+	a.saleOrderCode,
 	a.warehouse_sku,
-	SUM( qty ) qty,
+	qty,
 	order_status,
-	SUM( b.calcuRes ) tail,
+	b.calcuRes tail,
+	a.paid_time,
 	c.seller,
 	e.user_name purchaser 
 FROM
@@ -4601,21 +4603,16 @@ WHERE
 	paid_time >= "' . $month . '-01 00:00:00" 
 	AND paid_time < "' . date('Y-m', strtotime('+1 month', strtotime($month . '-01'))) . '-01 00:00:00" 
 	AND order_type = "resend" 
-	AND order_status = "已发货" 
-GROUP BY
-	warehouse_sku,
-	order_status,
-	platform,
-	user_account,
-	seller,
-	purchaser UNION ALL
+	AND order_status = "已发货" UNION ALL
 SELECT
 	a.platform,
 	a.user_account,
+	a.saleOrderCode,
 	a.warehouse_sku,
 	qty,
 	order_status,
-	SUM( b.calcuRes ) tail,
+	b.calcuRes tail,
+	a.paid_time,
 	c.seller,
 	e.user_name purchaser 
 FROM
@@ -4629,15 +4626,10 @@ WHERE
 	paid_time >= "' . $month . '-01 00:00:00" 
 	AND paid_time < "' . date('Y-m', strtotime('+1 month', strtotime($month . '-01'))) . '-01 00:00:00" 
 	AND order_type = "resend" 
-	AND order_status != "已发货" 
-GROUP BY
-	warehouse_sku,
-	qty,
-	order_status,
-	platform,
-	user_account,
-	seller,
-	purchaser;
+	AND order_status != "已发货"
+ORDER BY
+	order_status ASC,
+	paid_time ASC;
         ';
     }
 

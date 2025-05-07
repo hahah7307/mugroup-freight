@@ -1001,12 +1001,14 @@ class FinanceExcelInit extends Model
         $this->objPHPExcel->setActiveSheetIndex($index)
             ->setCellValue('A1', '平台')
             ->setCellValue('B1', '店铺')
-            ->setCellValue('C1', '仓库SKU')
-            ->setCellValue('D1', '数量')
-            ->setCellValue('E1', '订单状态')
-            ->setCellValue('F1', '尾程')
-            ->setCellValue('G1', '运营人员')
-            ->setCellValue('H1', '采购人员')
+            ->setCellValue('C1', '参考号码')
+            ->setCellValue('D1', '仓库SKU')
+            ->setCellValue('E1', '数量')
+            ->setCellValue('F1', '订单状态')
+            ->setCellValue('G1', '尾程')
+            ->setCellValue('H1', '支付时间')
+            ->setCellValue('I1', '运营人员')
+            ->setCellValue('J1', '采购人员')
         ;
 
         $orderResendIndex = 1;
@@ -1015,12 +1017,14 @@ class FinanceExcelInit extends Model
             $this->objPHPExcel->setActiveSheetIndex($index)
                 ->setCellValue('A' . $orderResendIndex, $orderResendItem['platform'])
                 ->setCellValue('B' . $orderResendIndex, $orderResendItem['user_account'])
-                ->setCellValue('C' . $orderResendIndex, $orderResendItem['warehouse_sku'])
-                ->setCellValue('D' . $orderResendIndex, $orderResendItem['qty'])
-                ->setCellValue('E' . $orderResendIndex, $orderResendItem['order_status'])
-                ->setCellValue('F' . $orderResendIndex, $orderResendItem['tail'])
-                ->setCellValue('G' . $orderResendIndex, $orderResendItem['seller'])
-                ->setCellValue('H' . $orderResendIndex, $orderResendItem['purchaser'])
+                ->setCellValue('C' . $orderResendIndex, $orderResendItem['saleOrderCode'])
+                ->setCellValue('D' . $orderResendIndex, $orderResendItem['warehouse_sku'])
+                ->setCellValue('E' . $orderResendIndex, $orderResendItem['qty'])
+                ->setCellValue('F' . $orderResendIndex, $orderResendItem['order_status'])
+                ->setCellValue('G' . $orderResendIndex, $orderResendItem['tail'])
+                ->setCellValue('H' . $orderResendIndex, $orderResendItem['paid_time'])
+                ->setCellValue('I' . $orderResendIndex, $orderResendItem['seller'])
+                ->setCellValue('J' . $orderResendIndex, $orderResendItem['purchaser'])
             ;
         }
     }
