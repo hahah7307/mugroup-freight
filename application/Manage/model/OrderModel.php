@@ -104,7 +104,6 @@ class OrderModel extends Model
     static public function calculateDeliver($order): array
     {
         $storage_id = $order['area']['storage_id'];
-        $type = $order['area']['type'];
 
         $postalCode = self::postalFormat($order['address']['postalCode']);
 
@@ -171,7 +170,11 @@ class OrderModel extends Model
             }
 
             // 燃油费运算
-            $fuel_cost = round(($base + $ahs + $dasFee + $ResidentialFee + $AHSPeakSurcharge + $ResidentialPeakSurcharge + $signature) * Config::get('fuel_cost') * 0.01, 2);
+            $fuel_surcharge_rate = StorageFuelSurchargeRateModel::getFuelSurchargeRate($order);
+            if (empty($fuel_surcharge_rate)) {
+                continue;
+            }
+            $fuel_cost = round(($base + $ahs + $dasFee + $ResidentialFee + $AHSPeakSurcharge + $ResidentialPeakSurcharge + $signature) * $fuel_surcharge_rate['value'] * 0.01, 2);
 
             // 佣金（过路费）
             $commission_rate = StorageCommissionModel::getCommission($storage_id, $order);
