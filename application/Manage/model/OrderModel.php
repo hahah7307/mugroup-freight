@@ -117,7 +117,10 @@ class OrderModel extends Model
             // 出库费运算
             $outbound = StorageOutboundModel::getOutbound($storage_id, $detail, $order);
             $platform = StorageOutboundModel::outboundPlatform();
-            if (in_array($order['platform'], $platform) || empty($order['dateWarehouseShipping']) || $order['dateWarehouseShipping'] == '0000-00-00 00:00:00') {
+            if (in_array($order['platform'], $platform)
+                || ($order['platform'] == "semitemu" && $order['datePaidPlatform'] >= "2025-04-26 00:00:00")
+                || empty($order['dateWarehouseShipping'])
+                || $order['dateWarehouseShipping'] == '0000-00-00 00:00:00') {
                 $tailData = [
                     'postal_format'     =>  $postalCode,
                     'zone_format'       =>  0,
