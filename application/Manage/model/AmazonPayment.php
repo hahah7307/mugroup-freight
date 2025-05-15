@@ -981,7 +981,7 @@ class AmazonPayment extends Model
                         "table_id"                  =>  $tableId,
                         "payment_id"                =>  number_format($item[2], 0, '', ''),
                         "sku"                       =>  $item[8],
-                        "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[71])) * -1,
+                        "total"                     =>  abs(sprintf('%.2f', str_replace(',', '', $item[71]))),
                     ];
                 }
                 if ($item[31]) {
@@ -1016,7 +1016,7 @@ class AmazonPayment extends Model
                         "table_id"                  =>  $tableId,
                         "payment_id"                =>  number_format($item[2], 0, '', ''),
                         "sku"                       =>  $item[8],
-                        "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[71])),
+                        "total"                     =>  abs(sprintf('%.2f', str_replace(',', '', $item[71]))) * -1,
                     ];
                 }
                 if ($item[55] == "Customer Chargeback") {
