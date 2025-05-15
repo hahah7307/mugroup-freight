@@ -5163,6 +5163,7 @@ SELECT
 	platform,
 	user_account,
 	payment_id,
+	a.description description,
 	b.product_name,
 	b.sku,
 	sale_qty,
@@ -5176,11 +5177,11 @@ SELECT
 	sale_total,
 	refund_total,
 	a.shipping_fee,
-	IFNULL( b.total, 0 ) cost,
-	IFNULL( b.shipping_fee, 0 ) domestic_shipping,
+	IFNULL( b.total * -1, 0 ) cost,
+	IFNULL( b.shipping_fee * -1, 0 ) domestic_shipping,
 	adjustment,
-	sale_total + refund_total + a.shipping_fee - IFNULL( b.total, 0 ) - IFNULL( b.shipping_fee, 0 ) + adjustment profit,
-	ROUND( (sale_total + refund_total + a.shipping_fee - IFNULL( b.total, 0 ) - IFNULL( b.shipping_fee, 0 ) + adjustment ) / sale_amount, 4 ) gross_profit_margin 
+	sale_total + refund_total + a.shipping_fee + IFNULL( b.total * -1, 0 ) + IFNULL( b.shipping_fee * -1, 0 ) + adjustment profit,
+	ROUND( (sale_total + refund_total + a.shipping_fee + IFNULL( b.total * -1, 0 ) + IFNULL( b.shipping_fee * -1, 0 ) + adjustment ) / sale_amount, 4 ) gross_profit_margin 
 FROM
 	(
 	SELECT
