@@ -1501,7 +1501,7 @@ class FinanceController extends BaseController
             $model = new FinanceWarehouseFBMModel();
             $info = $model->find($id);
             $post['share_code'] = NULL;
-            if ($model->update($post, ['main_sku' => $info['main_sku']])) {
+            if ($model->update($post, ['main_sku' => $info['main_sku'], 'report_id' => $info['report_id']])) {
                 $shareObj = new FinanceOrderShareModel();
                 $shareObj->where(['report_id' => $info['report_id'], 'cost_type' => 'WAREHOUSE_FBM', 'warehouse_sku' => $info['main_sku']])->delete();
 
