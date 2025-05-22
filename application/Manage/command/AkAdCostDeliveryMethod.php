@@ -31,15 +31,16 @@ class AkAdCostDeliveryMethod extends Command
             foreach ($list as $item) {
                 $fbaSum = $akAdCostObj->where(['msku' => $item['msku'], 'reportDateMonth' => $item['reportDateMonth'], 'sid' => $item['sid']])->sum('fbaSaleAmount');
                 $fbmSum = $akAdCostObj->where(['msku' => $item['msku'], 'reportDateMonth' => $item['reportDateMonth'], 'sid' => $item['sid']])->sum('fbmSaleAmount');
-//                dump($fbaSum);
-//                dump($fbmSum);
-//                dump("/**************/");
                 if ($fbaSum == 0 && $fbmSum) {
                     $is_fba = 0;
                 } elseif ($fbaSum && $fbmSum == 0) {
                     $is_fba = 1;
                 } else {
-                    $is_fba = $item['fbaSaleAmount'] == 0 ? 0 : 1;
+                    if (in_array($item['sid'], [506954,506955,506951,506952,506953])) {
+                        $is_fba = 1;
+                    } else {
+                        $is_fba = $item['fbaSaleAmount'] == 0 ? 0 : 1;
+                    }
                 }
 
                 $akAdCostObj->update(['is_fba' => $is_fba, 'is_finished' => 1], ['id' => $item['id']]);
