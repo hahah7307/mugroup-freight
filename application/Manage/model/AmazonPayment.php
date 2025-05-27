@@ -1768,7 +1768,7 @@ class AmazonPayment extends Model
                     "table_id"                  =>  $tableId,
                     "payment_id"                =>  trim($item[44]),
                     "sku"                       =>  $item[3],
-                    "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[41])),
+                    "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[41])) * -1,
                     "is_amazon"                 =>  0,
                 ];
             }
