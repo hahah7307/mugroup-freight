@@ -1771,6 +1771,15 @@ class AmazonPayment extends Model
                     "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[41])) * -1,
                     "is_amazon"                 =>  0,
                 ];
+            } elseif ($item[10] == 'Voluntary compensation upon return') {
+                $this->orderAdjustmentNew[] = [
+                    "report_id"                 =>  $reportId,
+                    "table_id"                  =>  $tableId,
+                    "payment_id"                =>  trim($item[44]),
+                    "sku"                       =>  $item[3],
+                    "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[33])),
+                    "is_amazon"                 =>  0,
+                ];
             }
         }
 
