@@ -17,11 +17,16 @@
             </div>
         </form>
 
+        <div class="layui-input-inline">
+            <input type="text" class="layui-input" id="month" name="month" value="" placeholder="账单月份">
+        </div>
         <button type="button" class="layui-btn  layui-btn-normal" id="excel">导入</button>
         <span class="total">尾程合计：{$totalSum|number_format=###,2}</span>
 
         <table class="layui-table" lay-size="sm">
             <colgroup>
+                <col>
+                <col>
                 <col>
                 <col>
                 <col>
@@ -59,6 +64,8 @@
                 <th>出库费</th>
                 <th>基础运费</th>
                 <th>尾程</th>
+                <th>月份</th>
+                <th>仓库</th>
             </tr>
             </thead>
             <tbody>
@@ -81,6 +88,8 @@
                 <td class="tr">{$v.outbound}</td>
                 <td class="tr">{$v.base}</td>
                 <td class="tr">{$v.total}</td>
+                <td class="tr">{$v.month}</td>
+                <td class="tr">{$v.warehouseName}</td>
             </tr>
             {/foreach}
             </tbody>
@@ -113,7 +122,7 @@
             ,done: function(res){
                 //上传完毕回调
                 if (res.code === 1) {
-                    location.href = "/Manage/WarehouseTail/import/filename/" + res.data;
+                    location.href = "/Manage/WarehouseTail/import/filename/" + res.data + "/month/" + $("#month").val();
                 } else {
                     layer.alert(res.msg,{icon:2,closeBtn:0,title:false,btnAlign:'c'},function(){
                         layer.closeAll();

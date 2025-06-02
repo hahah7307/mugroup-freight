@@ -47,18 +47,23 @@ class WarehouseTailController extends BaseController
         require_once './static/classes/PHPExcel/Classes/PHPExcel.php';
 
         $filename = input('filename');
+        $month = input('month');
         $file= "./upload/excel/" . $filename;
         $excelReader = PHPExcel_IOFactory::createReaderForFile($file);
         $excelObj = $excelReader->load($file);
-        $worksheet = $excelObj->getSheet(1);
-        $data = $worksheet->toArray();
-        if ($data[0][0] == "类型") {
-            $warehouse = "LE";
-        } elseif ($excelObj->getSheet(0)->toArray()[0][0] == "客户代码/Customer Code") {
-            $warehouse = "LC";
-        } else {
-            throw new \think\Exception("表格异常");
+        $worksheets = $excelObj->getSheetNames();
+        $warehouse = 'LC';
+        $worksheet = [];
+        foreach ($worksheets as $k => $v) {
+            if ($v == '运费') {
+                $warehouse = 'LE';
+                $worksheet = $excelObj->getSheet($k);
+//            } elseif (strpos($v, 'B2C')) {
+            } elseif ($v =='B2C') {
+                $worksheet = $excelObj->getSheet($k);
+            }
         }
+        $data = $worksheet->toArray();
         unset($data[0]);
 
         Db::startTrans();
@@ -67,10 +72,6 @@ class WarehouseTailController extends BaseController
             $financeWarehouseTailObj = new WarehouseTailModel();
             if ($warehouse == "LE") {
                 foreach ($data as $item) {
-//                    $order = $financeWarehouseTailObj->where(['saleOrderCode' => $item[0]])->find();
-//                    if (!empty($order)) {
-//                        continue;
-//                    }
                     $warehouseTailData[] = [
                         "saleOrderCode"				=>	$item[1],
                         "shipmentNo"				=>	$item[3],
@@ -81,7 +82,7 @@ class WarehouseTailController extends BaseController
                         "shippingDate"				=>	$item[19],
                         "zone"						=>	substr($item[20], 4, 1),
                         "charge_weight"				=>	$item[21],
-                        "real_weight"				=>	$item[21],
+                        "real_weight"				=>	$item[22],
                         "fuel_rate"					=>	$item[24],
                         "outbound"					=>	$item[25],
                         "base"						=>	$item[26],
@@ -101,20 +102,38 @@ class WarehouseTailController extends BaseController
                         "length"					=>	$item[48],
                         "width"						=>	$item[49],
                         "height"					=>	$item[50],
+                        "month"                     =>  date('Ym', strtotime($month . "-01")),
+                        "warehouseName"             =>  $warehouse
                     ];
                 }
             } elseif ($warehouse == "LC") {
-                $worksheet = $excelObj->getSheet(0);
-                $data = $worksheet->toArray();
-                unset($data[0]);
                 foreach ($data as $item) {
                     $warehouseTailData[] = [
                         "saleOrderCode"				=>	$item[2],
+                        "shipmentNo"				=>	$item[6],
+                        "refNo"						=>	$item[4],
+                        "warehouseCode"				=>	$item[1],
                         "postalCode"				=>	$item[12],
+                        "shippingDate"				=>	$item[9],
+                        "zone"						=>	intval($item[15]),
                         "charge_weight"				=>	$item[13],
-                        "outbound"					=>	$item[17],
+                        "real_weight"				=>	$item[60],
+                        "outbound"					=>	$item[17] + intval($item[32]),
                         "base"						=>	$item[16],
-                        "total"						=>	$item[44],
+                        "residential"				=>	$item[36],
+                        "das_1"						=>	$item[30],
+                        "das_2"						=>	$item[31],
+                        "signature"					=>	$item[28],
+                        "ahs"						=>	$item[21] + $item[22],
+                        "oversize"					=>	$item[23],
+                        "fuel_cost"					=>	$item[19],
+                        "total"						=>	$item[45],
+                        "sku"						=>	substr($item[55], 5),
+                        "length"					=>	$item[57],
+                        "width"						=>	$item[58],
+                        "height"					=>	$item[59],
+                        "month"                     =>  date('Ym', strtotime($month . "-01")),
+                        "warehouseName"             =>  $warehouse
                     ];
                 }
             }
