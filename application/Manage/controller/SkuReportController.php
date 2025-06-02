@@ -2789,4 +2789,40 @@ ORDER BY
         Session::set(Config::get('BACK_URL'), $this->request->url(), 'manage');
         return view();
     }
+
+    /**
+     * @throws PDOException
+     * @throws BindParamException
+     */
+    public function warehouse_tail()
+    {
+        $model = new ProductModel();
+        $list = $model->query('
+SELECT
+	SUM(total) sum,
+	`month`,
+	warehouseName 
+FROM
+	mu_finance_warehouse_tail 
+GROUP BY
+	`month`,
+	warehouseName 
+ORDER BY
+	`month` ASC;
+        ');
+
+        foreach ($list as $item) {
+            $data[$item['month']][] = ['warehouseName' => $item['warehouseName'], 'sum' => $item['sum']];
+        }
+
+        unset($data[202310]);
+        unset($data[202311]);
+        foreach ($data as $k => $v) {
+            $sum[] = [$k, $v[0]['sum'], $v[1]['sum']];
+        }
+        array_unshift($sum, ['month', 'LC', 'LE']);
+        $this->assign('sum', json_encode($sum));
+
+        return view();
+    }
 }
