@@ -11,7 +11,7 @@
         <div class="title">工厂索赔列表</div>
         <form class="layui-form search-form" method="get">
             <div class="layui-inline w200">
-                <input type="text" class="layui-input" name="keyword" value="{$keyword}" placeholder="payment/销售SKU/仓库SKU">
+                <input type="text" class="layui-input" name="keyword" value="{$keyword}" placeholder="">
             </div>
             <div class="layui-input-inline">
                 <input type="text" class="layui-input" id="month" name="month" value="{$month}" placeholder="核算月份">
