@@ -2794,7 +2794,7 @@ ORDER BY
      * @throws PDOException
      * @throws BindParamException
      */
-    public function warehouse_tail()
+    public function warehouse_tail(): \think\response\View
     {
         $model = new ProductModel();
         $list = $model->query('
@@ -2811,6 +2811,7 @@ ORDER BY
 	`month` ASC;
         ');
 
+        $data = [];
         foreach ($list as $item) {
             $data[$item['month']][] = ['warehouseName' => $item['warehouseName'], 'sum' => $item['sum']];
         }
@@ -2820,7 +2821,7 @@ ORDER BY
         foreach ($data as $k => $v) {
             $sum[] = [$k, $v[0]['sum'], $v[1]['sum']];
         }
-        array_unshift($sum, ['month', 'LC', 'LE']);
+        array_unshift($sum, ['month', '良仓', '乐歌']);
         $this->assign('sum', json_encode($sum));
 
         return view();

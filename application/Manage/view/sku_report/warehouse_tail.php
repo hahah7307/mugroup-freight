@@ -43,8 +43,8 @@
             dataset: {
                 source: {$sum}
             },
-            xAxis: { type: 'category' },
-            yAxis: {},
+            xAxis: { name: '月份', type: 'category' },
+            yAxis: { name: '单位：美金', type: 'value' },
             // Declare several bar series, each will be mapped
             // to a column of dataset.source by default.
             series: [{ type: 'bar', itemStyle: {color: '#FFC858'} }, { type: 'bar', itemStyle: {color: '#91CC75'} }]
