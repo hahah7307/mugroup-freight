@@ -66,6 +66,7 @@ class AmazonPayment extends Model
                 $this->orderSaleNew[] = [
                     "report_id"                 =>  $reportId,
                     "table_id"                  =>  $tableId,
+                    "date"                      =>  date('Y-m-d H:i:s', strtotime($item[0])),
                     "payment_id"                =>  trim($item[3]),
                     "sku"                       =>  trim($sku_new),
                     "description"               =>  $item[5],
@@ -95,6 +96,7 @@ class AmazonPayment extends Model
                 $this->orderRefundNew[] = [
                     "report_id"                 =>  $reportId,
                     "table_id"                  =>  $tableId,
+                    "date"                      =>  date('Y-m-d H:i:s', strtotime($item[0])),
                     "payment_id"                =>  trim($item[3]),
                     "sku"                       =>  trim($sku_new),
                     "description"               =>  $item[5],
@@ -219,6 +221,7 @@ class AmazonPayment extends Model
                 $this->orderSaleNew[] = [
                     "report_id"                 =>  $reportId,
                     "table_id"                  =>  $tableId,
+                    "date"                      =>  date('Y-m-d H:i:s', strtotime($item[0])),
                     "payment_id"                =>  $item[3],
                     "sku"                       =>  $item[4],
                     "description"               =>  $item[5],
@@ -246,6 +249,7 @@ class AmazonPayment extends Model
                 $this->orderRefundNew[] = [
                     "report_id"                 =>  $reportId,
                     "table_id"                  =>  $tableId,
+                    "date"                      =>  date('Y-m-d H:i:s', strtotime($item[0])),
                     "payment_id"                =>  $item[3],
                     "sku"                       =>  $item[4],
                     "description"               =>  $item[5],
@@ -368,6 +372,7 @@ class AmazonPayment extends Model
                 $this->orderSaleNew[] = [
                     "report_id"                 =>  $reportId,
                     "table_id"                  =>  $tableId,
+                    "date"                      =>  date('Y-m-d H:i:s', strtotime($item[0])),
                     "payment_id"                =>  $item[3],
                     "sku"                       =>  $item[4],
                     "description"               =>  $item[5],
@@ -405,6 +410,7 @@ class AmazonPayment extends Model
                 $this->orderRefundNew[] = [
                     "report_id"                 =>  $reportId,
                     "table_id"                  =>  $tableId,
+                    "date"                      =>  date('Y-m-d H:i:s', strtotime($item[0])),
                     "payment_id"                =>  $item[3],
                     "sku"                       =>  $item[4],
                     "description"               =>  $item[5],
@@ -518,6 +524,7 @@ class AmazonPayment extends Model
                 $this->orderSaleNew[] = [
                     "report_id"                 =>  $reportId,
                     "table_id"                  =>  $tableId,
+                    "date"                      =>  date('Y-m-d H:i:s', strtotime($item[0])),
                     "payment_id"                =>  $item[3],
                     "sku"                       =>  $item[4],
                     "description"               =>  $item[5],
@@ -555,6 +562,7 @@ class AmazonPayment extends Model
                 $this->orderRefundNew[] = [
                     "report_id"                 =>  $reportId,
                     "table_id"                  =>  $tableId,
+                    "date"                      =>  date('Y-m-d H:i:s', strtotime($item[0])),
                     "payment_id"                =>  $item[3],
                     "sku"                       =>  $item[4],
                     "description"               =>  $item[5],
@@ -666,6 +674,7 @@ class AmazonPayment extends Model
                 $this->orderSaleNew[] = [
                     "report_id"                 =>  $reportId,
                     "table_id"                  =>  $tableId,
+                    "date"                      =>  date('Y-m-d H:i:s', strtotime($item[0])),
                     "payment_id"                =>  $item[3],
                     "sku"                       =>  $item[4],
                     "description"               =>  $item[5],
@@ -703,6 +712,7 @@ class AmazonPayment extends Model
                 $this->orderRefundNew[] = [
                     "report_id"                 =>  $reportId,
                     "table_id"                  =>  $tableId,
+                    "date"                      =>  date('Y-m-d H:i:s', strtotime($item[0])),
                     "payment_id"                =>  $item[3],
                     "sku"                       =>  $item[4],
                     "description"               =>  $item[5],
@@ -814,6 +824,7 @@ class AmazonPayment extends Model
                 $this->orderSaleNew[] = [
                     "report_id"                 =>  $reportId,
                     "table_id"                  =>  $tableId,
+                    "date"                      =>  date('Y-m-d H:i:s', strtotime($item[0])),
                     "payment_id"                =>  $item[3],
                     "sku"                       =>  $item[4],
                     "description"               =>  $item[5],
@@ -851,6 +862,7 @@ class AmazonPayment extends Model
                 $this->orderRefundNew[] = [
                     "report_id"                 =>  $reportId,
                     "table_id"                  =>  $tableId,
+                    "date"                      =>  date('Y-m-d H:i:s', strtotime($item[0])),
                     "payment_id"                =>  $item[3],
                     "sku"                       =>  $item[4],
                     "description"               =>  $item[5],
@@ -962,6 +974,7 @@ class AmazonPayment extends Model
                 $this->orderSaleNew[] = [
                     "report_id"                 =>  $reportId,
                     "table_id"                  =>  $tableId,
+                    "date"                      =>  date('Y-m-d H:i:s', strtotime($item[6])),
                     "payment_id"                =>  number_format($item[2], 0, '', ''),
                     "sku"                       =>  $item[8],
                     "quantity"                  =>  $item[7],
@@ -997,6 +1010,7 @@ class AmazonPayment extends Model
                 $this->orderRefundNew[] = [
                     "report_id"                 =>  $reportId,
                     "table_id"                  =>  $tableId,
+                    "date"                      =>  date('Y-m-d H:i:s', strtotime($item[6])),
                     "payment_id"                =>  number_format($item[2], 0, '', ''),
                     "sku"                       =>  $item[8],
                     "quantity"                  =>  $item[7],
@@ -1098,6 +1112,7 @@ class AmazonPayment extends Model
                 $this->orderSaleNew[] = [
                     "report_id"                 =>  $reportId,
                     "table_id"                  =>  $tableId,
+                    "date"                      =>  date('Y-m-d H:i:s', strtotime($item[1])),
                     "payment_id"                =>  $item[2],
                     "quantity"                  =>  '',
                     "fulfillment"               =>  "Seller",
@@ -1201,6 +1216,7 @@ class AmazonPayment extends Model
                 $this->orderSaleNew[] = [
                     "report_id"                 =>  $reportId,
                     "table_id"                  =>  $tableId,
+                    "date"                      =>  date('Y-m-d H:i:s', strtotime($item[7])),
                     "payment_id"                =>  $item[1],
                     "fulfillment"               =>  "Seller",
                     "product_sales"             =>  FinanceOrderSaleModel::sheinNumberFormat($item[9]),
@@ -1215,6 +1231,7 @@ class AmazonPayment extends Model
                 $this->orderRefundNew[] = [
                     "report_id"                 =>  $reportId,
                     "table_id"                  =>  $tableId,
+                    "date"                      =>  date('Y-m-d H:i:s', strtotime($item[7])),
                     "payment_id"                =>  $item[1],
                     "fulfillment"               =>  "Seller",
                     "product_sales"             =>  FinanceOrderSaleModel::sheinNumberFormat($item[9]),
@@ -1282,6 +1299,7 @@ class AmazonPayment extends Model
                 $this->orderSaleNew[] = [
                     "report_id"                 =>  $reportId,
                     "table_id"                  =>  $tableId,
+                    "date"                      =>  date('Y-m-d H:i:s', strtotime($item[7])),
                     "payment_id"                =>  $item[1],
                     "quantity"                  =>  $item[8],
                     "fulfillment"               =>  "Seller",
@@ -1297,6 +1315,7 @@ class AmazonPayment extends Model
                 $this->orderRefundNew[] = [
                     "report_id"                 =>  $reportId,
                     "table_id"                  =>  $tableId,
+                    "date"                      =>  date('Y-m-d H:i:s', strtotime($item[7])),
                     "payment_id"                =>  $item[1],
                     "quantity"                  =>  $item[8],
                     "fulfillment"               =>  "Seller",
@@ -1534,6 +1553,7 @@ class AmazonPayment extends Model
                         $this->orderSaleNew[] = [
                             "report_id"                 =>  $reportId,
                             "table_id"                  =>  $tableId,
+                            "date"                      =>  date('Y-m-d H:i:s', strtotime($item[9])),
                             "payment_id"                =>  $item[0],
                             "fulfillment"               =>  "Seller",
                             "product_sales"             =>  sprintf('%.2f', str_replace(',', '', $item[5])),
@@ -1558,6 +1578,7 @@ class AmazonPayment extends Model
                             $this->orderRefundNew[] = [
                                 "report_id"                 =>  $reportId,
                                 "table_id"                  =>  $tableId,
+                                "date"                      =>  date('Y-m-d H:i:s', strtotime($item[11])),
                                 "payment_id"                =>  $item[1],
                                 "fulfillment"               =>  "Seller",
                                 "product_sales"             =>  sprintf('%.2f', str_replace(',', '', $item[6])) * -1,
@@ -1682,6 +1703,7 @@ class AmazonPayment extends Model
                 $this->orderSaleNew[] = [
                     "report_id"                 =>  $reportId,
                     "table_id"                  =>  $tableId,
+                    "date"                      =>  date('Y-m-d H:i:s', strtotime($item[12])),
                     "payment_id"                =>  trim($item[0]),
                     "sku"                       =>  $item[3],
                     "description"               =>  $item[44],
@@ -1730,6 +1752,7 @@ class AmazonPayment extends Model
                 $this->orderRefundNew[] = [
                     "report_id"                 =>  $reportId,
                     "table_id"                  =>  $tableId,
+                    "date"                      =>  date('Y-m-d H:i:s', strtotime($item[12])),
                     "payment_id"                =>  trim($item[0]),
                     "sku"                       =>  $item[3],
                     "description"               =>  $item[44],
@@ -1821,6 +1844,7 @@ class AmazonPayment extends Model
                 $this->orderSaleNew[] = [
                     "report_id"                 =>  $reportId,
                     "table_id"                  =>  $tableId,
+                    "date"                      =>  date('Y-m-d H:i:s', strtotime($item[0])),
                     "payment_id"                =>  $item[4],
                     "fulfillment"               =>  "Seller",
                     "product_sales"             =>  round(str_replace(',', '', $item[11]), 2)
@@ -1841,6 +1865,7 @@ class AmazonPayment extends Model
                 $this->orderRefundNew[] = [
                     "report_id"                 =>  $reportId,
                     "table_id"                  =>  $tableId,
+                    "date"                      =>  date('Y-m-d H:i:s', strtotime($item[0])),
                     "payment_id"                =>  $item[4],
                     "fulfillment"               =>  "Seller",
                     "product_sales"             =>  round(str_replace(',', '', $item[19]), 2)
