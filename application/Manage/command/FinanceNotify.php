@@ -11,6 +11,7 @@ use app\Manage\model\FinanceOrderShareValidate;
 use app\Manage\model\FinanceOrderShippingServiceModel;
 use app\Manage\model\FinanceReportModel;
 use app\Manage\model\FinanceSkuRelationModel;
+use app\Manage\model\FinanceTableModel;
 use app\Manage\model\FinanceWarehouseFbmModel;
 use app\Manage\model\FinanceWarehouseModel;
 use Exception;
@@ -113,7 +114,14 @@ class FinanceNotify extends Command
                     $financeOrderAdjustmentObj = new FinanceOrderAdjustmentModel();
                     $adjustment = $financeOrderAdjustmentObj->where(['report_id' => $report['id']])->where('share_code', null)->order('id asc')->select();
                     if (count($adjustment) > 0) {
-                        $output->writeln("AdjustmentShare Unready");exit();
+                        $tableObj = new FinanceTableModel();
+                        foreach ($adjustment as $item) {
+                            $adjustmentItem = $tableObj->find($item['table_id']);
+                            if ($adjustmentItem['platform'] == 'wildberries') {
+                                continue;
+                            }
+                            $output->writeln("AdjustmentShare Unready");exit();
+                        }
                     }
 
 //                    $financeOrderLiquidationObj = new FinanceOrderLiquidationModel();
