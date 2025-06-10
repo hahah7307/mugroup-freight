@@ -64,6 +64,7 @@ class FinanceExcelInit extends Model
             ->setCellValue('O1', '亚马逊尾程')
             ->setCellValue('P1', '海外仓尾程')
             ->setCellValue('Q1', 'DDP')
+            ->setCellValue('R1', '支付时间')
         ;
 
         $saleRefundIndex = 1;
@@ -87,6 +88,7 @@ class FinanceExcelInit extends Model
                 ->setCellValue('O' . $saleRefundIndex, $saleRefundItem['fba_fees'])
                 ->setCellValue('P' . $saleRefundIndex, $saleRefundItem['tail'])
                 ->setCellValue('Q' . $saleRefundIndex, $saleRefundItem['ddp'])
+                ->setCellValue('R' . $saleRefundIndex, $saleRefundItem['paid_time'])
             ;
         }
     }

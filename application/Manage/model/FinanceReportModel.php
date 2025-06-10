@@ -46,7 +46,8 @@ SELECT
 	SUM( refund_selling_fees ) refund_selling_fees,
 	SUM( fba_fees ) fba_fees,
 	SUM( ddp ) ddp,
-	SUM( tail ) tail 
+	SUM( tail ) tail,
+	paid_time 
 FROM
 	(
 	SELECT
@@ -55,6 +56,7 @@ FROM
 		a.userAccount,
 		a.payment_id payment,
 		b.payment_id,
+		b.paid_time,
 		b.saleOrderCode,
 		b.platform_sku seller_sku,
 		b.warehouse_sku,
@@ -78,6 +80,7 @@ FROM
 			LEFT JOIN mu_finance_table b ON a.table_id = b.id 
 		WHERE
 			report_id = ' . $report_id . ' 
+			AND platform != "wildberries" 
 		) a
 		LEFT JOIN mu_finance_order_statistics b ON a.payment_id = b.payment_id
 		LEFT JOIN mu_finance_order_outbound e ON b.saleOrderCode = e.saleOrderCode 
@@ -89,6 +92,7 @@ FROM
 		a.userAccount,
 		a.payment_id payment,
 		b.payment_id,
+		b.paid_time,
 		b.saleOrderCode,
 		b.platform_sku seller_sku,
 		b.warehouse_sku,
@@ -112,6 +116,7 @@ FROM
 			LEFT JOIN mu_finance_table b ON a.table_id = b.id 
 		WHERE
 			report_id = ' . $report_id . ' 
+			AND platform != "wildberries" 
 		) a
 		LEFT JOIN mu_finance_order_statistics b ON a.payment_id = b.payment_id
 		LEFT JOIN (
@@ -130,6 +135,7 @@ FROM
 		b.userAccount,
 		a.payment_id payment,
 		NULL AS payment_id,
+		a.date paid_time,
 		NULL AS saleOrderCode,
 		a.sku seller_sku,
 		c.warehouse_sku warehouse_sku,
@@ -145,10 +151,11 @@ FROM
 	FROM
 		mu_finance_order_refund a
 		LEFT JOIN mu_finance_table b ON a.table_id = b.id
-        LEFT JOIN ( SELECT DISTINCT user_account, seller_sku, warehouse_sku, qty, percent, seller FROM mu_finance_sku_relation WHERE report_id = ' . $report_id . ' ) c ON b.userAccount = c.user_account 
-        AND a.sku = c.seller_sku 
+		LEFT JOIN ( SELECT DISTINCT user_account, seller_sku, warehouse_sku, qty, percent, seller FROM mu_finance_sku_relation WHERE report_id = ' . $report_id . ' ) c ON b.userAccount = c.user_account 
+		AND a.sku = c.seller_sku 
 	WHERE
 		report_id = ' . $report_id . ' 
+		AND b.platform != "wildberries" 
 	) a 
 GROUP BY
 	type,
@@ -158,7 +165,8 @@ GROUP BY
 	payment_id,
 	saleOrderCode,
 	seller_sku,
-	warehouse_sku;
+	warehouse_sku,
+	paid_time;
         ';
     }
 
