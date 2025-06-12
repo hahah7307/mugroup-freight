@@ -5164,6 +5164,90 @@ ORDER BY
         ';
     }
 
+    static public function getWildberriesOrderSql($report_id): string
+    {
+        return '
+SELECT
+	"Order" type,
+	"wildberries" platform,
+	"Wildberries" user_account,
+	c.order_no payment_id,
+	a.description,
+	a.sku,
+	a.quantity sale_qty,
+	0 AS refund_qty,
+	a.product_sales sale_amount,
+	0 AS refund_amount,
+	a.selling_fees sale_selling_fees,
+	0 AS refund_selling_fees,
+	a.regulatory_fee sale_regulatory_fee,
+	0 AS refund_regulatory_fee,
+	a.total sale_total,
+	0 AS refund_total,
+	0 AS shipping_fee,
+	DATE_FORMAT(a.date, "%Y-%m-%d") delivery_time 
+FROM
+	mu_finance_order_sale a
+	LEFT JOIN mu_finance_table b ON a.table_id = b.id
+	LEFT JOIN mu_finance_wildberries_order c ON a.description = c.fbs_no 
+WHERE
+	a.report_id = ' . $report_id . ' 
+	AND b.platform = "wildberries" UNION ALL
+SELECT
+	"Refund" type,
+	"wildberries" platform,
+	"Wildberries" user_account,
+	c.order_no payment_id,
+	a.description,
+	a.sku,
+	0 AS sale_qty,
+	a.quantity refund_qty,
+	0 AS sale_amount,
+	a.product_sales refund_amount,
+	0 AS sale_selling_fees,
+	a.selling_fees refund_selling_fees,
+	0 AS sale_regulatory_fee,
+	a.regulatory_fee refund_regulatory_fee,
+	0 AS sale_total,
+	a.total refund_total,
+	0 AS shipping_fee,
+	DATE_FORMAT(a.date, "%Y-%m-%d") delivery_time 
+FROM
+	mu_finance_order_refund a
+	LEFT JOIN mu_finance_table b ON a.table_id = b.id
+	LEFT JOIN mu_finance_wildberries_order c ON a.description = c.fbs_no 
+WHERE
+	a.report_id = ' . $report_id . ' 
+	AND b.platform = "wildberries" UNION ALL
+SELECT
+	"Logistics" type,
+	"wildberries" platform,
+	"Wildberries" user_account,
+	c.order_no payment_id,
+	a.description,
+	a.sku,
+	0 sale_qty,
+	0 AS refund_qty,
+	0 sale_amount,
+	0 AS refund_amount,
+	0 sale_selling_fees,
+	0 AS refund_selling_fees,
+	0 sale_regulatory_fee,
+	0 AS refund_regulatory_fee,
+	0 sale_total,
+	0 AS refund_total,
+	shipping_fee,
+	DATE_FORMAT(a.date, "%Y-%m-%d") delivery_time 
+FROM
+	mu_finance_wildberries_shipping a
+	LEFT JOIN mu_finance_table b ON a.table_id = b.id
+	LEFT JOIN mu_finance_wildberries_order c ON a.description = c.fbs_no 
+WHERE
+	a.report_id = ' . $report_id . ' 
+	AND b.platform = "wildberries"
+        ';
+    }
+
     static public function getWildberriesWarehouseSkuSql($report_id): string
     {
         return '

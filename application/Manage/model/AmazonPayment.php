@@ -1737,9 +1737,11 @@ class AmazonPayment extends Model
                 $this->orderShippingNew[] = [
                     "report_id"                 =>  $reportId,
                     "table_id"                  =>  $tableId,
+                    "date"                      =>  date('Y-m-d H:i:s', strtotime($item[12])),
                     "payment_id"                =>  trim($item[0]),
                     "sku"                       =>  $item[3],
                     "description"               =>  $item[44],
+                    "quantity"                  =>  $item[13],
                     "shipping_fee"              =>  sprintf('%.2f', str_replace(',', '', $item[36])) * -1,
                 ];
 

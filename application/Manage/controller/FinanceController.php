@@ -200,17 +200,18 @@ class FinanceController extends BaseController
         $financeExcelInit->generateTemuSheet(6, $report_id, $report['month']);
         $financeExcelInit->generateEbaySheet(7, $report_id, $report['month']);
         $financeExcelInit->generateTiktokWarehouseSkuSql(8, $report, $report['month']);
-        $financeExcelInit->getWildberriesWarehouseSkuSql(9, $report);
-        $financeExcelInit->generatePaymentNoOutboundSheet(10, $report_id);
-        $financeExcelInit->generateAccountTransferSheet(11, $report_id);
-        $financeExcelInit->generateAccountSubscriptionSheet(12, $report_id);
-        $financeExcelInit->generateOrderWayfairSheet(13, $report_id);
-        $financeExcelInit->generateOrderResendSheet(14, $report_id, $report['month']);
-        $financeExcelInit->generateOperationExpensesSheet(15, $report_id);
-        $financeExcelInit->generateOperationFactorySheet(16, $report_id);
-        $financeExcelInit->generateOperationDeliverySheet(17, $report_id);
-        $financeExcelInit->generateOperationFactoryClaimSheet(18, $monthInt);
-        $financeExcelInit->getOutboundAccountingByReport(19, $report);
+        $financeExcelInit->getWildberriesOrderSql(9, $report);
+        $financeExcelInit->getWildberriesWarehouseSkuSql(10, $report);
+        $financeExcelInit->generatePaymentNoOutboundSheet(11, $report_id);
+        $financeExcelInit->generateAccountTransferSheet(12, $report_id);
+        $financeExcelInit->generateAccountSubscriptionSheet(13, $report_id);
+        $financeExcelInit->generateOrderWayfairSheet(14, $report_id);
+        $financeExcelInit->generateOrderResendSheet(15, $report_id, $report['month']);
+        $financeExcelInit->generateOperationExpensesSheet(16, $report_id);
+        $financeExcelInit->generateOperationFactorySheet(17, $report_id);
+        $financeExcelInit->generateOperationDeliverySheet(18, $report_id);
+        $financeExcelInit->generateOperationFactoryClaimSheet(19, $monthInt);
+        $financeExcelInit->getOutboundAccountingByReport(20, $report);
         $objPHPExcel = $financeExcelInit->excelSheetSet();
 
         // Redirect output to a client’s web browser (Excel5)
