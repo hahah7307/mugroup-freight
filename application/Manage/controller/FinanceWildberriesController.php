@@ -1,12 +1,15 @@
 <?php
 namespace app\Manage\controller;
 
+use app\Manage\model\FinanceReportModel;
 use app\Manage\model\FinanceWildberriesExpressDeliveryModel;
 use app\Manage\model\FinanceWildberriesFeeModel;
 use app\Manage\model\FinanceWildberriesOrderModel;
 use PHPExcel_IOFactory;
 use PHPExcel_Reader_Exception;
 use think\Db;
+use think\db\exception\DataNotFoundException;
+use think\db\exception\ModelNotFoundException;
 use think\Exception;
 use think\exception\DbException;
 use think\Session;
@@ -267,5 +270,50 @@ class FinanceWildberriesController extends BaseController
             $this->error($e->getMessage(), url('express_delivery'));
         }
         $this->redirect(url('express_delivery'));
+    }
+
+    /**
+     * @throws DbException
+     * @throws ModelNotFoundException
+     * @throws DataNotFoundException
+     * @throws Exception
+     */
+    public function cost_calculate()
+    {
+        if ($this->request->isPost()) {
+            $post = $this->request->post();
+            $reportId = $post['id'];
+            $costModel = new FinanceWildberriesFeeModel();
+            $reportModel = new FinanceReportModel();
+            $report = $reportModel->find($reportId);
+            $month = date('Ym', strtotime($report['month'] . '-01'));
+            $count = $costModel->where(['report_id' => $reportId, 'calculate_month' => $month])->count();
+            if ($count) {
+                echo json_encode(['code' => 0, 'msg' => '已同步']);
+                exit();
+            }
+
+            Db::startTrans();
+            try {
+                $updateData = $reportModel->query(FinanceReportModel::getWildberriesFeeUpdateSql($report['id'], $month));
+                if (!$costModel->saveAll($updateData)) {
+                    throw new Exception("同步失败！");
+                }
+
+                Db::commit();
+                echo json_encode(['code' => 1, 'msg' => '同步完成']);
+            } catch (\SoapFault $e) {
+                Db::rollback();
+                dump($e->getMessage());
+                echo json_encode(['code' => 0, 'msg' => '同步失败，请重试']);
+            } catch (\Exception $e) {
+                Db::rollback();
+                dump($e->getMessage());
+                echo json_encode(['code' => 0, 'msg' => '同步失败，请重试']);
+            }
+        } else {
+            echo json_encode(['code' => 0, 'msg' => '异常操作']);
+        }
+        exit;
     }
 }

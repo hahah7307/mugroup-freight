@@ -5457,6 +5457,47 @@ FROM
         ';
     }
 
+    static public function getWildberriesFeeUpdateSql($report_id, $month): string
+    {
+        return '
+SELECT DISTINCT
+	' . $report_id . ' AS report_id,
+	"' . $month . '" AS calculate_month,
+	b.order_no,
+	c.total,
+	c.id
+FROM
+	(
+	SELECT DISTINCT
+		description 
+	FROM
+		mu_finance_order_sale a
+		LEFT JOIN mu_finance_table b ON a.table_id = b.id 
+	WHERE
+		a.report_id = ' . $report_id . ' 
+		AND b.platform = "wildberries" UNION ALL
+	SELECT DISTINCT
+		description 
+	FROM
+		mu_finance_order_refund a
+		LEFT JOIN mu_finance_table b ON a.table_id = b.id 
+	WHERE
+		a.report_id = ' . $report_id . ' 
+		AND b.platform = "wildberries" UNION ALL
+	SELECT DISTINCT
+		description 
+	FROM
+		mu_finance_wildberries_shipping a
+		LEFT JOIN mu_finance_table b ON a.table_id = b.id 
+	WHERE
+		a.report_id = ' . $report_id . ' 
+		AND b.platform = "wildberries" 
+	) a
+	LEFT JOIN mu_finance_wildberries_order b ON a.description = b.fbs_no
+	LEFT JOIN ( SELECT id, order_no, sum( total ) total FROM mu_finance_wildberries_fee WHERE report_id IS NULL AND calculate_month IS NULL GROUP BY id,order_no ) c ON b.order_no = c.order_no
+        ';
+    }
+
     static public function getTiktokWarehouseSkuSql($report_id): string
     {
         return '
