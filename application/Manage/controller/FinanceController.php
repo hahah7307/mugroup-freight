@@ -203,16 +203,18 @@ class FinanceController extends BaseController
         $financeExcelInit->getWildberriesWarehouseSkuSql(9, $report);
         $financeExcelInit->getWildberriesOrderSql(10, $report);
         $financeExcelInit->getWildberriesCostSql(11);
-        $financeExcelInit->generatePaymentNoOutboundSheet(12, $report_id);
-        $financeExcelInit->generateAccountTransferSheet(13, $report_id);
-        $financeExcelInit->generateAccountSubscriptionSheet(14, $report_id);
-        $financeExcelInit->generateOrderWayfairSheet(15, $report_id);
-        $financeExcelInit->generateOrderResendSheet(16, $report_id, $report['month']);
-        $financeExcelInit->generateOperationExpensesSheet(17, $report_id);
-        $financeExcelInit->generateOperationFactorySheet(18, $report_id);
-        $financeExcelInit->generateOperationDeliverySheet(19, $report_id);
-        $financeExcelInit->generateOperationFactoryClaimSheet(20, $monthInt);
-        $financeExcelInit->getOutboundAccountingByReport(21, $report);
+        $financeExcelInit->getWildberriesExpressDeliverySql(12, $monthInt);
+        $financeExcelInit->getWildberriesCostReturnSql(13, $monthInt);
+        $financeExcelInit->generatePaymentNoOutboundSheet(14, $report_id);
+        $financeExcelInit->generateAccountTransferSheet(15, $report_id);
+        $financeExcelInit->generateAccountSubscriptionSheet(16, $report_id);
+        $financeExcelInit->generateOrderWayfairSheet(17, $report_id);
+        $financeExcelInit->generateOrderResendSheet(18, $report_id, $report['month']);
+        $financeExcelInit->generateOperationExpensesSheet(19, $report_id);
+        $financeExcelInit->generateOperationFactorySheet(20, $report_id);
+        $financeExcelInit->generateOperationDeliverySheet(21, $report_id);
+        $financeExcelInit->generateOperationFactoryClaimSheet(22, $monthInt);
+        $financeExcelInit->getOutboundAccountingByReport(23, $report);
         $objPHPExcel = $financeExcelInit->excelSheetSet();
 
         // Redirect output to a client’s web browser (Excel5)

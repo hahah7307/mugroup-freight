@@ -5518,6 +5518,30 @@ ORDER BY
 	    ';
     }
 
+    static public function getWildberriesExpressDeliverySql($month): string
+    {
+        return '
+SELECT
+	* 
+FROM
+	mu_finance_wildberries_express_delivery 
+WHERE
+	`month` = ' . $month . ';
+	    ';
+    }
+
+    static public function getWildberriesCostReturnSql($month): string
+    {
+        return '
+SELECT
+	* 
+FROM
+	mu_finance_wildberries_cost_return
+WHERE
+	`month` = ' . $month . ';
+	    ';
+    }
+
     static public function getTiktokWarehouseSkuSql($report_id): string
     {
         return '

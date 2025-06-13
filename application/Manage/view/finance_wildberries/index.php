@@ -46,6 +46,13 @@
                         <a href="{:url('express_delivery')}" class="layui-btn layui-btn layui-btn-sm">查看</a>
                     </td>
                 </tr>
+                <tr>
+                    <td>仓库退货表</td>
+                    <td></td>
+                    <td class="tc">
+                        <a href="{:url('cost_return')}" class="layui-btn layui-btn layui-btn-sm">查看</a>
+                    </td>
+                </tr>
                 </tbody>
             </table>
         </div>

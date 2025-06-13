@@ -2,6 +2,7 @@
 namespace app\Manage\controller;
 
 use app\Manage\model\FinanceReportModel;
+use app\Manage\model\FinanceWildberriesCostReturnModel;
 use app\Manage\model\FinanceWildberriesExpressDeliveryModel;
 use app\Manage\model\FinanceWildberriesFeeModel;
 use app\Manage\model\FinanceWildberriesOrderModel;
@@ -270,6 +271,82 @@ class FinanceWildberriesController extends BaseController
             $this->error($e->getMessage(), url('express_delivery'));
         }
         $this->redirect(url('express_delivery'));
+    }
+
+    /**
+     * @throws DbException
+     */
+    public function cost_return(): \think\response\View
+    {
+        $keyword = $this->request->get('keyword', '', 'htmlspecialchars');
+        $this->assign('keyword', $keyword);
+        if ($keyword) {
+            $where['product_name|seller_sku|sku'] = ['like', '%' . $keyword . '%'];
+        } else {
+            $where = [];
+        }
+
+        $month = $this->request->get('month', date('Y-m', strtotime('-2 month')));
+        $where['month'] = date('Ym', strtotime($month . '-01'));
+        $this->assign('month', $month);
+
+        $page_num = $this->request->get('page_num', Config::get('PAGE_NUM'));
+        $this->assign('page_num', $page_num);
+
+        // 订单列表
+        $order = new FinanceWildberriesCostReturnModel();
+        $list = $order->where($where)->order('id asc')->paginate($page_num, false, ['query' => ['keyword' => $keyword, 'page_num' => $page_num, 'month' => $month]]);
+        $this->assign('list', $list);
+        $this->assign('sum', $order->where($where)->sum('quantity'));
+
+        Session::set(Config::get('BACK_URL'), $this->request->url(), 'manage');
+
+        return view();
+    }
+
+    /**
+     * @throws PHPExcel_Reader_Exception
+     */
+    public function cost_return_import()
+    {
+        // phpexcel
+        require_once './static/classes/PHPExcel/Classes/PHPExcel.php';
+
+        $filename = input('filename');
+        $file= "./upload/excel/" . $filename;
+        $excelReader = PHPExcel_IOFactory::createReaderForFile($file);
+        $excelObj = $excelReader->load($file);
+        $worksheet = $excelObj->getSheet(0);
+        $data = $worksheet->toArray();
+        unset($data[0]);
+
+        Db::startTrans();
+        try {
+            $orderData = [];
+            $financeWildberriesCostReturnObj = new FinanceWildberriesCostReturnModel();
+            foreach ($data as $item) {
+                if ($item[1]) {
+                    if (empty($item[5])) {
+                        throw new Exception("缺少支付月份！");
+                    }
+                    $orderData[] = [
+                        "product_name"		=>	$item[0],
+                        "seller_sku"		=>	$item[1],
+                        "sku"		        =>	$item[2],
+                        "size"		        =>	$item[3],
+                        "quantity"		    =>	$item[4],
+                        "month"	            =>	$item[5]
+                    ];
+                }
+            }
+            $financeWildberriesCostReturnObj->insertAll($orderData);
+
+            Db::commit();
+        } catch (Exception $e) {
+            Db::rollback();
+            $this->error($e->getMessage(), url('cost_return'));
+        }
+        $this->redirect(url('cost_return'));
     }
 
     /**

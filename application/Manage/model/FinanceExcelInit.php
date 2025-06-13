@@ -1799,6 +1799,104 @@ class FinanceExcelInit extends Model
      * @throws ModelNotFoundException
      * @throws DataNotFoundException
      */
+    public function getWildberriesExpressDeliverySql($index, $month)
+    {
+        $wildberries = $this->model->query(FinanceReportModel::getWildberriesExpressDeliverySql($month));
+
+        if ($index) {
+            // create new sheet
+            $this->objPHPExcel->createSheet();
+        }
+
+        // Set name sheet
+        $this->objPHPExcel->setActiveSheetIndex($index)->setTitle('Wildberries国内快递');
+
+        // Add some data
+        $this->objPHPExcel->setActiveSheetIndex($index)
+            ->setCellValue('A1', '创建时间')
+            ->setCellValue('B1', '运单号')
+            ->setCellValue('C1', '重量')
+            ->setCellValue('D1', '出发省')
+            ->setCellValue('E1', '收件人')
+            ->setCellValue('F1', '目的省')
+            ->setCellValue('G1', '目的市')
+            ->setCellValue('H1', '收件地址')
+            ->setCellValue('I1', '寄件地址')
+            ->setCellValue('J1', '寄件人')
+            ->setCellValue('K1', '公司')
+            ->setCellValue('L1', '组别')
+            ->setCellValue('M1', '总金额')
+            ->setCellValue('N1', '支付月份')
+        ;
+
+        $wildberriesIndex = 1;
+        foreach ($wildberries as $wildberriesItem) {
+            $wildberriesIndex ++;
+            $this->objPHPExcel->setActiveSheetIndex($index)
+                ->setCellValue('A' . $wildberriesIndex, $wildberriesItem['created_date'])
+                ->setCellValue('B' . $wildberriesIndex, $wildberriesItem['delivery_no'])
+                ->setCellValue('C' . $wildberriesIndex, $wildberriesItem['weight'])
+                ->setCellValue('D' . $wildberriesIndex, $wildberriesItem['province'])
+                ->setCellValue('E' . $wildberriesIndex, $wildberriesItem['receiver'])
+                ->setCellValue('F' . $wildberriesIndex, $wildberriesItem['target_province'])
+                ->setCellValue('G' . $wildberriesIndex, $wildberriesItem['target_city'])
+                ->setCellValue('H' . $wildberriesIndex, $wildberriesItem['receiver_addr'])
+                ->setCellValue('I' . $wildberriesIndex, $wildberriesItem['sender_addr'])
+                ->setCellValue('J' . $wildberriesIndex, $wildberriesItem['sender'])
+                ->setCellValue('K' . $wildberriesIndex, $wildberriesItem['company_name'])
+                ->setCellValue('L' . $wildberriesIndex, $wildberriesItem['group_name'])
+                ->setCellValue('M' . $wildberriesIndex, $wildberriesItem['total'])
+                ->setCellValue('N' . $wildberriesIndex, $wildberriesItem['month'])
+            ;
+        }
+    }
+
+    /**
+     * @throws DbException
+     * @throws ModelNotFoundException
+     * @throws DataNotFoundException
+     */
+    public function getWildberriesCostReturnSql($index, $month)
+    {
+        $wildberries = $this->model->query(FinanceReportModel::getWildberriesCostReturnSql($month));
+
+        if ($index) {
+            // create new sheet
+            $this->objPHPExcel->createSheet();
+        }
+
+        // Set name sheet
+        $this->objPHPExcel->setActiveSheetIndex($index)->setTitle('Wildberries仓库退货');
+
+        // Add some data
+        $this->objPHPExcel->setActiveSheetIndex($index)
+            ->setCellValue('A1', '商品名称')
+            ->setCellValue('B1', '卖家货号')
+            ->setCellValue('C1', 'SKU')
+            ->setCellValue('D1', '容量，公升')
+            ->setCellValue('E1', '数量')
+            ->setCellValue('F1', '月份')
+        ;
+
+        $wildberriesIndex = 1;
+        foreach ($wildberries as $wildberriesItem) {
+            $wildberriesIndex ++;
+            $this->objPHPExcel->setActiveSheetIndex($index)
+                ->setCellValue('A' . $wildberriesIndex, $wildberriesItem['product_name'])
+                ->setCellValue('B' . $wildberriesIndex, $wildberriesItem['seller_sku'])
+                ->setCellValue('C' . $wildberriesIndex, $wildberriesItem['sku'])
+                ->setCellValue('D' . $wildberriesIndex, $wildberriesItem['size'])
+                ->setCellValue('E' . $wildberriesIndex, $wildberriesItem['quantity'])
+                ->setCellValue('F' . $wildberriesIndex, $wildberriesItem['month'])
+            ;
+        }
+    }
+
+    /**
+     * @throws DbException
+     * @throws ModelNotFoundException
+     * @throws DataNotFoundException
+     */
     public function generateTiktokWarehouseSkuSql($index, $report, $month)
     {
         $tiktok = $this->model->query(FinanceReportModel::getTiktokWarehouseSkuSql($report['id']));
