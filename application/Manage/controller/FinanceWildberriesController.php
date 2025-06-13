@@ -201,7 +201,7 @@ class FinanceWildberriesController extends BaseController
             $where = [];
         }
 
-        $month = $this->request->get('month', date('Y-m', strtotime('-1 month')));
+        $month = $this->request->get('month', date('Y-m', strtotime('-2 month')));
         $where['month'] = date('Ym', strtotime($month . '-01'));
         $this->assign('month', $month);
 

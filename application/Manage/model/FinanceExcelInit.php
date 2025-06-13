@@ -1752,6 +1752,53 @@ class FinanceExcelInit extends Model
      * @throws ModelNotFoundException
      * @throws DataNotFoundException
      */
+    public function getWildberriesCostSql($index)
+    {
+        $wildberries = $this->model->query(FinanceReportModel::getWildberriesCostSql());
+
+        if ($index) {
+            // create new sheet
+            $this->objPHPExcel->createSheet();
+        }
+
+        // Set name sheet
+        $this->objPHPExcel->setActiveSheetIndex($index)->setTitle('Wildberries成本表');
+
+        // Add some data
+        $this->objPHPExcel->setActiveSheetIndex($index)
+            ->setCellValue('A1', '订单号')
+            ->setCellValue('B1', 'SKU平台编号')
+            ->setCellValue('C1', '中文品名')
+            ->setCellValue('D1', '单价')
+            ->setCellValue('E1', '数量')
+            ->setCellValue('F1', '总价')
+            ->setCellValue('G1', '创建时间')
+            ->setCellValue('H1', '支付月份')
+            ->setCellValue('I1', '核算月份')
+        ;
+
+        $wildberriesIndex = 1;
+        foreach ($wildberries as $wildberriesItem) {
+            $wildberriesIndex ++;
+            $this->objPHPExcel->setActiveSheetIndex($index)
+                ->setCellValue('A' . $wildberriesIndex, $wildberriesItem['order_no'])
+                ->setCellValue('B' . $wildberriesIndex, $wildberriesItem['sku'])
+                ->setCellValue('C' . $wildberriesIndex, $wildberriesItem['product_name'])
+                ->setCellValue('D' . $wildberriesIndex, $wildberriesItem['unit_price'])
+                ->setCellValue('E' . $wildberriesIndex, $wildberriesItem['quantity'])
+                ->setCellValue('F' . $wildberriesIndex, $wildberriesItem['total'])
+                ->setCellValue('G' . $wildberriesIndex, $wildberriesItem['created_date'])
+                ->setCellValue('H' . $wildberriesIndex, $wildberriesItem['month'])
+                ->setCellValue('I' . $wildberriesIndex, $wildberriesItem['calculate_month'])
+            ;
+        }
+    }
+
+    /**
+     * @throws DbException
+     * @throws ModelNotFoundException
+     * @throws DataNotFoundException
+     */
     public function generateTiktokWarehouseSkuSql($index, $report, $month)
     {
         $tiktok = $this->model->query(FinanceReportModel::getTiktokWarehouseSkuSql($report['id']));
