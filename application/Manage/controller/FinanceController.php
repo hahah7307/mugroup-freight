@@ -2097,6 +2097,7 @@ class FinanceController extends BaseController
                     $post['product_name'] = $product['productTitle'];
                     $post['unit_price'] = $product['sp_unit_price'];
                     $post['warehouse_name'] = '全部仓库';
+                    $post['type'] = 1;
                 } else {
                     echo json_encode(['code' => 0, 'msg' => '仓库SKU不存在']);
                     exit;

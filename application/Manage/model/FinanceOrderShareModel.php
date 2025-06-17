@@ -167,7 +167,8 @@ FROM
 WHERE
     a.warehouse_sku = "' . $warehouse_sku . '"
     AND b.platform = "' . $platform . '"
-    AND a.report_id = ' . $report['id'] . ';
+    AND a.report_id = ' . $report['id'] . '
+    AND a.type = 0;
         ');
     }
 
@@ -190,7 +191,8 @@ FROM
 WHERE
     a.seller_sku = "' . $seller_sku . '"
     AND a.user_account = "' . $userAccount . '"
-    AND a.report_id = ' . $report['id'] . ';
+    AND a.report_id = ' . $report['id'] . '
+    AND a.type = 0;
         ');
     }
 
@@ -213,7 +215,8 @@ WHERE
     a.seller = "' . $seller . '" 
     AND a.warehouse_sku = "' . $warehouse_sku . '"
     AND b.platform = "' . $platform . '"
-    AND a.report_id = ' . $report['id'] . ';
+    AND a.report_id = ' . $report['id'] . '
+    AND a.type = 0;
         ');
     }
 
@@ -269,7 +272,8 @@ FROM
 WHERE
 	warehouse_sku = "' . $warehouse_sku . '" 
 	AND a.report_id = ' . $report['id'] . ' 
-	AND platform IN ( "amazon", "wayfair", "walmart" );
+	AND platform IN ( "amazon", "wayfair", "walmart" )
+    AND a.type = 0;
         ');
     }
 }
