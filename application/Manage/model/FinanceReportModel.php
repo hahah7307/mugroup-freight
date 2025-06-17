@@ -770,7 +770,7 @@ FROM
 			NULL AS fba_adCost,
 			SUM(
 				(
-					a.sharedFbaStorageFee + a.sharedLabelingFee + a.fbaStorageFee + a.longTermStorageFee + a.sharedFbaDisposalFee + a.sharedAmazonPartneredCarrierShipmentFee + a.sharedFbaInboundConvenienceFee + a.sharedFbaInboundDefectFee 
+					a.sharedFbaStorageFee + a.sharedLabelingFee + a.fbaStorageFee + a.longTermStorageFee + a.sharedFbaDisposalFee + a.sharedAmazonPartneredCarrierShipmentFee + a.sharedFbaInboundConvenienceFee + a.sharedFbaInboundDefectFee + a.sharedFbaRemovalFee 
 				) * d.percent 
 			) fba_inventory,
 			NULL AS adjustment,
@@ -790,7 +790,7 @@ FROM
 			AND a.msku = d.seller_sku 
 		WHERE
 			reportDateMonth = "' . $month . '" 
-			AND a.sharedFbaStorageFee + a.sharedLabelingFee + a.fbaStorageFee + a.longTermStorageFee + a.sharedFbaDisposalFee + a.sharedAmazonPartneredCarrierShipmentFee + a.sharedFbaInboundConvenienceFee + a.sharedFbaInboundDefectFee != 0 
+			AND a.sharedFbaStorageFee + a.sharedLabelingFee + a.fbaStorageFee + a.longTermStorageFee + a.sharedFbaDisposalFee + a.sharedAmazonPartneredCarrierShipmentFee + a.sharedFbaInboundConvenienceFee + a.sharedFbaInboundDefectFee + a.sharedFbaRemovalFee != 0 
 			AND d.warehouse_sku IS NOT NULL 
 		GROUP BY
 			platform,

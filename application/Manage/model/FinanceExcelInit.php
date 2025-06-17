@@ -1826,7 +1826,7 @@ class FinanceExcelInit extends Model
             ->setCellValue('K1', '公司')
             ->setCellValue('L1', '组别')
             ->setCellValue('M1', '总金额')
-            ->setCellValue('N1', '支付月份')
+            ->setCellValue('N1', '核算月份')
         ;
 
         $wildberriesIndex = 1;

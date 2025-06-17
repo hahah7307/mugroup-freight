@@ -2425,7 +2425,7 @@ class FinanceController extends BaseController
         $this->assign('report_id', $id);
 
         $this->assign('ad_sum', $akAdCostModel->where($where)->sum('totalAdsCost'));
-        $this->assign('warehouse_sum', $akAdCostModel->where($where)->field('sum(sharedFbaStorageFee + sharedLabelingFee + fbaStorageFee + longTermStorageFee + sharedFbaDisposalFee + sharedAmazonPartneredCarrierShipmentFee + sharedFbaInboundConvenienceFee + sharedFbaInboundDefectFee) total')->find()['total']);
+        $this->assign('warehouse_sum', $akAdCostModel->where($where)->field('sum(sharedFbaStorageFee + sharedLabelingFee + fbaStorageFee + longTermStorageFee + sharedFbaDisposalFee + sharedAmazonPartneredCarrierShipmentFee + sharedFbaInboundConvenienceFee + sharedFbaInboundDefectFee + sharedFbaRemovalFee) total')->find()['total']);
         $this->assign('liquidation_1', $akAdCostModel->where($where)->field('sum(fbaLiquidationProceeds + sharedLiquidationsFees) total')->find()['total']);
         $this->assign('liquidation_2', $akAdCostModel->where($where)->where(['countryCode' => ['neq', 'US']])->sum('taxCollected'));
         $this->assign('promotion', $akAdCostModel->where($where)->field('sum(sharedLdFee + sharedCouponFee + sharedVineFee) total')->find()['total']);
