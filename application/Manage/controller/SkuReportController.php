@@ -440,7 +440,7 @@ FROM
      */
     public function store(): \think\response\View
     {
-        $sale_day = $this->request->get('sale_day', date('Y-m-d', strtotime('-2 day')), 'htmlspecialchars');
+        $sale_day = $this->request->get('sale_day', date('Y-m-d', strtotime('-1 day')), 'htmlspecialchars');
         $this->assign('sale_day', $sale_day);
         $sale_day_num = date('Ymd', strtotime($sale_day));
 
