@@ -234,6 +234,8 @@ FROM
 		LEFT JOIN mu_finance_order_statistics b ON a.payment_id = b.payment_id 
 		AND a.sku = b.platform_sku
 		LEFT JOIN mu_finance_table c ON a.table_id = c.id 
+	WHERE
+		c.platform != "wildberries" 
 	) a
     LEFT JOIN ( SELECT DISTINCT user_account, seller_sku, warehouse_sku, qty, percent, seller FROM mu_finance_sku_relation WHERE report_id = ' . $report_id . ' ) b ON a.userAccount = b.user_account 
     AND a.sku = b.seller_sku 
