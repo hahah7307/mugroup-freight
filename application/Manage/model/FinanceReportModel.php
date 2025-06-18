@@ -47,6 +47,7 @@ SELECT
 	SUM( fba_fees ) fba_fees,
 	SUM( ddp ) ddp,
 	SUM( tail ) tail,
+	SUM( calcuRes ) calcuRes,
 	paid_time 
 FROM
 	(
@@ -68,7 +69,8 @@ FROM
 		NULL AS refund_selling_fees,
 		ROUND( b.fba_fee, 7 ) fba_fees,
 		f.sku_ddp_unit * b.qty ddp,
-		NULL AS tail 
+		NULL AS tail,
+		NULL AS calcuRes 
 	FROM
 		(
 		SELECT DISTINCT
@@ -104,7 +106,9 @@ FROM
 		NULL AS refund_selling_fees,
 		NULL AS fba_fees,
 		NULL AS ddp,
-		c.calcuRes tail 
+		c.calcuRes tail,
+	IF
+		( b.is_unaccrue, 0, c.calcuRes ) calcuRes 
 	FROM
 		(
 		SELECT DISTINCT
@@ -147,7 +151,8 @@ FROM
 		ROUND( selling_fees * c.percent, 7 ) refund_selling_fees,
 		ROUND( fba_fees * c.percent, 7 ) fba_fees,
 		NULL AS ddp,
-		NULL AS tail 
+		NULL AS tail,
+		NULL AS calcuRes 
 	FROM
 		mu_finance_order_refund a
 		LEFT JOIN mu_finance_table b ON a.table_id = b.id
@@ -1097,7 +1102,8 @@ FROM
 				ROUND( b.selling_fee, 7 ) fbm_sale_selling_fees,
 				NULL AS fbm_refund_selling_fees,
 				NULL AS fbm_refund_other,
-				c.calcuRes calcuRes,
+			IF
+				( b.is_unaccrue, 0, c.calcuRes ) calcuRes,
 				NULL AS fbm_ddp,
 				NULL AS warehouse_rent,
 				NULL AS adjustment,
@@ -1886,7 +1892,8 @@ FROM
 				NULL AS refund_amount,
 				ROUND( b.selling_fee, 7 ) sale_selling_fees,
 				NULL AS refund_selling_fees,
-				c.calcuRes calcuRes,
+			IF
+				( b.is_unaccrue, 0, c.calcuRes ) calcuRes,
 				NULL AS wfs_fulfillment,
 				NULL AS ddp,
 				NULL AS adCost,
@@ -2563,7 +2570,8 @@ FROM
 				NULL AS refund_amount,
 				ROUND( b.selling_fee, 7 ) sale_selling_fees,
 				NULL AS refund_selling_fees,
-				c.calcuRes calcuRes,
+			IF
+				( b.is_unaccrue, 0, c.calcuRes ) calcuRes,
 				NULL AS ddp,
 				NULL AS adCost,
 				NULL AS warehouse_rent,
@@ -3067,7 +3075,8 @@ FROM
 				NULL AS refund_amount,
 				ROUND( b.selling_fee, 7 ) sale_selling_fees,
 				NULL AS refund_selling_fees,
-				c.calcuRes calcuRes,
+			IF
+				( b.is_unaccrue, 0, c.calcuRes ) calcuRes,
 				NULL AS ddp,
 				NULL AS adCost,
 				NULL AS warehouse_rent,
@@ -3578,7 +3587,8 @@ FROM
 				NULL AS refund_amount,
 				ROUND( b.selling_fee, 7 ) sale_selling_fees,
 				NULL AS refund_selling_fees,
-				c.calcuRes calcuRes,
+			IF
+				( b.is_unaccrue, 0, c.calcuRes ) calcuRes,
 				d.total waybill,
 				NULL AS ddp,
 				NULL AS adCost,
@@ -4100,7 +4110,8 @@ FROM
 				NULL AS refund_amount,
 				ROUND( b.selling_fee, 7 ) sale_selling_fees,
 				NULL AS refund_selling_fees,
-				c.calcuRes calcuRes,
+			IF
+				( b.is_unaccrue, 0, c.calcuRes ) calcuRes,
 				NULL AS ddp,
 				NULL AS adCost,
 				NULL AS warehouse_rent,
@@ -5683,7 +5694,8 @@ FROM
 				NULL AS refund_selling_fees,
 				b.sale_shipping,
 				b.tax sale_tax,
-				c.calcuRes calcuRes,
+			IF
+				( b.is_unaccrue, 0, c.calcuRes ) calcuRes,
 				NULL AS ddp,
 				NULL AS adCost,
 				NULL AS warehouse_rent,

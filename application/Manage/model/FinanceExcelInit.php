@@ -62,9 +62,10 @@ class FinanceExcelInit extends Model
             ->setCellValue('M1', '平台佣金')
             ->setCellValue('N1', '平台佣金退款')
             ->setCellValue('O1', '亚马逊尾程')
-            ->setCellValue('P1', '海外仓尾程')
-            ->setCellValue('Q1', 'DDP')
-            ->setCellValue('R1', '支付时间')
+            ->setCellValue('P1', '海外仓预估尾程')
+            ->setCellValue('Q1', '入核算尾程')
+            ->setCellValue('R1', 'DDP')
+            ->setCellValue('S1', '支付时间')
         ;
 
         $saleRefundIndex = 1;
@@ -87,8 +88,9 @@ class FinanceExcelInit extends Model
                 ->setCellValue('N' . $saleRefundIndex, $saleRefundItem['refund_selling_fees'])
                 ->setCellValue('O' . $saleRefundIndex, $saleRefundItem['fba_fees'])
                 ->setCellValue('P' . $saleRefundIndex, $saleRefundItem['tail'])
-                ->setCellValue('Q' . $saleRefundIndex, $saleRefundItem['ddp'])
-                ->setCellValue('R' . $saleRefundIndex, $saleRefundItem['paid_time'])
+                ->setCellValue('Q' . $saleRefundIndex, $saleRefundItem['calcuRes'])
+                ->setCellValue('R' . $saleRefundIndex, $saleRefundItem['ddp'])
+                ->setCellValue('S' . $saleRefundIndex, $saleRefundItem['paid_time'])
             ;
         }
     }
