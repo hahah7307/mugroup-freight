@@ -1486,7 +1486,7 @@ class AmazonPayment extends Model
         foreach ($sheetNames as $k => $sheetName) {
             if (strpos($sheetName, '账务明细列表') !== false) {
                 foreach ($excel->getSheet($k)->toArray() as $key => $item) {
-                    if ($key > 0 && ($item[4] == '退货面单费' || $item[4] == '退货面单费调整')) {
+                    if ($key > 0 && ($item[4] == '退货面单费' || $item[4] == '退货面单费调整' ||  $item[4] == '售后非商责赔付')) {
                         $this->orderAdjustmentNew[] = [
                             "report_id"                 =>  $reportId,
                             "table_id"                  =>  $tableId,
@@ -1849,35 +1849,32 @@ class AmazonPayment extends Model
                     "date"                      =>  date('Y-m-d H:i:s', strtotime($item[0])),
                     "payment_id"                =>  $item[4],
                     "fulfillment"               =>  "Seller",
-                    "product_sales"             =>  round(str_replace(',', '', $item[11]), 2)
-                        - round(str_replace(',', '', $item[14]), 2)
-                        + round(str_replace(',', '', $item[17]), 2),
-                    "selling_fees"              =>  round(str_replace(',', '', $item[25]), 2)
+                    "product_sales"             =>  round(str_replace(',', '', $item[11]), 2),
+                    "selling_fees"              =>  round(str_replace(',', '', $item[18]), 2)
                         + round(str_replace(',', '', $item[31]), 2),
                     "shipping_credits"          =>  0,
                     "gift_wrap_credits"         =>  0,
                     "regulatory_fee"            =>  0,
                     "promotional_rebates"       =>  0,
-                    "fba_fees"                  =>  round(str_replace(',', '', $item[27]), 2) + round(str_replace(',', '', $item[38]), 2),
+                    "fba_fees"                  =>  round(str_replace(',', '', $item[21]), 2),
                     "marketplace_withheld_tax"  =>  round(str_replace(',', '', $item[35]), 2)
                 ];
             }
 
-            if ($item[19] < 0) {
+            if ($item[14] < 0) {
                 $this->orderRefundNew[] = [
                     "report_id"                 =>  $reportId,
                     "table_id"                  =>  $tableId,
                     "date"                      =>  date('Y-m-d H:i:s', strtotime($item[0])),
                     "payment_id"                =>  $item[4],
                     "fulfillment"               =>  "Seller",
-                    "product_sales"             =>  round(str_replace(',', '', $item[19]), 2)
-                        + round(str_replace(',', '', $item[22]), 2),
-                    "selling_fees"              =>  round(str_replace(',', '', $item[26]), 2),
+                    "product_sales"             =>  round(str_replace(',', '', $item[14]), 2),
+                    "selling_fees"              =>  round(str_replace(',', '', $item[19]), 2),
                     "shipping_credits"          =>  0,
                     "gift_wrap_credits"         =>  0,
                     "regulatory_fee"            =>  0,
                     "promotional_rebates"       =>  0,
-                    "fba_fees"                  =>  round(str_replace(',', '', $item[27]), 2),
+                    "fba_fees"                  =>  round(str_replace(',', '', $item[21]), 2),
                     "marketplace_withheld_tax"  =>  round(str_replace(',', '', $item[34]), 2)
                 ];
             }
