@@ -66,8 +66,16 @@ class FinanceTemuController extends BaseController
             $saveData = [];
             $financeTemuTailObj = new FinanceTemuTailModel();
             foreach ($data as $item) {
-                $order = $financeTemuTailObj->where(['package_number' => $item[0], 'waybill_number' => $item[1]])->find();
+                if ($item[3] == '调整(退款)') {
+                    $order = $financeTemuTailObj->where(['package_number' => $item[0], 'waybill_number' => $item[1], 'total' => $item[4] * -1])->find();
+                } else {
+                    $order = $financeTemuTailObj->where(['package_number' => $item[0], 'waybill_number' => $item[1], 'total' => $item[4]])->find();
+                }
+
                 if (!empty($order)) {
+                    if ($order['total'] * -1 == $item[4]) {
+                        continue;
+                    }
                     if (empty($order['time']) && $item[7] != "--") {
                         // 更新
                         $saveData[] = [
@@ -84,7 +92,7 @@ class FinanceTemuController extends BaseController
                         "waybill_number"                =>  $item[1],
                         "service_provider_code"         =>  $item[2],
                         "bill_type"                     =>  $item[3],
-                        "total"                         =>  $item[4],
+                        "total"                         =>  $item[3] == '调整(退款)' ? $item[4] * -1 : $item[4],
                         "currency"                      =>  $item[5],
                         "reconciliation_bill_status"    =>  $item[6],
                         "time"                          =>  $item[7] == '--' ? null : $item[7],
