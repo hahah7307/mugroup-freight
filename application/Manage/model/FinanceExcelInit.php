@@ -1971,7 +1971,7 @@ class FinanceExcelInit extends Model
                 ->setCellValue('M' . $tiktokIndex, $tiktokItem['amount'])
                 ->setCellValue('N' . $tiktokIndex, $tiktokItem['sale_selling_fees'])
                 ->setCellValue('O' . $tiktokIndex, $tiktokItem['refund_selling_fees'])
-                ->setCellValue('P' . $tiktokIndex, $tiktokItem['sale_shipping'])
+                ->setCellValue('P' . $tiktokIndex, $tiktokItem['fba_fee'])
                 ->setCellValue('Q' . $tiktokIndex, $tiktokItem['calcuRes'])
                 ->setCellValue('R' . $tiktokIndex, $tiktokItem['warehouse_rent'])
                 ->setCellValue('S' . $tiktokIndex, $tiktokItem['lc_adjustment'])
