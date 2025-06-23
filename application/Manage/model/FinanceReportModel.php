@@ -5485,7 +5485,20 @@ FROM
 		payment_id,
 		description 
 	) a
-	LEFT JOIN mu_finance_wildberries_fee b ON a.payment_id = b.order_no;
+	LEFT JOIN (
+	SELECT
+		order_no,
+		product_name,
+		sku,
+		SUM( total ) total,
+		SUM( shipping_fee ) shipping_fee 
+	FROM
+		mu_finance_wildberries_fee 
+	GROUP BY
+		order_no,
+		product_name,
+	sku 
+	) b ON a.payment_id = b.order_no;
         ';
     }
 
