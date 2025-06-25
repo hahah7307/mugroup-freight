@@ -2826,4 +2826,48 @@ ORDER BY
 
         return view();
     }
+
+    /**
+     * @throws PDOException
+     * @throws BindParamException
+     */
+    public function warehouse_rent(): \think\response\View
+    {
+        $model = new ProductModel();
+        $list = $model->query('
+SELECT REPLACE
+	( `month`, "-", "" ) `month`,
+	warehouseName,
+	SUM( total ) sum 
+FROM
+	(
+	SELECT
+		b.`month`,
+	IF
+		( a.warehouse_code IN ( "PAW", "CAP", "SAV", "HOU03", "HOU07" ), "LE", "LC" ) warehouseName,
+		total 
+	FROM
+		mu_finance_warehouse a
+		LEFT JOIN mu_finance_report b ON a.report_id = b.id 
+	WHERE
+		report_id >= 4 
+	) a 
+GROUP BY
+	MONTH,
+	warehouseName;
+        ');
+
+        $data = [];
+        foreach ($list as $item) {
+            $data[$item['month']][] = ['warehouseName' => $item['warehouseName'], 'sum' => $item['sum']];
+        }
+
+        foreach ($data as $k => $v) {
+            $sum[] = [$k, $v[0]['sum'], $v[1]['sum']];
+        }
+        array_unshift($sum, ['month', '良仓', '乐歌']);
+        $this->assign('sum', json_encode($sum));
+
+        return view();
+    }
 }

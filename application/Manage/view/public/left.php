@@ -81,6 +81,7 @@
                         <dd><a layui-href="{:url('Echarts/listing')}">Listing排名表</a></dd>
                         <dd><a layui-href="{:url('Echarts/listing_group')}">Listing产品组</a></dd>
                         <dd><a layui-href="{:url('SkuReport/warehouse_tail')}">海外仓尾程</a></dd>
+                        <dd><a layui-href="{:url('SkuReport/warehouse_rent')}">海外仓仓租</a></dd>
                     </dl>
                 </li>
                 <li data-name="Product" class="layui-nav-item">
