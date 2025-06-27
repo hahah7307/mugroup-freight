@@ -1893,4 +1893,66 @@ class AmazonPayment extends Model
             'orderSubscriptionNew'      =>  $this->orderSubscriptionNew
         ];
     }
+
+    /**
+     * @throws DbException
+     * @throws ModelNotFoundException
+     * @throws DataNotFoundException
+     */
+    public function hd($excel, $tableId, $reportId): array
+    {
+        foreach ($excel as $item) {
+            $orderObj = new OrderModel();
+            $order = $orderObj->with(['details'])->where(['refNo|saleOrderCode' => $item[10]])->find();
+            if ($order && $order['userAccount'] != $this->userAccount) {
+                $this->userAccount = $order['userAccount'];
+            }
+
+            if ($item[2] == 'Z0') {
+                $this->orderSaleNew[] = [
+                    "report_id"                 =>  $reportId,
+                    "table_id"                  =>  $tableId,
+                    "date"                      =>  date('Y-m-d H:i:s', strtotime($item[12])),
+                    "payment_id"                =>  FinanceOrderSaleModel::hdPaymentFormat(intval(trim(str_replace('\'', '', $item[10])))),
+                    "description"               =>  $item[7],
+                    "product_sales"             =>  sprintf('%.2f', str_replace(',', '', $item[3])) * -1,
+                    "shipping_credits"          =>  sprintf('%.2f', str_replace(',', '', $item[4])),
+                    "gift_wrap_credits"         =>  0,
+                    "regulatory_fee"            =>  0,
+                    "promotional_rebates"       =>  0,
+                    "marketplace_withheld_tax"  =>  0,
+                    "selling_fees"              =>  0,
+                    "fba_fees"                  =>  0,
+                ];
+            } elseif ($item[2] == 'Z1') {
+                $this->orderRefundNew[] = [
+                    "report_id"                 =>  $reportId,
+                    "table_id"                  =>  $tableId,
+                    "date"                      =>  date('Y-m-d H:i:s', strtotime($item[12])),
+                    "description"               =>  $item[7],
+                    "product_sales"             =>  sprintf('%.2f', str_replace(',', '', $item[3])) * -1,
+                    "shipping_credits"          =>  sprintf('%.2f', str_replace(',', '', $item[4])),
+                    "gift_wrap_credits"         =>  0,
+                    "regulatory_fee"            =>  0,
+                    "promotional_rebates"       =>  0,
+                    "marketplace_withheld_tax"  =>  0,
+                    "selling_fees"              =>  0,
+                    "fba_fees"                  =>  0,
+                ];
+            }
+        }
+
+        return [
+            'userAccount'               =>  $this->userAccount,
+            'orderSaleNew'              =>  $this->orderSaleNew,
+            'orderRefundNew'            =>  $this->orderRefundNew,
+            'orderPromotionNew'         =>  $this->orderPromotionNew,
+            'orderShippingServiceNew'   =>  $this->orderShippingServiceNew,
+            'orderLiquidationNew'       =>  $this->orderLiquidationNew,
+            'orderAdjustmentNew'        =>  $this->orderAdjustmentNew,
+            'orderFbaInventory'         =>  $this->orderFbaInventory,
+            'orderTransferNew'          =>  $this->orderTransferNew,
+            'orderSubscriptionNew'      =>  $this->orderSubscriptionNew
+        ];
+    }
 }

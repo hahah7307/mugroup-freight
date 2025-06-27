@@ -1092,6 +1092,7 @@ FROM
 				a.platform,
 				a.userAccount,
 				a.payment_id payment,
+				
 				b.payment_id,
 				b.saleOrderCode,
 				b.platform_sku seller_sku,

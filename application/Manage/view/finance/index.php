@@ -38,6 +38,7 @@
                     <option value="ebay">ebay</option>
                     <option value="wildberries">wildberries</option>
                     <option value="tiktok">tiktok</option>
+                    <option value="hd">Homedepot</option>
                 </select>
             </div>
             <button type="button" class="layui-btn  layui-btn-normal" id="excel">导入</button><br><br>

@@ -34,4 +34,16 @@ class FinanceOrderSaleModel extends Model
             return 0;
         }
     }
+
+    static public function hdPaymentFormat($string): string
+    {
+        if (strlen($string) < 8) {
+            $n = 8 - strlen($string);
+            for ($i = 1; $i <= $n; $i++) {
+                $string = '0' . $string;
+            }
+
+        }
+        return $string;
+    }
 }
