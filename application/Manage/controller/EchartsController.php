@@ -10629,7 +10629,7 @@ FROM
 WHERE
 	`status` = 1 
 	AND created_date = ' . date('Ymd', strtotime($start)) . ' 
-	AND JSON_LENGTH(small_rank) != 0 
+	AND json_len != 0 
 	' . $search . $localNameSql . $localSkuSql . $nikeNameSql . $groupSql . '
 ) a LEFT JOIN mu_ak_amazon_listing b ON a.listing_id = b.listing_id
  WHERE b.created_date = ' . date('Ymd', strtotime('-1 day', strtotime($start))) . '
