@@ -1361,11 +1361,12 @@ class FinanceExcelInit extends Model
             ->setCellValue('E1', '所属国家')
             ->setCellValue('F1', '销售')
             ->setCellValue('G1', '退款')
-            ->setCellValue('H1', '促销')
-            ->setCellValue('I1', '退运')
-            ->setCellValue('J1', '清算')
-            ->setCellValue('K1', '调整')
-            ->setCellValue('L1', '导入时间')
+            ->setCellValue('H1', '退款其他')
+            ->setCellValue('I1', '佣金')
+            ->setCellValue('J1', '运费')
+            ->setCellValue('K1', '退运')
+            ->setCellValue('L1', '调整')
+            ->setCellValue('M1', '导入时间')
         ;
 
         $tableIndex = 1;
@@ -1379,11 +1380,12 @@ class FinanceExcelInit extends Model
                 ->setCellValue('E' . $tableIndex, $tableItem['country'])
                 ->setCellValue('F' . $tableIndex, $tableItem['sale_amount'])
                 ->setCellValue('G' . $tableIndex, $tableItem['refund_amount'])
-                ->setCellValue('H' . $tableIndex, $tableItem['promotion'])
-                ->setCellValue('I' . $tableIndex, $tableItem['shipping_service'])
-                ->setCellValue('J' . $tableIndex, $tableItem['liquidation'])
-                ->setCellValue('K' . $tableIndex, $tableItem['adjustment'])
-                ->setCellValue('L' . $tableIndex, $tableItem['created_at'])
+                ->setCellValue('H' . $tableIndex, $tableItem['refund_other'])
+                ->setCellValue('I' . $tableIndex, $tableItem['selling_fees'])
+                ->setCellValue('J' . $tableIndex, $tableItem['fba_fees'])
+                ->setCellValue('K' . $tableIndex, $tableItem['shipping_service'])
+                ->setCellValue('L' . $tableIndex, $tableItem['adjustment'])
+                ->setCellValue('M' . $tableIndex, $tableItem['created_at'])
             ;
         }
     }

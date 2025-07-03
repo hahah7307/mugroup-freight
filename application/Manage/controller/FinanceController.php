@@ -250,9 +250,10 @@ class FinanceController extends BaseController
         $this->assign('list', $list);
         $this->assign('sale_amount', $order->where($where)->sum('sale_amount'));
         $this->assign('refund_amount', $order->where($where)->sum('refund_amount'));
-        $this->assign('promotion', $order->where($where)->sum('promotion'));
+        $this->assign('refund_other', $order->where($where)->sum('refund_other'));
+        $this->assign('selling_fees', $order->where($where)->sum('selling_fees'));
+        $this->assign('fba_fees', $order->where($where)->sum('fba_fees'));
         $this->assign('shipping_service', $order->where($where)->sum('shipping_service'));
-        $this->assign('liquidation', $order->where($where)->sum('liquidation'));
         $this->assign('adjustment', $order->where($where)->sum('adjustment'));
 
         $editObj = new FinanceOrderStatisticsEditModel();
@@ -526,6 +527,8 @@ class FinanceController extends BaseController
                         $wayfairOrder = Cache::get('wayfairOrder');
                         Cache::set('wayfairOrder', array_merge((array)$wayfairOrder, (array)$paymentData['orderSaleNew']), 24 * 60 * 60);
                         $sale_amount = 0;
+                        $selling_fees = 0;
+                        $fba_fees = 0;
 
                         // 更新wayfair退款和调整到核心库
                         if ($paymentData['orderWayfairCore']) {
@@ -541,6 +544,8 @@ class FinanceController extends BaseController
                             $gift = $financeOrderSaleObj->where(['table_id' => $tableId])->sum('gift_wrap_credits');
                             $regulatory = $financeOrderSaleObj->where(['table_id' => $tableId])->sum('regulatory_fee');
                             $promotional = $financeOrderSaleObj->where(['table_id' => $tableId])->sum('promotional_rebates');
+                            $selling_fees = $financeOrderSaleObj->where(['table_id' => $tableId])->sum('selling_fees');
+                            $fba_fees = $financeOrderSaleObj->where(['table_id' => $tableId])->sum('fba_fees');
                             if (in_array($payment_type, ['amazon_uk', 'amazon_de', 'amazon_es', 'amazon_fr', 'amazon_it'])) {
                                 $productSaleTax = $financeOrderSaleObj->where(['table_id' => $tableId])->sum('product_sales_tax');
                                 $shippingCreditsTax = $financeOrderSaleObj->where(['table_id' => $tableId])->sum('shipping_credits_tax');
@@ -577,6 +582,7 @@ class FinanceController extends BaseController
                         $regulatory = $financeOrderRefundObj->where(['table_id' => $tableId])->sum('regulatory_fee');
                         $promotional = $financeOrderRefundObj->where(['table_id' => $tableId])->sum('promotional_rebates');
                         $refund_amount = round($productSale + $shipping + $gift + $regulatory + $promotional, 2);
+                        $refund_other = $financeOrderRefundObj->where(['table_id' => $tableId])->sum('other');
                     }
 
                     $financeOrderPromotionObj = new FinanceOrderPromotionModel();
@@ -632,7 +638,19 @@ class FinanceController extends BaseController
                         throw new \think\Exception('Payment导入失败！');
                     }
 
-                    if (!FinanceTableModel::update(['userAccount' => $paymentData['userAccount'], 'sale_amount' => $sale_amount, 'refund_amount' => $refund_amount, 'promotion' => $promotionSum, 'shipping_service' => $shippingServiceSum, 'liquidation' => $liquidationSum, 'adjustment' => $adjustmentSum], ['id' => $tableId])) {
+                    if (!FinanceTableModel::update(
+                        [
+                            'userAccount'       =>  $paymentData['userAccount'],
+                            'sale_amount'       =>  $sale_amount,
+                            'refund_amount'     =>  $refund_amount,
+                            'refund_other'      =>  $refund_other,
+                            'selling_fees'      =>  $selling_fees,
+                            'fba_fees'          =>  $fba_fees,
+                            'promotion'         =>  $promotionSum,
+                            'shipping_service'  =>  $shippingServiceSum,
+                            'liquidation'       =>  $liquidationSum,
+                            'adjustment'        =>  $adjustmentSum
+                        ], ['id' => $tableId])) {
                         throw new \think\Exception('店铺号同步失败！');
                     }
                 } else {

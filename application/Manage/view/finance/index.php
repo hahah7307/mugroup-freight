@@ -52,13 +52,15 @@
             <a href="{:url('index_export', ['id' => $report_id])}" class="layui-btn layui-btn-normal">导出</a><br><br>
             <span class="total">销售合计：{$sale_amount}</span>
             <span class="total">退款合计：{$refund_amount}</span>
-            <span class="total">促销合计：{$promotion}</span>
+            <span class="total">退款其他：{$refund_other}</span>
+            <span class="total">佣金合计：{$selling_fees}</span>
+            <span class="total">运费合计：{$fba_fees}</span>
             <span class="total">退运合计：{$shipping_service}</span>
-            <span class="total">清算合计：{$liquidation}</span>
             <span class="total">调整合计：{$adjustment}</span>
             <table class="layui-table" lay-size="sm">
                 <colgroup>
                     <col width="50">
+                    <col>
                     <col>
                     <col>
                     <col>
@@ -81,9 +83,10 @@
                     <th>所属国家</th>
                     <th>销售</th>
                     <th>退款</th>
-                    <th>促销费</th>
+                    <th>退款其他</th>
+                    <th>佣金</th>
+                    <th>运费</th>
                     <th>退运费</th>
-                    <th>清算</th>
                     <th>调整</th>
                     <th>导入时间</th>
                     <th class="tc">操作</th>
@@ -99,9 +102,10 @@
                     <td>{$v.country}</td>
                     <td class="tr">{$v.sale_amount}</td>
                     <td class="tr">{$v.refund_amount}</td>
-                    <td class="tr">{$v.promotion}</td>
+                    <td class="tr">{$v.refund_other}</td>
+                    <td class="tr">{$v.selling_fees}</td>
+                    <td class="tr">{$v.fba_fees}</td>
                     <td class="tr">{$v.shipping_service}</td>
-                    <td class="tr">{$v.liquidation}</td>
                     <td class="tr">{$v.adjustment}</td>
                     <td>{$v.created_at}</td>
                     <td class="tc">
