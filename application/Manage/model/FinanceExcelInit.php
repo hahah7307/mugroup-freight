@@ -2000,6 +2000,105 @@ class FinanceExcelInit extends Model
      * @throws ModelNotFoundException
      * @throws DataNotFoundException
      */
+    public function getHomeDepotWarehouseSkuSql($index, $report, $month)
+    {
+        $tiktok = $this->model->query(FinanceReportModel::getHomeDepotWarehouseSkuSql($report['id']));
+
+        if ($index) {
+            // create new sheet
+            $this->objPHPExcel->createSheet();
+        }
+
+        // Set name sheet
+        $this->objPHPExcel->setActiveSheetIndex($index)->setTitle('Homedepot');
+
+        // Add some data
+        $this->objPHPExcel->setActiveSheetIndex($index)
+            ->setCellValue('A1', '月份')
+            ->setCellValue('B1', '店铺')
+            ->setCellValue('C1', 'SKU')
+            ->setCellValue('D1', '中文品名')
+            ->setCellValue('E1', '运营人员')
+            ->setCellValue('F1', '采购人员')
+            ->setCellValue('G1', '销售数量')
+            ->setCellValue('H1', '退款数量')
+            ->setCellValue('I1', '实际销量')
+            ->setCellValue('J1', '销售总额')
+            ->setCellValue('K1', '税费')
+            ->setCellValue('L1', '退款总额')
+            ->setCellValue('M1', '实际销售总额')
+            ->setCellValue('N1', '平台佣金')
+            ->setCellValue('O1', '平台佣金退款')
+            ->setCellValue('P1', '平台运费')
+            ->setCellValue('Q1', 'FBM尾程')
+            ->setCellValue('R1', '海外仓仓储费')
+            ->setCellValue('S1', '良仓调整')
+            ->setCellValue('T1', '乐歌调整')
+            ->setCellValue('U1', '平台广告费')
+            ->setCellValue('V1', '国内广告费')
+            ->setCellValue('W1', '工厂运费')
+            ->setCellValue('X1', '国内快递费')
+            ->setCellValue('Y1', '产品DDP总值')
+            ->setCellValue('Z1', 'DDP占比')
+            ->setCellValue('AA1', '毛利')
+            ->setCellValue('AB1', '毛利率')
+            ->setCellValue('AC1', '广告费占比')
+            ->setCellValue('AD1', '仓储费占比')
+            ->setCellValue('AE1', '尾程占比')
+            ->setCellValue('AF1', '测评数量')
+            ->setCellValue('AG1', '测评金额')
+            ->setCellValue('AH1', '含测评毛利')
+            ->setCellValue('AI1', '含测评毛利率')
+        ;
+
+        $homedepotIndex = 1;
+        foreach ($tiktok as $homedepotItem) {
+            $homedepotIndex ++;
+            $this->objPHPExcel->setActiveSheetIndex($index)
+                ->setCellValue('A' . $homedepotIndex, $month)
+                ->setCellValue('B' . $homedepotIndex, $homedepotItem['userAccount'])
+                ->setCellValue('C' . $homedepotIndex, $homedepotItem['warehouse_sku'])
+                ->setCellValue('D' . $homedepotIndex, $homedepotItem['product_name'])
+                ->setCellValue('E' . $homedepotIndex, $homedepotItem['seller'])
+                ->setCellValue('F' . $homedepotIndex, $homedepotItem['purchaser'])
+                ->setCellValue('G' . $homedepotIndex, $homedepotItem['sale_qty'])
+                ->setCellValue('H' . $homedepotIndex, $homedepotItem['refund_qty'])
+                ->setCellValue('I' . $homedepotIndex, $homedepotItem['qty_amount'])
+                ->setCellValue('J' . $homedepotIndex, $homedepotItem['sale_amount'])
+                ->setCellValue('K' . $homedepotIndex, $homedepotItem['sale_tax'])
+                ->setCellValue('L' . $homedepotIndex, $homedepotItem['refund_amount'])
+                ->setCellValue('M' . $homedepotIndex, $homedepotItem['amount'])
+                ->setCellValue('N' . $homedepotIndex, $homedepotItem['sale_selling_fees'])
+                ->setCellValue('O' . $homedepotIndex, $homedepotItem['refund_selling_fees'])
+                ->setCellValue('P' . $homedepotIndex, $homedepotItem['fba_fee'])
+                ->setCellValue('Q' . $homedepotIndex, $homedepotItem['calcuRes'])
+                ->setCellValue('R' . $homedepotIndex, $homedepotItem['warehouse_rent'])
+                ->setCellValue('S' . $homedepotIndex, $homedepotItem['lc_adjustment'])
+                ->setCellValue('T' . $homedepotIndex, $homedepotItem['le_adjustment'])
+                ->setCellValue('U' . $homedepotIndex, $homedepotItem['adCost'])
+                ->setCellValue('V' . $homedepotIndex, $homedepotItem['operation_expenses'])
+                ->setCellValue('W' . $homedepotIndex, $homedepotItem['operation_factory'])
+                ->setCellValue('X' . $homedepotIndex, $homedepotItem['operation_delivery'])
+                ->setCellValue('Y' . $homedepotIndex, $homedepotItem['ddp'])
+                ->setCellValue('Z' . $homedepotIndex, $homedepotItem['ddp_percent'])
+                ->setCellValue('AA' . $homedepotIndex, $homedepotItem['profit'])
+                ->setCellValue('AB' . $homedepotIndex, $homedepotItem['gross_profit_margin'])
+                ->setCellValue('AC' . $homedepotIndex, $homedepotItem['ad_percent'])
+                ->setCellValue('AD' . $homedepotIndex, $homedepotItem['warehouse_percent'])
+                ->setCellValue('AE' . $homedepotIndex, $homedepotItem['tail_percent'])
+                ->setCellValue('AF' . $homedepotIndex, $homedepotItem['evaluation_qty'])
+                ->setCellValue('AG' . $homedepotIndex, $homedepotItem['evaluation_amount'])
+                ->setCellValue('AH' . $homedepotIndex, $homedepotItem['profit_include_evaluation'])
+                ->setCellValue('AI' . $homedepotIndex, $homedepotItem['gross_profit_margin_include_evaluation'])
+            ;
+        }
+    }
+
+    /**
+     * @throws DbException
+     * @throws ModelNotFoundException
+     * @throws DataNotFoundException
+     */
     public function generateListingRankExport($index, $data, $dateList)
     {
         if ($index) {
