@@ -76,12 +76,12 @@ class FinanceNotify extends Command
                         $output->writeln("Additional Unready");exit();
                     }
 
-                    // 检测测评订单是否导入
-                    $evaluationObj = new FinanceEvaluationModel();
-                    $evaluation = $evaluationObj->where(['report_id' => $report['id']])->order('id asc')->select();
-                    if (count($evaluation) == 0) {
-                        $output->writeln("Evaluation Unready");exit();
-                    }
+//                    // 检测测评订单是否导入
+//                    $evaluationObj = new FinanceEvaluationModel();
+//                    $evaluation = $evaluationObj->where(['report_id' => $report['id']])->order('id asc')->select();
+//                    if (count($evaluation) == 0) {
+//                        $output->writeln("Evaluation Unready");exit();
+//                    }
 
                     // 检测广告是否导入
                     $adCostObj = new FinanceAdCostModel();
@@ -118,6 +118,8 @@ class FinanceNotify extends Command
                         foreach ($adjustment as $item) {
                             $adjustmentItem = $tableObj->find($item['table_id']);
                             if ($adjustmentItem['platform'] == 'wildberries') {
+                                continue;
+                            } elseif ($adjustmentItem['platform'] == 'ebay') {
                                 continue;
                             }
                             $output->writeln("AdjustmentShare Unready");exit();
