@@ -4,7 +4,7 @@
 <!-- 主体内容 -->
 <div class="layui-body" id="LAY_app_body">
     <div class="right">
-        <a href="{:url('index')}" class="layui-btn layui-btn-danger layui-btn-sm fr"><i class="layui-icon">&#xe603;</i>返回上一页</a>
+        <a href="{:session('manage.back_url')}" class="layui-btn layui-btn-danger layui-btn-sm fr"><i class="layui-icon">&#xe603;</i>返回上一页</a>
         <div class="title">添加基础费用</div>
         <div class="layui-form">
             <div class="layui-form-item">
@@ -65,7 +65,7 @@
                     let res = response.data;
                     if (res.code === 1) {
                         layer.alert(res.msg,{icon:1,closeBtn:0,title:false,btnAlign:'c',},function(){
-                            location.reload();
+                            location.href = "{:session('manage.back_url')}";
                         });
                     } else {
                         layer.alert(res.msg,{icon:2,closeBtn:0,title:false,btnAlign:'c'},function(){
