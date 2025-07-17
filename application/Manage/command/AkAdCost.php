@@ -114,6 +114,7 @@ class AkAdCost extends Command
                     'taxRefunded'                               =>  $item['taxRefunded'],
                     'country'                                   =>  $item['country'],
                     'countryCode'                               =>  $item['countryCode'],
+                    'sharedOtherServiceFees'                    =>  $item['sharedOtherServiceFees'],
                 ];
                 unset($item);
             }
