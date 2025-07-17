@@ -88,8 +88,8 @@ class FinanceWayfairOrder extends Command
                         $regulatory = $financeOrderSaleObj->where(['table_id' => $value])->sum('regulatory_fee');
                         $promotional = $financeOrderSaleObj->where(['table_id' => $value])->sum('promotional_rebates');
                         $sale_amount = round($productSale + $shipping + $gift + $regulatory + $promotional, 2);
-                        $selling_fees = $financeOrderSaleObj->where(['table_id' => $tableId])->sum('selling_fees');
-                        $fba_fees = $financeOrderSaleObj->where(['table_id' => $tableId])->sum('fba_fees');
+                        $selling_fees = $financeOrderSaleObj->where(['table_id' => $value])->sum('selling_fees');
+                        $fba_fees = $financeOrderSaleObj->where(['table_id' => $value])->sum('fba_fees');
                         FinanceTableModel::update(
                             [
                                 'sale_amount'   =>  $sale_amount,
