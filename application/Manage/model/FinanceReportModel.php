@@ -1601,6 +1601,38 @@ FROM
 			userAccount,
 			warehouse_sku UNION ALL
 		SELECT
+			platform platform,
+			user_account userAccount,
+			warehouse_sku warehouse_sku,
+			NULL AS fbm_sale_qty,
+			NULL AS fbm_refund_qty,
+			NULL AS fbm_sale_amount,
+			NULL AS fbm_sale_tax,
+			NULL AS fbm_refund_amount,
+			NULL AS fbm_sale_selling_fees,
+			NULL AS fbm_refund_selling_fees,
+			NULL AS fbm_refund_other,
+			NULL AS calcuRes,
+			NULL AS fbm_ddp,
+			NULL AS fbm_adCost,
+			NULL AS warehouse_rent,
+			NULL AS adjustment,
+			NULL AS liquidation,
+			total promotion,
+			NULL AS shipping_service,
+			NULL AS lc_adjustment,
+			NULL AS le_adjustment,
+			NULL AS operation_expenses,
+			NULL AS operation_factory,
+			NULL AS operation_delivery,
+			NULL AS evaluation_qty,
+			NULL AS evaluation_amount 
+		FROM
+			mu_finance_ad_cost 
+		WHERE
+			report_id = 18 
+			AND platform = "amazon" UNION ALL
+		SELECT
 			"amazon" AS platform,
 			b.user_account,
 			a.warehouse_sku,
