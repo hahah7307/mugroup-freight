@@ -67,7 +67,11 @@ class FinanceReportSnapshotModel extends Model
             ];
         }
 
-        return $snapshotObj->insertAll($fbmArr);
+        if ($fbmArr) {
+            return $snapshotObj->insertAll($fbmArr);
+        } else {
+            return true;
+        }
     }
 
     /**
@@ -125,7 +129,11 @@ class FinanceReportSnapshotModel extends Model
             ];
         }
 
-        return $snapshotObj->insertAll($fbaArr);
+        if ($fbaArr) {
+            return $snapshotObj->insertAll($fbaArr);
+        } else {
+            return true;
+        }
     }
 
     /**
@@ -181,7 +189,11 @@ class FinanceReportSnapshotModel extends Model
             ];
         }
 
-        return $snapshotObj->insertAll($walmartArr);
+        if ($walmartArr) {
+            return $snapshotObj->insertAll($walmartArr);
+        } else {
+            return true;
+        }
     }
 
     /**
@@ -233,7 +245,11 @@ class FinanceReportSnapshotModel extends Model
             ];
         }
 
-        return $snapshotObj->insertAll($wayfairArr);
+        if ($wayfairArr) {
+            return $snapshotObj->insertAll($wayfairArr);
+        } else {
+            return true;
+        }
     }
 
     /**
@@ -285,7 +301,11 @@ class FinanceReportSnapshotModel extends Model
             ];
         }
 
-        return $snapshotObj->insertAll($sheinArr);
+        if ($sheinArr) {
+            return $snapshotObj->insertAll($sheinArr);
+        } else {
+            return true;
+        }
     }
 
     /**
@@ -315,6 +335,7 @@ class FinanceReportSnapshotModel extends Model
                 'sale_selling_fees'                         =>  $temuItem['sale_selling_fees'] ?: 0,
                 'refund_selling_fees'                       =>  $temuItem['refund_selling_fees'] ?: 0,
                 'calcuRes'                                  =>  $temuItem['calcuRes'] ?: 0,
+                'waybill'                                   =>  $temuItem['waybill'] ?: 0,
                 'ddp'                                       =>  $temuItem['ddp'] ?: 0,
                 'adCost'                                    =>  $temuItem['adCost'] ?: 0,
                 'warehouse_rent'                            =>  $temuItem['warehouse_rent'] ?: 0,
@@ -337,7 +358,11 @@ class FinanceReportSnapshotModel extends Model
             ];
         }
 
-        return $snapshotObj->insertAll($temuArr);
+        if ($temuArr) {
+            return $snapshotObj->insertAll($temuArr);
+        } else {
+            return true;
+        }
     }
 
     /**
@@ -391,6 +416,125 @@ class FinanceReportSnapshotModel extends Model
             ];
         }
 
-        return $snapshotObj->insertAll($ebayArr);
+        if ($ebayArr) {
+            return $snapshotObj->insertAll($ebayArr);
+        } else {
+            return true;
+        }
+    }
+
+    /**
+     * @throws PDOException
+     * @throws BindParamException
+     */
+    static public function TiktokSnapshot($report) {
+        $snapshotObj = new FinanceReportSnapshotModel();
+        $tiktokWarehouseSku = $snapshotObj->query(FinanceReportModel::getTiktokWarehouseSkuSql($report['id']));
+        $tiktokArr = [];
+        foreach ($tiktokWarehouseSku as $tiktokItem) {
+            $tiktokArr[] = [
+                'report_id'                                 =>  $report['id'],
+                'month'                                     =>  $report['month'],
+                'platform'                                  =>  $tiktokItem['platform'],
+                'user_account'                              =>  $tiktokItem['userAccount'],
+                'warehouse_sku'                             =>  $tiktokItem['warehouse_sku'],
+                'product_name'                              =>  $tiktokItem['product_name'],
+                'seller'                                    =>  $tiktokItem['seller'],
+                'purchaser'                                 =>  $tiktokItem['purchaser'],
+                'sale_qty'                                  =>  $tiktokItem['sale_qty'] ?: 0,
+                'refund_qty'                                =>  $tiktokItem['refund_qty'] ?: 0,
+                'qty_amount'                                =>  $tiktokItem['qty_amount'] ?: 0,
+                'sale_amount'                               =>  $tiktokItem['sale_amount'] ?: 0,
+                'sale_tax'                                  =>  $tiktokItem['sale_tax'] ?: 0,
+                'refund_amount'                             =>  $tiktokItem['refund_amount'] ?: 0,
+                'amount'                                    =>  $tiktokItem['amount'] ?: 0,
+                'sale_selling_fees'                         =>  $tiktokItem['sale_selling_fees'] ?: 0,
+                'refund_selling_fees'                       =>  $tiktokItem['refund_selling_fees'] ?: 0,
+                'calcuRes'                                  =>  $tiktokItem['calcuRes'] ?: 0,
+                'ddp'                                       =>  $tiktokItem['ddp'] ?: 0,
+                'adCost'                                    =>  $tiktokItem['adCost'] ?: 0,
+                'warehouse_rent'                            =>  $tiktokItem['warehouse_rent'] ?: 0,
+                'adjustment'                                =>  $tiktokItem['adjustment'] ?: 0,
+                'lc_adjustment'                             =>  $tiktokItem['lc_adjustment'] ?: 0,
+                'le_adjustment'                             =>  $tiktokItem['le_adjustment'] ?: 0,
+                'operation_expenses'                        =>  $tiktokItem['operation_expenses'] ?: 0,
+                'operation_factory'                         =>  $tiktokItem['operation_factory'] ?: 0,
+                'operation_delivery'                        =>  $tiktokItem['operation_delivery'] ?: 0,
+                'ad_percent'                                =>  $tiktokItem['ad_percent'] ?: 0,
+                'warehouse_percent'                         =>  $tiktokItem['warehouse_percent'] ?: 0,
+                'tail_percent'                              =>  $tiktokItem['tail_percent'] ?: 0,
+                'ddp_percent'                               =>  $tiktokItem['ddp_percent'] ?: 0,
+                'profit'                                    =>  $tiktokItem['profit'] ?: 0,
+                'gross_profit_margin'                       =>  $tiktokItem['gross_profit_margin'] ?: 0,
+                'evaluation_qty'                            =>  $tiktokItem['evaluation_qty'] ?: 0,
+                'evaluation_amount'                         =>  $tiktokItem['evaluation_amount'] ?: 0,
+                'profit_include_evaluation'                 =>  $tiktokItem['profit_include_evaluation'] ?: 0,
+                'gross_profit_margin_include_evaluation'    =>  $tiktokItem['gross_profit_margin_include_evaluation'] ?: 0,
+            ];
+        }
+
+        if ($tiktokArr) {
+            return $snapshotObj->insertAll($tiktokArr);
+        } else {
+            return true;
+        }
+    }
+
+    /**
+     * @throws PDOException
+     * @throws BindParamException
+     */
+    static public function HomeDepotSnapshot($report) {
+        $snapshotObj = new FinanceReportSnapshotModel();
+        $hdWarehouseSku = $snapshotObj->query(FinanceReportModel::getHomeDepotWarehouseSkuSql($report['id']));
+        $hdArr = [];
+        foreach ($hdWarehouseSku as $hdItem) {
+            $hdArr[] = [
+                'report_id'                                 =>  $report['id'],
+                'month'                                     =>  $report['month'],
+                'platform'                                  =>  $hdItem['platform'],
+                'user_account'                              =>  $hdItem['userAccount'],
+                'warehouse_sku'                             =>  $hdItem['warehouse_sku'],
+                'product_name'                              =>  $hdItem['product_name'],
+                'seller'                                    =>  $hdItem['seller'],
+                'purchaser'                                 =>  $hdItem['purchaser'],
+                'sale_qty'                                  =>  $hdItem['sale_qty'] ?: 0,
+                'refund_qty'                                =>  $hdItem['refund_qty'] ?: 0,
+                'qty_amount'                                =>  $hdItem['qty_amount'] ?: 0,
+                'sale_amount'                               =>  $hdItem['sale_amount'] ?: 0,
+                'sale_tax'                                  =>  $hdItem['sale_tax'] ?: 0,
+                'refund_amount'                             =>  $hdItem['refund_amount'] ?: 0,
+                'amount'                                    =>  $hdItem['amount'] ?: 0,
+                'sale_selling_fees'                         =>  $hdItem['sale_selling_fees'] ?: 0,
+                'refund_selling_fees'                       =>  $hdItem['refund_selling_fees'] ?: 0,
+                'calcuRes'                                  =>  $hdItem['calcuRes'] ?: 0,
+                'ddp'                                       =>  $hdItem['ddp'] ?: 0,
+                'adCost'                                    =>  $hdItem['adCost'] ?: 0,
+                'warehouse_rent'                            =>  $hdItem['warehouse_rent'] ?: 0,
+                'adjustment'                                =>  $hdItem['adjustment'] ?: 0,
+                'lc_adjustment'                             =>  $hdItem['lc_adjustment'] ?: 0,
+                'le_adjustment'                             =>  $hdItem['le_adjustment'] ?: 0,
+                'wfs_adjustment'                            =>  $hdItem['wfs_adjustment'] ?: 0,
+                'operation_expenses'                        =>  $hdItem['operation_expenses'] ?: 0,
+                'operation_factory'                         =>  $hdItem['operation_factory'] ?: 0,
+                'operation_delivery'                        =>  $hdItem['operation_delivery'] ?: 0,
+                'ad_percent'                                =>  $hdItem['ad_percent'] ?: 0,
+                'warehouse_percent'                         =>  $hdItem['warehouse_percent'] ?: 0,
+                'tail_percent'                              =>  $hdItem['tail_percent'] ?: 0,
+                'ddp_percent'                               =>  $hdItem['ddp_percent'] ?: 0,
+                'profit'                                    =>  $hdItem['profit'] ?: 0,
+                'gross_profit_margin'                       =>  $hdItem['gross_profit_margin'] ?: 0,
+                'evaluation_qty'                            =>  $hdItem['evaluation_qty'] ?: 0,
+                'evaluation_amount'                         =>  $hdItem['evaluation_amount'] ?: 0,
+                'profit_include_evaluation'                 =>  $hdItem['profit_include_evaluation'] ?: 0,
+                'gross_profit_margin_include_evaluation'    =>  $hdItem['gross_profit_margin_include_evaluation'] ?: 0,
+            ];
+        }
+
+        if ($hdArr) {
+            return $snapshotObj->insertAll($hdArr);
+        } else {
+            return true;
+        }
     }
 }

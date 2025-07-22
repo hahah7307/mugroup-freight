@@ -1,6 +1,9 @@
 
 {include file="public/header" /}
 
+<style>
+    .total {padding: 0 10px}
+</style>
 <!-- 主体内容 -->
 <div class="layui-body" id="LAY_app_body">
     <div class="right">
@@ -23,6 +26,7 @@
             <button type="button" class="layui-btn  layui-btn-{if condition='$outboundAccounting'}disabled{else/}normal{/if}" {if condition='$outboundAccounting'}disabled{/if} lay-submit lay-filter="Accounting">核算</button>
             <a href="{:url('outbound_accounting_export', ['id' => $report_id])}" class="layui-btn layui-btn-normal">导出已核算</a>
             <button data-id="{$report_id}" class="layui-btn layui-btn-danger ml0" lay-submit lay-filter="Detele">清空</button>
+            <span class="total">数量合计：{$qty|number_format=###,2}</span>
             <table class="layui-table" lay-size="sm">
                 <colgroup>
                     <col width="80">

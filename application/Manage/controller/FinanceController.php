@@ -802,6 +802,7 @@ class FinanceController extends BaseController
         $this->assign('report_id', $id);
         $this->assign('report', FinanceReportModel::get($id));
         $this->assign('generate', count($list));
+        $this->assign('qty', $order->where($where)->sum('qty'));
 
         $outboundAccounting = Cache::get('outboundAccounting');
         if (empty($outboundAccounting)) {
@@ -2468,19 +2469,30 @@ class FinanceController extends BaseController
             $reportObj = new FinanceReportModel();
             $report = $reportObj->find($reportId);
             if ($report) {
-                $snapshotObj = new FinanceReportSnapshotModel();
-                $snapshotObj->where(['report_id' => $report['id']])->delete();
-                if (FinanceReportSnapshotModel::FbmSnapshot($report)
-                    && FinanceReportSnapshotModel::FbaSnapshot($report)
-                    && FinanceReportSnapshotModel::WalmartSnapshot($report)
-                    && FinanceReportSnapshotModel::WayfairSnapshot($report)
-                    && FinanceReportSnapshotModel::SheinSnapshot($report)
-                    && FinanceReportSnapshotModel::TemuSnapshot($report)
-                    && FinanceReportSnapshotModel::EbaySnapshot($report)
-                ) {
-                    echo json_encode(['code' => 1, 'msg' => '结存完成']);
-                } else {
-                    echo json_encode(['code' => 0, 'msg' => '结存失败，请重试']);
+                Db::startTrans();
+                try {
+                    $snapshotObj = new FinanceReportSnapshotModel();
+                    $snapshotObj->where(['report_id' => $report['id']])->delete();
+                    if (
+                        FinanceReportSnapshotModel::FbmSnapshot($report)
+                        && FinanceReportSnapshotModel::FbaSnapshot($report)
+                        && FinanceReportSnapshotModel::WalmartSnapshot($report)
+                        && FinanceReportSnapshotModel::WayfairSnapshot($report)
+                        && FinanceReportSnapshotModel::SheinSnapshot($report)
+                        && FinanceReportSnapshotModel::TemuSnapshot($report)
+                        && FinanceReportSnapshotModel::EbaySnapshot($report)
+                        && FinanceReportSnapshotModel::TiktokSnapshot($report)
+                        && FinanceReportSnapshotModel::HomeDepotSnapshot($report)
+                    ) {
+
+                        Db::commit();
+                        echo json_encode(['code' => 1, 'msg' => '结存完成']);
+                    } else {
+                        throw new Exception('结存失败，请重试');
+                    }
+                } catch (Exception $e) {
+                    Db::rollback();
+                    echo json_encode(['code' => 0, 'msg' => $e->getMessage()]);
                 }
             } else {
                 echo json_encode(['code' => 0, 'msg' => '结存失败，请重试']);
