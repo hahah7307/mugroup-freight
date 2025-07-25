@@ -108,7 +108,7 @@ class FinanceOperationController extends BaseController
                     "sku"                   =>  $item[1],
                     "applicant"             =>  $item[2],
                     "currency"              =>  $item[3],
-                    "total"                 =>  $item[4],
+                    "total"                 =>  sprintf('%.2f', str_replace(',', '', $item[4])),
                     "content"               =>  $item[5],
                     "type"                  =>  $item[6],
                     "export_platform"       =>  $item[8],
@@ -224,7 +224,7 @@ class FinanceOperationController extends BaseController
                     "month"                 =>  intval($item[0]),
                     "sku"                   =>  $item[1],
                     "currency"              =>  $item[3],
-                    "total"                 =>  $item[2],
+                    "total"                 =>  sprintf('%.2f', str_replace(',', '', $item[4])),
                     "content"               =>  $item[4],
                     "type"                  =>  $item[5],
                     "factory_type"          =>  $item[6],
@@ -346,7 +346,7 @@ class FinanceOperationController extends BaseController
                     "platform"              =>  $item[5],
                     "user_account"          =>  $item[6],
                     "sku"                   =>  $item[7],
-                    "total"                 =>  $item[8],
+                    "total"                 =>  sprintf('%.2f', str_replace(',', '', $item[8])),
                 ];
             }
             $financeOperationDeliveryObj->insertAll($deliveryData);
@@ -465,7 +465,7 @@ class FinanceOperationController extends BaseController
                     "month"                 =>  intval($item[0]),
                     "sku"                   =>  $item[1],
                     "currency"              =>  $item[3],
-                    "total"                 =>  $item[2],
+                    "total"                 =>  sprintf('%.2f', str_replace(',', '', $item[2])),
                     "content"               =>  $item[4],
                     "type"                  =>  $item[5],
                     "factory_type"          =>  $item[6],
