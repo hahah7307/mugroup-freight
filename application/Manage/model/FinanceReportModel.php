@@ -5576,7 +5576,8 @@ FROM
         ';
     }
 
-    static public function getWildberriesCostSql(): string
+    // 野莓平台本月采购成本SQL
+    static public function getWildberriesMonthCostSql($monthInt): string
     {
         return '
 SELECT
@@ -5591,9 +5592,58 @@ SELECT
 	calculate_month 
 FROM
 	mu_finance_wildberries_fee 
+WHERE
+	`month` = ' . $monthInt . ' 
 ORDER BY
 	created_date DESC;
 	    ';
+    }
+
+    // 野莓平台本月核算成本SQL
+    static public function getWildberriesMonthCostAccountingSql($monthInt): string
+    {
+        return '
+SELECT
+	order_no,
+	sku,
+	product_name,
+	unit_price,
+	quantity,
+	total,
+	DATE_FORMAT( created_date, "%Y-%m-%d" ) created_date,
+	`month`,
+	calculate_month 
+FROM
+	mu_finance_wildberries_fee 
+WHERE
+	calculate_month = ' . $monthInt . ' 
+ORDER BY
+	created_date DESC;
+        ';
+    }
+
+    // 野莓平台本月应计提成本SQL
+    static public function getWildberriesMonthAccrualSql($monthInt): string
+    {
+        return '
+SELECT
+	order_no,
+	sku,
+	product_name,
+	unit_price,
+	quantity,
+	total,
+	DATE_FORMAT( created_date, "%Y-%m-%d" ) created_date,
+	`month`,
+	calculate_month 
+FROM
+	mu_finance_wildberries_fee 
+WHERE
+	`month` < ' . $monthInt . ' 
+	AND calculate_month IS NULL 
+ORDER BY
+	created_date DESC;
+        ';
     }
 
     static public function getWildberriesExpressDeliverySql($month): string

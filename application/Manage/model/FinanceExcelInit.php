@@ -1619,6 +1619,58 @@ class FinanceExcelInit extends Model
         }
     }
 
+    public function initWildberriesDirectory($index)
+    {
+        if ($index) {
+            // create new sheet
+            $this->objPHPExcel->createSheet();
+        }
+
+        // Set name sheet
+        $this->objPHPExcel->setActiveSheetIndex($index)->setTitle('WB账单目录');
+
+        // Add some data
+        $this->objPHPExcel->setActiveSheetIndex($index)
+            ->setCellValue('A1', 'SHEET名称')
+            ->setCellValue('B1', '描述')
+        ;
+
+        $this->objPHPExcel->setActiveSheetIndex($index)
+            ->setCellValue('A2', 'WB订单明细表')
+            ->setCellValue('B2', 'Wildberries平台月账单销售，退款和运费统计数据')
+        ;
+
+        $this->objPHPExcel->setActiveSheetIndex($index)
+            ->setCellValue('A3', 'WB订单利润表')
+            ->setCellValue('B3', 'Wildberries平台月度账单利润核算表')
+        ;
+
+        $this->objPHPExcel->setActiveSheetIndex($index)
+            ->setCellValue('A4', 'WB本月采购成本')
+            ->setCellValue('B4', 'Wildberries平台月度订单采购数据（以2025年6月核算为例，WB平台核算5月，则为创建时间为202505月的成本数据，下面同理）')
+        ;
+
+        $this->objPHPExcel->setActiveSheetIndex($index)
+            ->setCellValue('A5', 'WB本月已核算成本')
+            ->setCellValue('B5', 'Wildberries平台本月入核算的成本数据（核算时间为202505月成本数据）')
+        ;
+
+        $this->objPHPExcel->setActiveSheetIndex($index)
+            ->setCellValue('A6', 'WB本月计提')
+            ->setCellValue('B6', 'Wildberries平台所有采购时间在本月前，但还未入核算的成本数据（创建时间小于202505月，且未入核算成本数据）')
+        ;
+
+        $this->objPHPExcel->setActiveSheetIndex($index)
+            ->setCellValue('A7', 'WB国内快递')
+            ->setCellValue('B7', 'Wildberries平台五月国内快递明细')
+        ;
+
+        $this->objPHPExcel->setActiveSheetIndex($index)
+            ->setCellValue('A8', 'WB仓库退货')
+            ->setCellValue('B8', 'Wildberries平台当月海外仓库还剩余的库存数据')
+        ;
+    }
+
     /**
      * @throws DbException
      * @throws ModelNotFoundException
@@ -1634,7 +1686,7 @@ class FinanceExcelInit extends Model
         }
 
         // Set name sheet
-        $this->objPHPExcel->setActiveSheetIndex($index)->setTitle('Wildberries账单明细');
+        $this->objPHPExcel->setActiveSheetIndex($index)->setTitle('WB订单明细表');
 
         // Add some data
         $this->objPHPExcel->setActiveSheetIndex($index)
@@ -1695,7 +1747,7 @@ class FinanceExcelInit extends Model
         }
 
         // Set name sheet
-        $this->objPHPExcel->setActiveSheetIndex($index)->setTitle('Wildberries');
+        $this->objPHPExcel->setActiveSheetIndex($index)->setTitle('WB订单利润表');
 
         // Add some data
         $this->objPHPExcel->setActiveSheetIndex($index)
@@ -1717,7 +1769,7 @@ class FinanceExcelInit extends Model
             ->setCellValue('P1', '收单服务费退回')
             ->setCellValue('Q1', '调整费用')
             ->setCellValue('R1', '平台运费')
-            ->setCellValue('S1', '成本合计')
+            ->setCellValue('S1', '采购价')
             ->setCellValue('T1', '国内运费')
             ->setCellValue('U1', '毛利')
             ->setCellValue('V1', '毛利率')
@@ -1758,9 +1810,9 @@ class FinanceExcelInit extends Model
      * @throws ModelNotFoundException
      * @throws DataNotFoundException
      */
-    public function getWildberriesCostSql($index)
+    public function getWildberriesMonthCostSql($index, $monthInt)
     {
-        $wildberries = $this->model->query(FinanceReportModel::getWildberriesCostSql());
+        $wildberries = $this->model->query(FinanceReportModel::getWildberriesMonthCostSql($monthInt));
 
         if ($index) {
             // create new sheet
@@ -1768,7 +1820,101 @@ class FinanceExcelInit extends Model
         }
 
         // Set name sheet
-        $this->objPHPExcel->setActiveSheetIndex($index)->setTitle('Wildberries成本表');
+        $this->objPHPExcel->setActiveSheetIndex($index)->setTitle('WB本月采购成本');
+
+        // Add some data
+        $this->objPHPExcel->setActiveSheetIndex($index)
+            ->setCellValue('A1', '订单号')
+            ->setCellValue('B1', 'SKU平台编号')
+            ->setCellValue('C1', '中文品名')
+            ->setCellValue('D1', '单价')
+            ->setCellValue('E1', '数量')
+            ->setCellValue('F1', '总价')
+            ->setCellValue('G1', '创建时间')
+            ->setCellValue('H1', '支付月份')
+            ->setCellValue('I1', '核算月份')
+        ;
+
+        $wildberriesIndex = 1;
+        foreach ($wildberries as $wildberriesItem) {
+            $wildberriesIndex ++;
+            $this->objPHPExcel->setActiveSheetIndex($index)
+                ->setCellValue('A' . $wildberriesIndex, $wildberriesItem['order_no'])
+                ->setCellValue('B' . $wildberriesIndex, $wildberriesItem['sku'])
+                ->setCellValue('C' . $wildberriesIndex, $wildberriesItem['product_name'])
+                ->setCellValue('D' . $wildberriesIndex, $wildberriesItem['unit_price'])
+                ->setCellValue('E' . $wildberriesIndex, $wildberriesItem['quantity'])
+                ->setCellValue('F' . $wildberriesIndex, $wildberriesItem['total'])
+                ->setCellValue('G' . $wildberriesIndex, $wildberriesItem['created_date'])
+                ->setCellValue('H' . $wildberriesIndex, $wildberriesItem['month'])
+                ->setCellValue('I' . $wildberriesIndex, $wildberriesItem['calculate_month'])
+            ;
+        }
+    }
+
+    /**
+     * @throws DbException
+     * @throws ModelNotFoundException
+     * @throws DataNotFoundException
+     */
+    public function getWildberriesMonthCostAccountingSql($index, $monthInt)
+    {
+        $wildberries = $this->model->query(FinanceReportModel::getWildberriesMonthCostAccountingSql($monthInt));
+
+        if ($index) {
+            // create new sheet
+            $this->objPHPExcel->createSheet();
+        }
+
+        // Set name sheet
+        $this->objPHPExcel->setActiveSheetIndex($index)->setTitle('WB本月已核算成本');
+
+        // Add some data
+        $this->objPHPExcel->setActiveSheetIndex($index)
+            ->setCellValue('A1', '订单号')
+            ->setCellValue('B1', 'SKU平台编号')
+            ->setCellValue('C1', '中文品名')
+            ->setCellValue('D1', '单价')
+            ->setCellValue('E1', '数量')
+            ->setCellValue('F1', '总价')
+            ->setCellValue('G1', '创建时间')
+            ->setCellValue('H1', '支付月份')
+            ->setCellValue('I1', '核算月份')
+        ;
+
+        $wildberriesIndex = 1;
+        foreach ($wildberries as $wildberriesItem) {
+            $wildberriesIndex ++;
+            $this->objPHPExcel->setActiveSheetIndex($index)
+                ->setCellValue('A' . $wildberriesIndex, $wildberriesItem['order_no'])
+                ->setCellValue('B' . $wildberriesIndex, $wildberriesItem['sku'])
+                ->setCellValue('C' . $wildberriesIndex, $wildberriesItem['product_name'])
+                ->setCellValue('D' . $wildberriesIndex, $wildberriesItem['unit_price'])
+                ->setCellValue('E' . $wildberriesIndex, $wildberriesItem['quantity'])
+                ->setCellValue('F' . $wildberriesIndex, $wildberriesItem['total'])
+                ->setCellValue('G' . $wildberriesIndex, $wildberriesItem['created_date'])
+                ->setCellValue('H' . $wildberriesIndex, $wildberriesItem['month'])
+                ->setCellValue('I' . $wildberriesIndex, $wildberriesItem['calculate_month'])
+            ;
+        }
+    }
+
+    /**
+     * @throws DbException
+     * @throws ModelNotFoundException
+     * @throws DataNotFoundException
+     */
+    public function getWildberriesMonthAccrualSql($index, $monthInt)
+    {
+        $wildberries = $this->model->query(FinanceReportModel::getWildberriesMonthAccrualSql($monthInt));
+
+        if ($index) {
+            // create new sheet
+            $this->objPHPExcel->createSheet();
+        }
+
+        // Set name sheet
+        $this->objPHPExcel->setActiveSheetIndex($index)->setTitle('WB本月计提');
 
         // Add some data
         $this->objPHPExcel->setActiveSheetIndex($index)
@@ -1815,7 +1961,7 @@ class FinanceExcelInit extends Model
         }
 
         // Set name sheet
-        $this->objPHPExcel->setActiveSheetIndex($index)->setTitle('Wildberries国内快递');
+        $this->objPHPExcel->setActiveSheetIndex($index)->setTitle('WB国内快递');
 
         // Add some data
         $this->objPHPExcel->setActiveSheetIndex($index)
@@ -1872,7 +2018,7 @@ class FinanceExcelInit extends Model
         }
 
         // Set name sheet
-        $this->objPHPExcel->setActiveSheetIndex($index)->setTitle('Wildberries仓库退货');
+        $this->objPHPExcel->setActiveSheetIndex($index)->setTitle('WB仓库退货');
 
         // Add some data
         $this->objPHPExcel->setActiveSheetIndex($index)
