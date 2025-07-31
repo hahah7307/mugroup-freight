@@ -2835,38 +2835,69 @@ ORDER BY
     {
         $model = new ProductModel();
         $list = $model->query('
-SELECT REPLACE
-	( `month`, "-", "" ) `month`,
-	warehouseName,
-	SUM( total ) sum 
-FROM
-	(
-	SELECT
-		b.`month`,
-	IF
-		( a.warehouse_code IN ( "PAW", "CAP", "SAV", "HOU03", "HOU07" ), "LE", "LC" ) warehouseName,
-		total 
-	FROM
-		mu_finance_warehouse a
-		LEFT JOIN mu_finance_report b ON a.report_id = b.id 
-	WHERE
-		report_id >= 4 
-	) a 
-GROUP BY
-	MONTH,
-	warehouseName;
+SELECT
+  DATE_FORMAT(CONCAT(b.`month`, "-01"), "%Y%m") AS `month`,
+  IF(a.warehouse_code IN ("PAW", "CAP", "SAV", "HOU03", "HOU07", "HOU05"), "LE", "LC") AS warehouseName,
+  CASE
+    WHEN age BETWEEN 0 AND 29 THEN "000-030"
+    WHEN age BETWEEN 30 AND 59 THEN "030-060"
+    WHEN age BETWEEN 60 AND 89 THEN "060-090"
+    WHEN age BETWEEN 90 AND 119 THEN "090-120"
+    WHEN age BETWEEN 120 AND 149 THEN "120-150"
+    WHEN age BETWEEN 150 AND 179 THEN "150-180"
+    WHEN age BETWEEN 180 AND 209 THEN "180-210"
+    WHEN age BETWEEN 210 AND 239 THEN "210-240"
+    WHEN age BETWEEN 240 AND 269 THEN "240-270"
+    WHEN age BETWEEN 270 AND 299 THEN "270-300"
+    WHEN age BETWEEN 300 AND 329 THEN "300-330"
+    WHEN age BETWEEN 330 AND 359 THEN "330-360"
+    WHEN age BETWEEN 360 AND 449 THEN "360-450"
+    WHEN age BETWEEN 450 AND 539 THEN "450-540"
+    WHEN age BETWEEN 540 AND 719 THEN "540-720"
+    ELSE "720+"
+  END AS age_other,
+  SUM(total) AS sum
+FROM mu_finance_warehouse a
+LEFT JOIN mu_finance_report b ON a.report_id = b.id
+WHERE a.report_id >= 4
+GROUP BY `month`, warehouseName, age_other;
+
         ');
 
+        $monthList = $model->query('SELECT DISTINCT REPLACE ( `month`, "-", "" ) `month` FROM mu_finance_report WHERE id >= 4 ORDER BY `month` ASC;');
+        $warehouseName = ['LC', 'LE'];
+        $ageOther = ['000-030', '030-060','060-090','090-120','120-150','150-180','180-210','210-240','240-270','270-300','300-330','330-360','360-450','450-540','540-720', '720+'];
+        $this->assign('month', implode(',', array_column($monthList, 'month')));
+
         $data = [];
-        foreach ($list as $item) {
-            $data[$item['month']][] = ['warehouseName' => $item['warehouseName'], 'sum' => $item['sum']];
+        foreach ($monthList as $month) {
+            foreach ($warehouseName as $warehouse) {
+                foreach ($ageOther as $ageRange) {
+                    $init = 0;
+                    foreach ($list as $item) {
+                        if ($item['month'] == $month['month']
+                            && $item['warehouseName'] == $warehouse
+                            && $item['age_other'] == $ageRange
+                        ) {
+                            $data[$warehouse][$ageRange][] = $item['sum'];
+                            $init ++;
+                        }
+                    }
+                    if ($init == 0) {
+                        $data[$warehouse][$ageRange][] = 0;
+                    }
+                }
+            }
         }
 
-        foreach ($data as $k => $v) {
-            $sum[] = [$k, $v[0]['sum'], $v[1]['sum']];
+        $dataString = [];
+        foreach ($data as $warehouse => $v) {
+            foreach ($v as $range => $item) {
+                $dataString[] = '{ name: "' . $warehouse . '：' . $range . '", type: "bar", stack: "' . $warehouse . '", data: [' . implode(',', $item) . '] }';
+            }
         }
-        array_unshift($sum, ['month', '良仓', '乐歌']);
-        $this->assign('sum', json_encode($sum));
+
+        $this->assign('sum', implode(',', $dataString));
 
         return view();
     }

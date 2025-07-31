@@ -39,15 +39,17 @@
                 orient: 'vertical',
                 left: 'right'
             },
-            tooltip: {},
-            dataset: {
-                source: {$sum}
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'shadow'
+                }
             },
-            xAxis: { name: '月份', type: 'category' },
+            xAxis: { name: '月份', type: 'category', data: [{$month}] },
             yAxis: { name: '单位：美金', type: 'value' },
             // Declare several bar series, each will be mapped
             // to a column of dataset.source by default.
-            series: [{ type: 'bar', itemStyle: {color: '#FFC858'} }, { type: 'bar', itemStyle: {color: '#91CC75'} }]
+            series: [{$sum}]
         });
     });
 </script>
