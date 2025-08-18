@@ -3,7 +3,10 @@
 
 <style>
     .pie-chart {margin-top: 32px}
-    .main_style {height:1000px; width: 2000px}
+    .main_style {height:900px; width: 2000px}
+    .product-group {margin-bottom: 12px}
+    .see-detail {margin: 0 10px; padding: 10px 0 0; font-size: 24px}
+    .hover-elem {cursor: pointer;}
 </style>
 <!-- 主体内容 -->
 <script src="/static/echarts/dist/echarts.min.js"></script>
@@ -15,12 +18,24 @@
             <div class="layui-input-inline w200">
                 <input type="text" class="layui-input" name="keyword" value="{$keyword}" placeholder="SKU/运营">
             </div>
+            <div class="layui-input-inline w180">
+                <select name="group_name">
+                    <option value="">请选择产品组</option>
+                    {foreach name="sku_group" item="item"}
+                    <option value="{$item.group_name}" {if condition="$item.group_name eq $group_name"}selected{/if}>{$item.group_name}</option>
+                    {/foreach}
+                </select>
+            </div>
+            <div class="layui-input-inline hover-elem">
+                <i class="layui-icon see-detail">&#xe60b;</i>
+            </div>
             <div class="layui-inline">
                 <button class="layui-btn" lay-submit lay-filter="Search"><i class="layui-icon">&#xe615;</i> 查询</button>
             </div>
         </form>
 
         <div class="layui-tab" lay-filter="testTab">
+            <a href="{:url('sku_group')}" class="layui-btn product-group">产品组</a>
             <ul class="layui-tab-title">
                 <li class="layui-this">利润额</li>
                 <li>销售额</li>
@@ -64,6 +79,52 @@
             form = layui.form,
             laydate = layui.laydate,
             element = layui.element;
+
+        var tipIndex = null;
+        var hideTimer = null;
+
+        // 触发元素：移入显示
+        $('.hover-elem').on('mouseenter', function(){
+            clearTimeout(hideTimer);
+            var that = this;
+
+            // 已有就不重复创建
+            if (tipIndex !== null) return;
+
+            tipIndex = layer.tips(
+                '<div class="tip-content">{$sku_detail}</div>',
+                that,
+                {
+                    tips: [3, '#333'],   // 朝向/颜色
+                    time: 0,             // 0 = 不自动关闭
+                    area: ['400px', 'auto'],
+                    shade: 0,
+                    anim: 5,
+                    success: function(layero){
+                        // 关键：在悬浮层本身也绑定进入/离开
+                        layero.on('mouseenter', function(){
+                            clearTimeout(hideTimer);
+                        });
+                        layero.on('mouseleave', function(){
+                            hideTimer = setTimeout(function(){
+                                layer.close(tipIndex);
+                                tipIndex = null;
+                            }, 150); // 150ms 缓冲，允许鼠标「跨过空隙」
+                        });
+                    }
+                }
+            );
+        });
+
+        // 触发元素：移出时不要立刻关，给点时间让鼠标移动到层上
+        $('.hover-elem').on('mouseleave', function(){
+            hideTimer = setTimeout(function(){
+                if (tipIndex !== null){
+                    layer.close(tipIndex);
+                    tipIndex = null;
+                }
+            }, 150);
+        });
 
         // 显示日期选择器
         laydate.render({
