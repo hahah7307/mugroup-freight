@@ -980,7 +980,7 @@ class AmazonPayment extends Model
                     "quantity"                  =>  $item[7],
                     "fulfillment"               =>  "Seller",
                     "postal"                    =>  $item[18],
-                    "product_sales"             =>  sprintf('%.2f', str_replace(',', '', $item[24]) + str_replace(',', '', $item[27])),
+                    "product_sales"             =>  sprintf('%.2f', str_replace(',', '', $item[25]) + str_replace(',', '', $item[28])),
                     "selling_fees"              =>  sprintf('%.2f', str_replace(',', '', $item[22])) * -1,
                     "shipping_credits"          =>  0,
                     "gift_wrap_credits"         =>  0,
@@ -988,22 +988,22 @@ class AmazonPayment extends Model
                     "promotional_rebates"       =>  0,
                     "fba_fees"                  =>  0,
                 ];
-                if ($item[71]) {
+                if ($item[72]) {
                     $this->orderAdjustmentNew[] = [
                         "report_id"                 =>  $reportId,
                         "table_id"                  =>  $tableId,
                         "payment_id"                =>  number_format($item[2], 0, '', ''),
                         "sku"                       =>  $item[8],
-                        "total"                     =>  abs(sprintf('%.2f', str_replace(',', '', $item[71]))),
+                        "total"                     =>  abs(sprintf('%.2f', str_replace(',', '', $item[72]))),
                     ];
                 }
-                if ($item[31]) {
+                if ($item[32]) {
                     $this->orderAdjustmentNew[] = [
                         "report_id"                 =>  $reportId,
                         "table_id"                  =>  $tableId,
                         "payment_id"                =>  number_format($item[2], 0, '', ''),
                         "sku"                       =>  $item[8],
-                        "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[31])),
+                        "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[32])),
                     ];
                 }
             } elseif ($item[5] == 'REFUNDED') {
@@ -1016,7 +1016,7 @@ class AmazonPayment extends Model
                     "quantity"                  =>  $item[7],
                     "fulfillment"               =>  "Seller",
                     "postal"                    =>  $item[18],
-                    "product_sales"             =>  sprintf('%.2f', str_replace(',', '', $item[25]) + str_replace(',', '', $item[28])),
+                    "product_sales"             =>  sprintf('%.2f', str_replace(',', '', $item[26]) + str_replace(',', '', $item[29])),
                     "selling_fees"              =>  sprintf('%.2f', str_replace(',', '', $item[22])) * -1,
                     "shipping_credits"          =>  0,
                     "gift_wrap_credits"         =>  0,
@@ -1024,16 +1024,16 @@ class AmazonPayment extends Model
                     "promotional_rebates"       =>  0,
                     "fba_fees"                  =>  0,
                 ];
-                if ($item[71]) {
+                if ($item[72]) {
                     $this->orderAdjustmentNew[] = [
                         "report_id"                 =>  $reportId,
                         "table_id"                  =>  $tableId,
                         "payment_id"                =>  number_format($item[2], 0, '', ''),
                         "sku"                       =>  $item[8],
-                        "total"                     =>  abs(sprintf('%.2f', str_replace(',', '', $item[71]))) * -1,
+                        "total"                     =>  abs(sprintf('%.2f', str_replace(',', '', $item[72]))) * -1,
                     ];
                 }
-                if ($item[55] == "Customer Chargeback") {
+                if ($item[56] == "Customer Chargeback") {
                     $this->orderAdjustmentNew[] = [
                         "report_id"                 =>  $reportId,
                         "table_id"                  =>  $tableId,
@@ -1043,7 +1043,7 @@ class AmazonPayment extends Model
                     ];
                 }
             } elseif ($item[5] == 'ADJMNT') {
-                if ($item[66] == "Walmart-fulfilled(WFS)" && $item[55] == 'WFS Fulfillment fee') {
+                if ($item[67] == "Walmart-fulfilled(WFS)" && $item[56] == 'WFS Fulfillment fee') {
                     // WFS尾程
                     $this->orderAdjustmentWfs[] = [
                         "report_id"                 =>  $reportId,
@@ -1053,7 +1053,7 @@ class AmazonPayment extends Model
                         "is_fulfillment"            =>  1,
                         "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[21])),
                     ];
-                } elseif ($item[66] == "Walmart-fulfilled(WFS)" && $item[55] == '"WFS Return Shipping fee "') {
+                } elseif ($item[67] == "Walmart-fulfilled(WFS)" && $item[56] == '"WFS Return Shipping fee "') {
                     // WFS退运费
                     $this->orderAdjustmentWfs[] = [
                         "report_id"                 =>  $reportId,
