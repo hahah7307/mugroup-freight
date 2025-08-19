@@ -224,7 +224,7 @@ class FinanceOperationController extends BaseController
                     "month"                 =>  intval($item[0]),
                     "sku"                   =>  $item[1],
                     "currency"              =>  $item[3],
-                    "total"                 =>  sprintf('%.2f', str_replace(',', '', $item[4])),
+                    "total"                 =>  sprintf('%.2f', str_replace(',', '', $item[2])),
                     "content"               =>  $item[4],
                     "type"                  =>  $item[5],
                     "factory_type"          =>  $item[6],
