@@ -46,7 +46,7 @@ class FinanceSheinOrder extends Command
             }
 
             $orderRefundObj = new FinanceOrderRefundModel();
-            $refund = $orderRefundObj->where('sku', null)->where(['payment_id' => [['like', 'GSUN%']]])->limit(100)->select();
+            $refund = $orderRefundObj->where('sku', null)->where(['payment_id' => [['like', 'GSU%']]])->limit(100)->select();
             $newOrder = [];
             if (count($refund)) {
                 foreach ($refund as $r) {
