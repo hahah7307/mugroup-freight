@@ -1630,7 +1630,7 @@ FROM
 		FROM
 			mu_finance_ad_cost 
 		WHERE
-			report_id = 18 
+			report_id = ' . $report_id . ' 
 			AND platform = "amazon" UNION ALL
 		SELECT
 			"amazon" AS platform,
@@ -2822,7 +2822,7 @@ FROM
 			warehouse_sku UNION ALL
 		SELECT
 			"wayfair" AS platform,
-			d.userAccount userAccount,
+			b.user_account userAccount,
 			a.warehouse_sku warehouse_sku,
 			NULL AS sale_qty,
 			NULL AS refund_qty,
@@ -2844,13 +2844,12 @@ FROM
 			ROUND( a.cny_actual_paid / c.USD, 2 ) evaluation_amount 
 		FROM
 			mu_finance_evaluation a
-			LEFT JOIN mu_finance_order_statistics b ON a.payment = b.saleOrderCode
+			LEFT JOIN mu_finance_order_statistics b ON a.payment = b.payment_id AND a.warehouse_sku = b.warehouse_sku
 			LEFT JOIN mu_finance_report c ON a.report_id = c.id
 			LEFT JOIN mu_ecang_order d ON a.payment = d.saleOrderCode 
 		WHERE
-			d.fulfillmentType = 1 
-			AND a.report_id = ' . $report_id . ' 
-			AND b.platform = "wayfair" UNION ALL
+			a.report_id = ' . $report_id . ' 
+			AND b.platform = "wayfairnew" UNION ALL
 		SELECT
 			"wayfair" AS platform,
 			user_account userAccount,
