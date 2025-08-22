@@ -87,7 +87,8 @@ FROM
 		LEFT JOIN mu_finance_order_statistics b ON a.payment_id = b.payment_id
 		LEFT JOIN mu_finance_order_outbound e ON b.saleOrderCode = e.saleOrderCode 
 		AND b.warehouse_sku = e.warehouse_sku
-		LEFT JOIN mu_finance_store f ON e.store_id = f.id UNION ALL
+		LEFT JOIN mu_finance_store f ON e.store_id = f.id 
+		WHERE e.report_id = ' . $report_id . '  UNION ALL
 	SELECT
 		"Order" AS type,
 		a.platform,
@@ -5526,6 +5527,8 @@ FROM
 		SUM( shipping_fee ) shipping_fee 
 	FROM
 		mu_finance_wildberries_fee 
+	WHERE
+	    report_id = ' . $report_id . ' 
 	GROUP BY
 		order_no,
 		product_name,
