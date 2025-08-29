@@ -29,7 +29,7 @@ class FinanceOutboundAccounting extends Command
         Db::startTrans();
         try {
             $cache = Cache::get('outboundAccounting');
-            $list = array_slice($cache, 0, 500);
+            $list = array_slice($cache, 0, 2000);
             if (count($list)) {
                 $orderStatisticObj = new FinanceOrderStatisticsModel();
                 $updateData = [];
@@ -47,7 +47,7 @@ class FinanceOutboundAccounting extends Command
                     }
                 }
                 if ($orderStatisticObj->saveAll($updateData)) {
-                    Cache::set('outboundAccounting', array_slice($cache, 500), 48 * 60 * 60);
+                    Cache::set('outboundAccounting', array_slice($cache, 2000), 48 * 60 * 60);
                     Db::commit();
                     $output->writeln("success");
                 } else {
