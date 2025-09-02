@@ -2412,8 +2412,11 @@ FROM
 			SUBSTR( lecangsCode FROM 7 ) lecangsCode,
 			warehouseCode 
 		FROM
-			mu_le_inventory_batch 
+			mu_le_inventory_batch  a
+			LEFT JOIN mu_ecang_product b ON SUBSTR( a.lecangsCode FROM 7 ) = b.productSku 
 		WHERE
+			b.saleStatus = 2 
+			AND
 			created_date = ' . $sale_day_num . ' 
 		GROUP BY
 			lecangsCode,
