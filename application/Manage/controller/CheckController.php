@@ -1,10 +1,15 @@
 <?php
 namespace app\Manage\controller;
 
+use app\Manage\model\AccountModel;
 use app\Manage\model\InfoCategoryModel;
 use app\Manage\model\MemberRankModel;
 use app\Manage\model\AdminRoleModel;
+use app\Manage\model\TaskUserModel;
 use \think\Controller;
+use think\db\exception\DataNotFoundException;
+use think\db\exception\ModelNotFoundException;
+use think\exception\DbException;
 use \think\Session;
 use think\Db;
 
@@ -142,5 +147,71 @@ class CheckController extends BaseController
             echo json_encode(array('msg' => 'failed', 'code' => 1, 'data' => '您的操作有误！'));
             exit;
         }
+    }
+
+    /**
+     * @throws DbException
+     * @throws ModelNotFoundException
+     * @throws DataNotFoundException
+     */
+    public function get_task_active_user($selected = '')
+    {
+        if (!empty($selected)) {
+            $selectArr = explode(',', $selected);
+        } else {
+            $selectArr = [];
+        }
+        $model = new TaskUserModel();
+        $resData = [];
+        $list = $model->where(['status' => 1])->select();
+        foreach ($list as $item) {
+            if (in_array($item['id'], $selectArr)) {
+                $resData[] = [
+                    'name'      =>  $item['user_name'],
+                    'value'     =>  $item['id'],
+                    'selected'  =>  true
+                ];
+            } else {
+                $resData[] = [
+                    'name'      =>  $item['user_name'],
+                    'value'     =>  $item['id']
+                ];
+            }
+        }
+
+        return json_encode($resData);
+    }
+
+    /**
+     * @throws DbException
+     * @throws ModelNotFoundException
+     * @throws DataNotFoundException
+     */
+    public function get_task_active_admin($selected = '')
+    {
+        if (!empty($selected)) {
+            $selectArr = explode(',', $selected);
+        } else {
+            $selectArr = [];
+        }
+        $model = new AccountModel();
+        $resData = [];
+        $list = $model->where(['status' => 1])->select();
+        foreach ($list as $item) {
+            if (in_array($item['id'], $selectArr)) {
+                $resData[] = [
+                    'name'      =>  $item['nickname'],
+                    'value'     =>  $item['id'],
+                    'selected'  =>  true
+                ];
+            } else {
+                $resData[] = [
+                    'name'      =>  $item['nickname'],
+                    'value'     =>  $item['id']
+                ];
+            }
+        }
+
+        return json_encode($resData);
     }
 }

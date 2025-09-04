@@ -268,3 +268,21 @@ function currencyToNumber($currencyString): float
     // 转换为数值
     return floatval($currencyString);
 }
+
+/**
+ * @throws DbException
+ * @throws \think\db\exception\ModelNotFoundException
+ * @throws \think\db\exception\DataNotFoundException
+ */
+function userId2Name($string): string
+{
+    $list = explode(',', $string);
+    $model = new \app\Manage\model\TaskUserModel();
+    $newList = [];
+    foreach ($list as $item) {
+        $user = $model->where(['id' => $item])->find();
+        $newList[] = $user['user_name'];
+    }
+
+    return implode(',', $newList);
+}

@@ -96,8 +96,17 @@
                         <dd><a layui-href="{:url('Product/le')}">乐歌产品列表</a></dd>
                     </dl>
                 </li>
+                <li data-name="Product" class="layui-nav-item">
+                    <a layui-href="javascript:;" lay-tips="其他" lay-direction="2">
+                        <i class="layui-icon iconfont icon-chanpin2"></i>
+                        <cite>其他</cite>
+                    </a>
+                    <dl class="layui-nav-child">
+                        <dd><a layui-href="{:url('Task/index')}">任务跟踪</a></dd>
+                    </dl>
+                </li>
                 <li data-name="Storage" class="layui-nav-item">
-                    <a layui-href="javascript:;" lay-tips="仓库" lay-direction="2">
+                    <a layui-href="javascript:;" lay-tips="基础" lay-direction="2">
                         <i class="layui-icon iconfont icon-jichugongneng"></i>
                         <cite>基础</cite>
                     </a>
