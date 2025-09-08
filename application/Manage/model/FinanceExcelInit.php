@@ -2301,6 +2301,92 @@ class FinanceExcelInit extends Model
         }
     }
 
+    /**
+     * @throws DbException
+     * @throws ModelNotFoundException
+     * @throws DataNotFoundException
+     */
+    public function getFourWarehouseSkuSql($index, $date)
+    {
+        $data = $this->model->query(SkuReport::four_warehouse_sku($date));
+        $sellerData = [];
+        foreach ($data as $value) {
+            $sellerData[$value['user_name']][$value['warehouseCount']] = number_format($value['count'] / $value['userCount'], 4);
+        }
+
+        if ($index) {
+            // create new sheet
+            $this->objPHPExcel->createSheet();
+        }
+
+        // Set name sheet
+        $this->objPHPExcel->setActiveSheetIndex($index)->setTitle('SKU个数四仓率');
+
+        // Add some data
+        $this->objPHPExcel->setActiveSheetIndex($index)
+            ->setCellValue('A1', '运营')
+            ->setCellValue('B1', '单仓率')
+            ->setCellValue('C1', '两仓率')
+            ->setCellValue('D1', '三仓率')
+            ->setCellValue('E1', '四仓率')
+        ;
+
+        $skuIndex = 1;
+        foreach ($sellerData as $key => $value) {
+            $skuIndex ++;
+            $this->objPHPExcel->setActiveSheetIndex($index)
+                ->setCellValue('A' . $skuIndex, $key)
+                ->setCellValue('B' . $skuIndex, $value[1])
+                ->setCellValue('C' . $skuIndex, $value[2])
+                ->setCellValue('D' . $skuIndex, $value[3])
+                ->setCellValue('E' . $skuIndex, $value[4])
+            ;
+        }
+    }
+
+    /**
+     * @throws DbException
+     * @throws ModelNotFoundException
+     * @throws DataNotFoundException
+     */
+    public function getFourWarehouseSkuSumSql($index, $date)
+    {
+        $data = $this->model->query(SkuReport::four_warehouse_sku_sum($date));
+        $sellerSumData = [];
+        foreach ($data as $value) {
+            $sellerSumData[$value['user_name']][$value['warehouseCount']] = number_format($value['sum'] / $value['goodsSumAll'], 4);
+        }
+
+        if ($index) {
+            // create new sheet
+            $this->objPHPExcel->createSheet();
+        }
+
+        // Set name sheet
+        $this->objPHPExcel->setActiveSheetIndex($index)->setTitle('SKU总数四仓率');
+
+        // Add some data
+        $this->objPHPExcel->setActiveSheetIndex($index)
+            ->setCellValue('A1', '运营')
+            ->setCellValue('B1', '单仓率')
+            ->setCellValue('C1', '两仓率')
+            ->setCellValue('D1', '三仓率')
+            ->setCellValue('E1', '四仓率')
+        ;
+
+        $skuIndex = 1;
+        foreach ($sellerSumData as $key => $value) {
+            $skuIndex ++;
+            $this->objPHPExcel->setActiveSheetIndex($index)
+                ->setCellValue('A' . $skuIndex, $key)
+                ->setCellValue('B' . $skuIndex, $value[1])
+                ->setCellValue('C' . $skuIndex, $value[2])
+                ->setCellValue('D' . $skuIndex, $value[3])
+                ->setCellValue('E' . $skuIndex, $value[4])
+            ;
+        }
+    }
+
     public function excelSheetSet()
     {
         return $this->objPHPExcel;

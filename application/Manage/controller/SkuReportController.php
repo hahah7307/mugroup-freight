@@ -1,8 +1,13 @@
 <?php
 namespace app\Manage\controller;
 
+use app\Manage\model\FinanceExcelInit;
 use app\Manage\model\ProductModel;
+use PHPExcel;
+use PHPExcel_IOFactory;
 use think\db\exception\BindParamException;
+use think\db\exception\DataNotFoundException;
+use think\db\exception\ModelNotFoundException;
 use think\exception\DbException;
 use think\exception\PDOException;
 use think\Session;
@@ -2346,7 +2351,15 @@ SELECT
 	SELECT
 		COUNT( lecangsCode ) count 
 	FROM
-		( SELECT DISTINCT SUBSTR( lecangsCode FROM 7 ) lecangsCode FROM mu_le_inventory_batch WHERE created_date = ' . $sale_day_num . ' ) a
+		(
+		SELECT DISTINCT
+			SUBSTR( lecangsCode FROM 7 ) lecangsCode 
+		FROM
+			mu_le_inventory_batch 
+		WHERE
+			created_date = ' . $sale_day_num . ' 
+			AND warehouseCode IN ( "CAP", "PAW", "SAV", "HOU03", "HOU07", "HOU05" ) 
+		) a
 		LEFT JOIN mu_ecang_product b ON a.lecangsCode = b.productSku 
 	WHERE
 		b.saleStatus = 2 
@@ -2358,7 +2371,17 @@ FROM
 		COUNT( a.lecangsCode ) warehouseCount,
 		lecangsCode 
 	FROM
-		( SELECT DISTINCT SUBSTR( lecangsCode FROM 7 ) lecangsCode, warehouseCode FROM mu_le_inventory_batch WHERE created_date = ' . $sale_day_num . ' ) a
+		(
+		SELECT DISTINCT
+			SUBSTR( lecangsCode FROM 7 ) lecangsCode,
+			b.warehouseBelong 
+		FROM
+			mu_le_inventory_batch a
+			LEFT JOIN mu_le_warehouse b ON a.warehouseCode = b.warehouseCode 
+		WHERE
+			a.created_date = ' . $sale_day_num . ' 
+			AND a.warehouseCode IN ( "CAP", "PAW", "SAV", "HOU03", "HOU07", "HOU05" ) 
+		) a
 		LEFT JOIN mu_ecang_product b ON a.lecangsCode = b.productSku 
 	WHERE
 		b.saleStatus = 2 
@@ -2367,7 +2390,7 @@ FROM
 	) a 
 GROUP BY
 	warehouseCount,
-	countSum
+	countSum 
 ORDER BY
 	warehouseCount ASC;
         ');
@@ -2382,7 +2405,7 @@ FROM
 	(
 	SELECT
 		SUM( a.goodsNum ) goodsNum,
-		COUNT( a.warehouseCode ) warehouseCount,
+		COUNT( a.warehouseBelong ) warehouseCount,
 		lecangsCode,
 		(
 		SELECT
@@ -2392,14 +2415,16 @@ FROM
 			SELECT
 				SUM( goodsNum ) goodsNum,
 				SUBSTR( lecangsCode FROM 7 ) lecangsCode,
-				warehouseCode 
+				b.warehouseBelong 
 			FROM
-				mu_le_inventory_batch 
+				mu_le_inventory_batch a
+				LEFT JOIN mu_le_warehouse b ON a.warehouseCode = b.warehouseCode 
 			WHERE
 				created_date = ' . $sale_day_num . ' 
+				AND a.warehouseCode IN ( "CAP", "PAW", "SAV", "HOU03", "HOU07", "HOU05" ) 
 			GROUP BY
 				lecangsCode,
-				warehouseCode 
+				warehouseBelong 
 			) a
 			LEFT JOIN mu_ecang_product b ON a.lecangsCode = b.productSku 
 		WHERE
@@ -2410,21 +2435,19 @@ FROM
 		SELECT
 			SUM( goodsNum ) goodsNum,
 			SUBSTR( lecangsCode FROM 7 ) lecangsCode,
-			warehouseCode 
+			c.warehouseBelong 
 		FROM
-			mu_le_inventory_batch  a
-			LEFT JOIN mu_ecang_product b ON SUBSTR( a.lecangsCode FROM 7 ) = b.productSku 
+			mu_le_inventory_batch a
+			LEFT JOIN mu_ecang_product b ON SUBSTR( a.lecangsCode FROM 7 ) = b.productSku
+			LEFT JOIN mu_le_warehouse c ON a.warehouseCode = c.warehouseCode 
 		WHERE
 			b.saleStatus = 2 
-			AND
-			created_date = ' . $sale_day_num . ' 
+			AND a.warehouseCode IN ( "CAP", "PAW", "SAV", "HOU03", "HOU07", "HOU05" ) 
+			AND created_date = ' . $sale_day_num . ' 
 		GROUP BY
 			lecangsCode,
-			warehouseCode 
-		) a
-		LEFT JOIN mu_ecang_product b ON a.lecangsCode = b.productSku 
-	WHERE
-		b.saleStatus = 2 
+			warehouseBelong 
+		) a 
 	GROUP BY
 		lecangsCode 
 	) a 
@@ -2437,7 +2460,7 @@ ORDER BY
         $this->assign('sumPercent', $sumPercent);
 
 
-        $kindPic = $model->query('
+        $kindPic = $model->query('	
 SELECT
 	a.created_date,
 	a.warehouseCount,
@@ -2453,21 +2476,23 @@ FROM
 		(
 		SELECT
 			lecangsCode,
-			COUNT( warehouseCode ) warehouseCount,
+			COUNT( warehouseBelong ) warehouseCount,
 			created_date 
 		FROM
 			(
 			SELECT DISTINCT
 				SUBSTR( lecangsCode FROM 7 ) lecangsCode,
-				warehouseCode,
+				b.warehouseBelong,
 				created_date 
 			FROM
-				mu_le_inventory_batch 
+				mu_le_inventory_batch a
+				LEFT JOIN mu_le_warehouse b ON a.warehouseCode = b.warehouseCode 
 			WHERE
 				created_date >= ' . $two_weeks_day . ' 
+				AND a.warehouseCode IN ( "CAP", "PAW", "SAV", "HOU03", "HOU07", "HOU05" ) 
 			GROUP BY
 				lecangsCode,
-				warehouseCode,
+				warehouseBelong,
 				created_date 
 			) a
 			LEFT JOIN mu_ecang_product b ON a.lecangsCode = b.productSku 
@@ -2486,22 +2511,33 @@ FROM
 		COUNT( lecangsCode ) skuDayCount,
 		created_date 
 	FROM
-		( SELECT DISTINCT SUBSTR( lecangsCode FROM 7 ) lecangsCode, created_date FROM mu_le_inventory_batch WHERE created_date >= ' . $two_weeks_day . ' GROUP BY lecangsCode, created_date ) a
-		LEFT JOIN mu_ecang_product b ON a.lecangsCode = b.productSku 
-	WHERE
-		b.saleStatus = 2 
+		(
+		SELECT DISTINCT
+			SUBSTR( lecangsCode FROM 7 ) lecangsCode,
+			created_date 
+		FROM
+			mu_le_inventory_batch a
+			LEFT JOIN mu_le_warehouse b ON a.warehouseCode = b.warehouseCode
+			LEFT JOIN mu_ecang_product c ON SUBSTR( a.lecangsCode FROM 7 ) = c.productSku 
+		WHERE
+			created_date >= ' . $two_weeks_day . ' 
+			AND a.warehouseCode IN ( "CAP", "PAW", "SAV", "HOU03", "HOU07", "HOU05" ) 
+			AND c.saleStatus = 2 
+		GROUP BY
+			lecangsCode,
+			created_date 
+		) a 
 	GROUP BY
 		created_date 
 	) b ON a.created_date = b.created_date 
 ORDER BY
 	created_date ASC,
-	warehouseCount ASC
+	warehouseCount ASC;
         ');
         $kindOne = [];
         $kindTwo = [];
         $kindThree = [];
         $kindFour = [];
-        $kindFive = [];
         foreach ($kindPic as $item) {
             if ($item['warehouseCount'] == 1) {
                 $kindOne[] = round($item['count'] / $item['skuDayCount'], 4);
@@ -2511,18 +2547,12 @@ ORDER BY
                 $kindThree[] = round($item['count'] / $item['skuDayCount'], 4);
             } elseif ($item['warehouseCount'] == 4) {
                 $kindFour[] = round($item['count'] / $item['skuDayCount'], 4);
-            } elseif ($item['warehouseCount'] == 5) {
-                $kindFive[] = round($item['count'] / $item['skuDayCount'], 4);
             }
-        }
-        foreach ($kindFour as $k => $v) {
-            $kindFour[$k] = $v + $kindFive[$k];
         }
         $this->assign('kindOne', implode(',', $kindOne));
         $this->assign('kindTwo', implode(',', $kindTwo));
         $this->assign('kindThree', implode(',', $kindThree));
         $this->assign('kindFour', implode(',', $kindFour));
-        $this->assign('kindFive', implode(',', $kindFive));
         $this->assign('date', implode(',', array_unique(array_column($kindPic,'created_date'))));
         $this->assign('dateString', "'" . implode("','", array_unique(array_column($kindPic,'created_date'))) . "'");
 
@@ -2542,7 +2572,7 @@ FROM
 		(
 		SELECT
 			SUM( goodsNum ) goodsNum,
-			COUNT( warehouseCode ) warehouseCount,
+			COUNT( warehouseBelong ) warehouseCount,
 			lecangsCode,
 			created_date 
 		FROM
@@ -2550,20 +2580,21 @@ FROM
 			SELECT
 				SUM( goodsNum ) goodsNum,
 				SUBSTR( lecangsCode FROM 7 ) lecangsCode,
-				warehouseCode,
+				warehouseBelong,
 				created_date 
 			FROM
-				mu_le_inventory_batch a 
+				mu_le_inventory_batch a
+				LEFT JOIN mu_le_warehouse b ON a.warehouseCode = b.warehouseCode
+				LEFT JOIN mu_ecang_product c ON SUBSTR( a.lecangsCode FROM 7 ) = c.productSku 
 			WHERE
 				created_date >= ' . $two_weeks_day . ' 
+				AND a.warehouseCode IN ( "CAP", "PAW", "SAV", "HOU03", "HOU07", "HOU05" ) 
+				AND c.saleStatus = 2 
 			GROUP BY
 				lecangsCode,
-				warehouseCode,
+				warehouseBelong,
 				created_date 
-			) a
-			LEFT JOIN mu_ecang_product b ON a.lecangsCode = b.productSku 
-		WHERE
-			b.saleStatus = 2 
+			) a 
 		GROUP BY
 			lecangsCode,
 			created_date 
@@ -2583,16 +2614,17 @@ FROM
 			SUBSTR( lecangsCode FROM 7 ) lecangsCode,
 			created_date 
 		FROM
-			mu_le_inventory_batch 
+			mu_le_inventory_batch a
+			LEFT JOIN mu_le_warehouse b ON a.warehouseCode = b.warehouseCode
+			LEFT JOIN mu_ecang_product c ON SUBSTR( a.lecangsCode FROM 7 ) = c.productSku 
 		WHERE
 			created_date >= ' . $two_weeks_day . ' 
+			AND a.warehouseCode IN ( "CAP", "PAW", "SAV", "HOU03", "HOU07", "HOU05" ) 
+			AND c.saleStatus = 2 
 		GROUP BY
 			lecangsCode,
 			created_date 
-		) a
-		LEFT JOIN mu_ecang_product b ON a.lecangsCode = b.productSku 
-	WHERE
-		b.saleStatus = 2 
+		) a 
 	GROUP BY
 		created_date 
 	) b ON a.created_date = b.created_date 
@@ -2604,7 +2636,6 @@ ORDER BY
         $sumTwo = [];
         $sumThree = [];
         $sumFour = [];
-        $sumFive = [];
         foreach ($sumPic as $item) {
             if ($item['warehouseCount'] == 1) {
                 $sumOne[] = round($item['goodsNum'] / $item['skuDaySum'], 4);
@@ -2614,18 +2645,12 @@ ORDER BY
                 $sumThree[] = round($item['goodsNum'] / $item['skuDaySum'], 4);
             } elseif ($item['warehouseCount'] == 4) {
                 $sumFour[] = round($item['goodsNum'] / $item['skuDaySum'], 4);
-            } elseif ($item['warehouseCount'] == 5) {
-                $sumFive[] = round($item['goodsNum'] / $item['skuDaySum'], 4);
             }
-        }
-        foreach ($sumFour as $k => $v) {
-            $sumFour[$k] = $v + $sumFive[$k];
         }
         $this->assign('sumOne', implode(',', $sumOne));
         $this->assign('sumTwo', implode(',', $sumTwo));
         $this->assign('sumThree', implode(',', $sumThree));
         $this->assign('sumFour', implode(',', $sumFour));
-        $this->assign('sumFive', implode(',', $sumFive));
         $this->assign('date2', implode(',', array_unique(array_column($sumPic,'created_date'))));
         $this->assign('dateString2', "'" . implode("','", array_unique(array_column($sumPic,'created_date'))) . "'");
 
@@ -2642,7 +2667,17 @@ FROM
 		lecangsCode,
 		c.user_name 
 	FROM
-		( SELECT DISTINCT SUBSTR( lecangsCode FROM 7 ) lecangsCode, warehouseCode FROM mu_le_inventory_batch WHERE created_date = ' . $sale_day_num . ' ) a
+		(
+		SELECT DISTINCT
+			SUBSTR( lecangsCode FROM 7 ) lecangsCode,
+			warehouseBelong 
+		FROM
+			mu_le_inventory_batch a
+			LEFT JOIN mu_le_warehouse b ON a.warehouseCode = b.warehouseCode 
+		WHERE
+			created_date = ' . $sale_day_num . ' 
+			AND a.warehouseCode IN ( "CAP", "PAW", "SAV", "HOU03", "HOU07", "HOU05" ) 
+		) a
 		LEFT JOIN mu_ecang_product b ON a.lecangsCode = b.productSku
 		LEFT JOIN mu_ecang_user c ON b.personSellerId = c.user_id 
 	WHERE
@@ -2656,7 +2691,16 @@ FROM
 		COUNT( a.lecangsCode ) userCount,
 		c.user_name 
 	FROM
-		( SELECT DISTINCT SUBSTR( lecangsCode FROM 7 ) lecangsCode FROM mu_le_inventory_batch WHERE created_date = ' . $sale_day_num . ' ) a
+		(
+		SELECT DISTINCT
+			SUBSTR( lecangsCode FROM 7 ) lecangsCode 
+		FROM
+			mu_le_inventory_batch a
+			LEFT JOIN mu_le_warehouse b ON a.warehouseCode = b.warehouseCode 
+		WHERE
+			created_date = ' . $sale_day_num . ' 
+			AND a.warehouseCode IN ( "CAP", "PAW", "SAV", "HOU03", "HOU07", "HOU05" ) 
+		) a
 		LEFT JOIN mu_ecang_product b ON a.lecangsCode = b.productSku
 		LEFT JOIN mu_ecang_user c ON b.personSellerId = c.user_id 
 	WHERE
@@ -2696,14 +2740,16 @@ FROM
 		SELECT
 			SUM( goodsNum ) goodsNum,
 			SUBSTR( lecangsCode FROM 7 ) lecangsCode,
-			warehouseCode 
+			warehouseBelong 
 		FROM
-			mu_le_inventory_batch 
+			mu_le_inventory_batch a
+			LEFT JOIN mu_le_warehouse b ON a.warehouseCode = b.warehouseCode 
 		WHERE
 			created_date = ' . $sale_day_num . ' 
+			AND a.warehouseCode IN ( "CAP", "PAW", "SAV", "HOU03", "HOU07", "HOU05" ) 
 		GROUP BY
 			lecangsCode,
-			warehouseCode 
+			warehouseBelong 
 		) a
 		LEFT JOIN mu_ecang_product b ON a.lecangsCode = b.productSku
 		LEFT JOIN mu_ecang_user c ON b.personSellerId = c.user_id 
@@ -2722,14 +2768,16 @@ FROM
 		SELECT
 			SUM( goodsNum ) goodsNum,
 			SUBSTR( lecangsCode FROM 7 ) lecangsCode,
-			warehouseCode 
+			warehouseBelong 
 		FROM
-			mu_le_inventory_batch 
+			mu_le_inventory_batch a
+			LEFT JOIN mu_le_warehouse b ON a.warehouseCode = b.warehouseCode 
 		WHERE
 			created_date = ' . $sale_day_num . ' 
+			AND a.warehouseCode IN ( "CAP", "PAW", "SAV", "HOU03", "HOU07", "HOU05" ) 
 		GROUP BY
 			lecangsCode,
-			warehouseCode 
+			warehouseBelong 
 		) a
 		LEFT JOIN mu_ecang_product b ON a.lecangsCode = b.productSku
 		LEFT JOIN mu_ecang_user c ON b.personSellerId = c.user_id 
@@ -2754,6 +2802,66 @@ ORDER BY
 
         Session::set(Config::get('BACK_URL'), $this->request->url(), 'manage');
         return view();
+    }
+
+    /**
+     * @throws DataNotFoundException
+     * @throws \PHPExcel_Writer_Exception
+     * @throws \PHPExcel_Reader_Exception
+     * @throws ModelNotFoundException
+     * @throws DbException
+     */
+    public function four_warehouse_sku_export($sale_day)
+    {
+        $sale_day_num = date('Ymd', strtotime($sale_day));
+
+        // phpexcel
+        require_once './static/classes/PHPExcel/Classes/PHPExcel.php';
+        // Create new PHPExcel object
+        $objPHPExcel = new PHPExcel();
+        $financeExcelInit = new FinanceExcelInit($objPHPExcel);
+        $financeExcelInit->getFourWarehouseSkuSql(0, $sale_day_num);
+        $objPHPExcel = $financeExcelInit->excelSheetSet();
+
+        // Redirect output to a client’s web browser (Excel5)
+        header('Content-Type: application/vnd.ms-excel');
+        $filename = date("YmdHis") . time() . mt_rand(100000, 999999);
+        ob_end_clean();
+        header('Content-Disposition:attachment;filename="'.$filename.'.xls"');
+        header('Cache-Control: max-age=0');
+
+        $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+        $objWriter->save('php://output');
+    }
+
+    /**
+     * @throws DataNotFoundException
+     * @throws \PHPExcel_Writer_Exception
+     * @throws \PHPExcel_Reader_Exception
+     * @throws ModelNotFoundException
+     * @throws DbException
+     */
+    public function four_warehouse_sku_sum_export($sale_day)
+    {
+        $sale_day_num = date('Ymd', strtotime($sale_day));
+
+        // phpexcel
+        require_once './static/classes/PHPExcel/Classes/PHPExcel.php';
+        // Create new PHPExcel object
+        $objPHPExcel = new PHPExcel();
+        $financeExcelInit = new FinanceExcelInit($objPHPExcel);
+        $financeExcelInit->getFourWarehouseSkuSumSql(0, $sale_day_num);
+        $objPHPExcel = $financeExcelInit->excelSheetSet();
+
+        // Redirect output to a client’s web browser (Excel5)
+        header('Content-Type: application/vnd.ms-excel');
+        $filename = date("YmdHis") . time() . mt_rand(100000, 999999);
+        ob_end_clean();
+        header('Content-Disposition:attachment;filename="'.$filename.'.xls"');
+        header('Cache-Control: max-age=0');
+
+        $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+        $objWriter->save('php://output');
     }
 
     /**
