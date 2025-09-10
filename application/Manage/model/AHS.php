@@ -23,7 +23,7 @@ class AHS extends Model
         $arr = [$a, $b, $c];
         sort($arr);
         $length = array_reverse($arr);
-        return $length[0] > 48 * self::CM2INCHES || $length[1] > 30 * self::CM2INCHES || ($length[0] + ($length[1] + $length[2]) * 2) > 105 * self::CM2INCHES;
+        return ceil($length[0] / self::CM2INCHES) > 48 || ceil($length[1] / self::CM2INCHES) > 30 || (ceil($length[0] / self::CM2INCHES) + (ceil($length[1]/ self::CM2INCHES) + ceil($length[2] / self::CM2INCHES)) * 2) > 105;
     }
 
     /**
