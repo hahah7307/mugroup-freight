@@ -26,7 +26,7 @@
                 </div>
             </div>
             <div class="layui-form-item">
-                <label class="layui-form-label">ECT预计</label>
+                <label class="layui-form-label">预计完成</label>
                 <div class="layui-input-inline w300">
                     <input type="text" class="layui-input" id="ect_time" name="ect_time" placeholder="ECT预计">
                 </div>
@@ -98,7 +98,7 @@
             }
         });
 
-        //监听提交
+        // 监听提交
         form.on('submit(formCoding)', function(data){
             var text = $(this).text(),
                 button = $(this);

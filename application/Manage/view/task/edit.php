@@ -26,13 +26,13 @@
                 </div>
             </div>
             <div class="layui-form-item">
-                <label class="layui-form-label">ECT(预计)</label>
+                <label class="layui-form-label">预计完成</label>
                 <div class="layui-input-inline w300">
                     <input type="text" class="layui-input" id="ect_time" name="ect_time" value="{$info.ect_time}" placeholder="ECT预计">
                 </div>
             </div>
             <div class="layui-form-item">
-                <label class="layui-form-label">ACT(实际)</label>
+                <label class="layui-form-label">实际完成</label>
                 <div class="layui-input-inline w300">
                     <input type="text" class="layui-input" id="act_time" name="act_time" value="{$info.act_time}" placeholder="ACT实际">
                 </div>
@@ -111,7 +111,7 @@
             }
         });
 
-        //监听提交
+        // 监听提交
         form.on('submit(formCoding)', function(data){
             var text = $(this).text(),
                 button = $(this);

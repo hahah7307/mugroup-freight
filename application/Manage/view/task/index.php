@@ -33,8 +33,8 @@
             <div class="layui-inline w120">
                 <select name="time" lay-verify="">
                     <option value="1" {if condition="$time eq 1"}selected{/if}>创建时间</option>
-                    <option value="2" {if condition="$time eq 2"}selected{/if}>ECT(预计)</option>
-                    <option value="3" {if condition="$time eq 3"}selected{/if}>ACT(实际)</option>
+                    <option value="2" {if condition="$time eq 2"}selected{/if}>预计完成</option>
+                    <option value="3" {if condition="$time eq 3"}selected{/if}>实际完成</option>
                 </select>
             </div>
             <div class="layui-input-inline">
@@ -61,7 +61,6 @@
                     <col class="w200">
                     <col class="w150">
                     <col class="w150">
-                    <col class="w150">
                     <col class="w80">
                     <col class="w80">
                     <col class="w200">
@@ -72,9 +71,8 @@
                     <th class="tc">事项内容</th>
                     <th class="tc">主负责人</th>
                     <th class="tc">相关人员</th>
-                    <th class="tc">ECT(预计)</th>
-                    <th class="tc">ACT(实际)</th>
-                    <th class="tc">创建时间</th>
+                    <th class="tc">预计完成日期</th>
+                    <th class="tc">实际完成日期</th>
                     <th class="tc">创建人</th>
                     <th class="tc">状态</th>
                     <th class="tc">操作</th>
@@ -87,9 +85,12 @@
                     <td class="hover-elem"><div class="ellipsis">{$v.title}</div></td>
                     <td>{:userId2Name($v['user_master'])}</td>
                     <td>{:userId2Name($v['user_support'])}</td>
-                    <td>{$v.ect_time}</td>
-                    <td>{$v.act_time}</td>
-                    <td>{$v.create_time}</td>
+                    <td>{$v.ect_time|strtotime|date="Y-m-d",###}</td>
+                    <td>
+                        {if condition="$v.act_time neq null"}
+                        {$v.act_time|strtotime|date="Y-m-d",###}
+                        {/if}
+                    </td>
                     <td>{$v.account.nickname}</td>
                     <td class="tc">
                         {if condition="$v.status eq 1"}
