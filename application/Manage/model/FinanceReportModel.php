@@ -5578,6 +5578,26 @@ FROM
         ';
     }
 
+    static public function getWildberriesCostSql(): string
+    {
+        return '
+SELECT
+	order_no,
+	sku,
+	product_name,
+	unit_price,
+	quantity,
+	total,
+	DATE_FORMAT( created_date, "%Y-%m-%d" ) created_date,
+	`month`,
+	calculate_month 
+FROM
+	mu_finance_wildberries_fee 
+ORDER BY
+	created_date DESC;
+	    ';
+    }
+
     // 野莓平台本月采购成本SQL
     static public function getWildberriesMonthCostSql($monthInt): string
     {

@@ -1646,28 +1646,33 @@ class FinanceExcelInit extends Model
         ;
 
         $this->objPHPExcel->setActiveSheetIndex($index)
-            ->setCellValue('A4', 'WB本月采购成本')
-            ->setCellValue('B4', 'Wildberries平台月度订单采购数据（以2025年6月核算为例，WB平台核算5月，则为创建时间为202505月的成本数据，下面同理）')
+            ->setCellValue('A4', 'WB采购成本')
+            ->setCellValue('B4', 'Wildberries平台总采购成本和核算月份')
         ;
 
         $this->objPHPExcel->setActiveSheetIndex($index)
-            ->setCellValue('A5', 'WB本月已核算成本')
-            ->setCellValue('B5', 'Wildberries平台本月入核算的成本数据（核算时间为202505月成本数据）')
+            ->setCellValue('A5', 'WB本月采购成本')
+            ->setCellValue('B5', 'Wildberries平台月度订单采购数据（以2025年6月核算为例，WB平台核算5月，则为创建时间为202505月的成本数据，下面同理）')
         ;
 
         $this->objPHPExcel->setActiveSheetIndex($index)
-            ->setCellValue('A6', 'WB本月计提')
-            ->setCellValue('B6', 'Wildberries平台所有采购时间在本月前，但还未入核算的成本数据（创建时间小于202505月，且未入核算成本数据）')
+            ->setCellValue('A6', 'WB本月已核算成本')
+            ->setCellValue('B6', 'Wildberries平台本月入核算的成本数据（核算时间为202505月成本数据）')
         ;
 
         $this->objPHPExcel->setActiveSheetIndex($index)
-            ->setCellValue('A7', 'WB国内快递')
-            ->setCellValue('B7', 'Wildberries平台五月国内快递明细')
+            ->setCellValue('A7', 'WB本月计提')
+            ->setCellValue('B7', 'Wildberries平台所有采购时间在本月前，但还未入核算的成本数据（创建时间小于202505月，且未入核算成本数据）')
         ;
 
         $this->objPHPExcel->setActiveSheetIndex($index)
-            ->setCellValue('A8', 'WB仓库退货')
-            ->setCellValue('B8', 'Wildberries平台当月海外仓库还剩余的库存数据')
+            ->setCellValue('A8', 'WB国内快递')
+            ->setCellValue('B8', 'Wildberries平台五月国内快递明细')
+        ;
+
+        $this->objPHPExcel->setActiveSheetIndex($index)
+            ->setCellValue('A9', 'WB仓库退货')
+            ->setCellValue('B9', 'Wildberries平台当月海外仓库还剩余的库存数据')
         ;
     }
 
@@ -1801,6 +1806,53 @@ class FinanceExcelInit extends Model
                 ->setCellValue('T' . $wildberriesIndex, $wildberriesItem['domestic_shipping'])
                 ->setCellValue('U' . $wildberriesIndex, $wildberriesItem['profit'])
                 ->setCellValue('V' . $wildberriesIndex, $wildberriesItem['gross_profit_margin'])
+            ;
+        }
+    }
+
+    /**
+     * @throws DbException
+     * @throws ModelNotFoundException
+     * @throws DataNotFoundException
+     */
+    public function getWildberriesCostSql($index)
+    {
+        $wildberries = $this->model->query(FinanceReportModel::getWildberriesCostSql());
+
+        if ($index) {
+            // create new sheet
+            $this->objPHPExcel->createSheet();
+        }
+
+        // Set name sheet
+        $this->objPHPExcel->setActiveSheetIndex($index)->setTitle('Wildberries成本表');
+
+        // Add some data
+        $this->objPHPExcel->setActiveSheetIndex($index)
+            ->setCellValue('A1', '订单号')
+            ->setCellValue('B1', 'SKU平台编号')
+            ->setCellValue('C1', '中文品名')
+            ->setCellValue('D1', '单价')
+            ->setCellValue('E1', '数量')
+            ->setCellValue('F1', '总价')
+            ->setCellValue('G1', '创建时间')
+            ->setCellValue('H1', '支付月份')
+            ->setCellValue('I1', '核算月份')
+        ;
+
+        $wildberriesIndex = 1;
+        foreach ($wildberries as $wildberriesItem) {
+            $wildberriesIndex ++;
+            $this->objPHPExcel->setActiveSheetIndex($index)
+                ->setCellValue('A' . $wildberriesIndex, $wildberriesItem['order_no'])
+                ->setCellValue('B' . $wildberriesIndex, $wildberriesItem['sku'])
+                ->setCellValue('C' . $wildberriesIndex, $wildberriesItem['product_name'])
+                ->setCellValue('D' . $wildberriesIndex, $wildberriesItem['unit_price'])
+                ->setCellValue('E' . $wildberriesIndex, $wildberriesItem['quantity'])
+                ->setCellValue('F' . $wildberriesIndex, $wildberriesItem['total'])
+                ->setCellValue('G' . $wildberriesIndex, $wildberriesItem['created_date'])
+                ->setCellValue('H' . $wildberriesIndex, $wildberriesItem['month'])
+                ->setCellValue('I' . $wildberriesIndex, $wildberriesItem['calculate_month'])
             ;
         }
     }
