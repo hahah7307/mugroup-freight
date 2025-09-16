@@ -1328,7 +1328,9 @@ class AmazonPayment extends Model
                     "fba_fees"                  =>  0,
                 ];
             } elseif ($item[2] == '违规处罚扣款'
-                || $item[2] == '订单调整') {
+                || $item[2] == '订单调整'
+                || $item[2] == '违规处罚补款'
+            ) {
                 $this->orderAdjustmentNew[] = [
                     "report_id"                 =>  $reportId,
                     "table_id"                  =>  $tableId,
@@ -1505,6 +1507,18 @@ class AmazonPayment extends Model
                             "fulfillment"               => "Seller",
                             "payment_id"                => '',
                             "total"                     => sprintf('%.2f', str_replace(',', '', $item[3] * -1)),
+                        ];
+                    }
+                }
+            } elseif (strpos($sheetName, '支出-买家拒付') !== false) {
+                foreach ($excel->getSheet($k)->toArray() as $key => $item) {
+                    if ($key > 0) {
+                        $this->orderAdjustmentNew[] = [
+                            "report_id"                 => $reportId,
+                            "table_id"                  => $tableId,
+                            "fulfillment"               => "Seller",
+                            "payment_id"                => '',
+                            "total"                     => sprintf('%.2f', str_replace(',', '', $item[1] * -1)),
                         ];
                     }
                 }
@@ -1856,7 +1870,8 @@ class AmazonPayment extends Model
                         + round(str_replace(',', '', $item[34]), 2)
                         + round(str_replace(',', '', $item[35]), 2)
                         + round(str_replace(',', '', $item[36]), 2)
-                        + round(str_replace(',', '', $item[37]), 2),
+                        + round(str_replace(',', '', $item[37]), 2)
+                        + round(str_replace(',', '', $item[43]), 2),
                     "shipping_credits"          =>  0,
                     "gift_wrap_credits"         =>  0,
                     "regulatory_fee"            =>  0,
