@@ -1408,21 +1408,24 @@ class FinanceController extends BaseController
                 if ($item[0] != "仓租") {
                     continue;
                 }
-                $warehouseData[] = [
-                    "report_id"             =>  $report_id,
-                    "date"                  =>  $item[1],
-                    "sku"                   =>  $item[2],
-                    "warehouse_code"        =>  $item[3],
-                    "product_length"        =>  $item[4],
-                    "product_width"         =>  $item[5],
-                    "product_height"        =>  $item[6],
-                    "quantity"              =>  $item[7],
-                    "age"                   =>  $item[8],
-                    "volume"                =>  $item[9],
-                    "total"                 =>  $item[10],
-                    "total_unit"            =>  $item[11],
-                    "main_platform"         =>  $item[12]
-                ];
+
+                if (!empty($item[2])) {
+                    $warehouseData[] = [
+                        "report_id"             =>  $report_id,
+                        "date"                  =>  $item[1],
+                        "sku"                   =>  $item[2],
+                        "warehouse_code"        =>  $item[3],
+                        "product_length"        =>  $item[4],
+                        "product_width"         =>  $item[5],
+                        "product_height"        =>  $item[6],
+                        "quantity"              =>  $item[7],
+                        "age"                   =>  $item[8],
+                        "volume"                =>  $item[9],
+                        "total"                 =>  $item[10],
+                        "total_unit"            =>  $item[11],
+                        "main_platform"         =>  $item[12]
+                    ];
+                }
             }
 
             if ($financeWarehouseObj->insertAll($warehouseData)) {
@@ -1704,19 +1707,22 @@ class FinanceController extends BaseController
                 if ($key == 0 || $key == 1) {
                     continue;
                 }
-                $additionalData[] = [
-                    "report_id"             =>  $report_id,
-                    "platform"              =>  $item[0],
-                    "user_account"          =>  $item[1],
-                    "warehouse_sku"         =>  $item[2],
-                    "claimant"              =>  $item[3],
-                    "liquidation"           =>  $item[4],
-                    "promotion"             =>  $item[5],
-                    "shipping_service"      =>  $item[6],
-                    "lc_adjustment"         =>  $item[7],
-                    "le_adjustment"         =>  $item[8],
-                    "wfs_adjustment"        =>  $item[9]
-                ];
+
+                if (!empty($item[2])) {
+                    $additionalData[] = [
+                        "report_id"             =>  $report_id,
+                        "platform"              =>  $item[0],
+                        "user_account"          =>  $item[1],
+                        "warehouse_sku"         =>  $item[2],
+                        "claimant"              =>  $item[3],
+                        "liquidation"           =>  $item[4],
+                        "promotion"             =>  $item[5],
+                        "shipping_service"      =>  $item[6],
+                        "lc_adjustment"         =>  $item[7],
+                        "le_adjustment"         =>  $item[8],
+                        "wfs_adjustment"        =>  $item[9]
+                    ];
+                }
             }
             $financeAdditionalObj->insertAll($additionalData);
 
@@ -1804,18 +1810,21 @@ class FinanceController extends BaseController
                 if ($key == 0 || $key == 1) {
                     continue;
                 }
-                $additionalData[] = [
-                    "report_id"                 =>  $report_id,
-                    "payment"                   =>  $item[1],
-                    "warehouse_sku"             =>  $item[2],
-                    "usd_sale_amount"           =>  currencyToNumber($item[3]),
-                    "usd_paid_amount"           =>  currencyToNumber($item[4]),
-                    "cny_actual_paid"           =>  currencyToNumber($item[5]),
-                    "usd_actual_paid"           =>  currencyToNumber($item[6]),
-                    "seller"                    =>  $item[7],
-                    "content"                   =>  $item[8],
-                    "date"                      =>  date('Ymd', strtotime($item[0])),
-                ];
+
+                if (!empty($item[2])) {
+                    $additionalData[] = [
+                        "report_id"                 =>  $report_id,
+                        "payment"                   =>  $item[1],
+                        "warehouse_sku"             =>  $item[2],
+                        "usd_sale_amount"           =>  currencyToNumber($item[3]),
+                        "usd_paid_amount"           =>  currencyToNumber($item[4]),
+                        "cny_actual_paid"           =>  currencyToNumber($item[5]),
+                        "usd_actual_paid"           =>  currencyToNumber($item[6]),
+                        "seller"                    =>  $item[7],
+                        "content"                   =>  $item[8],
+                        "date"                      =>  date('Ymd', strtotime($item[0])),
+                    ];
+                }
             }
             $financeAdditionalObj->insertAll($additionalData);
 
@@ -1896,20 +1905,22 @@ class FinanceController extends BaseController
             $adCostData = [];
             $financeAdCostObj = new FinanceAdCostModel();
             foreach ($data as $item) {
-                $adCostData[] = [
-                    "report_id"                 =>  $report_id,
-                    "platform"                  =>  $item[0],
-                    "user_account"              =>  $item[1],
-                    "warehouse_sku"             =>  $item[2],
-                    "total"                     =>  $item[3]
-                ];
+                if (!empty($item[2])) {
+                    $adCostData[] = [
+                        "report_id"                 =>  $report_id,
+                        "platform"                  =>  $item[0],
+                        "user_account"              =>  $item[1],
+                        "warehouse_sku"             =>  $item[2],
+                        "total"                     =>  $item[3]
+                    ];
+                }
             }
             $financeAdCostObj->insertAll($adCostData);
 
             Db::commit();
         } catch (Exception $e) {
             Db::rollback();
-            $this->error($e->getMessage(), url('ad_cost'));
+            $this->error($e->getMessage(), url('ad_cost', ['id' => $report_id]));
         }
         $this->redirect(url('ad_cost', ['id' => $report_id]));
     }

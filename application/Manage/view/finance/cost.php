@@ -54,6 +54,13 @@
                     </td>
                 </tr>
                 <tr>
+                    <td>HD面单</td>
+                    <td>Homedepot面单费（此处特指Homedepot面单费，无分摊数据留存，需导入）</td>
+                    <td class="tc">
+                        <a href="{:url('FinanceHd/tail', ['id' => $id])}" class="layui-btn layui-btn layui-btn-sm">查看</a>
+                    </td>
+                </tr>
+                <tr>
                     <td>台账-国内广告</td>
                     <td>国内广告费（包含专利费、设计费、建模费、等其他费用，有分摊记录）</td>
                     <td class="tc">
