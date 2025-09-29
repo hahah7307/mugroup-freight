@@ -2990,7 +2990,7 @@ GROUP BY `month`, warehouseName, age_other;
                             && $item['warehouseName'] == $warehouse
                             && $item['age_other'] == $ageRange
                         ) {
-                            $data[$warehouse][$ageRange][] = $item['sum'];
+                            $data[$warehouse][$ageRange][] = intval($item['sum']);
                             $init ++;
                         }
                     }
@@ -3007,6 +3007,72 @@ GROUP BY `month`, warehouseName, age_other;
                 $dataString[] = '{ name: "' . $warehouse . '：' . $range . '", type: "bar", stack: "' . $warehouse . '", data: [' . implode(',', $item) . '] }';
             }
         }
+
+        $lc_list = $model->query('
+SELECT
+  DATE_FORMAT(CONCAT(b.`month`, "-01"), "%Y%m") AS `month`,
+  FLOOR(SUM(total)) AS sum
+FROM mu_finance_warehouse a
+LEFT JOIN mu_finance_report b ON a.report_id = b.id
+WHERE a.report_id >= 4
+AND a.warehouse_code NOT IN ("PAW", "CAP", "SAV", "HOU03", "HOU07", "HOU05")
+GROUP BY `month`;
+        ');
+        $initArr = [];
+        foreach ($lc_list as $item) {
+            $initArr[] = 0;
+        }
+        $dataString[] = "
+{
+    name: '',
+    type: 'bar',
+    stack: 'LC',
+    data: [" . implode(',', $initArr) . "],
+    label: {
+        normal: {
+            show: true,
+            formatter: function (params) {
+                var total = [" . implode(',', array_column($lc_list, 'sum')) . "];
+                return total[params.dataIndex].toLocaleString();
+            },
+            position: 'top',
+            fontSize: 14,
+            textStyle: { color: 'black' }
+        }
+    }
+}
+        ";
+
+        $le_list = $model->query('
+SELECT
+  DATE_FORMAT(CONCAT(b.`month`, "-01"), "%Y%m") AS `month`,
+  FLOOR(SUM(total)) AS sum
+FROM mu_finance_warehouse a
+LEFT JOIN mu_finance_report b ON a.report_id = b.id
+WHERE a.report_id >= 4
+AND a.warehouse_code IN ("PAW", "CAP", "SAV", "HOU03", "HOU07", "HOU05")
+GROUP BY `month`;
+        ');
+        $dataString[] = "
+{
+    name: '',
+    type: 'bar',
+    stack: 'LE',
+    data: [" . implode(',', $initArr) . "],
+    label: {
+        normal: {
+            show: true,
+            formatter: function (params) {
+                var total = [" . implode(',', array_column($le_list, 'sum')) . "];
+                return total[params.dataIndex].toLocaleString();
+            },
+            position: 'top',
+            fontSize: 14,
+            textStyle: { color: 'black' }
+        }
+    }
+}
+        ";
 
         $this->assign('sum', implode(',', $dataString));
 

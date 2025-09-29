@@ -143,7 +143,7 @@
                 left: 'center'
             },
             tooltip: {
-                trigger: 'axis',
+                trigger: 'item',
                 axisPointer: {
                     type: 'shadow'
                 }
@@ -181,7 +181,7 @@
                 left: 'center'
             },
             tooltip: {
-                trigger: 'axis',
+                trigger: 'item',
                 axisPointer: {
                     type: 'shadow'
                 }
@@ -219,7 +219,7 @@
                 left: 'center'
             },
             tooltip: {
-                trigger: 'axis',
+                trigger: 'item',
                 axisPointer: {
                     type: 'shadow'
                 }
@@ -257,7 +257,7 @@
                 left: 'center'
             },
             tooltip: {
-                trigger: 'axis',
+                trigger: 'item',
                 axisPointer: {
                     type: 'shadow'
                 }
@@ -295,7 +295,7 @@
                 left: 'center'
             },
             tooltip: {
-                trigger: 'axis',
+                trigger: 'item',
                 axisPointer: {
                     type: 'shadow'
                 }

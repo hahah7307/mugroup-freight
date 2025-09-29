@@ -35,12 +35,18 @@
                 // subtext: 'Fake Data',
                 left: 'center'
             },
+            color: [
+                "#5470C6", "#91CC75", "#EE6666", "#FAC858",
+                "#73C0DE", "#3BA272", "#FC8452", "#9A60B4",
+                "#EA7CCC", "#2E91E5", "#E15F99", "#1CA71C",
+                "#FB0D0D", "#DA16FF", "#222A2A", "#B68100"
+            ],
             legend: {
                 orient: 'vertical',
                 left: 'right'
             },
             tooltip: {
-                trigger: 'axis',
+                trigger: 'item',
                 axisPointer: {
                     type: 'shadow'
                 }

@@ -71,10 +71,20 @@ class FinanceReportController extends BaseController
         $qtyArr = [];
         $sumArr = [];
         $initArr = [];
+        $positionArr = [];
         foreach ($qty as $item) {
-            $qtyArr[$item['platform']][$item['month']] = $item['sum'];
-            $sumArr[$item['month']] += round($item['sum'], 2);
-            $initArr[$item['month']] += 0;
+            foreach ($month as $mon) {
+                if ($mon['month'] == $item['month']) {
+                    $qtyArr[$item['platform']][$mon['month']] += $item['sum'];
+                    $sumArr[$mon['month']] += round($item['sum'], 2);
+                    $positionArr[$mon['month']] += max(0, round($item['sum'], 2));
+                } else {
+                    $qtyArr[$item['platform']][$mon['month']] += 0;
+                    $sumArr[$mon['month']] += 0;
+                    $positionArr[$mon['month']] += 0;
+                }
+                $initArr[$mon['month']] += 0;
+            }
         }
 
         foreach ($qtyArr as $platform => $value) {
@@ -102,24 +112,24 @@ class FinanceReportController extends BaseController
         }
         $scriptArr[] = "
 {
-      name: '',
-      type: 'bar',
-      stack: 'Ad',
-      data: [" . implode(',', array_values($initArr)) . "],
-      label: {
+    name: '',
+    type: 'bar',
+    stack: 'Ad',
+    data: [" . implode(',', array_values($initArr)) . "],
+    label: {
         normal: {
-          show: true,
-          position: 'top',
-          formatter: function (params) {
-            var total = [" . implode(',', array_values($sumArr)) . "];
-            return total[params.dataIndex];
-          },
-          fontSize: 14,
-          fontWeight: 'bold',
-          textStyle: { color: 'grey' }
-       }
+            show: true,
+            formatter: function (params) {
+                var total = [" . implode(',', array_values($sumArr)) . "];
+                return total[params.dataIndex].toLocaleString();
+            },
+            position: 'top',
+            fontSize: 14,
+            fontWeight: 'bold',
+            textStyle: { color: 'black' }
+        }
     }
-}        
+}
         ";
 
         return implode(',', $scriptArr);
