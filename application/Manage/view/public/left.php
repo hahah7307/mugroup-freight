@@ -82,7 +82,8 @@
                         <dd><a layui-href="{:url('Echarts/listing_group')}">Listing产品组</a></dd>
                         <dd><a layui-href="{:url('SkuReport/warehouse_tail')}">海外仓尾程</a></dd>
                         <dd><a layui-href="{:url('SkuReport/warehouse_rent')}">海外仓仓租</a></dd>
-                        <dd><a layui-href="{:url('FinanceReport/index')}">月度财报利润分析</a></dd>
+                        <dd><a layui-href="{:url('FinanceReport/index')}">月度财报利润柱状图</a></dd>
+                        <dd><a layui-href="{:url('FinanceReport/pie_chart')}">月度财报利润饼状图</a></dd>
                     </dl>
                 </li>
                 <li data-name="Product" class="layui-nav-item">

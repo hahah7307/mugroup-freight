@@ -146,4 +146,94 @@ class FinanceReportController extends BaseController
 
         return view();
     }
+
+    /**
+     * @throws PDOException
+     * @throws BindParamException
+     */
+    public function pie_chart($category = "儿童产品"): \think\response\View
+    {
+        $month = input('month', date('Y-m', strtotime('-3 months', time())), 'htmlspecialchars');
+        $this->assign('month', $month);
+
+        $model = new FinanceSkuGroupModel();
+        $profit_2 = [];
+        $profit_1 = $model->query('
+SELECT
+	SUM( profit ) `value`,
+	group_name name 
+FROM
+	mu_finance_report_snapshot a
+	LEFT JOIN mu_finance_sku_group b ON a.warehouse_sku = b.sku 
+WHERE
+	`month` = "' . $month . '" 
+GROUP BY
+	group_name
+ORDER BY
+    value DESC;
+        ');
+        foreach($profit_1 as $key => $item) {
+            if ($item['value'] < 0) {
+                $profit_2[] = ['value' => $item['value'] * -1, 'name' => $item['name']];
+                unset($profit_1[$key]);
+            }
+        }
+
+        $this->assign('profit_1', json_encode(array_values($profit_1)));
+        $this->assign('profit_2', json_encode(array_values($profit_2)));
+
+        $profit_4 = [];
+        $profit_3 = $model->query('
+SELECT
+	SUM( profit ) `value`,
+	group_name_origin name 
+FROM
+	mu_finance_report_snapshot a
+	LEFT JOIN mu_finance_sku_group b ON a.warehouse_sku = b.sku 
+WHERE
+	`month` = "' . $month . '" 
+GROUP BY
+	group_name_origin
+ORDER BY
+    value DESC;
+        ');
+        foreach($profit_3 as $key => $item) {
+            if ($item['value'] < 0) {
+                $profit_4[] = ['value' => $item['value'] * -1, 'name' => $item['name']];
+                unset($profit_3[$key]);
+            }
+        }
+
+        $this->assign('profit_3', json_encode(array_values($profit_3)));
+        $this->assign('profit_4', json_encode(array_values($profit_4)));
+
+        $profit_6 = [];
+        $profit_5 = $model->query('
+SELECT
+	SUM( profit ) `value`,
+	group_name_origin name 
+FROM
+	mu_finance_report_snapshot a
+	LEFT JOIN mu_finance_sku_group b ON a.warehouse_sku = b.sku 
+WHERE
+	`month` = "' . $month . '" 
+	AND b.group_name = "' . $category . '"
+GROUP BY
+	group_name_origin
+ORDER BY
+    value DESC;
+        ');
+        foreach($profit_5 as $key => $item) {
+            if ($item['value'] < 0) {
+                $profit_6[] = ['value' => $item['value'] * -1, 'name' => $item['name']];
+                unset($profit_5[$key]);
+            }
+        }
+
+        $this->assign('profit_5', json_encode(array_values($profit_5)));
+        $this->assign('profit_6', json_encode(array_values($profit_6)));
+        $this->assign('category', $category);
+
+        return view();
+    }
 }
