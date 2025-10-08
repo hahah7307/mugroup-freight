@@ -232,6 +232,110 @@ ORDER BY
 
         $this->assign('profit_5', json_encode(array_values($profit_5)));
         $this->assign('profit_6', json_encode(array_values($profit_6)));
+
+        $qty_1 = $model->query('
+SELECT
+	SUM( sale_qty ) `value`,
+	group_name name 
+FROM
+	mu_finance_report_snapshot a
+	LEFT JOIN mu_finance_sku_group b ON a.warehouse_sku = b.sku 
+WHERE
+	`month` = "' . $month . '" 
+GROUP BY
+	group_name
+ORDER BY
+    value DESC;
+        ');
+
+        $this->assign('qty_1', json_encode(array_values($qty_1)));
+
+        $qty_3 = $model->query('
+SELECT
+	SUM( sale_qty ) `value`,
+	group_name_origin name 
+FROM
+	mu_finance_report_snapshot a
+	LEFT JOIN mu_finance_sku_group b ON a.warehouse_sku = b.sku 
+WHERE
+	`month` = "' . $month . '" 
+GROUP BY
+	group_name_origin
+ORDER BY
+    value DESC;
+        ');
+
+        $this->assign('qty_3', json_encode(array_values($qty_3)));
+
+        $qty_5 = $model->query('
+SELECT
+	SUM( sale_qty ) `value`,
+	group_name_origin name 
+FROM
+	mu_finance_report_snapshot a
+	LEFT JOIN mu_finance_sku_group b ON a.warehouse_sku = b.sku 
+WHERE
+	`month` = "' . $month . '" 
+	AND b.group_name = "' . $category . '"
+GROUP BY
+	group_name_origin
+ORDER BY
+    value DESC;
+        ');
+
+        $this->assign('qty_5', json_encode(array_values($qty_5)));
+
+        $amount_1 = $model->query('
+SELECT
+	SUM( sale_amount ) `value`,
+	group_name name 
+FROM
+	mu_finance_report_snapshot a
+	LEFT JOIN mu_finance_sku_group b ON a.warehouse_sku = b.sku 
+WHERE
+	`month` = "' . $month . '" 
+GROUP BY
+	group_name
+ORDER BY
+    value DESC;
+        ');
+
+        $this->assign('amount_1', json_encode(array_values($amount_1)));
+
+        $amount_3 = $model->query('
+SELECT
+	SUM( sale_amount ) `value`,
+	group_name_origin name 
+FROM
+	mu_finance_report_snapshot a
+	LEFT JOIN mu_finance_sku_group b ON a.warehouse_sku = b.sku 
+WHERE
+	`month` = "' . $month . '" 
+GROUP BY
+	group_name_origin
+ORDER BY
+    value DESC;
+        ');
+
+        $this->assign('amount_3', json_encode(array_values($amount_3)));
+
+        $amount_5 = $model->query('
+SELECT
+	SUM( sale_amount ) `value`,
+	group_name_origin name 
+FROM
+	mu_finance_report_snapshot a
+	LEFT JOIN mu_finance_sku_group b ON a.warehouse_sku = b.sku 
+WHERE
+	`month` = "' . $month . '" 
+	AND b.group_name = "' . $category . '"
+GROUP BY
+	group_name_origin
+ORDER BY
+    value DESC;
+        ');
+
+        $this->assign('amount_5', json_encode(array_values($amount_5)));
         $this->assign('category', $category);
 
         return view();
