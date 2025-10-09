@@ -21,9 +21,15 @@ class FinanceReportController extends BaseController
         $group_name = $this->request->get('group_name', '', 'htmlspecialchars');
         $this->assign('group_name', $group_name);
         if (!empty($group_name)) {
+            if (substr($group_name, 0, 4) == '----') {
+                $group_name = substr($group_name, 4);
+                $field_name = 'group_name_origin';
+            } else {
+                $field_name = 'group_name';
+            }
             $skuGroupObj = new FinanceSkuGroupModel();
-            $list = $skuGroupObj->where(['group_name' =>$group_name ])->column('sku');
-            $list_detail = $skuGroupObj->where(['group_name' =>$group_name ])->select();
+            $list = $skuGroupObj->where([$field_name =>$group_name ])->column('sku');
+            $list_detail = $skuGroupObj->where([$field_name =>$group_name ])->select();
             $skuTitle = [];
             foreach ($list_detail as $item) {
                 $skuTitle[] = $item['sku'] . ':' . $item['product_name'];

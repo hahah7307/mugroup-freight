@@ -19,12 +19,7 @@
                 <input type="text" class="layui-input" name="keyword" value="{$keyword}" placeholder="SKU/运营">
             </div>
             <div class="layui-input-inline w180">
-                <select name="group_name">
-                    <option value="">请选择产品组</option>
-                    {foreach name="sku_group" item="item"}
-                    <option value="{$item.group_name}" {if condition="$item.group_name eq $group_name"}selected{/if}>{$item.group_name}</option>
-                    {/foreach}
-                </select>
+                <div id="group_name"></div>
             </div>
             <div class="layui-input-inline hover-elem">
                 <i class="layui-icon see-detail">&#xe60b;</i>
@@ -78,7 +73,32 @@
         var $ = layui.jquery,
             form = layui.form,
             laydate = layui.laydate,
+            xmSelect = layui.xmSelect,
             element = layui.element;
+
+        // 启用搜索
+        // var xmSelect = layui.xmSelect;
+        // 确保 layui.use 已加载 xmSelect
+        let select = xmSelect.render({
+            el: '#group_name',
+            name: 'group_name',
+            radio: true,
+            clickClose: true,
+            filterable: true,
+            remoteSearch: true,   // 开启远程搜索
+            initValue: ['1'],
+            remoteMethod: function(val, cb) {
+                // val 是输入值
+                // cb 是回调函数，用于返回数据
+                $.get("{:url('Check/get_group_name_origin')}", {search: val, selected: ["{$group_name}"]}, function(res){
+                    // cb(res.data); // 返回数组 [{name:'苹果',value:'1'}, ...]
+                    let result = JSON.parse(res).filter(function(item){
+                        return item.name.indexOf(val) !== -1;
+                    });
+                    cb(result);
+                });
+            }
+        });
 
         var tipIndex = null;
         var hideTimer = null;

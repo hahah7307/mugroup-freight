@@ -2,14 +2,17 @@
 namespace app\Manage\controller;
 
 use app\Manage\model\AccountModel;
+use app\Manage\model\FinanceSkuGroupModel;
 use app\Manage\model\InfoCategoryModel;
 use app\Manage\model\MemberRankModel;
 use app\Manage\model\AdminRoleModel;
 use app\Manage\model\TaskUserModel;
 use \think\Controller;
+use think\db\exception\BindParamException;
 use think\db\exception\DataNotFoundException;
 use think\db\exception\ModelNotFoundException;
 use think\exception\DbException;
+use think\exception\PDOException;
 use \think\Session;
 use think\Db;
 
@@ -213,5 +216,41 @@ class CheckController extends BaseController
         }
 
         return json_encode($resData);
+    }
+
+    /**
+     * @throws PDOException
+     * @throws BindParamException
+     */
+    public function get_group_name_origin($tag = '----')
+    {
+        $arr = [];
+        $model = new FinanceSkuGroupModel();
+        $list = $model->query('
+SELECT DISTINCT
+	group_name,
+	group_name_origin 
+FROM
+	mu_finance_sku_group 
+ORDER BY
+	group_name ASC,
+	group_name_origin ASC;
+        ');
+        foreach ($list as $item) {
+            $arr[$item['group_name']][] = $item['group_name_origin'];
+        }
+        $new = [];
+        if ($arr) {
+            foreach ($arr as $k => $v) {
+                if (end($new) != $k) {
+                    $new[] = ['name' => $k, 'value' => $k];
+                }
+                foreach ($v as $group_name) {
+                    $new[] = ['name' => $tag . $group_name, 'value' => $tag . $group_name];
+                }
+            }
+        }
+
+        return json_encode($new);
     }
 }
