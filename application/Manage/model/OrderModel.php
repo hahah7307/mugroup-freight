@@ -73,6 +73,7 @@ class OrderModel extends Model
             $orderInfo['zoneFormat'] = $tail[0]['zone_format'];
             $orderInfo['charged_weight'] = array_sum(array_column($tail, 'charged_weight'));
             $orderInfo['outbound'] = array_sum(array_column($tail, 'outbound'));
+            $orderInfo['sfp'] = array_sum(array_column($tail, 'sfp'));
             $orderInfo['base'] = array_sum(array_column($tail, 'base'));
             $orderInfo['ahs'] = array_sum(array_column($tail, 'ahs'));
             $orderInfo['ahsds'] = array_sum(array_column($tail, 'ahs_pss'));
@@ -83,7 +84,7 @@ class OrderModel extends Model
             $orderInfo['fuelCost'] = array_sum(array_column($tail, 'fuel_cost'));
             $orderInfo['commission'] = array_sum(array_column($tail, 'commission'));
             $orderInfo['calcuRes'] = array_sum(array_column($tail, 'tail_course'));
-            $orderInfo['calcuInfo'] = $orderInfo['outbound'] . "(出库) + " . $orderInfo['base'] . "(基础) + " . $orderInfo['ahs'] . "(AHS) + " . $orderInfo['das'] . "(偏远) + " . $orderInfo['rdcFee'] . "(住宅) + " . $orderInfo['ahsds'] . "(AHS旺季) + " . $orderInfo['drdcFee'] . "(住宅旺季) + "  . $orderInfo['signature'] . "(签名) + "  . $orderInfo['fuelCost'] . "(燃油) + "  .$orderInfo['commission'] . "(过路费)";
+            $orderInfo['calcuInfo'] = $orderInfo['outbound'] . "(出库) + " . $orderInfo['sfp'] . "(SFP) + " . $orderInfo['base'] . "(基础) + " . $orderInfo['ahs'] . "(AHS) + " . $orderInfo['das'] . "(偏远) + " . $orderInfo['rdcFee'] . "(住宅) + " . $orderInfo['ahsds'] . "(AHS旺季) + " . $orderInfo['drdcFee'] . "(住宅旺季) + "  . $orderInfo['signature'] . "(签名) + "  . $orderInfo['fuelCost'] . "(燃油) + "  .$orderInfo['commission'] . "(过路费)";
         }
 
         // 更新数据
@@ -141,6 +142,9 @@ class OrderModel extends Model
                 continue;
             }
 
+            // SFP
+            $sfp = StorageSfpModel::getSFP($storage_id, $order);
+
             // 基础费运算
             $customerZone = StorageZoneModel::getCustomZone($order, $postalCode);
             if ($customerZone == 0) {
@@ -181,12 +185,13 @@ class OrderModel extends Model
             $commission = round(($base + $ahs + $dasFee + $ResidentialFee + $AHSPeakSurcharge + $ResidentialPeakSurcharge + $signature + $fuel_cost) * $commission_rate, 2);
 
             // 运费总计
-            $price = round($outbound + $base + $ahs + $dasFee + $ResidentialFee + $AHSPeakSurcharge + $ResidentialPeakSurcharge + $signature + $fuel_cost + $commission, 2);
+            $price = round($outbound + $sfp + $base + $ahs + $dasFee + $ResidentialFee + $AHSPeakSurcharge + $ResidentialPeakSurcharge + $signature + $fuel_cost + $commission, 2);
 
             $tailData = [
                 'postal_format'     =>  $postalCode,
                 'zone_format'       =>  $customerZone,
                 'charged_weight'    =>  $lbs,
+                'sfp'               =>  $sfp,
                 'outbound'          =>  $outbound,
                 'base'              =>  $base,
                 'ahs'               =>  $ahs,

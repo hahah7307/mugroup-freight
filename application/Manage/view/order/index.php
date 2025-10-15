@@ -92,6 +92,7 @@
                     <col>
                     <col>
                     <col>
+                    <col>
                     <col width="140">
                     <col width="80">
                 </colgroup>
@@ -113,6 +114,7 @@
                     <th class="tc">邮编</th>
                     <th class="tc">Zone</th>
                     <th class="tc">出库</th>
+                    <th class="tc">SFP</th>
                     <th class="tc">基础</th>
                     <th class="tc">AHS</th>
                     <th class="tc">偏远</th>
@@ -146,6 +148,7 @@
                     <td>{$v.postalFormat}</td>
                     <td class="tr">{$v.zoneFormat}</td>
                     <td class="tr">{$v.outbound}</td>
+                    <td class="tr">{$v.sfp}</td>
                     <td class="tr">{$v.base}</td>
                     <td class="tr">{$v.ahs}</td>
                     <td class="tr">{$v.das}</td>
