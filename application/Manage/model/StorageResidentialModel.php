@@ -62,7 +62,7 @@ class StorageResidentialModel extends Model
         return StoragePeakSurchargeModel::get($condition)->getData('value');
     }
 
-    static public function order2deliverType($order)
+    static public function order2deliverType($order): string
     {
         if (stripos($order['shippingMethod'], 'GROUND') !== false) {
             return 'GD';
@@ -72,8 +72,10 @@ class StorageResidentialModel extends Model
             return 'HD';
         } elseif (stripos($order['shippingMethod'], 'HOME-DELIVEY') !== false) {
             return 'HD';
+        } elseif (stripos($order['shippingMethod'], 'HOME_DELIVEY') !== false) {
+            return 'HD';
         } else {
-            return false;
+            return 'HD';
         }
     }
 }
