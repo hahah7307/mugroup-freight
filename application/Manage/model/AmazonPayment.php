@@ -1713,7 +1713,8 @@ class AmazonPayment extends Model
         foreach ($excel as $item) {
             $this->userAccount = "Wildberries";
 
-            if ($item[9] == 'sale' && ($item[10] == 'Sale' || $item[10] == 'Correct sale')) {
+            if (($item[9] == 'sale' && ($item[10] == 'Sale' || $item[10] == 'Correct sale'))
+                || ($item[9] == '销售' && $item[10] == '销售')) {
                 $this->orderSaleNew[] = [
                     "report_id"                 =>  $reportId,
                     "table_id"                  =>  $tableId,
@@ -1747,7 +1748,8 @@ class AmazonPayment extends Model
                     "table_id"                  =>  $tableId,
                     "payment_id"                =>  trim($item[44])
                 ];
-            } elseif ($item[10] == 'Logistics' || $item[10] == 'Reversal of logistics') {
+            } elseif (($item[10] == 'Logistics' || $item[10] == 'Reversal of logistics')
+                || ($item[9] == '销售' && $item[10] == '物流')) {
                 $this->orderShippingNew[] = [
                     "report_id"                 =>  $reportId,
                     "table_id"                  =>  $tableId,
@@ -1764,7 +1766,7 @@ class AmazonPayment extends Model
                     "table_id"                  =>  $tableId,
                     "payment_id"                =>  trim($item[44])
                 ];
-            } elseif ($item[9] == 'return') {
+            } elseif ($item[9] == 'return' || $item[9] == '退货') {
                 $this->orderRefundNew[] = [
                     "report_id"                 =>  $reportId,
                     "table_id"                  =>  $tableId,
@@ -1871,7 +1873,8 @@ class AmazonPayment extends Model
                         + round(str_replace(',', '', $item[35]), 2)
                         + round(str_replace(',', '', $item[36]), 2)
                         + round(str_replace(',', '', $item[37]), 2)
-                        + round(str_replace(',', '', $item[43]), 2),
+                        + round(str_replace(',', '', $item[43]), 2)
+                        + round(str_replace(',', '', $item[40]), 2),
                     "shipping_credits"          =>  0,
                     "gift_wrap_credits"         =>  0,
                     "regulatory_fee"            =>  0,
