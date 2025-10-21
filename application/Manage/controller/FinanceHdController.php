@@ -35,6 +35,7 @@ class FinanceHdController extends BaseController
         $this->assign('page_num', $page_num);
 
         // 订单列表
+        $where['report_id'] = $id;
         $order = new FinanceHdTailModel();
         $list = $order->where($where)->order('id asc')->paginate($page_num, false, ['query' => ['keyword' => $keyword, 'page_num' => $page_num]]);
         $this->assign('list', $list);
