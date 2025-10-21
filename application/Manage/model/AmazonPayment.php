@@ -1901,6 +1901,16 @@ class AmazonPayment extends Model
                     "marketplace_withheld_tax"  =>  round(str_replace(',', '', $item[34]), 2)
                 ];
             }
+
+            if ($item[3] == "Platform reimbursement") {
+                $this->orderAdjustmentNew[] = [
+                    "report_id"                 =>  $reportId,
+                    "table_id"                  =>  $tableId,
+                    "payment_id"                =>  trim($item[47]),
+                    "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[9])),
+                    "is_amazon"                 =>  0,
+                ];
+            }
         }
 
         return [
