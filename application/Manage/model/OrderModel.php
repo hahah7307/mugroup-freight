@@ -125,7 +125,7 @@ class OrderModel extends Model
                     'postal_format'     =>  $postalCode,
                     'zone_format'       =>  0,
                     'charged_weight'    =>  $lbs,
-                    'outbound'          =>  $outbound,
+                    'outbound'          =>  $outbound * $detail['qty'],
                     'base'              =>  0,
                     'ahs'               =>  0,
                     'ahs_pss'           =>  0,
@@ -135,7 +135,7 @@ class OrderModel extends Model
                     'signature'         =>  0,
                     'fuel_cost'         =>  0,
                     'commission'        =>  0,
-                    'tail_course'       =>  $outbound
+                    'tail_course'       =>  $outbound * $detail['qty']
                 ];
                 $orderDetailObj->update($tailData, ['id' => $detail['id']]);
                 $tail[] = $tailData;

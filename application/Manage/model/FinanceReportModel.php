@@ -3649,8 +3649,7 @@ FROM
 				LEFT JOIN mu_ecang_order c ON b.saleOrderCode = c.saleOrderCode
 				LEFT JOIN ( SELECT waybill_number, SUM( total ) total FROM mu_finance_temu_tail GROUP BY waybill_number ) d ON d.waybill_number = b.shipping_no 
 			WHERE
-				b.payment_id IS NOT NULL 
-				AND c.`status` = 4 UNION ALL
+				b.payment_id IS NOT NULL UNION ALL
 			SELECT
 				a.platform,
 				a.userAccount,
@@ -5334,11 +5333,16 @@ SELECT
 	sale_total,
 	refund_total,
 	a.shipping_fee,
-	IFNULL( b.total * -1, 0 ) cost,
-	IFNULL( b.shipping_fee * -1, 0 ) domestic_shipping,
+	IFNULL( b.total * - 1, 0 ) cost,
+	IFNULL( b.shipping_fee * - 1, 0 ) domestic_shipping,
 	adjustment,
-	sale_total + refund_total + a.shipping_fee + IFNULL( b.total * -1, 0 ) + IFNULL( b.shipping_fee * -1, 0 ) + adjustment profit,
-	ROUND( (sale_total + refund_total + a.shipping_fee + IFNULL( b.total * -1, 0 ) + IFNULL( b.shipping_fee * -1, 0 ) + adjustment ) / sale_amount, 4 ) gross_profit_margin 
+	sale_total + refund_total + a.shipping_fee + IFNULL( b.total * - 1, 0 ) + IFNULL( b.shipping_fee * - 1, 0 ) + adjustment profit,
+	ROUND(
+		(
+			sale_total + refund_total + a.shipping_fee + IFNULL( b.total * - 1, 0 ) + IFNULL( b.shipping_fee * - 1, 0 ) + adjustment 
+		) / sale_amount,
+		4 
+	) gross_profit_margin 
 FROM
 	(
 	SELECT
@@ -5401,7 +5405,7 @@ FROM
 				SELECT
 					"wildberries" platform,
 					"Wildberries" user_account,
-					c.order_no payment_id,
+					a.description payment_id,
 					a.description,
 					a.quantity sale_qty,
 					0 AS refund_qty,
@@ -5417,15 +5421,14 @@ FROM
 					0 AS adjustment 
 				FROM
 					mu_finance_order_sale a
-					LEFT JOIN mu_finance_table b ON a.table_id = b.id
-					LEFT JOIN mu_finance_wildberries_order c ON a.description = c.fbs_no 
+					LEFT JOIN mu_finance_table b ON a.table_id = b.id 
 				WHERE
 					a.report_id = ' . $report_id . ' 
 					AND b.platform = "wildberries" UNION ALL
 				SELECT
 					"wildberries" platform,
 					"Wildberries" user_account,
-					c.order_no payment_id,
+					a.description payment_id,
 					a.description,
 					0 AS sale_qty,
 					a.quantity refund_qty,
@@ -5441,8 +5444,7 @@ FROM
 					0 AS adjustment 
 				FROM
 					mu_finance_order_refund a
-					LEFT JOIN mu_finance_table b ON a.table_id = b.id
-					LEFT JOIN mu_finance_wildberries_order c ON a.description = c.fbs_no 
+					LEFT JOIN mu_finance_table b ON a.table_id = b.id 
 				WHERE
 					a.report_id = ' . $report_id . ' 
 					AND b.platform = "wildberries" UNION ALL
@@ -5485,7 +5487,7 @@ FROM
 		SELECT
 			"wildberries" platform,
 			"Wildberries" user_account,
-			c.order_no payment_id,
+			a.description payment_id,
 			a.description,
 			0 sale_qty,
 			0 AS refund_qty,
@@ -5501,15 +5503,13 @@ FROM
 			0 AS adjustment 
 		FROM
 			mu_finance_wildberries_shipping a
-			LEFT JOIN mu_finance_table b ON a.table_id = b.id
-			LEFT JOIN mu_finance_wildberries_order c ON a.description = c.fbs_no 
+			LEFT JOIN mu_finance_table b ON a.table_id = b.id 
 		WHERE
 			a.report_id = ' . $report_id . ' 
 			AND b.platform = "wildberries" 
 		GROUP BY
 			platform,
 			user_account,
-			order_no,
 			description 
 		) a 
 	GROUP BY
@@ -5528,7 +5528,7 @@ FROM
 	FROM
 		mu_finance_wildberries_fee 
 	WHERE
-	    report_id = ' . $report_id . ' 
+		report_id = ' . $report_id . ' 
 	GROUP BY
 		order_no,
 		product_name,
@@ -5544,8 +5544,8 @@ SELECT DISTINCT
 	' . $report_id . ' AS report_id,
 	"' . $month . '" AS calculate_month,
 	b.order_no,
-	c.total,
-	c.id
+	b.total,
+	b.id 
 FROM
 	(
 	SELECT DISTINCT
@@ -5573,8 +5573,10 @@ FROM
 		a.report_id = ' . $report_id . ' 
 		AND b.platform = "wildberries" 
 	) a
-	LEFT JOIN mu_finance_wildberries_order b ON a.description = b.fbs_no
-	LEFT JOIN ( SELECT id, order_no, sum( total ) total FROM mu_finance_wildberries_fee WHERE report_id IS NULL AND calculate_month IS NULL GROUP BY id,order_no ) c ON b.order_no = c.order_no
+	LEFT JOIN ( SELECT id, order_no, sum( total ) total FROM mu_finance_wildberries_fee WHERE report_id IS NULL AND calculate_month IS NULL GROUP BY id, order_no ) b ON a.description = b.order_no 
+WHERE
+	a.description != 0 
+	AND b.order_no IS NOT NULL;
         ';
     }
 

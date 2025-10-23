@@ -1721,7 +1721,7 @@ class AmazonPayment extends Model
                     "date"                      =>  date('Y-m-d H:i:s', strtotime($item[12])),
                     "payment_id"                =>  trim($item[0]),
                     "sku"                       =>  $item[3],
-                    "description"               =>  $item[44],
+                    "description"               =>  $item[54],
                     "quantity"                  =>  $item[13],
                     "fulfillment"               =>  $item[9],
                     "postal"                    =>  '',
