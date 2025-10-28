@@ -1746,7 +1746,7 @@ class AmazonPayment extends Model
                 $this->wildberriesOrderNotify[] = [
                     "report_id"                 =>  $reportId,
                     "table_id"                  =>  $tableId,
-                    "payment_id"                =>  trim($item[44])
+                    "payment_id"                =>  trim($item[54])
                 ];
             } elseif (($item[10] == 'Logistics' || $item[10] == 'Reversal of logistics')
                 || ($item[9] == '销售' && $item[10] == '物流')) {
@@ -1756,7 +1756,7 @@ class AmazonPayment extends Model
                     "date"                      =>  date('Y-m-d H:i:s', strtotime($item[12])),
                     "payment_id"                =>  trim($item[0]),
                     "sku"                       =>  $item[3],
-                    "description"               =>  $item[44],
+                    "description"               =>  $item[54],
                     "quantity"                  =>  $item[13],
                     "shipping_fee"              =>  sprintf('%.2f', str_replace(',', '', $item[36])) * -1,
                 ];
@@ -1773,7 +1773,7 @@ class AmazonPayment extends Model
                     "date"                      =>  date('Y-m-d H:i:s', strtotime($item[12])),
                     "payment_id"                =>  trim($item[0]),
                     "sku"                       =>  $item[3],
-                    "description"               =>  $item[44],
+                    "description"               =>  $item[54],
                     "quantity"                  =>  $item[13],
                     "fulfillment"               =>  $item[9],
                     "postal"                    =>  '',
@@ -1798,7 +1798,7 @@ class AmazonPayment extends Model
                 $this->orderAdjustmentNew[] = [
                     "report_id"                 =>  $reportId,
                     "table_id"                  =>  $tableId,
-                    "payment_id"                =>  trim($item[44]),
+                    "payment_id"                =>  trim($item[54]),
                     "sku"                       =>  $item[3],
                     "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[33])),
                     "is_amazon"                 =>  0,
@@ -1807,7 +1807,7 @@ class AmazonPayment extends Model
                 $this->orderAdjustmentNew[] = [
                     "report_id"                 =>  $reportId,
                     "table_id"                  =>  $tableId,
-                    "payment_id"                =>  trim($item[44]),
+                    "payment_id"                =>  trim($item[54]),
                     "sku"                       =>  $item[3],
                     "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[41])) * -1,
                     "is_amazon"                 =>  0,
@@ -1816,7 +1816,7 @@ class AmazonPayment extends Model
                 $this->orderAdjustmentNew[] = [
                     "report_id"                 =>  $reportId,
                     "table_id"                  =>  $tableId,
-                    "payment_id"                =>  trim($item[44]),
+                    "payment_id"                =>  trim($item[54]),
                     "sku"                       =>  $item[3],
                     "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[33])),
                     "is_amazon"                 =>  0,
