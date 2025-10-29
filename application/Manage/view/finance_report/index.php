@@ -37,6 +37,8 @@
                 <li>销量</li>
                 <li>广告费</li>
                 <li>仓储费</li>
+                <li>日包裹数</li>
+                <li>日销售额</li>
             </ul>
             <div class="layui-tab-content">
                 <div class="layui-tab-item layui-show">
@@ -62,6 +64,16 @@
                 <div class="layui-tab-item">
                     <div class="layui-form pie-chart5">
                         <div id="main_5" class="main_style"></div>
+                    </div>
+                </div>
+                <div class="layui-tab-item">
+                    <div class="layui-form pie-chart6">
+                        <div id="main_6" class="main_style"></div>
+                    </div>
+                </div>
+                <div class="layui-tab-item">
+                    <div class="layui-form pie-chart7">
+                        <div id="main_7" class="main_style"></div>
                     </div>
                 </div>
             </div>
@@ -343,6 +355,82 @@
             ],
             series: [
                 {$warehouseRentSeries}
+            ]
+        });
+
+        const category_6 = echarts.init(document.getElementById("main_6"));
+        category_6.setOption({
+            title: {
+                text: '月度财报日包裹数柱状图(单位：个)',
+                left: 'center'
+            },
+            tooltip: {
+                trigger: 'item',
+                axisPointer: {
+                    type: 'shadow'
+                }
+            },
+            legend: {
+                orient: 'horizontal',
+                left: 'right'
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
+            },
+            xAxis: [
+                {
+                    type: 'category',
+                    data: [{$month}]
+                }
+            ],
+            yAxis: [
+                {
+                    type: 'value'
+                }
+            ],
+            series: [
+                {$dayQtySeries}
+            ]
+        });
+
+        const category_7 = echarts.init(document.getElementById("main_7"));
+        category_7.setOption({
+            title: {
+                text: '月度财报日销售额柱状图(单位：美金)',
+                left: 'center'
+            },
+            tooltip: {
+                trigger: 'item',
+                axisPointer: {
+                    type: 'shadow'
+                }
+            },
+            legend: {
+                orient: 'horizontal',
+                left: 'right'
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
+            },
+            xAxis: [
+                {
+                    type: 'category',
+                    data: [{$month}]
+                }
+            ],
+            yAxis: [
+                {
+                    type: 'value'
+                }
+            ],
+            series: [
+                {$dayAmountSeries}
             ]
         });
     });

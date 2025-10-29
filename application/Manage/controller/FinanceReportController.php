@@ -65,6 +65,12 @@ class FinanceReportController extends BaseController
         $warehouseRent = $model->query('SELECT SUM(warehouse_rent) * -1 sum, `month`, platform FROM mu_finance_report_snapshot' . $where . ' GROUP BY month, platform ORDER BY `month` ASC;');
         $this->assign('warehouseRentSeries', self::javascriptFormat($month, $warehouseRent));
 
+        $day_qty = $model->query('SELECT ROUND(SUM(sale_qty) / DAY(LAST_DAY(CONCAT(`month`, "-01")))) sum, `month`, platform FROM mu_finance_report_snapshot' . $where . ' GROUP BY month, platform ORDER BY `month` ASC;');
+        $this->assign('dayQtySeries', self::javascriptFormat($month, $day_qty));
+
+        $day_amount = $model->query('SELECT ROUND(SUM(sale_amount) / DAY(LAST_DAY(CONCAT(`month`, "-01"))), 2) sum, `month`, platform FROM mu_finance_report_snapshot' . $where . ' GROUP BY month, platform ORDER BY `month` ASC;');
+        $this->assign('dayAmountSeries', self::javascriptFormat($month, $day_amount));
+
         $sku_group = $model->query('SELECT DISTINCT group_name FROM mu_finance_sku_group ORDER BY group_name ASC;');
         $this->assign('sku_group', $sku_group);
 
