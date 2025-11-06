@@ -4674,7 +4674,7 @@ FROM
 WHERE
 	paid_time >= "' . $month . '-01 00:00:00" 
 	AND paid_time < "' . date('Y-m', strtotime('+1 month', strtotime($month . '-01'))) . '-01 00:00:00" 
-	AND order_type = "resend" 
+	AND order_type IN ("resend", "重发订单")
 	AND order_status = "已发货" UNION ALL
 SELECT
 	a.platform,
@@ -4697,7 +4697,7 @@ FROM
 WHERE
 	paid_time >= "' . $month . '-01 00:00:00" 
 	AND paid_time < "' . date('Y-m', strtotime('+1 month', strtotime($month . '-01'))) . '-01 00:00:00" 
-	AND order_type = "resend" 
+	AND order_type IN ("resend", "重发订单")
 	AND order_status != "已发货"
 ORDER BY
 	order_status ASC,
