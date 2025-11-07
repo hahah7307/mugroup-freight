@@ -247,7 +247,7 @@
         const category_3 = echarts.init(document.getElementById("main_3"));
         category_3.setOption({
             title: {
-                text: '月度财报销量柱状图(单位：美金)',
+                text: '月度财报销量柱状图(单位：个)',
                 left: 'center'
             },
             tooltip: {
