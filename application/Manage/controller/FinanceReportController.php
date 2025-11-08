@@ -50,6 +50,9 @@ class FinanceReportController extends BaseController
         $month = $model->query('SELECT DISTINCT `month` FROM mu_finance_report_snapshot ORDER BY `month` ASC;');
         $this->assign('month', '"' . implode('","', array_column($month,'month')) . '"');
 
+        $platform = $model->query('SELECT DISTINCT platform FROM mu_finance_report_snapshot ORDER BY platform ASC;');
+        $this->assign('platform', '"' . implode('","', array_column($platform,'platform')) . '"');
+
         $qty = $model->query('SELECT SUM(sale_qty) sum, `month`, platform FROM mu_finance_report_snapshot' . $where . ' GROUP BY month, platform ORDER BY `month` ASC;');
         $this->assign('qtySeries', self::javascriptFormat($month, $qty));
 
@@ -70,6 +73,76 @@ class FinanceReportController extends BaseController
 
         $day_amount = $model->query('SELECT ROUND(SUM(sale_amount) / DAY(LAST_DAY(CONCAT(`month`, "-01"))), 2) sum, `month`, platform FROM mu_finance_report_snapshot' . $where . ' GROUP BY month, platform ORDER BY `month` ASC;');
         $this->assign('dayAmountSeries', self::javascriptFormat($month, $day_amount));
+
+        // 广告占比
+        $adCostProfit = $model->query('SELECT IFNULL(ROUND(SUM(adCost) * -1 / SUM(sale_amount), 2), 0) profit, `month`, platform FROM mu_finance_report_snapshot GROUP BY month, platform ORDER BY `month` ASC;');
+
+        $adCostProfitData = [];
+        foreach ($adCostProfit as $profitItem) {
+            foreach ($month as $item) {
+                foreach ($platform as $plat) {
+                    if ($profitItem['month'] == $item['month']
+                        && $profitItem['platform'] == $plat['platform']
+                    ) {
+                        $adCostProfitData[$plat['platform']][$item['month']][] = $profitItem['profit'];
+                    }
+                }
+            }
+        }
+        foreach ($adCostProfitData as $k => $platformItem) {
+            foreach ($platformItem as $key => $item) {
+                foreach ($month as $mon) {
+                    if ($key == $mon['month']) {
+                        $adCostProfitData[$k][$mon['month']] = $item[0];
+                    } else {
+                        if (!isset($adCostProfitData[$k][$mon['month']])) {
+                            $adCostProfitData[$k][$mon['month']] = '0.00';
+                        }
+                    }
+                }
+            }
+        }
+        ksort($adCostProfitData);
+        $adCostProfitDataString = [];
+        foreach ($adCostProfitData as $platformTag => $v) {
+            $adCostProfitDataString[] = '{ name: "' . $platformTag . '", type: "bar", emphasis: {focus: "series"}, data: [' . implode(',', $v) . '] }';
+        }
+        $this->assign('adCostProfitDataString', implode(',', $adCostProfitDataString));
+
+        // 仓储占比
+        $warehouseRentProfit = $model->query('SELECT IFNULL(ROUND(SUM(warehouse_rent) * -1 / SUM(sale_amount), 2), 0) profit, `month`, platform FROM mu_finance_report_snapshot GROUP BY month, platform ORDER BY `month` ASC;');
+
+        $warehouseRentProfitData = [];
+        foreach ($warehouseRentProfit as $profitItem) {
+            foreach ($month as $item) {
+                foreach ($platform as $plat) {
+                    if ($profitItem['month'] == $item['month']
+                        && $profitItem['platform'] == $plat['platform']
+                    ) {
+                        $warehouseRentProfitData[$plat['platform']][$item['month']][] = $profitItem['profit'];
+                    }
+                }
+            }
+        }
+        foreach ($warehouseRentProfitData as $k => $platformItem) {
+            foreach ($platformItem as $key => $item) {
+                foreach ($month as $mon) {
+                    if ($key == $mon['month']) {
+                        $warehouseRentProfitData[$k][$mon['month']] = $item[0];
+                    } else {
+                        if (!isset($warehouseRentProfitData[$k][$mon['month']])) {
+                            $warehouseRentProfitData[$k][$mon['month']] = '0.00';
+                        }
+                    }
+                }
+            }
+        }
+        ksort($warehouseRentProfitData);
+        $warehouseRentProfitDataString = [];
+        foreach ($warehouseRentProfitData as $platform => $v) {
+            $warehouseRentProfitDataString[] = '{ name: "' . $platform . '", type: "bar", emphasis: {focus: "series"}, data: [' . implode(',', $v) . '] }';
+        }
+        $this->assign('warehouseRentProfitDataString', implode(',', $warehouseRentProfitDataString));
 
         $sku_group = $model->query('SELECT DISTINCT group_name FROM mu_finance_sku_group ORDER BY group_name ASC;');
         $this->assign('sku_group', $sku_group);

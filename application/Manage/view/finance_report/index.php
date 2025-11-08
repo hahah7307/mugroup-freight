@@ -39,6 +39,8 @@
                 <li>仓储费</li>
                 <li>日包裹数</li>
                 <li>日销售额</li>
+                <li>广告占比</li>
+                <li>仓储占比</li>
             </ul>
             <div class="layui-tab-content">
                 <div class="layui-tab-item layui-show">
@@ -74,6 +76,16 @@
                 <div class="layui-tab-item">
                     <div class="layui-form pie-chart7">
                         <div id="main_7" class="main_style"></div>
+                    </div>
+                </div>
+                <div class="layui-tab-item">
+                    <div class="layui-form pie-chart8">
+                        <div id="main_8" class="main_style"></div>
+                    </div>
+                </div>
+                <div class="layui-tab-item">
+                    <div class="layui-form pie-chart9">
+                        <div id="main_9" class="main_style"></div>
                     </div>
                 </div>
             </div>
@@ -431,6 +443,96 @@
             ],
             series: [
                 {$dayAmountSeries}
+            ]
+        });
+
+        const category_8 = echarts.init(document.getElementById("main_8"));
+        category_8.setOption({
+            title: {
+                text: '月度财报广告占比',
+                left: 'center'
+            },
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'shadow'
+                }
+            },
+            legend: {
+                orient: 'horizontal',
+                left: 'right',
+                data: [{$platform}]
+            },
+            toolbox: {
+                show: true,
+                orient: 'vertical',
+                left: 'right',
+                top: 'center',
+                feature: {
+                    mark: { show: true },
+                    dataView: { show: true, readOnly: false },
+                    magicType: { show: true, type: ['line', 'bar', 'stack'] }
+                }
+            },
+            xAxis: [
+                {
+                    type: 'category',
+                    axisTick: { show: false },
+                    data: [{$month}]
+                }
+            ],
+            yAxis: [
+                {
+                    type: 'value'
+                }
+            ],
+            series: [
+                {$adCostProfitDataString}
+            ]
+        });
+
+        const category_9 = echarts.init(document.getElementById("main_9"));
+        category_9.setOption({
+            title: {
+                text: '月度财报仓储占比',
+                left: 'center'
+            },
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'shadow'
+                }
+            },
+            legend: {
+                orient: 'horizontal',
+                left: 'right',
+                data: [{$platform}]
+            },
+            toolbox: {
+                show: true,
+                orient: 'vertical',
+                left: 'right',
+                top: 'center',
+                feature: {
+                    mark: { show: true },
+                    dataView: { show: true, readOnly: false },
+                    magicType: { show: true, type: ['line', 'bar', 'stack'] }
+                }
+            },
+            xAxis: [
+                {
+                    type: 'category',
+                    axisTick: { show: false },
+                    data: [{$month}]
+                }
+            ],
+            yAxis: [
+                {
+                    type: 'value'
+                }
+            ],
+            series: [
+                {$warehouseRentProfitDataString}
             ]
         });
     });
