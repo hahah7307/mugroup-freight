@@ -520,8 +520,8 @@ class FinanceController extends BaseController
             if ($tableId = $financeTableObj->insertGetId($tableData)) {
                 $paymentObj = new AmazonPayment();
                 if ($payment_type) {
-                    if ($payment_type == "temu_hk") {
-                        $paymentData = $paymentObj->$payment_type($tableId, $rid, $excelObj);
+                    if ($payment_type == "temu_hk" || $payment_type == "temu") {
+                        $paymentData = $paymentObj->$payment_type($excelObj, $tableId, $rid);
                     } else {
                         $paymentData = $paymentObj->$payment_type($data, $tableId, $rid);
                     }

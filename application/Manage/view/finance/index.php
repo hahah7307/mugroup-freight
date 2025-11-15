@@ -32,9 +32,8 @@
                     <option value="walmart">walmart</option>
                     <option value="shein">shein</option>
                     <option value="shein_semi_managed">shein_semi_managed</option>
-                    <option value="temu">temu</option>
-                    <option value="temu_detail">temu_detail</option>
-                    <option value="temu_hk">temu_hk</option>
+                    <option value="temu">temu(付款明细)</option>
+                    <option value="temu_hk">temu(账单)</option>
                     <option value="ebay">ebay</option>
                     <option value="wildberries">wildberries</option>
                     <option value="tiktok">tiktok</option>

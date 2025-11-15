@@ -38,6 +38,7 @@ class FinanceTemuController extends BaseController
         $order = new FinanceTemuTailModel();
         $list = $order->where($where)->order('id asc')->paginate($page_num, false, ['query' => ['keyword' => $keyword, 'page_num' => $page_num]]);
         $this->assign('list', $list);
+        $this->assign('sum', $order->where($where)->sum('total'));
 
         Session::set(Config::get('BACK_URL'), $this->request->url(), 'manage');
 
@@ -66,37 +67,39 @@ class FinanceTemuController extends BaseController
             $saveData = [];
             $financeTemuTailObj = new FinanceTemuTailModel();
             foreach ($data as $item) {
-                if ($item[3] == '调整(退款)') {
-                    $order = $financeTemuTailObj->where(['package_number' => $item[0], 'waybill_number' => $item[1], 'total' => $item[4] * -1])->find();
-                } else {
-                    $order = $financeTemuTailObj->where(['package_number' => $item[0], 'waybill_number' => $item[1], 'total' => $item[4]])->find();
-                }
-
-                if (!empty($order)) {
-                    if ($order['total'] * -1 == $item[4]) {
-                        continue;
-                    }
-                    if (empty($order['time']) && $item[7] != "--") {
-                        // 更新
+                if ($item[3] == '支出') {
+                    $order = $financeTemuTailObj->where(['package_number' => $item[0], 'waybill_number' => $item[1], 'bill_type' => '支出'])->find();
+                    $list = $financeTemuTailObj->where(['package_number' => $item[0], 'waybill_number' => $item[1], 'bill_type' => '支出'])->select();
+                    if (!empty($order)) {
                         $saveData[] = [
                             'id'                            =>  $order['id'],
-                            'reconciliation_bill_status'    =>  $item[6],
-                            'time'                          =>  $item[7]
+                            'reconciliation_bill_status'    =>  $item[7],
+                            'time'                          =>  $item[8] == '--' ? null : $item[8],
                         ];
+                        if ($order['total'] != array_sum(array_column($list->toArray(), 'total'))) {
+                            $orderData[] = [
+                                "package_number"                => $item[0],
+                                "waybill_number"                => $item[1],
+                                "service_provider_code"         => $item[2],
+                                "bill_type"                     => $item[3],
+                                "total"                         => $item[5] - $order['total'],
+                                "currency"                      => $item[6],
+                                "reconciliation_bill_status"    => $item[7],
+                                "time"                          => $item[8] == '--' ? null : $item[8],
+                            ];
+                        }
                     } else {
-                        continue;
+                        $orderData[] = [
+                            "package_number"                =>  $item[0],
+                            "waybill_number"                =>  $item[1],
+                            "service_provider_code"         =>  $item[2],
+                            "bill_type"                     =>  $item[3],
+                            "total"                         =>  $item[5],
+                            "currency"                      =>  $item[6],
+                            "reconciliation_bill_status"    =>  $item[7],
+                            "time"                          =>  $item[8] == '--' ? null : $item[8],
+                        ];
                     }
-                } else {
-                    $orderData[] = [
-                        "package_number"                =>  $item[0],
-                        "waybill_number"                =>  $item[1],
-                        "service_provider_code"         =>  $item[2],
-                        "bill_type"                     =>  $item[3],
-                        "total"                         =>  $item[3] == '调整(退款)' ? $item[4] * -1 : $item[4],
-                        "currency"                      =>  $item[5],
-                        "reconciliation_bill_status"    =>  $item[6],
-                        "time"                          =>  $item[7] == '--' ? null : $item[7],
-                    ];
                 }
             }
 

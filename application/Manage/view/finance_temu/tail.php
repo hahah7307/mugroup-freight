@@ -1,6 +1,9 @@
 
 {include file="public/header" /}
 
+<style>
+    .total {padding: 0 10px}
+</style>
 <!-- 主体内容 -->
 <div class="layui-body" id="LAY_app_body">
     <div class="right">
@@ -22,6 +25,7 @@
 
         <div class="layui-form">
             <button type="button" class="layui-btn  layui-btn-normal" id="excel">导入</button>
+            <span class="total">合计：{$sum|number_format=###, 2}</span>
             <table class="layui-table" lay-size="sm">
                 <colgroup>
                     <col>
