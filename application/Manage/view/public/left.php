@@ -104,6 +104,7 @@
                     </a>
                     <dl class="layui-nav-child">
                         <dd><a layui-href="{:url('Task/index')}">任务跟踪</a></dd>
+                        <dd><a layui-href="{:url('WarehouseShipment/area_diff')}">仓点核算</a></dd>
                     </dl>
                 </li>
                 <li data-name="Storage" class="layui-nav-item">
