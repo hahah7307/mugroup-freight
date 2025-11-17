@@ -299,7 +299,7 @@ class FinanceController extends BaseController
         }
 
         // 表格列表
-        $where['order_type'] = 'sale';
+        $where['order_type'] = ['in', ['sale', '销售订单']];
         $order = new FinanceOrderStatisticsModel();
         $list = $order->where($where)->order('paid_time asc')->paginate(30);
         $this->assign('sale_amount', $order->where($where)->sum('sale_amount'));
