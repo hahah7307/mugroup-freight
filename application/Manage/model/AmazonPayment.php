@@ -988,13 +988,13 @@ class AmazonPayment extends Model
                     "promotional_rebates"       =>  0,
                     "fba_fees"                  =>  0,
                 ];
-                if ($item[72]) {
+                if ($item[73]) {
                     $this->orderAdjustmentNew[] = [
                         "report_id"                 =>  $reportId,
                         "table_id"                  =>  $tableId,
                         "payment_id"                =>  number_format($item[2], 0, '', ''),
                         "sku"                       =>  $item[8],
-                        "total"                     =>  abs(sprintf('%.2f', str_replace(',', '', $item[72]))),
+                        "total"                     =>  abs(sprintf('%.2f', str_replace(',', '', $item[73]))),
                     ];
                 }
                 if ($item[32]) {
@@ -1024,13 +1024,13 @@ class AmazonPayment extends Model
                     "promotional_rebates"       =>  0,
                     "fba_fees"                  =>  0,
                 ];
-                if ($item[72]) {
+                if ($item[73]) {
                     $this->orderAdjustmentNew[] = [
                         "report_id"                 =>  $reportId,
                         "table_id"                  =>  $tableId,
                         "payment_id"                =>  number_format($item[2], 0, '', ''),
                         "sku"                       =>  $item[8],
-                        "total"                     =>  abs(sprintf('%.2f', str_replace(',', '', $item[72]))) * -1,
+                        "total"                     =>  abs(sprintf('%.2f', str_replace(',', '', $item[73]))) * -1,
                     ];
                 }
                 if ($item[56] == "Customer Chargeback") {
