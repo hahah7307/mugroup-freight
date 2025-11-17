@@ -1705,15 +1705,11 @@ class AmazonPayment extends Model
                     "payment_id"                =>  $item[4],
                     "fulfillment"               =>  "Seller",
                     "product_sales"             =>  round(str_replace(',', '', $item[11]), 2),
-                    "selling_fees"              =>  round(str_replace(',', '', $item[18]), 2)
-                        + round(str_replace(',', '', $item[32]), 2)
-                        + round(str_replace(',', '', $item[33]), 2)
+                    "selling_fees"              =>  round(str_replace(',', '', $item[19]), 2)
                         + round(str_replace(',', '', $item[34]), 2)
-                        + round(str_replace(',', '', $item[35]), 2)
                         + round(str_replace(',', '', $item[36]), 2)
-                        + round(str_replace(',', '', $item[37]), 2)
-                        + round(str_replace(',', '', $item[43]), 2)
-                        + round(str_replace(',', '', $item[40]), 2),
+                        + round(str_replace(',', '', $item[41]), 2)
+                        + round(str_replace(',', '', $item[44]), 2),
                     "shipping_credits"          =>  0,
                     "gift_wrap_credits"         =>  0,
                     "regulatory_fee"            =>  0,
@@ -1731,7 +1727,7 @@ class AmazonPayment extends Model
                     "payment_id"                =>  $item[4],
                     "fulfillment"               =>  "Seller",
                     "product_sales"             =>  round(str_replace(',', '', $item[14]), 2),
-                    "selling_fees"              =>  round(str_replace(',', '', $item[19]), 2),
+                    "selling_fees"              =>  round(str_replace(',', '', $item[20]), 2),
                     "shipping_credits"          =>  0,
                     "gift_wrap_credits"         =>  0,
                     "regulatory_fee"            =>  0,
