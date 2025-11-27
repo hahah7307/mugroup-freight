@@ -964,112 +964,116 @@ class AmazonPayment extends Model
     public function walmart($excel, $tableId, $reportId): array
     {
         foreach ($excel as $item) {
-            $orderObj = new OrderModel();
-            $order = $orderObj->with(['details'])->where(['refNo|saleOrderCode' => $item[2]])->find();
-            if ($order && $order['userAccount'] != $this->userAccount) {
-                $this->userAccount = $order['userAccount'];
+            $orderObj = new FinanceOrderStatisticsModel();
+            $order = $orderObj->where(['payment_id|saleOrderCode' => $item[10]])->find();
+            if ($order && $order['user_account'] != $this->userAccount) {
+                $this->userAccount = $order['user_account'];
             }
 
-            if ($item[5] == 'SALE') {
-                $this->orderSaleNew[] = [
-                    "report_id"                 =>  $reportId,
-                    "table_id"                  =>  $tableId,
-                    "date"                      =>  date('Y-m-d H:i:s', strtotime($item[6])),
-                    "payment_id"                =>  number_format($item[2], 0, '', ''),
-                    "sku"                       =>  $item[8],
-                    "quantity"                  =>  $item[7],
-                    "fulfillment"               =>  "Seller",
-                    "postal"                    =>  $item[18],
-                    "product_sales"             =>  sprintf('%.2f', str_replace(',', '', $item[25]) + str_replace(',', '', $item[28])),
-                    "selling_fees"              =>  sprintf('%.2f', str_replace(',', '', $item[22])) * -1,
-                    "shipping_credits"          =>  0,
-                    "gift_wrap_credits"         =>  0,
-                    "regulatory_fee"            =>  0,
-                    "promotional_rebates"       =>  0,
-                    "fba_fees"                  =>  0,
-                ];
-                if ($item[73]) {
-                    $this->orderAdjustmentNew[] = [
+            if ($item[6] == 'Sale') {
+                if ($item[13] == 'Product Price' || $item[13] == 'Promo Code' || $item[13] == 'Shipping') {
+                    $this->orderSaleNew[] = [
                         "report_id"                 =>  $reportId,
                         "table_id"                  =>  $tableId,
-                        "payment_id"                =>  number_format($item[2], 0, '', ''),
-                        "sku"                       =>  $item[8],
-                        "total"                     =>  abs(sprintf('%.2f', str_replace(',', '', $item[73]))),
+                        "date"                      =>  date('Y-m-d H:i:s', strtotime($item[5])),
+                        "payment_id"                =>  number_format($item[10], 0, '', ''),
+                        "sku"                       =>  $item[18],
+                        "quantity"                  =>  $item[14],
+                        "fulfillment"               =>  "Seller",
+                        "postal"                    =>  $item[24],
+                        "product_sales"             =>  sprintf('%.2f', str_replace(',', '', $item[12])),
+                        "selling_fees"              =>  0,
+                        "shipping_credits"          =>  0,
+                        "gift_wrap_credits"         =>  0,
+                        "regulatory_fee"            =>  0,
+                        "promotional_rebates"       =>  0,
+                        "fba_fees"                  =>  0,
                     ];
                 }
-                if ($item[32]) {
-                    $this->orderAdjustmentNew[] = [
+                if ($item[13] == 'Commission on Product' || $item[13] == 'Commission on Shipping') {
+                    $this->orderSaleNew[] = [
                         "report_id"                 =>  $reportId,
                         "table_id"                  =>  $tableId,
-                        "payment_id"                =>  number_format($item[2], 0, '', ''),
-                        "sku"                       =>  $item[8],
-                        "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[32])),
+                        "date"                      =>  date('Y-m-d H:i:s', strtotime($item[5])),
+                        "payment_id"                =>  number_format($item[10], 0, '', ''),
+                        "sku"                       =>  $item[18],
+                        "quantity"                  =>  $item[14],
+                        "fulfillment"               =>  "Seller",
+                        "postal"                    =>  $item[24],
+                        "product_sales"             =>  0,
+                        "selling_fees"              =>  sprintf('%.2f', str_replace(',', '', $item[12])),
+                        "shipping_credits"          =>  0,
+                        "gift_wrap_credits"         =>  0,
+                        "regulatory_fee"            =>  0,
+                        "promotional_rebates"       =>  0,
+                        "fba_fees"                  =>  0,
                     ];
                 }
-            } elseif ($item[5] == 'REFUNDED') {
-                $this->orderRefundNew[] = [
-                    "report_id"                 =>  $reportId,
-                    "table_id"                  =>  $tableId,
-                    "date"                      =>  date('Y-m-d H:i:s', strtotime($item[6])),
-                    "payment_id"                =>  number_format($item[2], 0, '', ''),
-                    "sku"                       =>  $item[8],
-                    "quantity"                  =>  $item[7],
-                    "fulfillment"               =>  "Seller",
-                    "postal"                    =>  $item[18],
-                    "product_sales"             =>  sprintf('%.2f', str_replace(',', '', $item[26]) + str_replace(',', '', $item[29])),
-                    "selling_fees"              =>  sprintf('%.2f', str_replace(',', '', $item[22])) * -1,
-                    "shipping_credits"          =>  0,
-                    "gift_wrap_credits"         =>  0,
-                    "regulatory_fee"            =>  0,
-                    "promotional_rebates"       =>  0,
-                    "fba_fees"                  =>  0,
-                ];
-                if ($item[73]) {
+                if ($item[13] == 'Total Walmart Funded Savings') {
                     $this->orderAdjustmentNew[] = [
                         "report_id"                 =>  $reportId,
                         "table_id"                  =>  $tableId,
-                        "payment_id"                =>  number_format($item[2], 0, '', ''),
-                        "sku"                       =>  $item[8],
-                        "total"                     =>  abs(sprintf('%.2f', str_replace(',', '', $item[73]))) * -1,
+                        "payment_id"                =>  number_format($item[10], 0, '', ''),
+                        "sku"                       =>  $item[18],
+                        "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[12])),
                     ];
                 }
-                if ($item[56] == "Customer Chargeback") {
-                    $this->orderAdjustmentNew[] = [
+            } elseif ($item[6] == 'Refund') {
+                if ($item[13] == 'Product Price' || $item[13] == 'Shipping') {
+                    $this->orderRefundNew[] = [
                         "report_id"                 =>  $reportId,
                         "table_id"                  =>  $tableId,
-                        "payment_id"                =>  number_format($item[2], 0, '', ''),
-                        "sku"                       =>  $item[8],
-                        "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[21])) * -1,
+                        "date"                      =>  date('Y-m-d H:i:s', strtotime($item[5])),
+                        "payment_id"                =>  number_format($item[10], 0, '', ''),
+                        "sku"                       =>  $item[18],
+                        "quantity"                  =>  $item[14],
+                        "fulfillment"               =>  "Seller",
+                        "postal"                    =>  $item[24],
+                        "product_sales"             =>  sprintf('%.2f', str_replace(',', '', $item[12])),
+                        "selling_fees"              =>  0,
+                        "shipping_credits"          =>  0,
+                        "gift_wrap_credits"         =>  0,
+                        "regulatory_fee"            =>  0,
+                        "promotional_rebates"       =>  0,
+                        "fba_fees"                  =>  0,
                     ];
                 }
-            } elseif ($item[5] == 'ADJMNT') {
-                if ($item[67] == "Walmart-fulfilled(WFS)" && $item[56] == 'WFS Fulfillment fee') {
-                    // WFS尾程
-                    $this->orderAdjustmentWfs[] = [
+                if ($item[13] == 'Commission on Product' || $item[13] == 'Commission on Shipping') {
+                    $this->orderRefundNew[] = [
                         "report_id"                 =>  $reportId,
                         "table_id"                  =>  $tableId,
-                        "payment_id"                =>  number_format($item[2], 0, '', ''),
-                        "sku"                       =>  $item[8],
-                        "is_fulfillment"            =>  1,
-                        "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[21])),
+                        "date"                      =>  date('Y-m-d H:i:s', strtotime($item[5])),
+                        "payment_id"                =>  number_format($item[10], 0, '', ''),
+                        "sku"                       =>  $item[18],
+                        "quantity"                  =>  $item[14],
+                        "fulfillment"               =>  "Seller",
+                        "postal"                    =>  $item[24],
+                        "product_sales"             =>  0,
+                        "selling_fees"              =>  sprintf('%.2f', str_replace(',', '', $item[12])),
+                        "shipping_credits"          =>  0,
+                        "gift_wrap_credits"         =>  0,
+                        "regulatory_fee"            =>  0,
+                        "promotional_rebates"       =>  0,
+                        "fba_fees"                  =>  0,
                     ];
-                } elseif ($item[67] == "Walmart-fulfilled(WFS)" && $item[56] == '"WFS Return Shipping fee "') {
-                    // WFS退运费
-                    $this->orderAdjustmentWfs[] = [
-                        "report_id"                 =>  $reportId,
-                        "table_id"                  =>  $tableId,
-                        "payment_id"                =>  number_format($item[2], 0, '', ''),
-                        "sku"                       =>  $item[8],
-                        "is_return_shipping"        =>  1,
-                        "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[21])),
-                    ];
-                } else {
+                }
+                if ($item[13] == 'Total Walmart Funded Savings') {
                     $this->orderAdjustmentNew[] = [
                         "report_id"                 =>  $reportId,
                         "table_id"                  =>  $tableId,
-                        "payment_id"                =>  number_format($item[2], 0, '', ''),
-                        "sku"                       =>  $item[8],
-                        "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[21])),
+                        "payment_id"                =>  number_format($item[10], 0, '', ''),
+                        "sku"                       =>  $item[18],
+                        "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[12])),
+                    ];
+                }
+            } elseif ($item[6] == 'Service Fee' || $item[6] == 'Adjustment') {
+                if (!strpos($item[13], 'tax') && $item[7] != "Walmart Product Advertising" && $item[7] != "Walmart Product Advertising Credits") {
+                    $this->orderAdjustmentNew[] = [
+                        "report_id"                 =>  $reportId,
+                        "table_id"                  =>  $tableId,
+                        "payment_id"                =>  number_format($item[10], 0, '', ''),
+                        "sku"                       =>  $item[18],
+                        "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[12])),
                     ];
                 }
             }
