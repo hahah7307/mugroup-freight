@@ -48,7 +48,7 @@ class StorageBaseModel extends Model
             $volume_lbs = ceil(ceil($detail['product']['productLength'] / self::INCH2CM) * ceil($detail['product']['productWidth'] / self::INCH2CM) * ceil($detail['product']['productHeight'] / self::INCH2CM) / self::LB2INCH);
             $weight_lbs = $detail['product']['productWeight'] * self::KG2LB;
             $lbs = max($volume_lbs, $weight_lbs);
-        } elseif ($storage == StorageModel::LECANGID) {
+        } elseif ($storage == StorageModel::LECANGID || $storage == StorageModel::WUYOUDAID) {
             $volume_kg = $detail['product']['productLength'] * $detail['product']['productWidth'] * $detail['product']['productHeight'] / self::KG2CM3;
             $lbs = max($volume_kg, $detail['product']['productWeight']) * self::KG2LB;
         }

@@ -11,6 +11,7 @@ class StorageModel extends Model
     const STATE_ACTIVE = 1;
     const LIANGCANGID = 1;
     const LECANGID = 2;
+    const WUYOUDAID = 3;
 
     protected $name = 'storage';
 

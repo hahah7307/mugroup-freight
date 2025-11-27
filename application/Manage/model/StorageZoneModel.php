@@ -48,7 +48,7 @@ class StorageZoneModel extends Model
     {
         $storageAreaObj = new StorageAreaModel();
         $area = $storageAreaObj->where(['storage_code' => $order['warehouseCode']])->find();
-        if ($order['area']['storage_id'] == StorageModel::LIANGCANGID) {
+        if ($order['area']['storage_id'] == StorageModel::LIANGCANGID || $order['area']['storage_id'] == StorageModel::WUYOUDAID) {
             $zip_code = substr($postalCode, 0, 3) . "00";
             $storageZone = new StorageZoneModel();
             $zone = $storageZone->where(['storage_id' => $order['area']['storage_id'], 'type' => $order['area']['type'], 'area_id' => $area['id']])->where('zip_code', '<=', $zip_code)->order('id desc')->find();
