@@ -58,4 +58,30 @@ class ParamController extends BaseController
             return view();
         }
     }
+
+    public function warehouse_cost()
+    {
+        $filename = APP_PATH . 'warehouse_cost.php';
+        if ($this->request->isPost()) {
+            $post = $this->request->post();
+            if ($post) {
+                $arr = "<?php return [\r\n";
+                foreach ($post as $k => $v) {
+                    $arr .= "    '" . $k . "'  =>  '" . $v . "',\r\n";
+                }
+                $arr .= "]; ?>";
+                $configfile = fopen($filename, "w") or die("Unable to open file!");
+                fwrite($configfile, $arr);
+                fclose($configfile);
+            }
+            echo json_encode(['code' => 1, 'msg' => '保存成功']);
+            exit;
+        } else {
+            // 参数
+            $web_params = file_exists($filename) ? include($filename) : [];
+            $this->assign('config', $web_params);
+
+            return view();
+        }
+    }
 }

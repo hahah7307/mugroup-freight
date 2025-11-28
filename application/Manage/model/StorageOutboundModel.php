@@ -50,7 +50,7 @@ class StorageOutboundModel extends Model
             $ruleCondition = json_decode($rule['condition'], true);
             $lbs = 0;
             // 出库费良仓取计费重，乐歌取实重
-            if ($storage == StorageModel::LIANGCANGID) {
+            if ($storage == StorageModel::LIANGCANGID || $storage == StorageModel::WUYOUDAID) {
                 $lbs = StorageBaseModel::getProductLbs($storage, $detail);
             } elseif ($storage == StorageModel::LECANGID) {
                 $lbs = $detail['product']['productWeight'] * self::KG2LB;

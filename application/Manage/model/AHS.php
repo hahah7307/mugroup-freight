@@ -23,7 +23,21 @@ class AHS extends Model
         $arr = [$a, $b, $c];
         sort($arr);
         $length = array_reverse($arr);
-        return ceil($length[0] / self::CM2INCHES) > 48 || ceil($length[1] / self::CM2INCHES) > 30 || (ceil($length[0] / self::CM2INCHES) + (ceil($length[1]/ self::CM2INCHES) + ceil($length[2] / self::CM2INCHES)) * 2) > 105;
+        return ceil($length[0] / self::CM2INCHES) > 48
+            || ceil($length[1] / self::CM2INCHES) > 30
+            || (ceil($length[0] / self::CM2INCHES) + (ceil($length[1]/ self::CM2INCHES) + ceil($length[2] / self::CM2INCHES)) * 2) > 105
+            || ceil($length[0]) * ceil($length[1]) * ceil($length[2]) > 10368;
+    }
+
+    static public function OSFedex($a, $b, $c, $w): bool
+    {
+        $arr = [$a, $b, $c];
+        sort($arr);
+        $length = array_reverse($arr);
+        return ceil($length[0] / self::CM2INCHES) > 96
+            || (ceil($length[0] / self::CM2INCHES) + (ceil($length[1]/ self::CM2INCHES) + ceil($length[2] / self::CM2INCHES)) * 2) > 130
+            || ceil($length[0]) * ceil($length[1]) * ceil($length[2]) > 17280
+            || ceil($w * self::CM2INCHES) > 110;
     }
 
     /**
@@ -36,6 +50,8 @@ class AHS extends Model
             $ahsFee = self::AHSFeeLiang($detail['product']['productWeight'], $zone, $detail['product']['productLength'], $detail['product']['productWidth'], $detail['product']['productHeight'], $order);
         } elseif ($storage == StorageModel::LECANGID) {
             $ahsFee = self::AHSFeeLoctek($detail['product']['productWeight'], $zone, $detail['product']['productLength'], $detail['product']['productWidth'], $detail['product']['productHeight'], $order);
+        } elseif ($storage == StorageModel::WUYOUDAID) {
+            $ahsFee = self::AHSFeeWuyouda($detail['product']['productWeight'], $zone, $detail['product']['productLength'], $detail['product']['productWidth'], $detail['product']['productHeight'], $order);
         }
         return $ahsFee;
     }
@@ -69,6 +85,24 @@ class AHS extends Model
             $weightFee = 0;
         }
         $dimensionFee = self::AHSDimension($a, $b, $c) ? StorageAhsRuleModel::getAHSFee($storage, 5, $zone, $order) : 0;
+
+        return max($weightFee, $dimensionFee);
+    }
+
+    /**
+     * @throws DbException
+     */
+    static public function AHSFeeWuyouda($w, $zone, $a, $b, $c, $order)
+    {
+        $storage = StorageModel::LECANGID;
+        $w *= self::KG2LBS;
+
+        if (self::AHSWeight($w)) {
+            $weightFee = StorageAhsRuleModel::getAHSFee($storage, 6, $zone, $order);
+        } else {
+            $weightFee = 0;
+        }
+        $dimensionFee = self::AHSDimension($a, $b, $c) ? StorageAhsRuleModel::getAHSFee($storage, 7, $zone, $order) : 0;
 
         return max($weightFee, $dimensionFee);
     }

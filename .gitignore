@@ -2,3 +2,4 @@
 runtime/*
 public/static/*
 application/storage.php
+application/warehouse_cost.php
