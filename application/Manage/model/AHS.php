@@ -94,7 +94,7 @@ class AHS extends Model
      */
     static public function AHSFeeWuyouda($w, $zone, $a, $b, $c, $order)
     {
-        $storage = StorageModel::LECANGID;
+        $storage = StorageModel::WUYOUDAID;
         $w *= self::KG2LBS;
 
         if (self::AHSWeight($w)) {
