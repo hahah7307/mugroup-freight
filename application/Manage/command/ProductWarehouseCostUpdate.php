@@ -3,7 +3,7 @@ namespace app\Manage\command;
 
 use app\Manage\model\AHS;
 use app\Manage\model\ProductModel;
-use app\Manage\model\ProductWarehouseCostCreateModel;
+use app\Manage\model\ProductWarehouseCostUpdateModel;
 use app\Manage\model\ProductWarehouseCostModel;
 use app\Manage\model\StorageAhsRuleModel;
 use app\Manage\model\StorageAreaModel;
@@ -22,11 +22,11 @@ use think\db\exception\DataNotFoundException;
 use think\db\exception\ModelNotFoundException;
 use think\exception\DbException;
 
-class ProductWarehouseCostCreate extends Command
+class ProductWarehouseCostUpdate extends Command
 {
     protected function configure()
     {
-        $this->setName('ProductWarehouseCostCreate')->setDescription('Here is the ProductWarehouseCostCreate');
+        $this->setName('ProductWarehouseCostUpdate')->setDescription('Here is the ProductWarehouseCostUpdate');
     }
 
     /**
@@ -38,36 +38,40 @@ class ProductWarehouseCostCreate extends Command
         Config::load(APP_PATH . 'storage.php');
         Config::load(APP_PATH . 'warehouse_cost.php');
 
-        $createObj = new ProductWarehouseCostCreateModel();
-        $warehouseCreate = $createObj->find(1);
+        $updateObj = new ProductWarehouseCostUpdateModel();
+        $warehouseCreate = $updateObj->find(1);
 
         Db::startTrans();
         try {
             $costItem = [];
+            $offsetProductList = [];
             $productObj = new ProductModel();
             $offsetProduct = $productObj->where(['saleStatus' => 2])->limit($warehouseCreate['offset'], $warehouseCreate['page_num'])->select();
             if (count($offsetProduct) <= 0) {
-                $createObj->update(['id' => 1, 'offset' => 0]);
+                $updateObj->update(['id' => 1, 'offset' => 0]);
                 echo 'restart';exit();
             } else {
                 $costObj = new ProductWarehouseCostModel();
                 $warehouseArea = StorageAreaModel::all();
                 foreach ($offsetProduct as $productItem) {
-                    foreach ($warehouseArea as $area) {
-                        $costIsPeak = $costObj->where(['product_sku' => $productItem['productSku'], 'warehouse_id' => $area['warehouseId'], 'is_peak' => 1])->find();
-                        if (empty($costIsPeak)) {
+                    $count = $costObj->where(['product_sku' => $productItem['productSku']])->count();
+                    if ($count > 0) {
+                        $offsetProductList[] = $productItem['productSku'];
+                        foreach ($warehouseArea as $area) {
                             $costItem[] = self::generateProductSkuCost($productItem['productSku'], $area['storage_code'], 1);
-                        }
-                        $costNoPeak = $costObj->where(['product_sku' => $productItem['productSku'], 'warehouse_id' => $area['warehouseId'], 'is_peak' => 0])->find();
-                        if (empty($costNoPeak)) {
                             $costItem[] = self::generateProductSkuCost($productItem['productSku'], $area['storage_code'], 0);
                         }
                     }
                 }
+
+                if ($offsetProductList) {
+                    $costObj->where(['product_sku' => ['in', $offsetProductList]])->delete();
+                }
+
                 if ($costObj->insertAll($costItem)) {
-                    $createObj->update(['id' => 1, 'offset' => $warehouseCreate['offset'] + $warehouseCreate['page_num']]);
+                    $updateObj->update(['id' => 1, 'offset' => $warehouseCreate['offset'] + $warehouseCreate['page_num']]);
                 } else {
-                    throw new Exception("新增失败");
+                    throw new Exception("更新失败");
                 }
             }
 

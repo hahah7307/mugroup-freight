@@ -1,6 +1,8 @@
 <?php
 namespace app\Manage\controller;
 
+use app\Manage\model\ProductWarehouseCostModel;
+use app\Manage\model\StorageAreaModel;
 use app\Manage\model\WarehouseShipmentDiffItemModel;
 use app\Manage\model\WarehouseShipmentDiffModel;
 use app\Manage\model\WarehouseTailModel;
@@ -150,6 +152,43 @@ class WarehouseShipmentController extends BaseController
         $list = $quoteTableObj->order('id desc')->select();
         $this->assign('list', $list);
 
+        return view();
+    }
+    /**
+     * @throws DbException
+     */
+    public function warehouse_cost(): \think\response\View
+    {
+        $keyword = $this->request->get('keyword', '', 'htmlspecialchars');
+        $this->assign('keyword', $keyword);
+        if ($keyword) {
+            $where['product_sku'] = ['like', '%' . strtoupper($keyword) . '%'];
+        } else {
+            $where = [];
+        }
+
+        $warehouse_code = $this->request->get('warehouse_code', '', 'htmlspecialchars');
+        $this->assign('warehouse_code', $warehouse_code);
+        if ($warehouse_code) {
+            $where['warehouse_code'] = $warehouse_code;
+        }
+
+        $is_peak = $this->request->get('is_peak', '-1', 'htmlspecialchars');
+        $this->assign('is_peak', $is_peak);
+        if ($is_peak != '-1') {
+            $where['is_peak'] = $is_peak;
+        }
+
+        // 查看权限
+//        $access_ids = AccountModel::account_access_ids();
+//        $where['user_id'] = ['in', $access_ids];
+
+        $quoteTableObj = new ProductWarehouseCostModel();
+        $list = $quoteTableObj->where($where)->order('id desc')->paginate(Config::get('PAGE_NUM'), false, ['keyword' => $keyword]);
+        $this->assign('list', $list);
+        $this->assign('warehouse_area', StorageAreaModel::all());
+
+        Session::set(Config::get('BACK_URL'), $this->request->url(), 'manage');
         return view();
     }
 }

@@ -53,4 +53,5 @@ return [
     'app\Manage\command\FinanceWildberriesFeeEmpty', //
     'app\Manage\command\AkAmazonListing', //
     'app\Manage\command\ProductWarehouseCostCreate', //
+    'app\Manage\command\ProductWarehouseCostUpdate', //
 ];
