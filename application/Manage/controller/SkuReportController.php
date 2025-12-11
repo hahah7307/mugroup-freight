@@ -3078,4 +3078,59 @@ GROUP BY `month`;
 
         return view();
     }
+
+    /**
+     * @throws DbException
+     */
+    public function platform_sale(): \think\response\View
+    {
+        $platform = $this->request->get('platform');
+        if (!empty($platform)) {
+            $platformList = explode(',', $platform);
+            $platformWhere = 'AND a.platform IN ( "'. implode('","', $platformList) .'" )';
+        } else {
+            $platformList = "";
+            $platformWhere = '';
+        }
+        $this->assign('platform', '"' . implode('","', $platformList) . '"');
+
+        $start = $this->request->get('start', date('Y-m-01 00:00:00'), 'htmlspecialchars');
+        $this->assign('start', $start);
+        $end = $this->request->get('end', date('Y-m-d 00:00:00'), 'htmlspecialchars');
+        $this->assign('end', $end);
+
+        $order_field = $this->request->get('order_field', 'qty', 'htmlspecialchars');
+        $this->assign('order_field', $order_field);
+
+        $order_type = $this->request->get('order_type', 'DESC', 'htmlspecialchars');
+        $this->assign('order_type', $order_type);
+
+        $model = new ProductModel();
+        $saleList = $model->query('
+SELECT
+	SUM( b.qty ) qty,
+	ROUND( SUM( a.amountpaid ), 2 ) amount,
+	b.warehouseSku,
+	MAX( c.productImages ) productImages
+FROM
+	mu_ecang_order a
+	JOIN mu_ecang_order_detail b ON a.id = b.order_id
+	JOIN mu_ecang_product c ON b.warehouseSku = c.productSku
+WHERE
+	a.datePaidPlatform >= "' . $start . '"
+	AND a.datePaidPlatform < "' . $end . '" 
+	' . $platformWhere . ' 
+	AND c.saleStatus = 2
+	AND a.`status` = 4
+GROUP BY
+	b.warehouseSku,
+	c.productImages
+ORDER BY
+	 ' . $order_field . ' ' . $order_type . ';
+        ');
+        $this->assign('saleList', $saleList);
+
+        Session::set(Config::get('BACK_URL'), $this->request->url(), 'manage');
+        return view();
+    }
 }
