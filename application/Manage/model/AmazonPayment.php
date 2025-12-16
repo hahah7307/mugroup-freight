@@ -1019,7 +1019,7 @@ class AmazonPayment extends Model
                     ];
                 }
             } elseif ($item[6] == 'Refund') {
-                if ($item[13] == 'Product Price' || $item[13] == 'Shipping') {
+                if ($item[13] == 'Product Price' || $item[13] == 'Shipping' || $item[13] == 'ExcessRefundAdjustment') {
                     $this->orderRefundNew[] = [
                         "report_id"                 =>  $reportId,
                         "table_id"                  =>  $tableId,
@@ -1066,8 +1066,8 @@ class AmazonPayment extends Model
                         "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[12])),
                     ];
                 }
-            } elseif ($item[6] == 'Service Fee' || $item[6] == 'Adjustment') {
-                if (!strpos($item[13], 'tax') && $item[7] != "Walmart Product Advertising" && $item[7] != "Walmart Product Advertising Credits") {
+            } else {
+                if (!strpos($item[13], 'tax') && $item[7] != "Walmart Product Advertising" && $item[7] != "SEM Marketing") {
                     $this->orderAdjustmentNew[] = [
                         "report_id"                 =>  $reportId,
                         "table_id"                  =>  $tableId,
