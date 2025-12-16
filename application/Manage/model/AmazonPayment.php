@@ -1334,6 +1334,8 @@ class AmazonPayment extends Model
             } elseif ($item[2] == '违规处罚扣款'
                 || $item[2] == '订单调整'
                 || $item[2] == '违规处罚补款'
+                || $item[2] == '违规处罚资金冻结'
+                || $item[2] == '违规撤销资金解冻'
             ) {
                 $this->orderAdjustmentNew[] = [
                     "report_id"                 =>  $reportId,
