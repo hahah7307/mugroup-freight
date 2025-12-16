@@ -26,7 +26,7 @@ class AHS extends Model
         return ceil($length[0] / self::CM2INCHES) > 48
             || ceil($length[1] / self::CM2INCHES) > 30
             || (ceil($length[0] / self::CM2INCHES) + (ceil($length[1]/ self::CM2INCHES) + ceil($length[2] / self::CM2INCHES)) * 2) > 105
-            || ceil($length[0]) * ceil($length[1]) * ceil($length[2]) > 10368;
+            || ceil($length[0] / self::CM2INCHES) * ceil($length[1] / self::CM2INCHES) * ceil($length[2] / self::CM2INCHES) > 10368;
     }
 
     static public function OSFedex($a, $b, $c, $w): bool
@@ -36,7 +36,7 @@ class AHS extends Model
         $length = array_reverse($arr);
         return ceil($length[0] / self::CM2INCHES) > 96
             || (ceil($length[0] / self::CM2INCHES) + (ceil($length[1]/ self::CM2INCHES) + ceil($length[2] / self::CM2INCHES)) * 2) > 130
-            || ceil($length[0]) * ceil($length[1]) * ceil($length[2]) > 17280
+            || ceil($length[0] / self::CM2INCHES) * ceil($length[1] / self::CM2INCHES) * ceil($length[2] / self::CM2INCHES) > 17280
             || ceil($w * self::CM2INCHES) > 110;
     }
 
