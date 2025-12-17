@@ -1559,7 +1559,7 @@ class AmazonPayment extends Model
             $this->userAccount = "Wildberries";
 
             if (($item[9] == 'sale' && ($item[10] == 'Sale' || $item[10] == 'Correct sale'))
-                || ($item[9] == '销售' && $item[10] == '销售')) {
+                || ($item[9] == '销售' && ($item[10] == '销售' || $item[10] == '合规销售'))) {
                 $this->orderSaleNew[] = [
                     "report_id"                 =>  $reportId,
                     "table_id"                  =>  $tableId,
