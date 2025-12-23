@@ -1254,9 +1254,9 @@ class FinanceController extends BaseController
             Db::commit();
         } catch (Exception $e) {
             Db::rollback();
-            $this->error($e->getMessage(), url('order_statistics'));
+            $this->error($e->getMessage(), session('back_url', '', 'manage'));
         }
-        $this->redirect(url('order_statistics'));
+        $this->redirect(session('back_url', '', 'manage'));
     }
 
     /**

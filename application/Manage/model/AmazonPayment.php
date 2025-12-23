@@ -1594,7 +1594,7 @@ class AmazonPayment extends Model
                     "payment_id"                =>  trim($item[54])
                 ];
             } elseif (($item[10] == 'Logistics' || $item[10] == 'Reversal of logistics')
-                || ($item[9] == '销售' && $item[10] == '物流')) {
+                || ($item[9] == '销售' && ($item[10] == '物流' || $item[10] == '物流冲销'))) {
                 $this->orderShippingNew[] = [
                     "report_id"                 =>  $reportId,
                     "table_id"                  =>  $tableId,
