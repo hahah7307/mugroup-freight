@@ -54,4 +54,5 @@ return [
     'app\Manage\command\AkAmazonListing', //
     'app\Manage\command\ProductWarehouseCostCreate', //
     'app\Manage\command\ProductWarehouseCostUpdate', //
+    'app\Manage\command\OrderCalculateUp', //
 ];
