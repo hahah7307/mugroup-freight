@@ -31,6 +31,7 @@
                     <col>
                     <col>
                     <col>
+                    <col>
                 </colgroup>
                 <thead>
                 <tr>
@@ -41,6 +42,7 @@
                     <th>总金额</th>
                     <th>描述</th>
                     <th>类型</th>
+                    <th>外销合同号</th>
                     <th>核算月份</th>
                     <th>分摊唯一标识号</th>
                 </tr>
@@ -55,6 +57,7 @@
                     <td>{$v.total}</td>
                     <td>{$v.content}</td>
                     <td>{$v.type}</td>
+                    <td>{$v.invoice_no}</td>
                     <td>{$v.calculate_month}</td>
                     <td>{$v.share_code}</td>
                 </tr>

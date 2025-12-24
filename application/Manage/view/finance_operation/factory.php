@@ -30,6 +30,7 @@
                     <col>
                     <col>
                     <col>
+                    <col>
                     <col width="80">
                 </colgroup>
                 <thead>
@@ -40,6 +41,7 @@
                     <th>总费用</th>
                     <th>备注</th>
                     <th>类型</th>
+                    <th>外销合同号</th>
                     <th>核算月份</th>
                     <th>操作</th>
                 </tr>
@@ -53,6 +55,7 @@
                     <td class="tr">{$v.total}</td>
                     <td>{$v.content}</td>
                     <td>{$v.type}</td>
+                    <td>{$v.invoice_no}</td>
                     <td class="tr">{$v.calculate_month}</td>
                     <td class="tc">
                         <button data-id="{$v.id}" class="layui-btn layui-btn-sm layui-btn-danger ml0" lay-submit lay-filter="Detele">删除</button>
