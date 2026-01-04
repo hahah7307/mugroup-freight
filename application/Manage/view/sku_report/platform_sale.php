@@ -78,7 +78,7 @@
                     <td>{$v.warehouseSku}</td>
                     <td><a href="{$v.productImages}" target="_blank"><img src="{$v.productImages}" height="80" alt=""></a></td>
                     <td class="tr">{$v.qty|number_format=###}</td>
-                    <td class="tr">{$v.amount|number_format=###, 2, ',', ''}</td>
+                    <td class="tr">{$v.amount|number_format=###, 2}</td>
                 </tr>
                 {/foreach}
                 </tbody>
