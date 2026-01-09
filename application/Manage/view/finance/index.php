@@ -30,8 +30,8 @@
                     <option value="amazon_it">amazon_it</option>
                     <option value="wayfair">wayfair</option>
                     <option value="walmart">walmart</option>
-                    <option value="shein">shein</option>
-                    <option value="shein_semi_managed">shein_semi_managed</option>
+                    <option value="shein">shein(自营)</option>
+                    <option value="shein_semi_managed">shein(半托)</option>
                     <option value="temu">temu(付款明细)</option>
                     <option value="temu_hk">temu(账单)</option>
                     <option value="ebay">ebay</option>

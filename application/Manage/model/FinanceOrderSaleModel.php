@@ -21,14 +21,15 @@ class FinanceOrderSaleModel extends Model
             if ($string == "/") {
                 return 0;
             } else {
-                $list = explode(' ', $string);
-                if ($list[0] == '-USD') {
-                    return  $list[1] * -1;
-                } elseif ($list[0] == 'USD') {
-                    return  $list[1];
-                } else {
-                    return 0;
-                }
+//                $list = explode(' ', $string);
+//                if ($list[0] == '-USD') {
+//                    return  $list[1] * -1;
+//                } elseif ($list[0] == 'USD') {
+//                    return  $list[1];
+//                } else {
+//                    return 0;
+//                }
+                return round($string, 2);
             }
         } else {
             return 0;

@@ -1299,56 +1299,61 @@ class AmazonPayment extends Model
                 $this->userAccount = $order['userAccount'];
             }
 
-            if ($item[2] == '订单收入') {
+            if ($item[7] == '订单销售收入-订单收入') {
                 $this->orderSaleNew[] = [
                     "report_id"                 =>  $reportId,
                     "table_id"                  =>  $tableId,
-                    "date"                      =>  date('Y-m-d H:i:s', strtotime($item[7])),
+                    "date"                      =>  date('Y-m-d H:i:s', strtotime($item[5])),
                     "payment_id"                =>  $item[1],
-                    "quantity"                  =>  $item[8],
+                    "quantity"                  =>  '',
                     "fulfillment"               =>  "Seller",
-                    "product_sales"             =>  FinanceOrderSaleModel::sheinNumberFormat($item[11]),
-                    "selling_fees"              =>  0,
+                    "product_sales"             =>  FinanceOrderSaleModel::sheinNumberFormat($item[8]),
+                    "selling_fees"              =>  FinanceOrderSaleModel::sheinNumberFormat($item[12]),
                     "shipping_credits"          =>  0,
                     "gift_wrap_credits"         =>  0,
                     "regulatory_fee"            =>  0,
                     "promotional_rebates"       =>  0,
                     "fba_fees"                  =>  0,
                 ];
-            } elseif ($item[2] == '订单退货') {
+                $this->orderAdjustmentNew[] = [
+                    "report_id"                 =>  $reportId,
+                    "table_id"                  =>  $tableId,
+                    "payment_id"                =>  $item[1],
+                    "total"                     =>  FinanceOrderSaleModel::sheinNumberFormat($item[10]),
+                ];
+            } elseif ($item[7] == '退货退款-订单退货') {
                 $this->orderRefundNew[] = [
                     "report_id"                 =>  $reportId,
                     "table_id"                  =>  $tableId,
-                    "date"                      =>  date('Y-m-d H:i:s', strtotime($item[7])),
+                    "date"                      =>  date('Y-m-d H:i:s', strtotime($item[5])),
                     "payment_id"                =>  $item[1],
-                    "quantity"                  =>  $item[8],
+                    "quantity"                  =>  '',
                     "fulfillment"               =>  "Seller",
-                    "product_sales"             =>  FinanceOrderSaleModel::sheinNumberFormat($item[11]),
-                    "selling_fees"              =>  0,
+                    "product_sales"             =>  FinanceOrderSaleModel::sheinNumberFormat($item[8]),
+                    "selling_fees"              =>  FinanceOrderSaleModel::sheinNumberFormat($item[12]),
                     "shipping_credits"          =>  0,
                     "gift_wrap_credits"         =>  0,
                     "regulatory_fee"            =>  0,
                     "promotional_rebates"       =>  0,
                     "fba_fees"                  =>  0,
                 ];
-            } elseif ($item[2] == '违规处罚扣款'
-                || $item[2] == '订单调整'
-                || $item[2] == '违规处罚补款'
-                || $item[2] == '违规处罚资金冻结'
-                || $item[2] == '违规撤销资金解冻'
+                $this->orderAdjustmentNew[] = [
+                    "report_id"                 =>  $reportId,
+                    "table_id"                  =>  $tableId,
+                    "payment_id"                =>  $item[1],
+                    "total"                     =>  FinanceOrderSaleModel::sheinNumberFormat($item[10]),
+                ];
+            } elseif ($item[7] == '平台服务费-退货单履约服务费'
+                || $item[7] == '奖惩及其他-违规撤销补款'
+                || $item[7] == '奖惩及其他-违规处罚扣款'
+                || $item[7] == '奖惩及其他-违规撤销资金解冻'
+                || $item[7] == '奖惩及其他-违规处罚资金冻结'
             ) {
                 $this->orderAdjustmentNew[] = [
                     "report_id"                 =>  $reportId,
                     "table_id"                  =>  $tableId,
                     "payment_id"                =>  $item[1],
-                    "total"                     =>  FinanceOrderSaleModel::sheinNumberFormat($item[11]),
-                ];
-            } elseif ($item[2] == '退货履约服务费') {
-                $this->orderAdjustmentNew[] = [
-                    "report_id"                 =>  $reportId,
-                    "table_id"                  =>  $tableId,
-                    "payment_id"                =>  $item[1],
-                    "total"                     =>  FinanceOrderSaleModel::sheinNumberFormat($item[11]),
+                    "total"                     =>  FinanceOrderSaleModel::sheinNumberFormat($item[16]),
                 ];
             }
         }
