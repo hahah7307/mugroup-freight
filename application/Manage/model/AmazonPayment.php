@@ -1383,37 +1383,39 @@ class AmazonPayment extends Model
         foreach ($sheetNames as $k => $sheetName) {
             if (strpos($sheetName, '结算') !== false) {
                 foreach ($excel->getSheet($k)->toArray() as $key => $item) {
-                    $order = $orderObj->with(['details'])->where(['refNo|saleOrderCode' => $item[3]])->find();
+                    $order = $orderObj->with(['details'])->where(['refNo|saleOrderCode' => $item[2]])->find();
                     if ($order && $order['userAccount'] != $this->userAccount) {
                         $this->userAccount = $order['userAccount'];
                     }
-                    if ($key > 0 && $item[5] == '销售回款') {
+                    if ($key > 0 && $item[4] == '销售回款') {
                         $this->orderSaleNew[] = [
                             "report_id"                 =>  $reportId,
                             "table_id"                  =>  $tableId,
-                            "payment_id"                =>  $item[3],
+                            "payment_id"                =>  $item[2],
                             "fulfillment"               =>  "Seller",
-                            "product_sales"             =>  sprintf('%.2f', str_replace(',', '', $item[6])),
+                            "product_sales"             =>  sprintf('%.2f', str_replace(',', '', $item[5])),
                             "selling_fees"              =>  0,
                             "shipping_credits"          =>  0,
                             "gift_wrap_credits"         =>  0,
                             "regulatory_fee"            =>  0,
                             "promotional_rebates"       =>  0,
                             "fba_fees"                  =>  0,
+                            "date"                      =>  $item[18]
                         ];
-                    } elseif ($key > 0 && $item[5] == '销售冲回') {
+                    } elseif ($key > 0 && $item[4] == '销售冲回') {
                         $this->orderRefundNew[] = [
                             "report_id"                 =>  $reportId,
                             "table_id"                  =>  $tableId,
-                            "payment_id"                =>  $item[3],
+                            "payment_id"                =>  $item[2],
                             "fulfillment"               =>  "Seller",
-                            "product_sales"             =>  sprintf('%.2f', str_replace(',', '', $item[6])),
+                            "product_sales"             =>  sprintf('%.2f', str_replace(',', '', $item[5])),
                             "selling_fees"              =>  0,
                             "shipping_credits"          =>  0,
                             "gift_wrap_credits"         =>  0,
                             "regulatory_fee"            =>  0,
                             "promotional_rebates"       =>  0,
                             "fba_fees"                  =>  0,
+                            "date"                      =>  $item[18]
                         ];
                     }
                 }
