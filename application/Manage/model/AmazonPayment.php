@@ -971,7 +971,11 @@ class AmazonPayment extends Model
             }
 
             if ($item[6] == 'Sale') {
-                if ($item[13] == 'Product Price' || $item[13] == 'Promo Code' || $item[13] == 'Shipping') {
+                if ($item[13] == 'Product Price'
+                    || $item[13] == 'Promo Code'
+                    || $item[13] == 'Shipping'
+                    || $item[13] == 'Extra Savings'
+                ) {
                     $this->orderSaleNew[] = [
                         "report_id"                 =>  $reportId,
                         "table_id"                  =>  $tableId,
