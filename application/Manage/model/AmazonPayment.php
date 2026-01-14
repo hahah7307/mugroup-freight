@@ -773,6 +773,15 @@ class AmazonPayment extends Model
                     "total"                     =>  sprintf('%.2f', str_replace(',', '.', str_replace('.', '', $item[26]))),
                     "is_amazon"                 =>  1,
                 ];
+            } elseif ($item[2] == 'Frais de service') {
+                $this->orderAdjustmentNew[] = [
+                    "report_id"                 =>  $reportId,
+                    "table_id"                  =>  $tableId,
+                    "payment_id"                =>  $item[3],
+                    "sku"                       =>  $item[4],
+                    "total"                     =>  sprintf('%.2f', str_replace(',', '.', str_replace('.', '', $item[26]))),
+                    "is_amazon"                 =>  1,
+                ];
             } elseif ($item[2] == 'Frais de stock Expédié par Amazon') {
                 $this->orderFbaInventory[] = [
                     "report_id"                 =>  $reportId,
