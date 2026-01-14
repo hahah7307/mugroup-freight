@@ -1391,7 +1391,9 @@ class AmazonPayment extends Model
                     if ($order && $order['userAccount'] != $this->userAccount) {
                         $this->userAccount = $order['userAccount'];
                     }
-                    if ($key > 0 && $item[4] == '销售回款') {
+                    if ($key > 0
+                        && ($item[4] == '销售回款' || $item[4] == '运费回款')
+                    ) {
                         $this->orderSaleNew[] = [
                             "report_id"                 =>  $reportId,
                             "table_id"                  =>  $tableId,
