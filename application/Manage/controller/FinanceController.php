@@ -221,6 +221,7 @@ class FinanceController extends BaseController
         $financeExcelInit->generateOperationDeliverySheet(26, $report_id);
         $financeExcelInit->generateOperationFactoryClaimSheet(27, $monthInt);
         $financeExcelInit->getOutboundAccountingByReport(28, $report);
+        $financeExcelInit->getFinanceOutboundByReport(29, $report);
         $objPHPExcel = $financeExcelInit->excelSheetSet();
 
         // Redirect output to a client’s web browser (Excel5)

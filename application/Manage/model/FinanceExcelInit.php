@@ -1444,6 +1444,43 @@ class FinanceExcelInit extends Model
      * @throws ModelNotFoundException
      * @throws DataNotFoundException
      */
+    public function getFinanceOutboundByReport($index, $report)
+    {
+        $outbound = $this->model->query(FinanceReportModel::getFinanceOutboundByReport($report['id']));
+
+        if ($index) {
+            // create new sheet
+            $this->objPHPExcel->createSheet();
+        }
+
+        // Set name sheet
+        $this->objPHPExcel->setActiveSheetIndex($index)->setTitle('月账单出库数据');
+
+        // Add some data
+        $this->objPHPExcel->setActiveSheetIndex($index)
+            ->setCellValue('A1', 'SKU')
+            ->setCellValue('B1', '品名')
+            ->setCellValue('C1', '销量')
+            ->setCellValue('D1', '平台-店铺')
+        ;
+
+        $outboundIndex = 1;
+        foreach ($outbound as $outboundItem) {
+            $outboundIndex ++;
+            $this->objPHPExcel->setActiveSheetIndex($index)
+                ->setCellValue('A' . $outboundIndex, $outboundItem['warehouse_sku'])
+                ->setCellValue('B' . $outboundIndex, $outboundItem['productTitle'])
+                ->setCellValue('C' . $outboundIndex, $outboundItem['sale_qty'])
+                ->setCellValue('D' . $outboundIndex, $outboundItem['content'])
+            ;
+        }
+    }
+
+    /**
+     * @throws DbException
+     * @throws ModelNotFoundException
+     * @throws DataNotFoundException
+     */
     public function getFinanceOperationExpensesExport($index, $list)
     {
         if ($index) {

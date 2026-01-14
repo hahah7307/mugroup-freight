@@ -6721,4 +6721,30 @@ GROUP BY
 	purchaser;
         ';
     }
+
+    static public function getFinanceOutboundByReport($report_id): string
+    {
+        return '
+SELECT
+	a.warehouse_sku,
+	b.productTitle,
+	SUM( qty ) sale_qty,
+	CONCAT_WS( "-", platform, user_account ) content 
+FROM
+	mu_finance_order_outbound a
+	LEFT JOIN mu_ecang_product b ON a.warehouse_sku = b.productSku 
+WHERE
+	report_id = ' . $report_id . ' 
+GROUP BY
+	platform,
+	user_account,
+	warehouse_sku,
+	productTitle,
+	content 
+ORDER BY
+	a.platform ASC,
+	a.user_account ASC,
+	a.warehouse_sku ASC;
+	    ';
+    }
 }
