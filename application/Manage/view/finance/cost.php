@@ -33,8 +33,8 @@
                     </td>
                 </tr>
                 <tr>
-                    <td>额外</td>
-                    <td>额外费用（包含良仓调整费用、乐歌调整费用、WFS调整费用等，需导入，有分摊记录）</td>
+                    <td>海外仓调整</td>
+                    <td>海外仓调整费用（包含良仓调整费用、乐歌调整费用、无忧达调整费用等，需导入，有分摊记录）</td>
                     <td class="tc">
                         <a href="{:url('additional', ['id' => $id])}" class="layui-btn layui-btn layui-btn-sm">查看</a>
                     </td>

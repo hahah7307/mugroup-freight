@@ -8,7 +8,7 @@
 <div class="layui-body" id="LAY_app_body">
     <div class="right">
         <a href="{:url('cost', ['id' => $report_id])}" class="layui-btn layui-btn-danger layui-btn-sm fr"><i class="layui-icon">&#xe603;</i>返回上一页</a>
-        <div class="title">额外四项费用明细</div>
+        <div class="title">海外仓调整费用明细</div>
         <form class="layui-form search-form" method="get">
             <div class="layui-inline w200">
                 <input type="text" class="layui-input" name="keyword" value="{$keyword}" placeholder="SKU/店铺名">
@@ -24,17 +24,11 @@
         <div class="layui-form">
             <button type="button" class="layui-btn  layui-btn-normal" id="excel">导入</button>
             <button data-id="{$report_id}" class="layui-btn layui-btn-danger ml0" lay-submit lay-filter="Detele">清空</button>
-            <span class="total">调整合计：{$adjustment|number_format=###,2}</span>
-            <span class="total">清算合计：{$liquidation|number_format=###,2}</span>
-            <span class="total">促销合计：{$promotion|number_format=###,2}</span>
-            <span class="total">退运合计：{$shipping_service|number_format=###,2}</span>
             <span class="total">良仓调整合计：{$lc_adjustment|number_format=###,2}</span>
             <span class="total">乐歌调整合计：{$le_adjustment|number_format=###,2}</span>
-            <span class="total">WFS调整合计：{$wfs_adjustment|number_format=###,2}</span>
+            <span class="total">乐歌调整合计：{$wyd_adjustment|number_format=###,2}</span>
             <table class="layui-table" lay-size="sm">
                 <colgroup>
-                    <col>
-                    <col>
                     <col>
                     <col>
                     <col>
@@ -48,13 +42,9 @@
                     <th>平台</th>
                     <th>店铺</th>
                     <th>仓库SKU</th>
-                    <th>索赔(调整)费用</th>
-                    <th>清算费用</th>
-                    <th>促销费用</th>
-                    <th>退运费用</th>
                     <th>良仓调整费用</th>
                     <th>乐歌调整费用</th>
-                    <th>WFS调整费用</th>
+                    <th>无忧达调整费用</th>
                     <th>分摊唯一标识号</th>
                 </tr>
                 </thead>
@@ -64,13 +54,9 @@
                     <td>{$v.platform}</td>
                     <td>{$v.user_account}</td>
                     <td>{$v.warehouse_sku}</td>
-                    <td class="tr">{$v.claimant}</td>
-                    <td class="tr">{$v.liquidation}</td>
-                    <td class="tr">{$v.promotion}</td>
-                    <td class="tr">{$v.shipping_service}</td>
                     <td class="tr">{$v.lc_adjustment}</td>
                     <td class="tr">{$v.le_adjustment}</td>
-                    <td class="tr">{$v.wfs_adjustment}</td>
+                    <td class="tr">{$v.wyd_adjustment}</td>
                     <td>{$v.share_code}</td>
                 </tr>
                 {/foreach}

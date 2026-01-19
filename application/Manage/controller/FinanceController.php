@@ -1673,13 +1673,9 @@ class FinanceController extends BaseController
         $this->assign('list', $list);
         $this->assign('report_id', $id);
 
-        $this->assign('adjustment', $order->where($where)->sum('claimant'));
-        $this->assign('liquidation', $order->where($where)->sum('liquidation'));
-        $this->assign('promotion', $order->where($where)->sum('promotion'));
-        $this->assign('shipping_service', $order->where($where)->sum('shipping_service'));
         $this->assign('lc_adjustment', $order->where($where)->sum('lc_adjustment'));
         $this->assign('le_adjustment', $order->where($where)->sum('le_adjustment'));
-        $this->assign('wfs_adjustment', $order->where($where)->sum('wfs_adjustment'));
+        $this->assign('wyd_adjustment', $order->where($where)->sum('wyd_adjustment'));
 
         return view();
     }
@@ -1715,13 +1711,9 @@ class FinanceController extends BaseController
                         "platform"              =>  $item[0],
                         "user_account"          =>  $item[1],
                         "warehouse_sku"         =>  $item[2],
-                        "claimant"              =>  $item[3],
-                        "liquidation"           =>  $item[4],
-                        "promotion"             =>  $item[5],
-                        "shipping_service"      =>  $item[6],
-                        "lc_adjustment"         =>  $item[7],
-                        "le_adjustment"         =>  $item[8],
-                        "wfs_adjustment"        =>  $item[9]
+                        "lc_adjustment"         =>  $item[3],
+                        "le_adjustment"         =>  $item[4],
+                        "wyd_adjustment"        =>  $item[5],
                     ];
                 }
             }
