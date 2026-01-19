@@ -26,7 +26,7 @@
             <button data-id="{$report_id}" class="layui-btn layui-btn-danger ml0" lay-submit lay-filter="Detele">清空</button>
             <span class="total">良仓调整合计：{$lc_adjustment|number_format=###,2}</span>
             <span class="total">乐歌调整合计：{$le_adjustment|number_format=###,2}</span>
-            <span class="total">乐歌调整合计：{$wyd_adjustment|number_format=###,2}</span>
+            <span class="total">无忧达调整合计：{$wyd_adjustment|number_format=###,2}</span>
             <table class="layui-table" lay-size="sm">
                 <colgroup>
                     <col>
