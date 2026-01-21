@@ -174,7 +174,7 @@ class FinanceController extends BaseController
      * @throws DataNotFoundException
      * @throws \PHPExcel_Exception
      */
-    public function report_export()
+    public function report_export_1()
     {
         $report_id = input('id');
         $month = input('month');
@@ -197,36 +197,110 @@ class FinanceController extends BaseController
         $financeExcelInit->generateFbaSheet(2, $report_id, $report['month']);
         $financeExcelInit->generateWalmartSheet(3, $report_id, $report['month']);
         $financeExcelInit->generateWayfairSheet(4, $report_id, $report['month']);
-        $financeExcelInit->generateSheinSheet(5, $report_id, $report['month']);
-        $financeExcelInit->generateTemuSheet(6, $report_id, $report['month']);
-        $financeExcelInit->generateEbaySheet(7, $report_id, $report['month']);
-        $financeExcelInit->generateTiktokWarehouseSkuSql(8, $report, $report['month']);
-        $financeExcelInit->getHomeDepotWarehouseSkuSql(9, $report, $report['month']);
-        $financeExcelInit->initWildberriesDirectory(10);
-        $financeExcelInit->getWildberriesOrderSql(11, $report);
-        $financeExcelInit->getWildberriesWarehouseSkuSql(12, $report);
-        $financeExcelInit->getWildberriesCostSql(13);
-        $financeExcelInit->getWildberriesMonthCostSql(14, $lastMonthInt);
-        $financeExcelInit->getWildberriesMonthCostAccountingSql(15, $monthInt);
-        $financeExcelInit->getWildberriesMonthAccrualSql(16, $lastMonthInt);
-        $financeExcelInit->getWildberriesExpressDeliverySql(17, $monthInt);
-        $financeExcelInit->getWildberriesCostReturnSql(18, $monthInt);
-        $financeExcelInit->generatePaymentNoOutboundSheet(19, $report_id);
-        $financeExcelInit->generateAccountTransferSheet(20, $report_id);
-        $financeExcelInit->generateAccountSubscriptionSheet(21, $report_id);
-        $financeExcelInit->generateOrderWayfairSheet(22, $report_id);
-        $financeExcelInit->generateOrderResendSheet(23, $report_id, $report['month']);
-        $financeExcelInit->generateOperationExpensesSheet(24, $report_id);
-        $financeExcelInit->generateOperationFactorySheet(25, $report_id);
-        $financeExcelInit->generateOperationDeliverySheet(26, $report_id);
-        $financeExcelInit->generateOperationFactoryClaimSheet(27, $monthInt);
-        $financeExcelInit->getOutboundAccountingByReport(28, $report);
-        $financeExcelInit->getFinanceOutboundByReport(29, $report);
         $objPHPExcel = $financeExcelInit->excelSheetSet();
 
         // Redirect output to a client’s web browser (Excel5)
         header('Content-Type: application/vnd.ms-excel');
-        $filename = date("YmdHis") . time() . mt_rand(100000, 999999);
+        $filename = $monthInt . '_1_' . date("YmdHis") . time() . mt_rand(100000, 999999);
+        ob_end_clean();
+        header('Content-Disposition:attachment;filename="'.$filename.'.xls"');
+        header('Cache-Control: max-age=0');
+
+        $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+        $objWriter->save('php://output');
+    }
+
+    /**
+     * @throws DbException
+     * @throws ModelNotFoundException
+     * @throws DataNotFoundException
+     * @throws \PHPExcel_Exception
+     */
+    public function report_export_2()
+    {
+        $report_id = input('id');
+        $month = input('month');
+        $monthInt = date('Ym', strtotime($month . '-01'));
+        $lastMonthInt = date('Ym', strtotime('-1 month', strtotime($month . '-01')));
+
+        $financeReportObj = new FinanceReportModel();
+        $report = $financeReportObj->find($report_id);
+        if (empty($report)) {
+            $this->error('异常操作！', url('report'));
+        }
+
+        // phpexcel
+        require_once './static/classes/PHPExcel/Classes/PHPExcel.php';
+        // Create new PHPExcel object
+        $objPHPExcel = new PHPExcel();
+        $financeExcelInit = new FinanceExcelInit($objPHPExcel);
+        $financeExcelInit->generateSheinSheet(0, $report_id, $report['month']);
+        $financeExcelInit->generateTemuSheet(1, $report_id, $report['month']);
+        $financeExcelInit->generateEbaySheet(2, $report_id, $report['month']);
+        $financeExcelInit->generateTiktokWarehouseSkuSql(3, $report, $report['month']);
+        $financeExcelInit->getHomeDepotWarehouseSkuSql(4, $report, $report['month']);
+        $financeExcelInit->initWildberriesDirectory(5);
+        $financeExcelInit->getWildberriesOrderSql(6, $report);
+        $financeExcelInit->getWildberriesWarehouseSkuSql(7, $report);
+        $financeExcelInit->getWildberriesCostSql(8);
+        $financeExcelInit->getWildberriesMonthCostSql(9, $lastMonthInt);
+        $financeExcelInit->getWildberriesMonthCostAccountingSql(10, $monthInt);
+        $financeExcelInit->getWildberriesMonthAccrualSql(11, $lastMonthInt);
+        $financeExcelInit->getWildberriesExpressDeliverySql(12, $monthInt);
+        $financeExcelInit->getWildberriesCostReturnSql(13, $monthInt);
+        $objPHPExcel = $financeExcelInit->excelSheetSet();
+
+        // Redirect output to a client’s web browser (Excel5)
+        header('Content-Type: application/vnd.ms-excel');
+        $filename = $monthInt . '_2_' . date("YmdHis") . time() . mt_rand(100000, 999999);
+        ob_end_clean();
+        header('Content-Disposition:attachment;filename="'.$filename.'.xls"');
+        header('Cache-Control: max-age=0');
+
+        $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+        $objWriter->save('php://output');
+    }
+
+    /**
+     * @throws DbException
+     * @throws ModelNotFoundException
+     * @throws DataNotFoundException
+     * @throws \PHPExcel_Exception
+     */
+    public function report_export_3()
+    {
+        $report_id = input('id');
+        $month = input('month');
+        $monthInt = date('Ym', strtotime($month . '-01'));
+        $lastMonthInt = date('Ym', strtotime('-1 month', strtotime($month . '-01')));
+
+        $financeReportObj = new FinanceReportModel();
+        $report = $financeReportObj->find($report_id);
+        if (empty($report)) {
+            $this->error('异常操作！', url('report'));
+        }
+
+        // phpexcel
+        require_once './static/classes/PHPExcel/Classes/PHPExcel.php';
+        // Create new PHPExcel object
+        $objPHPExcel = new PHPExcel();
+        $financeExcelInit = new FinanceExcelInit($objPHPExcel);
+        $financeExcelInit->generatePaymentNoOutboundSheet(0, $report_id);
+        $financeExcelInit->generateAccountTransferSheet(1, $report_id);
+        $financeExcelInit->generateAccountSubscriptionSheet(2, $report_id);
+        $financeExcelInit->generateOrderWayfairSheet(3, $report_id);
+        $financeExcelInit->generateOrderResendSheet(4, $report_id, $report['month']);
+        $financeExcelInit->generateOperationExpensesSheet(5, $report_id);
+        $financeExcelInit->generateOperationFactorySheet(6, $report_id);
+        $financeExcelInit->generateOperationDeliverySheet(7, $report_id);
+        $financeExcelInit->generateOperationFactoryClaimSheet(8, $monthInt);
+        $financeExcelInit->getOutboundAccountingByReport(9, $report);
+        $financeExcelInit->getFinanceOutboundByReport(10, $report);
+        $objPHPExcel = $financeExcelInit->excelSheetSet();
+
+        // Redirect output to a client’s web browser (Excel5)
+        header('Content-Type: application/vnd.ms-excel');
+        $filename = $monthInt . '_3_' . date("YmdHis") . time() . mt_rand(100000, 999999);
         ob_end_clean();
         header('Content-Disposition:attachment;filename="'.$filename.'.xls"');
         header('Cache-Control: max-age=0');

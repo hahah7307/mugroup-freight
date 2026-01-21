@@ -68,7 +68,9 @@
                         <a href="{:url('outbound', ['id' => $v.id])}" class="layui-btn layui-btn-sm">出库</a>
                         <button type="button" class="layui-btn layui-btn-normal layui-btn-sm" lay-submit lay-filter="Snapshot" data-id="{$v.id}">结存</button>
                         <a href="{:url('report_edit', ['id' => $v.id])}" class="layui-btn layui-btn-normal layui-btn-sm">编辑</a>
-                        <a href="{:url('report_export', ['id' => $v.id, 'month' => $v.month])}" class="layui-btn layui-btn-normal layui-btn-sm">导出</a>
+                        <a href="{:url('report_export_1', ['id' => $v.id, 'month' => $v.month])}" class="layui-btn layui-btn-normal layui-btn-sm">导出_1</a>
+                        <a href="{:url('report_export_2', ['id' => $v.id, 'month' => $v.month])}" class="layui-btn layui-btn-normal layui-btn-sm">导出_2</a>
+                        <a href="{:url('report_export_3', ['id' => $v.id, 'month' => $v.month])}" class="layui-btn layui-btn-normal layui-btn-sm">导出_3</a>
                     </td>
                 </tr>
                 {/foreach}

@@ -588,6 +588,10 @@ ORDER BY
                 $query->where('share_code', null)
                     ->where('le_adjustment', 'notnull');
             })
+            ->whereOr(function($query) {
+                $query->where('share_code', null)
+                    ->where('wyd_adjustment', 'notnull');
+            })
             ->limit(100)->select();
         if (count($warehouseAdjustment)) {
             foreach ($warehouseAdjustment as $item) {
@@ -596,8 +600,18 @@ ORDER BY
                 }
 
                 $shareCode = FinanceOrderShareModel::generateRandomCode();
-                $costType = empty($item['lc_adjustment']) ? 'LEADJUSTMENT' : 'LCADJUSTMENT';
-                $costField = empty($item['lc_adjustment']) ? 'le_adjustment' : 'lc_adjustment';
+                $costType = '';
+                $costField = '';
+                if (!empty($item['lc_adjustment'])) {
+                    $costType = 'LCADJUSTMENT';
+                    $costField = 'lc_adjustment';
+                } elseif (!empty($item['le_adjustment'])) {
+                    $costType = 'LEADJUSTMENT';
+                    $costField = 'le_adjustment';
+                } elseif (!empty($item['wyd_adjustment'])) {
+                    $costType = 'WYDADJUSTMENT';
+                    $costField = 'wyd_adjustment';
+                }
                 $report = FinanceReportModel::get($item['report_id']);
                 $shareItem = [];
                 $sku = FinanceOrderShareModel::getMainSku($item['warehouse_sku']);

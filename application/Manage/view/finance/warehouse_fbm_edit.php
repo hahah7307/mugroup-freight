@@ -9,7 +9,7 @@
             <div class="layui-form-item">
                 <label class="layui-form-label">主销售平台</label>
                 <div class="layui-input-inline w300">
-                    <input type="text" class="layui-input" value="{$info.main_platform}" disabled>
+                    <input type="text" class="layui-input" value="{$info.main_platform}">
                 </div>
             </div>
 			<div class="layui-form-item">
