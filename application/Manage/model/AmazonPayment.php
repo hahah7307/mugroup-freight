@@ -1461,7 +1461,7 @@ class AmazonPayment extends Model
         foreach ($sheetNames as $k => $sheetName) {
             if (strpos($sheetName, '账务明细列表') !== false) {
                 foreach ($excel->getSheet($k)->toArray() as $key => $item) {
-                    if ($key > 0 && $item[1] != '结算') {
+                    if ($key > 0 && $item[1] != '结算' && $item[1] != '提现') {
                         if ($item[4] != '推广服务费' &&  $item[4] != '发货面单费') {
                             $this->orderAdjustmentNew[] = [
                                 "report_id"                 =>  $reportId,
