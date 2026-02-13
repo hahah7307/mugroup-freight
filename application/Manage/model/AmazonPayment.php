@@ -1305,12 +1305,20 @@ class AmazonPayment extends Model
      */
     public function shein_semi_managed($excel, $tableId, $reportId): array
     {
+        unset($excel[0]);
         foreach ($excel as $item) {
             $orderObj = new OrderModel();
             $order = $orderObj->with(['details'])->where(['refNo|saleOrderCode' => $item[1]])->find();
             if ($order && $order['userAccount'] != $this->userAccount) {
                 $this->userAccount = $order['userAccount'];
             }
+
+            $this->orderAdjustmentNew[] = [
+                "report_id"                 =>  $reportId,
+                "table_id"                  =>  $tableId,
+                "payment_id"                =>  $item[1],
+                "total"                     =>  FinanceOrderSaleModel::sheinNumberFormat($item[16]) * -1,
+            ];
 
             if ($item[9] == '订单销售收入-订单收入') {
                 $this->orderSaleNew[] = [
