@@ -1080,7 +1080,12 @@ class AmazonPayment extends Model
                     ];
                 }
             } else {
-                if (!strpos($item[13], 'tax') && $item[7] != "Walmart Product Advertising" && $item[7] != "SEM Marketing") {
+                if (!strpos($item[13], 'tax')
+                    && $item[7] != "Walmart Product Advertising"
+                    && $item[7] != "SEM Marketing"
+                    && $item[7] != "Review Accelerator"
+                    && $item[7] != "Misc Invoices"
+                ) {
                     $this->orderAdjustmentNew[] = [
                         "report_id"                 =>  $reportId,
                         "table_id"                  =>  $tableId,
