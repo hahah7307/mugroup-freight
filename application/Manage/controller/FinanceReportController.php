@@ -238,8 +238,11 @@ class FinanceReportController extends BaseController
      */
     public function pie_chart($category = "儿童产品"): \think\response\View
     {
-        $month = input('month', date('Y-m', strtotime('-3 months', time())), 'htmlspecialchars');
-        $this->assign('month', $month);
+        $month1 = input('month1', date('Y-m', strtotime('-3 months', time())), 'htmlspecialchars');
+        $this->assign('month1', $month1);
+
+        $month2 = input('month2', date('Y-m', strtotime('-3 months', time())), 'htmlspecialchars');
+        $this->assign('month2', $month2);
 
         $model = new FinanceSkuGroupModel();
         $profit_2 = [];
@@ -251,7 +254,8 @@ FROM
 	mu_finance_report_snapshot a
 	LEFT JOIN mu_finance_sku_group b ON a.warehouse_sku = b.sku 
 WHERE
-	`month` = "' . $month . '" 
+	`month` >= "' . $month1 . '" 
+    AND `month` <= "' . $month2 . '" 
 GROUP BY
 	group_name
 ORDER BY
@@ -276,7 +280,8 @@ FROM
 	mu_finance_report_snapshot a
 	LEFT JOIN mu_finance_sku_group b ON a.warehouse_sku = b.sku 
 WHERE
-	`month` = "' . $month . '" 
+	`month` >= "' . $month1 . '" 
+    AND `month` <= "' . $month2 . '" 
 GROUP BY
 	group_name_origin
 ORDER BY
@@ -301,7 +306,8 @@ FROM
 	mu_finance_report_snapshot a
 	LEFT JOIN mu_finance_sku_group b ON a.warehouse_sku = b.sku 
 WHERE
-	`month` = "' . $month . '" 
+	`month` >= "' . $month1 . '" 
+    AND `month` <= "' . $month2 . '" 
 	AND b.group_name = "' . $category . '"
 GROUP BY
 	group_name_origin
@@ -326,7 +332,8 @@ FROM
 	mu_finance_report_snapshot a
 	LEFT JOIN mu_finance_sku_group b ON a.warehouse_sku = b.sku 
 WHERE
-	`month` = "' . $month . '" 
+	`month` >= "' . $month1 . '" 
+    AND `month` <= "' . $month2 . '" 
 GROUP BY
 	group_name
 ORDER BY
@@ -343,7 +350,8 @@ FROM
 	mu_finance_report_snapshot a
 	LEFT JOIN mu_finance_sku_group b ON a.warehouse_sku = b.sku 
 WHERE
-	`month` = "' . $month . '" 
+	`month` >= "' . $month1 . '" 
+    AND `month` <= "' . $month2 . '" 
 GROUP BY
 	group_name_origin
 ORDER BY
@@ -360,7 +368,8 @@ FROM
 	mu_finance_report_snapshot a
 	LEFT JOIN mu_finance_sku_group b ON a.warehouse_sku = b.sku 
 WHERE
-	`month` = "' . $month . '" 
+	`month` >= "' . $month1 . '" 
+    AND `month` <= "' . $month2 . '" 
 	AND b.group_name = "' . $category . '"
 GROUP BY
 	group_name_origin
@@ -378,7 +387,8 @@ FROM
 	mu_finance_report_snapshot a
 	LEFT JOIN mu_finance_sku_group b ON a.warehouse_sku = b.sku 
 WHERE
-	`month` = "' . $month . '" 
+	`month` >= "' . $month1 . '" 
+    AND `month` <= "' . $month2 . '" 
 GROUP BY
 	group_name
 ORDER BY
@@ -395,7 +405,8 @@ FROM
 	mu_finance_report_snapshot a
 	LEFT JOIN mu_finance_sku_group b ON a.warehouse_sku = b.sku 
 WHERE
-	`month` = "' . $month . '" 
+	`month` >= "' . $month1 . '" 
+    AND `month` <= "' . $month2 . '" 
 GROUP BY
 	group_name_origin
 ORDER BY
@@ -412,7 +423,8 @@ FROM
 	mu_finance_report_snapshot a
 	LEFT JOIN mu_finance_sku_group b ON a.warehouse_sku = b.sku 
 WHERE
-	`month` = "' . $month . '" 
+	`month` >= "' . $month1 . '" 
+    AND `month` <= "' . $month2 . '" 
 	AND b.group_name = "' . $category . '"
 GROUP BY
 	group_name_origin

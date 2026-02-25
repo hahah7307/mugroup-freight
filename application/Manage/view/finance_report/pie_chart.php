@@ -16,7 +16,10 @@
         <div class="title">月度财报分析饼状图</div>
         <form class="layui-form" method="get">
             <div class="layui-input-inline w200">
-                <input type="text" class="layui-input" id="month" name="month" value="{$month}" placeholder="月份">
+                <input type="text" class="layui-input" id="month1" name="month1" value="{$month1}" placeholder="开始月份">
+            </div>
+            <div class="layui-input-inline w200">
+                <input type="text" class="layui-input" id="month2" name="month2" value="{$month2}" placeholder="结束月份">
             </div>
             <div class="layui-inline">
                 <button class="layui-btn" lay-submit lay-filter="Search"><i class="layui-icon">&#xe615;</i> 查询</button>
@@ -85,7 +88,12 @@
 
         // 显示日期选择器
         laydate.render({
-            elem: '#month',
+            elem: '#month1',
+            type: 'month'
+        });
+
+        laydate.render({
+            elem: '#month2',
             type: 'month'
         });
 
