@@ -193,10 +193,19 @@ class FinanceController extends BaseController
         $objPHPExcel = new PHPExcel();
         $financeExcelInit = new FinanceExcelInit($objPHPExcel);
         $financeExcelInit->generateSaleRefundSheet(0, $report_id);
-        $financeExcelInit->generateFbmSheet(1, $report_id, $report['month']);
-        $financeExcelInit->generateFbaSheet(2, $report_id, $report['month']);
-        $financeExcelInit->generateWalmartSheet(3, $report_id, $report['month']);
-        $financeExcelInit->generateWayfairSheet(4, $report_id, $report['month']);
+        $financeExcelInit->generatePaymentNoOutboundSheet(1, $report_id);
+        $financeExcelInit->generateOrderResendSheet(2, $report_id, $report['month']);
+        $financeExcelInit->getOutboundAccountingByReport(3, $report);
+        $financeExcelInit->getFinanceOutboundByReport(4, $report);
+        $financeExcelInit->generateFbmSheet(5, $report_id, $report['month']);
+        $financeExcelInit->generateFbaSheet(6, $report_id, $report['month']);
+        $financeExcelInit->generateWalmartSheet(7, $report_id, $report['month']);
+        $financeExcelInit->generateWayfairSheet(8, $report_id, $report['month']);
+        $financeExcelInit->generateSheinSheet(9, $report_id, $report['month']);
+        $financeExcelInit->generateTemuSheet(10, $report_id, $report['month']);
+        $financeExcelInit->generateEbaySheet(11, $report_id, $report['month']);
+        $financeExcelInit->generateTiktokWarehouseSkuSql(12, $report, $report['month']);
+        $financeExcelInit->getHomeDepotWarehouseSkuSql(13, $report, $report['month']);
         $objPHPExcel = $financeExcelInit->excelSheetSet();
 
         // Redirect output to a client’s web browser (Excel5)
@@ -233,21 +242,16 @@ class FinanceController extends BaseController
         require_once './static/classes/PHPExcel/Classes/PHPExcel.php';
         // Create new PHPExcel object
         $objPHPExcel = new PHPExcel();
-        $financeExcelInit = new FinanceExcelInit($objPHPExcel);
-        $financeExcelInit->generateSheinSheet(0, $report_id, $report['month']);
-        $financeExcelInit->generateTemuSheet(1, $report_id, $report['month']);
-        $financeExcelInit->generateEbaySheet(2, $report_id, $report['month']);
-        $financeExcelInit->generateTiktokWarehouseSkuSql(3, $report, $report['month']);
-        $financeExcelInit->getHomeDepotWarehouseSkuSql(4, $report, $report['month']);
-        $financeExcelInit->initWildberriesDirectory(5);
-        $financeExcelInit->getWildberriesOrderSql(6, $report);
-        $financeExcelInit->getWildberriesWarehouseSkuSql(7, $report);
-        $financeExcelInit->getWildberriesCostSql(8);
-        $financeExcelInit->getWildberriesMonthCostSql(9, $lastMonthInt);
-        $financeExcelInit->getWildberriesMonthCostAccountingSql(10, $monthInt);
-        $financeExcelInit->getWildberriesMonthAccrualSql(11, $lastMonthInt);
-        $financeExcelInit->getWildberriesExpressDeliverySql(12, $monthInt);
-        $financeExcelInit->getWildberriesCostReturnSql(13, $monthInt);
+        $financeExcelInit = new FinanceExcelInit($objPHPExcel);;
+        $financeExcelInit->initWildberriesDirectory(0);
+        $financeExcelInit->getWildberriesOrderSql(1, $report);
+        $financeExcelInit->getWildberriesWarehouseSkuSql(2, $report);
+        $financeExcelInit->getWildberriesCostSql(3);
+        $financeExcelInit->getWildberriesMonthCostSql(4, $lastMonthInt);
+        $financeExcelInit->getWildberriesMonthCostAccountingSql(5, $monthInt);
+        $financeExcelInit->getWildberriesMonthAccrualSql(6, $lastMonthInt);
+        $financeExcelInit->getWildberriesExpressDeliverySql(7, $monthInt);
+        $financeExcelInit->getWildberriesCostReturnSql(8, $monthInt);
         $objPHPExcel = $financeExcelInit->excelSheetSet();
 
         // Redirect output to a client’s web browser (Excel5)
@@ -285,17 +289,13 @@ class FinanceController extends BaseController
         // Create new PHPExcel object
         $objPHPExcel = new PHPExcel();
         $financeExcelInit = new FinanceExcelInit($objPHPExcel);
-        $financeExcelInit->generatePaymentNoOutboundSheet(0, $report_id);
-        $financeExcelInit->generateAccountTransferSheet(1, $report_id);
-        $financeExcelInit->generateAccountSubscriptionSheet(2, $report_id);
-        $financeExcelInit->generateOrderWayfairSheet(3, $report_id);
-        $financeExcelInit->generateOrderResendSheet(4, $report_id, $report['month']);
-        $financeExcelInit->generateOperationExpensesSheet(5, $report_id);
-        $financeExcelInit->generateOperationFactorySheet(6, $report_id);
-        $financeExcelInit->generateOperationDeliverySheet(7, $report_id);
-        $financeExcelInit->generateOperationFactoryClaimSheet(8, $monthInt);
-        $financeExcelInit->getOutboundAccountingByReport(9, $report);
-        $financeExcelInit->getFinanceOutboundByReport(10, $report);
+        $financeExcelInit->generateAccountTransferSheet(0, $report_id);
+        $financeExcelInit->generateAccountSubscriptionSheet(1, $report_id);
+        $financeExcelInit->generateOrderWayfairSheet(2, $report_id);
+        $financeExcelInit->generateOperationExpensesSheet(3, $report_id);
+        $financeExcelInit->generateOperationFactorySheet(4, $report_id);
+        $financeExcelInit->generateOperationDeliverySheet(5, $report_id);
+        $financeExcelInit->generateOperationFactoryClaimSheet(6, $monthInt);
         $objPHPExcel = $financeExcelInit->excelSheetSet();
 
         // Redirect output to a client’s web browser (Excel5)
