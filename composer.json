@@ -21,7 +21,8 @@
       "ext-json": "*",
       "ext-soap": "*",
       "ext-curl": "*",
-        "alibabacloud/dysmsapi-20170525": "3.0.0"
+        "alibabacloud/dysmsapi-20170525": "3.0.0",
+      "ext-openssl": "*"
     },
     "autoload": {
         "psr-4": {

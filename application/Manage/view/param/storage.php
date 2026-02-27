@@ -173,6 +173,32 @@
         <div>
             <div class="layui-form-item">
                 <div class="layui-inline layui-col-md5">
+                    <label class="layui-form-label">无忧达API生产环境地址</label>
+                    <div class="layui-input-inline">
+                        <input type="text" class="layui-input w300" name="wyd_api_uri" value="{$config['wyd_api_uri']}">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div>
+            <div class="layui-form-item">
+                <div class="layui-inline layui-col-md5">
+                    <label class="layui-form-label">无忧达AppId</label>
+                    <div class="layui-input-inline">
+                        <input type="text" class="layui-input w300" name="wyd_app_id" value="{$config['wyd_app_id']}">
+                    </div>
+                </div>
+                <div class="layui-inline layui-col-md5">
+                    <label class="layui-form-label">无忧达AppSecret</label>
+                    <div class="layui-input-inline">
+                        <input type="text" class="layui-input w300" name="wyd_app_secret" value="{$config['wyd_app_secret']}">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div>
+            <div class="layui-form-item">
+                <div class="layui-inline layui-col-md5">
                     <label class="layui-form-label">领星API地址</label>
                     <div class="layui-input-inline">
                         <input type="text" class="layui-input w300" name="ak_openapi_uri" value="{$config['ak_openapi_uri']}">
