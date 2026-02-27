@@ -55,4 +55,5 @@ return [
     'app\Manage\command\ProductWarehouseCostCreate', //
     'app\Manage\command\ProductWarehouseCostUpdate', //
     'app\Manage\command\OrderCalculateUp', //
+    'app\Manage\command\WydInventoryBatch', //
 ];
