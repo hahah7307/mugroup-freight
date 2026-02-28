@@ -4,6 +4,7 @@ namespace app\Manage\controller;
 use app\Manage\model\LcProductModel;
 use app\Manage\model\LeProductModel;
 use app\Manage\model\ProductModel;
+use app\Manage\model\WydProductModel;
 use think\exception\DbException;
 use think\Session;
 use think\Config;
@@ -63,6 +64,26 @@ class ProductController extends BaseController
         }
 
         $storage = new LeProductModel();
+        $list = $storage->where($where)->order('id asc')->paginate(Config::get('PAGE_NUM'), false, ['query' => ['keyword' => $keyword]]);
+        $this->assign('list', $list);
+
+        Session::set(Config::get('BACK_URL'), $this->request->url(), 'manage');
+        return view();
+    }
+
+    /**
+     * @throws DbException
+     */
+    public function wyd(): \think\response\View
+    {
+        $where = [];
+        $keyword = $this->request->get('keyword', '', 'htmlspecialchars');
+        $this->assign('keyword', $keyword);
+        if ($keyword) {
+            $where['sku'] = ['like', '%' . $keyword . '%'];
+        }
+
+        $storage = new WydProductModel();
         $list = $storage->where($where)->order('id asc')->paginate(Config::get('PAGE_NUM'), false, ['query' => ['keyword' => $keyword]]);
         $this->assign('list', $list);
 

@@ -99,6 +99,7 @@
                         <dd><a layui-href="{:url('Product/index')}">易仓产品列表</a></dd>
                         <dd><a layui-href="{:url('Product/lc')}">良仓产品列表</a></dd>
                         <dd><a layui-href="{:url('Product/le')}">乐歌产品列表</a></dd>
+                        <dd><a layui-href="{:url('Product/wyd')}">无忧达产品列表</a></dd>
                     </dl>
                 </li>
                 <li data-name="Product" class="layui-nav-item">
