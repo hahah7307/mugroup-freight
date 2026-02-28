@@ -104,7 +104,7 @@
                 </li>
                 <li data-name="Product" class="layui-nav-item">
                     <a layui-href="javascript:;" lay-tips="其他" lay-direction="2">
-                        <i class="layui-icon iconfont icon-chanpin2"></i>
+                        <i class="layui-icon iconfont icon-qita"></i>
                         <cite>其他</cite>
                     </a>
                     <dl class="layui-nav-child">
