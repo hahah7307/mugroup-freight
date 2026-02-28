@@ -10,7 +10,7 @@
 <script src="/static/echarts/test/lib/jquery.min.js"></script>
 <div class="layui-body" id="LAY_app_body">
     <div class="right">
-        <div class="title">SKU备货四仓率(当前只计算乐歌仓库)</div>
+        <div class="title">SKU备货四仓率(含乐歌、无忧达海外仓)</div>
         <form class="layui-form" method="get">
             <div class="layui-input-inline w200">
                 <input type="text" class="layui-input" id="sale_day" name="sale_day" value="{$sale_day}" placeholder="请选择日期">
@@ -20,7 +20,7 @@
             </div>
             <span class="total">
                 SKU个数三仓以上率：{:number_format(($storePercent[2]['count'] + $storePercent[3]['count']) / $storePercent[2]['countSum'], 4) * 100}% |
-                SKU总数三仓以上率：{:number_format(($sumPercent[2]['sum'] + $sumPercent[3]['sum']) / $sumPercent[2]['goodsNumSum'], 4) * 100}%
+                SKU总数三仓以上率：{:number_format(($sumPercent[2]['goodsNum'] + $sumPercent[3]['goodsNum']) / $sumPercent[2]['goodsNumSum'], 4) * 100}%
             </span>
         </form>
 
@@ -57,11 +57,11 @@
                 <tr>
                     <td class="tr">SKU总数四仓率</td>
                     <td class="tr">{$sumPercent.0.goodsNumSum}</td>
-                    <td class="tr">{:number_format($sumPercent[0]['sum'] / $sumPercent[0]['goodsNumSum'], 4) * 100}%</td>
-                    <td class="tr">{:number_format($sumPercent[1]['sum'] / $sumPercent[1]['goodsNumSum'], 4) * 100}%</td>
-                    <td class="tr">{:number_format($sumPercent[2]['sum'] / $sumPercent[2]['goodsNumSum'], 4) * 100}%</td>
-                    <td class="tr">{:number_format($sumPercent[3]['sum'] / $sumPercent[3]['goodsNumSum'], 4) * 100}%</td>
-                    <td class="tr">{:number_format(($sumPercent[0]['sum'] + $sumPercent[1]['sum'] + $sumPercent[2]['sum'] + $sumPercent[3]['sum']) / $sumPercent[3]['goodsNumSum'], 4) * 100}%</td>
+                    <td class="tr">{:number_format($sumPercent[0]['goodsNum'] / $sumPercent[0]['goodsNumSum'], 4) * 100}%</td>
+                    <td class="tr">{:number_format($sumPercent[1]['goodsNum'] / $sumPercent[1]['goodsNumSum'], 4) * 100}%</td>
+                    <td class="tr">{:number_format($sumPercent[2]['goodsNum'] / $sumPercent[2]['goodsNumSum'], 4) * 100}%</td>
+                    <td class="tr">{:number_format($sumPercent[3]['goodsNum'] / $sumPercent[3]['goodsNumSum'], 4) * 100}%</td>
+                    <td class="tr">{:number_format(($sumPercent[0]['goodsNum'] + $sumPercent[1]['goodsNum'] + $sumPercent[2]['goodsNum'] + $sumPercent[3]['goodsNum']) / $sumPercent[3]['goodsNumSum'], 4) * 100}%</td>
                 </tr>
             </tbody>
         </table>

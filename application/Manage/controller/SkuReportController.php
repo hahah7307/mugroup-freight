@@ -2346,21 +2346,30 @@ ORDER BY `month` ASC;
         $model = new ProductModel();
         $storePercent = $model->query('
 SELECT
-	COUNT( lecangsCode ) count,
+	COUNT( warehouseSku ) count,
 	(
 	SELECT
-		COUNT( lecangsCode ) count 
+		COUNT( warehouseSku ) count 
 	FROM
 		(
 		SELECT DISTINCT
-			SUBSTR( lecangsCode FROM 7 ) lecangsCode 
+			SUBSTR( lecangsCode FROM 7 ) warehouseSku 
 		FROM
-			mu_le_inventory_batch 
+			mu_le_inventory_batch a
+			LEFT JOIN mu_le_warehouse b ON a.warehouseCode = b.warehouseCode 
 		WHERE
-			created_date = ' . $sale_day_num . ' 
-			AND warehouseCode IN ( "CAP", "PAW", "SAV", "HOU03", "HOU07", "HOU05" ) 
+			a.created_date = ' . $sale_day_num . ' 
+			AND a.warehouseCode IN ( "CAP", "PAW", "SAV", "HOU03", "HOU07", "HOU05", "NJF02" ) UNION
+		SELECT DISTINCT
+			masterSku warehouseSku 
+		FROM
+			mu_wyd_inventory_batch a
+			LEFT JOIN mu_le_warehouse b ON a.warehouseCode = b.warehouseCode 
+		WHERE
+			a.created_date = ' . $sale_day_num . ' 
+			AND a.warehouseCode IN ( "CAJW04", "NJJW03" ) 
 		) a
-		LEFT JOIN mu_ecang_product b ON a.lecangsCode = b.productSku 
+		LEFT JOIN mu_ecang_product b ON a.warehouseSku = b.productSku 
 	WHERE
 		b.saleStatus = 2 
 	) AS countSum,
@@ -2368,25 +2377,34 @@ SELECT
 FROM
 	(
 	SELECT
-		COUNT( a.lecangsCode ) warehouseCount,
-		lecangsCode 
+		COUNT( a.warehouseSku ) warehouseCount,
+		warehouseSku 
 	FROM
 		(
 		SELECT DISTINCT
-			SUBSTR( lecangsCode FROM 7 ) lecangsCode,
+			SUBSTR( lecangsCode FROM 7 ) warehouseSku,
 			b.warehouseBelong 
 		FROM
 			mu_le_inventory_batch a
 			LEFT JOIN mu_le_warehouse b ON a.warehouseCode = b.warehouseCode 
 		WHERE
 			a.created_date = ' . $sale_day_num . ' 
-			AND a.warehouseCode IN ( "CAP", "PAW", "SAV", "HOU03", "HOU07", "HOU05" ) 
+			AND a.warehouseCode IN ( "CAP", "PAW", "SAV", "HOU03", "HOU07", "HOU05", "NJF02" ) UNION
+		SELECT DISTINCT
+			masterSku warehouseSku,
+			b.warehouseBelong 
+		FROM
+			mu_wyd_inventory_batch a
+			LEFT JOIN mu_le_warehouse b ON a.warehouseCode = b.warehouseCode 
+		WHERE
+			a.created_date = ' . $sale_day_num . ' 
+			AND a.warehouseCode IN ( "CAJW04", "NJJW03" ) 
 		) a
-		LEFT JOIN mu_ecang_product b ON a.lecangsCode = b.productSku 
+		LEFT JOIN mu_ecang_product b ON a.warehouseSku = b.productSku 
 	WHERE
 		b.saleStatus = 2 
 	GROUP BY
-		lecangsCode 
+		warehouseSku 
 	) a 
 GROUP BY
 	warehouseCount,
@@ -2398,58 +2416,85 @@ ORDER BY
 
         $sumPercent = $model->query('
 SELECT
-	SUM( goodsNum ) sum,
+	SUM( goodsNum ) goodsNum,
 	goodsNumSum,
 	warehouseCount 
 FROM
 	(
 	SELECT
-		SUM( a.goodsNum ) goodsNum,
+		SUM( a.sum ) goodsNum,
 		COUNT( a.warehouseBelong ) warehouseCount,
-		lecangsCode,
+		warehouseSku,
 		(
-		SELECT
-			SUM( goodsNum ) goodsNum 
-		FROM
 			(
 			SELECT
-				SUM( goodsNum ) goodsNum,
-				SUBSTR( lecangsCode FROM 7 ) lecangsCode,
-				b.warehouseBelong 
+				SUM( goodsNum ) sum 
 			FROM
 				mu_le_inventory_batch a
-				LEFT JOIN mu_le_warehouse b ON a.warehouseCode = b.warehouseCode 
+				LEFT JOIN mu_ecang_product b ON SUBSTR( a.lecangsCode FROM 7 ) = b.productSku
+				LEFT JOIN mu_le_warehouse c ON a.warehouseCode = c.warehouseCode 
 			WHERE
-				created_date = ' . $sale_day_num . ' 
-				AND a.warehouseCode IN ( "CAP", "PAW", "SAV", "HOU03", "HOU07", "HOU05" ) 
-			GROUP BY
-				lecangsCode,
-				warehouseBelong 
-			) a
-			LEFT JOIN mu_ecang_product b ON a.lecangsCode = b.productSku 
-		WHERE
-			b.saleStatus = 2 
+				b.saleStatus = 2 
+				AND a.warehouseCode IN ( "CAP", "PAW", "SAV", "HOU03", "HOU07", "HOU05", "NJF02" ) 
+				AND created_date = ' . $sale_day_num . ' 
+				) + (
+			SELECT
+				SUM( inventoryNum ) sum 
+			FROM
+				mu_wyd_inventory_batch a
+				LEFT JOIN mu_ecang_product b ON a.masterSku = b.productSku
+				LEFT JOIN mu_le_warehouse c ON a.warehouseCode = c.warehouseCode 
+			WHERE
+				b.saleStatus = 2 
+				AND a.warehouseCode IN ( "CAJW04", "NJJW03" ) 
+				AND created_date = ' . $sale_day_num . ' 
+			) 
 		) AS goodsNumSum 
 	FROM
 		(
 		SELECT
-			SUM( goodsNum ) goodsNum,
-			SUBSTR( lecangsCode FROM 7 ) lecangsCode,
-			c.warehouseBelong 
+			SUM( sum ) sum,
+			warehouseSku,
+			warehouseBelong 
 		FROM
-			mu_le_inventory_batch a
-			LEFT JOIN mu_ecang_product b ON SUBSTR( a.lecangsCode FROM 7 ) = b.productSku
-			LEFT JOIN mu_le_warehouse c ON a.warehouseCode = c.warehouseCode 
-		WHERE
-			b.saleStatus = 2 
-			AND a.warehouseCode IN ( "CAP", "PAW", "SAV", "HOU03", "HOU07", "HOU05" ) 
-			AND created_date = ' . $sale_day_num . ' 
+			(
+			SELECT
+				SUM( goodsNum ) sum,
+				SUBSTR( lecangsCode FROM 7 ) warehouseSku,
+				c.warehouseBelong 
+			FROM
+				mu_le_inventory_batch a
+				LEFT JOIN mu_ecang_product b ON SUBSTR( a.lecangsCode FROM 7 ) = b.productSku
+				LEFT JOIN mu_le_warehouse c ON a.warehouseCode = c.warehouseCode 
+			WHERE
+				b.saleStatus = 2 
+				AND a.warehouseCode IN ( "CAP", "PAW", "SAV", "HOU03", "HOU07", "HOU05", "NJF02" ) 
+				AND created_date = ' . $sale_day_num . ' 
+			GROUP BY
+				warehouseSku,
+				warehouseBelong UNION ALL
+			SELECT
+				SUM( inventoryNum ) sum,
+				masterSku warehouseSku,
+				c.warehouseBelong 
+			FROM
+				mu_wyd_inventory_batch a
+				LEFT JOIN mu_ecang_product b ON a.masterSku = b.productSku
+				LEFT JOIN mu_le_warehouse c ON a.warehouseCode = c.warehouseCode 
+			WHERE
+				b.saleStatus = 2 
+				AND a.warehouseCode IN ( "CAJW04", "NJJW03" ) 
+				AND created_date = ' . $sale_day_num . ' 
+			GROUP BY
+				warehouseSku,
+				warehouseBelong 
+			) a 
 		GROUP BY
-			lecangsCode,
+			warehouseSku,
 			warehouseBelong 
 		) a 
 	GROUP BY
-		lecangsCode 
+		warehouseSku 
 	) a 
 GROUP BY
 	warehouseCount,
@@ -2469,19 +2514,19 @@ SELECT
 FROM
 	(
 	SELECT
-		COUNT( lecangsCode ) count,
+		COUNT( warehouseSku ) count,
 		warehouseCount,
 		created_date 
 	FROM
 		(
 		SELECT
-			lecangsCode,
+			warehouseSku,
 			COUNT( warehouseBelong ) warehouseCount,
 			created_date 
 		FROM
 			(
 			SELECT DISTINCT
-				SUBSTR( lecangsCode FROM 7 ) lecangsCode,
+				SUBSTR( lecangsCode FROM 7 ) warehouseSku,
 				b.warehouseBelong,
 				created_date 
 			FROM
@@ -2489,17 +2534,31 @@ FROM
 				LEFT JOIN mu_le_warehouse b ON a.warehouseCode = b.warehouseCode 
 			WHERE
 				created_date >= ' . $two_weeks_day . ' 
-				AND a.warehouseCode IN ( "CAP", "PAW", "SAV", "HOU03", "HOU07", "HOU05" ) 
+				AND a.warehouseCode IN ( "CAP", "PAW", "SAV", "HOU03", "HOU07", "HOU05", "NJF02" ) 
 			GROUP BY
-				lecangsCode,
+				warehouseSku,
+				warehouseBelong,
+				created_date UNION
+			SELECT DISTINCT
+				masterSku warehouseSku,
+				b.warehouseBelong,
+				created_date 
+			FROM
+				mu_wyd_inventory_batch a
+				LEFT JOIN mu_le_warehouse b ON a.warehouseCode = b.warehouseCode 
+			WHERE
+				created_date >= ' . $two_weeks_day . ' 
+				AND a.warehouseCode IN ( "CAJW04", "NJJW03" ) 
+			GROUP BY
+				warehouseSku,
 				warehouseBelong,
 				created_date 
 			) a
-			LEFT JOIN mu_ecang_product b ON a.lecangsCode = b.productSku 
+			LEFT JOIN mu_ecang_product b ON a.warehouseSku = b.productSku 
 		WHERE
 			b.saleStatus = 2 
 		GROUP BY
-			lecangsCode,
+			warehouseSku,
 			created_date 
 		) a 
 	GROUP BY
@@ -2508,12 +2567,12 @@ FROM
 	) a
 	LEFT JOIN (
 	SELECT
-		COUNT( lecangsCode ) skuDayCount,
+		COUNT( warehouseSku ) skuDayCount,
 		created_date 
 	FROM
 		(
 		SELECT DISTINCT
-			SUBSTR( lecangsCode FROM 7 ) lecangsCode,
+			SUBSTR( lecangsCode FROM 7 ) warehouseSku,
 			created_date 
 		FROM
 			mu_le_inventory_batch a
@@ -2521,10 +2580,24 @@ FROM
 			LEFT JOIN mu_ecang_product c ON SUBSTR( a.lecangsCode FROM 7 ) = c.productSku 
 		WHERE
 			created_date >= ' . $two_weeks_day . ' 
-			AND a.warehouseCode IN ( "CAP", "PAW", "SAV", "HOU03", "HOU07", "HOU05" ) 
+			AND a.warehouseCode IN ( "CAP", "PAW", "SAV", "HOU03", "HOU07", "HOU05", "NJF02" ) 
 			AND c.saleStatus = 2 
 		GROUP BY
-			lecangsCode,
+			warehouseSku,
+			created_date UNION
+		SELECT DISTINCT
+			masterSku warehouseSku,
+			created_date 
+		FROM
+			mu_wyd_inventory_batch a
+			LEFT JOIN mu_le_warehouse b ON a.warehouseCode = b.warehouseCode
+			LEFT JOIN mu_ecang_product c ON a.masterSku = c.productSku 
+		WHERE
+			created_date >= ' . $two_weeks_day . ' 
+			AND a.warehouseCode IN ( "CAJW04", "NJJW03" ) 
+			AND c.saleStatus = 2 
+		GROUP BY
+			warehouseSku,
 			created_date 
 		) a 
 	GROUP BY
@@ -2573,30 +2646,59 @@ FROM
 		SELECT
 			SUM( goodsNum ) goodsNum,
 			COUNT( warehouseBelong ) warehouseCount,
-			lecangsCode,
+			warehouseSku,
 			created_date 
 		FROM
 			(
 			SELECT
 				SUM( goodsNum ) goodsNum,
-				SUBSTR( lecangsCode FROM 7 ) lecangsCode,
 				warehouseBelong,
+				warehouseSku,
 				created_date 
 			FROM
-				mu_le_inventory_batch a
-				LEFT JOIN mu_le_warehouse b ON a.warehouseCode = b.warehouseCode
-				LEFT JOIN mu_ecang_product c ON SUBSTR( a.lecangsCode FROM 7 ) = c.productSku 
-			WHERE
-				created_date >= ' . $two_weeks_day . ' 
-				AND a.warehouseCode IN ( "CAP", "PAW", "SAV", "HOU03", "HOU07", "HOU05" ) 
-				AND c.saleStatus = 2 
+				(
+				SELECT
+					SUM( goodsNum ) goodsNum,
+					SUBSTR( lecangsCode FROM 7 ) warehouseSku,
+					warehouseBelong,
+					created_date 
+				FROM
+					mu_le_inventory_batch a
+					LEFT JOIN mu_le_warehouse b ON a.warehouseCode = b.warehouseCode
+					LEFT JOIN mu_ecang_product c ON SUBSTR( a.lecangsCode FROM 7 ) = c.productSku 
+				WHERE
+					created_date >= ' . $two_weeks_day . ' 
+					AND a.warehouseCode IN ( "CAP", "PAW", "SAV", "HOU03", "HOU07", "HOU05", "NJF02" ) 
+					AND c.saleStatus = 2 
+				GROUP BY
+					lecangsCode,
+					warehouseBelong,
+					created_date UNION ALL
+				SELECT
+					SUM( inventoryAvailableNum ) goodsNum,
+					masterSku warehouseSku,
+					warehouseBelong,
+					created_date 
+				FROM
+					mu_wyd_inventory_batch a
+					LEFT JOIN mu_le_warehouse b ON a.warehouseCode = b.warehouseCode
+					LEFT JOIN mu_ecang_product c ON masterSku = c.productSku 
+				WHERE
+					created_date >= ' . $two_weeks_day . ' 
+					AND a.warehouseCode IN ( "CAJW04", "NJJW03" ) 
+					AND c.saleStatus = 2 
+				GROUP BY
+					warehouseSku,
+					warehouseBelong,
+					created_date 
+				) a 
 			GROUP BY
-				lecangsCode,
 				warehouseBelong,
+				warehouseSku,
 				created_date 
 			) a 
 		GROUP BY
-			lecangsCode,
+			warehouseSku,
 			created_date 
 		) a 
 	GROUP BY
@@ -2611,7 +2713,7 @@ FROM
 		(
 		SELECT
 			SUM( goodsNum ) goodsNum,
-			SUBSTR( lecangsCode FROM 7 ) lecangsCode,
+			SUBSTR( lecangsCode FROM 7 ) warehouseSku,
 			created_date 
 		FROM
 			mu_le_inventory_batch a
@@ -2619,10 +2721,25 @@ FROM
 			LEFT JOIN mu_ecang_product c ON SUBSTR( a.lecangsCode FROM 7 ) = c.productSku 
 		WHERE
 			created_date >= ' . $two_weeks_day . ' 
-			AND a.warehouseCode IN ( "CAP", "PAW", "SAV", "HOU03", "HOU07", "HOU05" ) 
+			AND a.warehouseCode IN ( "CAP", "PAW", "SAV", "HOU03", "HOU07", "HOU05", "NJF02" ) 
 			AND c.saleStatus = 2 
 		GROUP BY
-			lecangsCode,
+			warehouseSku,
+			created_date UNION ALL
+		SELECT
+			SUM( inventoryAvailableNum ) goodsNum,
+			masterSku warehouseSku,
+			created_date 
+		FROM
+			mu_wyd_inventory_batch a
+			LEFT JOIN mu_le_warehouse b ON a.warehouseCode = b.warehouseCode
+			LEFT JOIN mu_ecang_product c ON masterSku = c.productSku 
+		WHERE
+			created_date >= ' . $two_weeks_day . ' 
+			AND a.warehouseCode IN ( "CAJW04", "NJJW03" ) 
+			AND c.saleStatus = 2 
+		GROUP BY
+			warehouseSku,
 			created_date 
 		) a 
 	GROUP BY
@@ -2656,52 +2773,69 @@ ORDER BY
 
         $userStore = $model->query('
 SELECT
-	COUNT( lecangsCode ) count,
+	COUNT( warehouseSku ) count,
 	warehouseCount,
 	a.user_name,
 	b.userCount 
 FROM
 	(
 	SELECT
-		COUNT( a.lecangsCode ) warehouseCount,
-		lecangsCode,
+		COUNT( a.warehouseSku ) warehouseCount,
+		warehouseSku,
 		c.user_name 
 	FROM
 		(
 		SELECT DISTINCT
-			SUBSTR( lecangsCode FROM 7 ) lecangsCode,
+			SUBSTR( lecangsCode FROM 7 ) warehouseSku,
 			warehouseBelong 
 		FROM
 			mu_le_inventory_batch a
 			LEFT JOIN mu_le_warehouse b ON a.warehouseCode = b.warehouseCode 
 		WHERE
 			created_date = ' . $sale_day_num . ' 
-			AND a.warehouseCode IN ( "CAP", "PAW", "SAV", "HOU03", "HOU07", "HOU05" ) 
+			AND a.warehouseCode IN ( "CAP", "PAW", "SAV", "HOU03", "HOU07", "HOU05", "NJF02" ) UNION
+		SELECT DISTINCT
+			masterSku warehouseSku,
+			warehouseBelong 
+		FROM
+			mu_wyd_inventory_batch a
+			LEFT JOIN mu_le_warehouse b ON a.warehouseCode = b.warehouseCode 
+		WHERE
+			created_date = ' . $sale_day_num . ' 
+			AND a.warehouseCode IN ( "CAJW04", "NJJW03" ) 
 		) a
-		LEFT JOIN mu_ecang_product b ON a.lecangsCode = b.productSku
+		LEFT JOIN mu_ecang_product b ON a.warehouseSku = b.productSku
 		LEFT JOIN mu_ecang_user c ON b.personSellerId = c.user_id 
 	WHERE
 		b.saleStatus = 2 
 	GROUP BY
-		lecangsCode,
+		warehouseSku,
 		user_name 
 	) a
 	LEFT JOIN (
 	SELECT
-		COUNT( a.lecangsCode ) userCount,
+		COUNT( a.warehouseSku ) userCount,
 		c.user_name 
 	FROM
 		(
 		SELECT DISTINCT
-			SUBSTR( lecangsCode FROM 7 ) lecangsCode 
+			SUBSTR( lecangsCode FROM 7 ) warehouseSku 
 		FROM
 			mu_le_inventory_batch a
 			LEFT JOIN mu_le_warehouse b ON a.warehouseCode = b.warehouseCode 
 		WHERE
 			created_date = ' . $sale_day_num . ' 
-			AND a.warehouseCode IN ( "CAP", "PAW", "SAV", "HOU03", "HOU07", "HOU05" ) 
+			AND a.warehouseCode IN ( "CAP", "PAW", "SAV", "HOU03", "HOU07", "HOU05", "NJF02" ) UNION
+		SELECT DISTINCT
+			masterSku warehouseSku 
+		FROM
+			mu_wyd_inventory_batch a
+			LEFT JOIN mu_le_warehouse b ON a.warehouseCode = b.warehouseCode 
+		WHERE
+			created_date = ' . $sale_day_num . ' 
+			AND a.warehouseCode IN ( "CAJW04", "NJJW03" ) 
 		) a
-		LEFT JOIN mu_ecang_product b ON a.lecangsCode = b.productSku
+		LEFT JOIN mu_ecang_product b ON a.warehouseSku = b.productSku
 		LEFT JOIN mu_ecang_user c ON b.personSellerId = c.user_id 
 	WHERE
 		b.saleStatus = 2 
@@ -2731,32 +2865,55 @@ SELECT
 FROM
 	(
 	SELECT
-		COUNT( a.lecangsCode ) warehouseCount,
+		COUNT( a.warehouseSku ) warehouseCount,
 		SUM( a.goodsNum ) goodsNum,
-		lecangsCode,
+		warehouseSku,
 		c.user_name 
 	FROM
 		(
 		SELECT
-			SUM( goodsNum ) goodsNum,
-			SUBSTR( lecangsCode FROM 7 ) lecangsCode,
+			SUM( a.goodsNum ) goodsNum,
+			warehouseSku,
 			warehouseBelong 
 		FROM
-			mu_le_inventory_batch a
-			LEFT JOIN mu_le_warehouse b ON a.warehouseCode = b.warehouseCode 
-		WHERE
-			created_date = ' . $sale_day_num . ' 
-			AND a.warehouseCode IN ( "CAP", "PAW", "SAV", "HOU03", "HOU07", "HOU05" ) 
+			(
+			SELECT
+				SUM( goodsNum ) goodsNum,
+				SUBSTR( lecangsCode FROM 7 ) warehouseSku,
+				warehouseBelong 
+			FROM
+				mu_le_inventory_batch a
+				LEFT JOIN mu_le_warehouse b ON a.warehouseCode = b.warehouseCode 
+			WHERE
+				created_date = ' . $sale_day_num . ' 
+				AND a.warehouseCode IN ( "CAP", "PAW", "SAV", "HOU03", "HOU07", "HOU05", "NJF02" ) 
+			GROUP BY
+				warehouseSku,
+				warehouseBelong UNION ALL
+			SELECT
+				SUM( inventoryAvailableNum ) goodsNum,
+				masterSku warehouseSku,
+				warehouseBelong 
+			FROM
+				mu_wyd_inventory_batch a
+				LEFT JOIN mu_le_warehouse b ON a.warehouseCode = b.warehouseCode 
+			WHERE
+				created_date = ' . $sale_day_num . ' 
+				AND a.warehouseCode IN ( "CAJW04", "NJJW03" ) 
+			GROUP BY
+				warehouseSku,
+				warehouseBelong 
+			) a 
 		GROUP BY
-			lecangsCode,
+			warehouseSku,
 			warehouseBelong 
 		) a
-		LEFT JOIN mu_ecang_product b ON a.lecangsCode = b.productSku
+		LEFT JOIN mu_ecang_product b ON a.warehouseSku = b.productSku
 		LEFT JOIN mu_ecang_user c ON b.personSellerId = c.user_id 
 	WHERE
 		b.saleStatus = 2 
 	GROUP BY
-		lecangsCode,
+		warehouseSku,
 		user_name 
 	) a
 	LEFT JOIN (
@@ -2766,20 +2923,43 @@ FROM
 	FROM
 		(
 		SELECT
-			SUM( goodsNum ) goodsNum,
-			SUBSTR( lecangsCode FROM 7 ) lecangsCode,
+			SUM( a.goodsNum ) goodsNum,
+			warehouseSku,
 			warehouseBelong 
 		FROM
-			mu_le_inventory_batch a
-			LEFT JOIN mu_le_warehouse b ON a.warehouseCode = b.warehouseCode 
-		WHERE
-			created_date = ' . $sale_day_num . ' 
-			AND a.warehouseCode IN ( "CAP", "PAW", "SAV", "HOU03", "HOU07", "HOU05" ) 
+			(
+			SELECT
+				SUM( goodsNum ) goodsNum,
+				SUBSTR( lecangsCode FROM 7 ) warehouseSku,
+				warehouseBelong 
+			FROM
+				mu_le_inventory_batch a
+				LEFT JOIN mu_le_warehouse b ON a.warehouseCode = b.warehouseCode 
+			WHERE
+				created_date = ' . $sale_day_num . ' 
+				AND a.warehouseCode IN ( "CAP", "PAW", "SAV", "HOU03", "HOU07", "HOU05", "NJF02" ) 
+			GROUP BY
+				warehouseSku,
+				warehouseBelong UNION ALL
+			SELECT
+				SUM( inventoryAvailableNum ) goodsNum,
+				masterSku warehouseSku,
+				warehouseBelong 
+			FROM
+				mu_wyd_inventory_batch a
+				LEFT JOIN mu_le_warehouse b ON a.warehouseCode = b.warehouseCode 
+			WHERE
+				created_date = ' . $sale_day_num . ' 
+				AND a.warehouseCode IN ( "CAJW04", "NJJW03" ) 
+			GROUP BY
+				warehouseSku,
+				warehouseBelong 
+			) a 
 		GROUP BY
-			lecangsCode,
+			warehouseSku,
 			warehouseBelong 
 		) a
-		LEFT JOIN mu_ecang_product b ON a.lecangsCode = b.productSku
+		LEFT JOIN mu_ecang_product b ON a.warehouseSku = b.productSku
 		LEFT JOIN mu_ecang_user c ON b.personSellerId = c.user_id 
 	WHERE
 		b.saleStatus = 2 
