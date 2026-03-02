@@ -518,7 +518,39 @@ CASE
 	AND b.saleStatus != 18
 	AND b.saleStatus != 19
 		GROUP BY
-		name 
+		name  UNION ALL
+SELECT
+CASE
+	WHEN
+		storageAge >= 0 
+		AND storageAge < 30 THEN 30 WHEN storageAge >= 30 
+			AND storageAge < 60 THEN 60 WHEN storageAge >= 60 
+				AND storageAge < 90 THEN 90 WHEN storageAge >= 90 
+					AND storageAge < 120 THEN 120 WHEN storageAge >= 120 
+						AND storageAge < 150 THEN 150 WHEN storageAge >= 150 
+							AND storageAge < 180 THEN 180 WHEN storageAge >= 180 
+								AND storageAge < 210 THEN 210 WHEN storageAge >= 210 
+									AND storageAge < 240 THEN 240 WHEN storageAge >= 240 
+										AND storageAge < 270 THEN 270 WHEN storageAge >= 270 
+											AND storageAge < 300 THEN 300 WHEN storageAge >= 300 
+												AND storageAge < 330 THEN 330 WHEN storageAge >= 330 
+													AND storageAge < 360 THEN 360 WHEN storageAge >= 360 
+														AND storageAge < 450 THEN 450 WHEN storageAge >= 450 
+															AND storageAge < 540 THEN 540 WHEN storageAge >= 540 
+																AND storageAge < 630 THEN 630 WHEN storageAge >= 630 
+																	AND storageAge < 720 THEN
+																		720 ELSE 750 
+																		END AS name,
+			SUM( inventoryAvailableNum ) AS value
+		FROM
+			mu_wyd_inventory_batch a
+	LEFT JOIN mu_ecang_product b ON a.masterSku = b.productSku 
+		WHERE
+			created_date = ' . $sale_day_num . '
+	AND b.saleStatus != 18
+	AND b.saleStatus != 19
+		GROUP BY
+		name
 		) a 
 	GROUP BY
 		`name` 
@@ -595,7 +627,39 @@ CASE
 	AND b.saleStatus != 18
 	AND b.saleStatus != 19
 		GROUP BY
-		name 
+		name UNION ALL
+SELECT
+CASE
+	WHEN
+		storageAge >= 0 
+		AND storageAge < 30 THEN 30 WHEN storageAge >= 30 
+			AND storageAge < 60 THEN 60 WHEN storageAge >= 60 
+				AND storageAge < 90 THEN 90 WHEN storageAge >= 90 
+					AND storageAge < 120 THEN 120 WHEN storageAge >= 120 
+						AND storageAge < 150 THEN 150 WHEN storageAge >= 150 
+							AND storageAge < 180 THEN 180 WHEN storageAge >= 180 
+								AND storageAge < 210 THEN 210 WHEN storageAge >= 210 
+									AND storageAge < 240 THEN 240 WHEN storageAge >= 240 
+										AND storageAge < 270 THEN 270 WHEN storageAge >= 270 
+											AND storageAge < 300 THEN 300 WHEN storageAge >= 300 
+												AND storageAge < 330 THEN 330 WHEN storageAge >= 330 
+													AND storageAge < 360 THEN 360 WHEN storageAge >= 360 
+														AND storageAge < 450 THEN 450 WHEN storageAge >= 450 
+															AND storageAge < 540 THEN 540 WHEN storageAge >= 540 
+																AND storageAge < 630 THEN 630 WHEN storageAge >= 630 
+																	AND storageAge < 720 THEN
+																		720 ELSE 750 
+																		END AS name,
+			SUM( inventoryAvailableNum ) AS value
+		FROM
+			mu_wyd_inventory_batch a
+	LEFT JOIN mu_ecang_product b ON a.masterSku = b.productSku 
+		WHERE
+			created_date = ' . date('Ymd', strtotime('-2 month', strtotime($sale_day_num))) . '
+	AND b.saleStatus != 18
+	AND b.saleStatus != 19
+		GROUP BY
+		name
 		) a 
 	GROUP BY
 		`name` 
@@ -671,7 +735,39 @@ CASE
 	AND b.saleStatus != 18
 	AND b.saleStatus != 19
 		GROUP BY
-		name 
+		name UNION ALL
+SELECT
+CASE
+	WHEN
+		storageAge >= 0 
+		AND storageAge < 30 THEN 30 WHEN storageAge >= 30 
+			AND storageAge < 60 THEN 60 WHEN storageAge >= 60 
+				AND storageAge < 90 THEN 90 WHEN storageAge >= 90 
+					AND storageAge < 120 THEN 120 WHEN storageAge >= 120 
+						AND storageAge < 150 THEN 150 WHEN storageAge >= 150 
+							AND storageAge < 180 THEN 180 WHEN storageAge >= 180 
+								AND storageAge < 210 THEN 210 WHEN storageAge >= 210 
+									AND storageAge < 240 THEN 240 WHEN storageAge >= 240 
+										AND storageAge < 270 THEN 270 WHEN storageAge >= 270 
+											AND storageAge < 300 THEN 300 WHEN storageAge >= 300 
+												AND storageAge < 330 THEN 330 WHEN storageAge >= 330 
+													AND storageAge < 360 THEN 360 WHEN storageAge >= 360 
+														AND storageAge < 450 THEN 450 WHEN storageAge >= 450 
+															AND storageAge < 540 THEN 540 WHEN storageAge >= 540 
+																AND storageAge < 630 THEN 630 WHEN storageAge >= 630 
+																	AND storageAge < 720 THEN
+																		720 ELSE 750 
+																		END AS name,
+			SUM( inventoryAvailableNum ) AS value
+		FROM
+			mu_wyd_inventory_batch a
+	LEFT JOIN mu_ecang_product b ON a.masterSku = b.productSku 
+		WHERE
+			created_date = ' . date('Ymd', strtotime('-1 month', strtotime($sale_day_num))) . '
+	AND b.saleStatus != 18
+	AND b.saleStatus != 19
+		GROUP BY
+		name
 		) a 
 	GROUP BY
 		`name` 
@@ -763,6 +859,38 @@ CASE
 	AND b.saleStatus != 18
 	AND b.saleStatus != 19
 		GROUP BY
+		name UNION ALL
+SELECT
+CASE
+	WHEN
+		storageAge >= 0 
+		AND storageAge < 30 THEN 30 WHEN storageAge >= 30 
+			AND storageAge < 60 THEN 60 WHEN storageAge >= 60 
+				AND storageAge < 90 THEN 90 WHEN storageAge >= 90 
+					AND storageAge < 120 THEN 120 WHEN storageAge >= 120 
+						AND storageAge < 150 THEN 150 WHEN storageAge >= 150 
+							AND storageAge < 180 THEN 180 WHEN storageAge >= 180 
+								AND storageAge < 210 THEN 210 WHEN storageAge >= 210 
+									AND storageAge < 240 THEN 240 WHEN storageAge >= 240 
+										AND storageAge < 270 THEN 270 WHEN storageAge >= 270 
+											AND storageAge < 300 THEN 300 WHEN storageAge >= 300 
+												AND storageAge < 330 THEN 330 WHEN storageAge >= 330 
+													AND storageAge < 360 THEN 360 WHEN storageAge >= 360 
+														AND storageAge < 450 THEN 450 WHEN storageAge >= 450 
+															AND storageAge < 540 THEN 540 WHEN storageAge >= 540 
+																AND storageAge < 630 THEN 630 WHEN storageAge >= 630 
+																	AND storageAge < 720 THEN
+																		720 ELSE 750 
+																		END AS name,
+	ROUND( SUM( inventoryAvailableNum * b.sp_unit_price ), 4) AS value
+		FROM
+			mu_wyd_inventory_batch a
+	LEFT JOIN mu_ecang_product b ON a.masterSku = b.productSku 
+		WHERE
+			created_date = ' . $sale_day_num . '  
+	AND b.saleStatus != 18
+	AND b.saleStatus != 19
+		GROUP BY
 		name 
 		) a 
 	GROUP BY
@@ -835,6 +963,38 @@ CASE
 		FROM
 			mu_lc_inventory_batch a
 	LEFT JOIN mu_ecang_product b ON a.product_sku = b.productSku 
+		WHERE
+			created_date = ' . date('Ymd', strtotime('-2 month', strtotime($sale_day_num))) . ' 
+	AND b.saleStatus != 18
+	AND b.saleStatus != 19
+		GROUP BY
+		name UNION ALL
+SELECT
+CASE
+	WHEN
+		storageAge >= 0 
+		AND storageAge < 30 THEN 30 WHEN storageAge >= 30 
+			AND storageAge < 60 THEN 60 WHEN storageAge >= 60 
+				AND storageAge < 90 THEN 90 WHEN storageAge >= 90 
+					AND storageAge < 120 THEN 120 WHEN storageAge >= 120 
+						AND storageAge < 150 THEN 150 WHEN storageAge >= 150 
+							AND storageAge < 180 THEN 180 WHEN storageAge >= 180 
+								AND storageAge < 210 THEN 210 WHEN storageAge >= 210 
+									AND storageAge < 240 THEN 240 WHEN storageAge >= 240 
+										AND storageAge < 270 THEN 270 WHEN storageAge >= 270 
+											AND storageAge < 300 THEN 300 WHEN storageAge >= 300 
+												AND storageAge < 330 THEN 330 WHEN storageAge >= 330 
+													AND storageAge < 360 THEN 360 WHEN storageAge >= 360 
+														AND storageAge < 450 THEN 450 WHEN storageAge >= 450 
+															AND storageAge < 540 THEN 540 WHEN storageAge >= 540 
+																AND storageAge < 630 THEN 630 WHEN storageAge >= 630 
+																	AND storageAge < 720 THEN
+																		720 ELSE 750 
+																		END AS name,
+	ROUND( SUM( inventoryAvailableNum * b.sp_unit_price ), 4) AS value
+		FROM
+			mu_wyd_inventory_batch a
+	LEFT JOIN mu_ecang_product b ON a.masterSku = b.productSku 
 		WHERE
 			created_date = ' . date('Ymd', strtotime('-2 month', strtotime($sale_day_num))) . ' 
 	AND b.saleStatus != 18
@@ -916,6 +1076,38 @@ CASE
 	AND b.saleStatus != 18
 	AND b.saleStatus != 19
 		GROUP BY
+		name  UNION ALL
+SELECT
+CASE
+	WHEN
+		storageAge >= 0 
+		AND storageAge < 30 THEN 30 WHEN storageAge >= 30 
+			AND storageAge < 60 THEN 60 WHEN storageAge >= 60 
+				AND storageAge < 90 THEN 90 WHEN storageAge >= 90 
+					AND storageAge < 120 THEN 120 WHEN storageAge >= 120 
+						AND storageAge < 150 THEN 150 WHEN storageAge >= 150 
+							AND storageAge < 180 THEN 180 WHEN storageAge >= 180 
+								AND storageAge < 210 THEN 210 WHEN storageAge >= 210 
+									AND storageAge < 240 THEN 240 WHEN storageAge >= 240 
+										AND storageAge < 270 THEN 270 WHEN storageAge >= 270 
+											AND storageAge < 300 THEN 300 WHEN storageAge >= 300 
+												AND storageAge < 330 THEN 330 WHEN storageAge >= 330 
+													AND storageAge < 360 THEN 360 WHEN storageAge >= 360 
+														AND storageAge < 450 THEN 450 WHEN storageAge >= 450 
+															AND storageAge < 540 THEN 540 WHEN storageAge >= 540 
+																AND storageAge < 630 THEN 630 WHEN storageAge >= 630 
+																	AND storageAge < 720 THEN
+																		720 ELSE 750 
+																		END AS name,
+	ROUND( SUM( inventoryAvailableNum * b.sp_unit_price ), 4) AS value
+		FROM
+			mu_wyd_inventory_batch a
+	LEFT JOIN mu_ecang_product b ON a.masterSku = b.productSku 
+		WHERE
+			created_date = ' . date('Ymd', strtotime('-1 month', strtotime($sale_day_num))) . ' 
+	AND b.saleStatus != 18
+	AND b.saleStatus != 19
+		GROUP BY
 		name 
 		) a 
 	GROUP BY
@@ -968,6 +1160,17 @@ FROM
 	WHERE
 		created_date = ' . $sale_day_num . ' 
 		AND b.saleStatus != 18 
+	AND b.saleStatus != 19 UNION ALL
+	SELECT
+		SUM( inventoryAvailableNum ) AS value,
+		ROUND( SUM( inventoryAvailableNum * b.sp_unit_price ), 4 ) AS sum,
+		ROUND( SUM( inventoryAvailableNum * b.productLength * productWidth * productHeight / 1000000 ), 4 ) AS volume 
+	FROM
+		mu_wyd_inventory_batch a
+		LEFT JOIN mu_ecang_product b ON a.masterSku = b.productSku 
+	WHERE
+		created_date = ' . $sale_day_num . '  
+		AND b.saleStatus != 18 
 	AND b.saleStatus != 19 
 	) a;
         ');
@@ -998,8 +1201,18 @@ FROM
 WHERE
 	created_date = ' . date('Ymd', strtotime('-7 day', strtotime($sale_day_num))) . ' 
 	AND b.saleStatus != 18
+	AND b.saleStatus != 19 UNION ALL
+SELECT
+	SUM( inventoryAvailableNum ) AS value,
+	ROUND( SUM( inventoryAvailableNum * b.sp_unit_price ), 4) AS sum
+FROM
+	mu_wyd_inventory_batch a
+	LEFT JOIN mu_ecang_product b ON a.masterSku = b.productSku 
+WHERE
+	created_date = ' . date('Ymd', strtotime('-7 day', strtotime($sale_day_num))) . ' 
+	AND b.saleStatus != 18
 	AND b.saleStatus != 19
-	) a;        
+	) a;
         ');
         $this->assign('last_sum', $last_sum);
 
