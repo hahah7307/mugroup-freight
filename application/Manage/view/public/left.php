@@ -87,6 +87,7 @@
                         <dd><a layui-href="{:url('SkuReport/warehouse_tail')}">海外仓尾程</a></dd>
                         <dd><a layui-href="{:url('SkuReport/warehouse_rent')}">海外仓仓租</a></dd>
                         <dd><a layui-href="{:url('FinanceReport/index')}">月度财报利润柱状图</a></dd>
+                        <dd><a layui-href="{:url('FinanceReport/platform_profit')}">月度财报利润多平台柱状图</a></dd>
                         <dd><a layui-href="{:url('FinanceReport/pie_chart')}">月度财报利润饼状图</a></dd>
                     </dl>
                 </li>

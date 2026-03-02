@@ -2,6 +2,7 @@
 namespace app\Manage\controller;
 
 use app\Manage\model\AccountModel;
+use app\Manage\model\FinanceReportSnapshotModel;
 use app\Manage\model\FinanceSkuGroupModel;
 use app\Manage\model\InfoCategoryModel;
 use app\Manage\model\MemberRankModel;
@@ -252,5 +253,28 @@ ORDER BY
         }
 
         return json_encode($new);
+    }
+
+    public function get_platform_finance_snapshot()
+    {
+        $params = $this->request->param();
+        $selected = [];
+        if (!empty($params['selected'])) {
+            $selected = explode(',', $params['selected']);
+        }
+        $arr = [];
+        $model = new FinanceReportSnapshotModel();
+        $list = $model->query('
+SELECT DISTINCT platform FROM mu_finance_report_snapshot ORDER BY platform ASC;
+        ');
+        foreach ($list as $item) {
+            if (in_array($item['platform'], $selected)) {
+                $arr[] = ['name' => $item['platform'], 'value' => $item['platform'], 'selected' => true];
+            } else {
+                $arr[] = ['name' => $item['platform'], 'value' => $item['platform']];
+            }
+        }
+
+        return json_encode($arr);
     }
 }

@@ -3,7 +3,11 @@ namespace app\Manage\controller;
 
 use app\Manage\model\FinanceReportSnapshotModel;
 use app\Manage\model\FinanceSkuGroupModel;
+use think\db\exception\BindParamException;
+use think\db\exception\DataNotFoundException;
+use think\db\exception\ModelNotFoundException;
 use think\exception\DbException;
+use think\exception\PDOException;
 use think\Session;
 use think\Config;
 
@@ -435,6 +439,82 @@ ORDER BY
         $this->assign('amount_5', json_encode(array_values($amount_5)));
         $this->assign('category', $category);
 
+        return view();
+    }
+
+    /**
+     * @throws DataNotFoundException
+     * @throws BindParamException
+     * @throws PDOException
+     * @throws ModelNotFoundException
+     * @throws DbException
+     */
+    public function platform_profit(): \think\response\View
+    {
+        $keyword = $this->request->get('keyword', '', 'htmlspecialchars');
+        $this->assign('keyword', $keyword);
+        $where = empty($keyword) ? "" : ' WHERE warehouse_sku LIKE "%' . $keyword . '%" OR seller LIKE "%' . $keyword . '%"';
+
+        $currentPlatform = $this->request->get('currentPlatform', 'amazon-FBM', 'htmlspecialchars');
+        $this->assign('currentPlatform', $currentPlatform);
+        if (!empty($currentPlatform)) {
+            $platformList = explode(',', $currentPlatform);
+            $platform_sql = ' platform IN("' . implode('","', $platformList) . '")';
+            if (empty($where)) {
+                $where .= ' WHERE' . $platform_sql;
+            } else {
+                $where .= ' AND ' . $platform_sql;
+            }
+        }
+
+        $group_name = $this->request->get('group_name', '', 'htmlspecialchars');
+        $this->assign('group_name', $group_name);
+        if (!empty($group_name)) {
+            if (substr($group_name, 0, 4) == '----') {
+                $group_name = substr($group_name, 4);
+                $field_name = 'group_name_origin';
+            } else {
+                $field_name = 'group_name';
+            }
+            $skuGroupObj = new FinanceSkuGroupModel();
+            $list = $skuGroupObj->where([$field_name =>$group_name ])->column('sku');
+            $list_detail = $skuGroupObj->where([$field_name =>$group_name ])->select();
+            $skuTitle = [];
+            foreach ($list_detail as $item) {
+                $skuTitle[] = $item['sku'] . ':' . $item['product_name'];
+            }
+            $this->assign('sku_detail', implode("<br/>", $skuTitle));
+            $group_sql = ' warehouse_sku IN("' . implode('","', $list) . '") ';
+            if (empty($where)) {
+                $group_sql = ' WHERE' . $group_sql;
+            } else {
+                $group_sql = ' AND ' . $group_sql;
+            }
+        } else {
+            $group_sql = '';
+        }
+        $where .= $group_sql;
+
+        $model = new FinanceReportSnapshotModel();
+        $month = $model->query('SELECT DISTINCT `month` FROM mu_finance_report_snapshot ORDER BY `month` ASC;');
+        $this->assign('month', '"' . implode('","', array_column($month,'month')) . '"');
+
+        $platform = $model->query('SELECT DISTINCT platform FROM mu_finance_report_snapshot ORDER BY platform ASC;');
+        $this->assign('platform', '"' . implode('","', array_column($platform,'platform')) . '"');
+
+        $amount = $model->query('SELECT SUM(sale_amount) sum, `month`, platform FROM mu_finance_report_snapshot' . $where . ' GROUP BY month, platform ORDER BY `month` ASC;');
+        $this->assign('amountSeries', self::javascriptFormat($month, $amount));
+
+        $profit = $model->query('SELECT SUM(profit) sum, `month`, platform FROM mu_finance_report_snapshot' . $where . ' GROUP BY month, platform ORDER BY `month` ASC;');
+        $this->assign('profitSeries', self::javascriptFormat($month, $profit));
+
+        $profitMargin = $model->query('SELECT ROUND(SUM(profit) * 100 / SUM(sale_amount), 2) sum, `month`, platform FROM mu_finance_report_snapshot' . $where . ' GROUP BY month, platform ORDER BY `month` ASC;');
+        $this->assign('profitMarginSeries', self::javascriptFormat($month, $profitMargin));
+
+        $sku_group = $model->query('SELECT DISTINCT group_name FROM mu_finance_sku_group ORDER BY group_name ASC;');
+        $this->assign('sku_group', $sku_group);
+
+        Session::set(Config::get('BACK_URL'), $this->request->url(), 'manage');
         return view();
     }
 }
