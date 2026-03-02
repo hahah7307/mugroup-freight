@@ -107,7 +107,7 @@
                 }
             },
             title: {
-                text: '一级类目利润饼状图',
+                text: '一级类目利润饼状图(点击跳转二级类目)',
                 left: 'center'
             },
             series: [
@@ -153,7 +153,7 @@
                 }
             },
             title: {
-                text: '一级类目亏损饼状图',
+                text: '一级类目亏损饼状图(点击跳转二级类目)',
                 left: 'center'
             },
             series: [
@@ -184,6 +184,11 @@
             ]
         });
 
+        category_2.on('click', function (params) {
+            // 跳转到对应的页面
+            window.location.href = "/Manage/FinanceReport/pie_chart/category/" + params.name + ".html?month={$month}";
+        });
+
         const category_3 = echarts.init(document.getElementById("main_3"));
         category_3.setOption({
             tooltip: {
@@ -194,7 +199,7 @@
                 }
             },
             title: {
-                text: '二级类目利润饼状图',
+                text: '二级类目利润饼状图(点击弹出产品详情)',
                 left: 'center'
             },
             series: [
@@ -225,6 +230,15 @@
             ]
         });
 
+        category_3.on('click', function (params) {
+            layer.open({
+                type: 2,
+                title: false,
+                area: ['50%', '80%'],
+                content: "/Manage/FinanceReport/sku_detail.html?group_name=" + params.name,
+            });
+        });
+
         const category_4 = echarts.init(document.getElementById("main_4"));
         category_4.setOption({
             tooltip: {
@@ -235,7 +249,7 @@
                 }
             },
             title: {
-                text: '二级类目亏损饼状图',
+                text: '二级类目亏损饼状图(点击弹出产品详情)',
                 left: 'center'
             },
             series: [
@@ -266,6 +280,15 @@
             ]
         });
 
+        category_4.on('click', function (params) {
+            layer.open({
+                type: 2,
+                title: false,
+                area: ['50%', '80%'],
+                content: "/Manage/FinanceReport/sku_detail.html?group_name=" + params.name,
+            });
+        });
+
         const category_5 = echarts.init(document.getElementById("main_5"));
         category_5.setOption({
             tooltip: {
@@ -276,7 +299,7 @@
                 }
             },
             title: {
-                text: '{$category}类目利润饼状图',
+                text: '{$category}类目利润饼状图(点击弹出产品详情)',
                 left: 'center'
             },
             series: [
@@ -307,6 +330,15 @@
             ]
         });
 
+        category_5.on('click', function (params) {
+            layer.open({
+                type: 2,
+                title: false,
+                area: ['50%', '80%'],
+                content: "/Manage/FinanceReport/sku_detail.html?group_name=" + params.name,
+            });
+        });
+
         const category_6 = echarts.init(document.getElementById("main_6"));
         category_6.setOption({
             tooltip: {
@@ -317,7 +349,7 @@
                 }
             },
             title: {
-                text: '{$category}类目亏损饼状图',
+                text: '{$category}类目亏损饼状图(点击弹出产品详情)',
                 left: 'center'
             },
             series: [
@@ -348,6 +380,15 @@
             ]
         });
 
+        category_6.on('click', function (params) {
+            layer.open({
+                type: 2,
+                title: false,
+                area: ['50%', '80%'],
+                content: "/Manage/FinanceReport/sku_detail.html?group_name=" + params.name,
+            });
+        });
+
         // ****************************************************************************************************************************************
 
         const category_7 = echarts.init(document.getElementById("main_7"));
@@ -360,7 +401,7 @@
                 }
             },
             title: {
-                text: '一级类目销售额饼状图',
+                text: '一级类目销售额饼状图(点击跳转二级类目)',
                 left: 'center'
             },
             series: [
@@ -406,7 +447,7 @@
                 }
             },
             title: {
-                text: '二级类目销售额饼状图',
+                text: '二级类目销售额饼状图(点击弹出产品详情)',
                 left: 'center',
             },
             series: [
@@ -437,6 +478,15 @@
             ]
         });
 
+        category_8.on('click', function (params) {
+            layer.open({
+                type: 2,
+                title: false,
+                area: ['50%', '80%'],
+                content: "/Manage/FinanceReport/sku_detail.html?group_name=" + params.name,
+            });
+        });
+
         const category_9 = echarts.init(document.getElementById("main_9"));
         category_9.setOption({
             tooltip: {
@@ -447,7 +497,7 @@
                 }
             },
             title: {
-                text: '{$category}类目销售额饼状图',
+                text: '{$category}类目销售额饼状图(点击弹出产品详情)',
                 left: 'center'
             },
             series: [
@@ -478,6 +528,15 @@
             ]
         });
 
+        category_9.on('click', function (params) {
+            layer.open({
+                type: 2,
+                title: false,
+                area: ['50%', '80%'],
+                content: "/Manage/FinanceReport/sku_detail.html?group_name=" + params.name,
+            });
+        });
+
         // ****************************************************************************************************************************************
 
         const category_10 = echarts.init(document.getElementById("main_10"));
@@ -490,7 +549,7 @@
                 }
             },
             title: {
-                text: '一级类目销量饼状图',
+                text: '一级类目销量饼状图(点击跳转二级类目)',
                 left: 'center'
             },
             series: [
@@ -536,7 +595,7 @@
                 }
             },
             title: {
-                text: '二级类目销量饼状图',
+                text: '二级类目销量饼状图(点击弹出产品详情)',
                 left: 'center'
             },
             series: [
@@ -567,6 +626,15 @@
             ]
         });
 
+        category_11.on('click', function (params) {
+            layer.open({
+                type: 2,
+                title: false,
+                area: ['50%', '80%'],
+                content: "/Manage/FinanceReport/sku_detail.html?group_name=" + params.name,
+            });
+        });
+
         const category_12 = echarts.init(document.getElementById("main_12"));
         category_12.setOption({
             tooltip: {
@@ -577,7 +645,7 @@
                 }
             },
             title: {
-                text: '{$category}类目销量饼状图',
+                text: '{$category}类目销量饼状图(点击弹出产品详情)',
                 left: 'center'
             },
             series: [
@@ -606,6 +674,15 @@
                     data: {$qty_5}
                 }
             ]
+        });
+
+        category_12.on('click', function (params) {
+            layer.open({
+                type: 2,
+                title: false,
+                area: ['50%', '80%'],
+                content: "/Manage/FinanceReport/sku_detail.html?group_name=" + params.name,
+            });
         });
     });
 </script>

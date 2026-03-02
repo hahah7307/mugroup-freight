@@ -286,6 +286,7 @@ FROM
 WHERE
 	`month` >= "' . $month1 . '" 
     AND `month` <= "' . $month2 . '" 
+    AND b.sku IS NOT NULL
 GROUP BY
 	group_name_origin
 ORDER BY
@@ -313,6 +314,7 @@ WHERE
 	`month` >= "' . $month1 . '" 
     AND `month` <= "' . $month2 . '" 
 	AND b.group_name = "' . $category . '"
+    AND b.sku IS NOT NULL
 GROUP BY
 	group_name_origin
 ORDER BY
@@ -338,6 +340,7 @@ FROM
 WHERE
 	`month` >= "' . $month1 . '" 
     AND `month` <= "' . $month2 . '" 
+    AND b.sku IS NOT NULL
 GROUP BY
 	group_name
 ORDER BY
@@ -356,6 +359,7 @@ FROM
 WHERE
 	`month` >= "' . $month1 . '" 
     AND `month` <= "' . $month2 . '" 
+    AND b.sku IS NOT NULL
 GROUP BY
 	group_name_origin
 ORDER BY
@@ -371,6 +375,7 @@ SELECT
 FROM
 	mu_finance_report_snapshot a
 	LEFT JOIN mu_finance_sku_group b ON a.warehouse_sku = b.sku 
+    AND b.sku IS NOT NULL
 WHERE
 	`month` >= "' . $month1 . '" 
     AND `month` <= "' . $month2 . '" 
@@ -390,6 +395,7 @@ SELECT
 FROM
 	mu_finance_report_snapshot a
 	LEFT JOIN mu_finance_sku_group b ON a.warehouse_sku = b.sku 
+    AND b.sku IS NOT NULL
 WHERE
 	`month` >= "' . $month1 . '" 
     AND `month` <= "' . $month2 . '" 
@@ -408,6 +414,7 @@ SELECT
 FROM
 	mu_finance_report_snapshot a
 	LEFT JOIN mu_finance_sku_group b ON a.warehouse_sku = b.sku 
+    AND b.sku IS NOT NULL
 WHERE
 	`month` >= "' . $month1 . '" 
     AND `month` <= "' . $month2 . '" 
@@ -430,6 +437,7 @@ WHERE
 	`month` >= "' . $month1 . '" 
     AND `month` <= "' . $month2 . '" 
 	AND b.group_name = "' . $category . '"
+    AND b.sku IS NOT NULL
 GROUP BY
 	group_name_origin
 ORDER BY
@@ -515,6 +523,34 @@ ORDER BY
         $this->assign('sku_group', $sku_group);
 
         Session::set(Config::get('BACK_URL'), $this->request->url(), 'manage');
+        return view();
+    }
+
+    /**
+     * @throws PDOException
+     * @throws BindParamException
+     */
+    public function sku_detail($group_name = "儿童梳妆台"): \think\response\View
+    {
+        $model = new FinanceSkuGroupModel();
+        $list = $model->query('
+SELECT
+	b.productSku,
+	b.productTitle,
+	c.user_name 
+FROM
+	mu_finance_sku_group a
+	LEFT JOIN mu_ecang_product b ON a.sku = b.productSku
+	LEFT JOIN mu_ecang_user c ON b.personSellerId = c.user_id 
+WHERE
+	a.group_name_origin = "' . $group_name . '" 
+	AND b.productSku IS NOT NULL
+ORDER BY
+	c.user_name ASC;
+        ');
+        $this->assign('list', $list);
+        $this->assign('group_name', $group_name);
+
         return view();
     }
 }
