@@ -274,6 +274,8 @@ ORDER BY
 
         $this->assign('profit_1', json_encode(array_values($profit_1)));
         $this->assign('profit_2', json_encode(array_values($profit_2)));
+        $this->assign('ratio_1', round(array_sum(array_column($profit_2, 'value')) / array_sum(array_column($profit_1, 'value')), 4));
+        $this->assign('ratio_1_show', min(max((round(array_sum(array_column($profit_2, 'value')) / array_sum(array_column($profit_1, 'value')), 4) * 100) ** 2 / 100 * 80, 20), 100) . '%');
 
         $profit_4 = [];
         $profit_3 = $model->query('
@@ -301,6 +303,8 @@ ORDER BY
 
         $this->assign('profit_3', json_encode(array_values($profit_3)));
         $this->assign('profit_4', json_encode(array_values($profit_4)));
+        $this->assign('ratio_3', round(array_sum(array_column($profit_4, 'value')) / array_sum(array_column($profit_3, 'value')), 4));
+        $this->assign('ratio_3_show', min(max((round(array_sum(array_column($profit_4, 'value')) / array_sum(array_column($profit_3, 'value')), 4) * 100) ** 2 / 100 * 80, 20), 100) . '%');
 
         $profit_6 = [];
         $profit_5 = $model->query('
@@ -329,6 +333,8 @@ ORDER BY
 
         $this->assign('profit_5', json_encode(array_values($profit_5)));
         $this->assign('profit_6', json_encode(array_values($profit_6)));
+        $this->assign('ratio_5', round(array_sum(array_column($profit_6, 'value')) / array_sum(array_column($profit_5, 'value')), 4));
+        $this->assign('ratio_5_show', min(max((round(array_sum(array_column($profit_6, 'value')) / array_sum(array_column($profit_5, 'value')), 4) * 100) ** 2 / 100 * 80, 20), 80) . '%');
 
         $qty_1 = $model->query('
 SELECT

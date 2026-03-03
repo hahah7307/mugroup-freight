@@ -153,12 +153,13 @@
                 }
             },
             title: {
-                text: '一级类目亏损饼状图(点击跳转二级类目)',
+                text: '一级类目亏损饼状图(点击跳转二级类目)({$ratio_1})',
                 left: 'center'
             },
             series: [
                 {
                     type: 'pie',
+                    radius: "{$ratio_1_show}",
                     emphasis: {
                         scale: true, // 是否放大
                         scaleSize: 10, // 放大比例
@@ -249,12 +250,13 @@
                 }
             },
             title: {
-                text: '二级类目亏损饼状图(点击弹出产品详情)',
+                text: '二级类目亏损饼状图(点击弹出产品详情)({$ratio_3})',
                 left: 'center'
             },
             series: [
                 {
                     type: 'pie',
+                    radius: "{$ratio_3_show}",
                     emphasis: {
                         scale: true, // 是否放大
                         scaleSize: 10, // 放大比例
@@ -349,12 +351,13 @@
                 }
             },
             title: {
-                text: '{$category}类目亏损饼状图(点击弹出产品详情)',
+                text: '{$category}类目亏损饼状图(点击弹出产品详情)({$ratio_5})',
                 left: 'center'
             },
             series: [
                 {
                     type: 'pie',
+                    radius: "{$ratio_5_show}",
                     emphasis: {
                         scale: true, // 是否放大
                         scaleSize: 10, // 放大比例
