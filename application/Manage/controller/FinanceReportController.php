@@ -559,4 +559,124 @@ ORDER BY
 
         return view();
     }
+
+    /**
+     * @throws DbException
+     */
+    public function index_group_multi(): \think\response\View
+    {
+        $month1 = input('month1', '2024-01', 'htmlspecialchars');
+        $this->assign('month1', $month1);
+
+        $month2 = input('month2', '2025-12', 'htmlspecialchars');
+        $this->assign('month2', $month2);
+
+        $group_name = $this->request->get('group_name', '儿童梳妆台', 'htmlspecialchars');
+        $this->assign('group_name', $group_name);
+        $group_list = explode(',', $group_name);
+        $group_name_origin = '"' . implode('","', $group_list). '"';
+        $yearSql = '
+SELECT LEFT
+	( `month`, 4 ) YEAR,
+	b.group_name_origin,
+	sum( sale_amount ) sale_amount,
+	sum( profit ) profit,
+	sum( sale_qty ) sale_qty,
+	sum( adCost * -1 ) adCost,
+	sum( warehouse_rent * -1 ) warehouse_rent 
+FROM
+	mu_finance_report_snapshot a
+	LEFT JOIN mu_finance_sku_group b ON a.warehouse_sku = b.sku 
+WHERE
+	b.group_name_origin IN ( ' . str_replace('-', '', $group_name_origin) . ' ) 
+	AND a.`month` >= "' . $month1 . '" 
+	AND a.`month` <= "' . $month2 . '" 
+GROUP BY
+	YEAR,
+	group_name_origin;
+            ';
+
+        $monthSql = '
+SELECT 
+	`month`,
+	b.group_name_origin,
+	sum( sale_amount ) sale_amount,
+	sum( profit ) profit,
+	sum( sale_qty ) sale_qty,
+	sum( adCost * -1 ) adCost,
+	sum( warehouse_rent * -1 ) warehouse_rent 
+FROM
+	mu_finance_report_snapshot a
+	LEFT JOIN mu_finance_sku_group b ON a.warehouse_sku = b.sku 
+WHERE
+	b.group_name_origin IN ( ' . str_replace('-', '', $group_name_origin) . ' ) 
+	AND a.`month` >= "' . $month1 . '" 
+	AND a.`month` <= "' . $month2 . '" 
+GROUP BY
+	`month`,
+	group_name_origin;
+            ';
+
+        $model = new FinanceReportSnapshotModel();
+        $year = $model->query($yearSql);
+        $month = $model->query($monthSql);
+        $sheetNames = [
+            'profit',
+            'sale_amount',
+            'sale_qty',
+            'adCost',
+            'warehouse_rent'
+        ];
+
+        foreach ($sheetNames as $sheet) {
+            $dataYear = 'dataYear-' . $sheet;
+            $dataMonth = 'dataMonth-' . $sheet;
+            $$dataYear = [];
+            $$dataMonth = [];
+            $category = ['category'];
+            foreach ($group_list as $k => $groupName) {
+                $category[] = str_replace('-', '', $groupName);
+                foreach ($year as $yearItem) {
+                    if (str_replace('-', '', $groupName) == $yearItem['group_name_origin']) {
+                        $$dataYear[$yearItem['YEAR']][0] = $yearItem['YEAR'];
+                        $$dataYear[$yearItem['YEAR']][$k + 1] = $yearItem[$sheet];
+                    }
+                }
+
+                foreach ($month as $monthItem) {
+                    if (str_replace('-', '', $groupName) == $monthItem['group_name_origin']) {
+                        $$dataMonth[$monthItem['month']][0] = $monthItem['month'];
+                        $$dataMonth[$monthItem['month']][$k + 1] = $monthItem[$sheet];
+                    }
+                }
+            }
+            ksort($$dataYear);
+            $full = array_fill(0, count($group_list) + 1, 0);
+            foreach ($$dataYear as $key => $value) {
+                $$dataYear[$key] = array_replace($full, $value);
+            }
+            array_unshift($$dataYear, $category);
+            $this->assign('year_' . $sheet, json_encode(array_values($$dataYear)));
+
+            ksort($$dataMonth);
+            $full = array_fill(0, count($group_list) + 1, 0);
+            foreach ($$dataMonth as $key => $value) {
+                $$dataMonth[$key] = array_replace($full, $value);
+            }
+            array_unshift($$dataMonth, $category);
+            $this->assign('month_' . $sheet, json_encode(array_values($$dataMonth)));
+        }
+
+        $barList = [];
+        for ($i = count($group_list); $i > 0; $i --) {
+            $barList [] = "{ type: 'bar' }";
+        }
+        $this->assign('bar', implode(',', $barList));
+
+
+        $this->assign('group_name', $group_name);
+        Session::set(Config::get('BACK_URL'), $this->request->url(), 'manage');
+
+        return view();
+    }
 }

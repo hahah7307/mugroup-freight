@@ -225,6 +225,7 @@ class CheckController extends BaseController
      */
     public function get_group_name_origin($tag = '----')
     {
+        $params = $this->request->param();
         $arr = [];
         $model = new FinanceSkuGroupModel();
         $list = $model->query('
@@ -244,10 +245,64 @@ ORDER BY
         if ($arr) {
             foreach ($arr as $k => $v) {
                 if (end($new) != $k) {
-                    $new[] = ['name' => $k, 'value' => $k];
+                    if ($k == $params['selected'][0]) {
+                        $new[] = ['name' => $k, 'value' => $k, 'selected' => true];
+                    } else {
+                        $new[] = ['name' => $k, 'value' => $k];
+                    }
                 }
                 foreach ($v as $group_name) {
-                    $new[] = ['name' => $tag . $group_name, 'value' => $tag . $group_name];
+                    if ($tag . $group_name == $params['selected'][0]) {
+                        $new[] = ['name' => $tag . $group_name, 'value' => $tag . $group_name, 'selected' => true];
+                    } else {
+                        $new[] = ['name' => $tag . $group_name, 'value' => $tag . $group_name];
+                    }
+                }
+            }
+        }
+
+        return json_encode($new);
+    }
+
+    /**
+     * @throws PDOException
+     * @throws BindParamException
+     */
+    public function get_group_name_origin_multi($tag = '----')
+    {
+        $params = $this->request->param();
+        $selected = [];
+        if (!empty($params['selected'])) {
+            $selected = explode(',', $params['selected']);
+        }
+
+        $arr = [];
+        $model = new FinanceSkuGroupModel();
+        $list = $model->query('
+SELECT DISTINCT
+	group_name,
+	group_name_origin 
+FROM
+	mu_finance_sku_group 
+ORDER BY
+	group_name ASC,
+	group_name_origin ASC;
+        ');
+        foreach ($list as $item) {
+            $arr[$item['group_name']][] = $item['group_name_origin'];
+        }
+        $new = [];
+        if ($arr) {
+            foreach ($arr as $k => $v) {
+                if (end($new) != $k) {
+                    $new[] = ['name' => $k, 'value' => $k, 'disabled' => true];
+                }
+                foreach ($v as $group_name) {
+                    if (in_array($tag . $group_name, $selected)){
+                        $new[] = ['name' => $tag . $group_name, 'value' => $tag . $group_name, 'selected' => true];
+                    } else {
+                        $new[] = ['name' => $tag . $group_name, 'value' => $tag . $group_name];
+                    }
                 }
             }
         }
