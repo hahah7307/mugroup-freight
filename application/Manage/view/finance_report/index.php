@@ -107,6 +107,7 @@
             el: '#group_name',
             name: 'group_name',
             radio: true,
+            toolbar: {show: true},
             clickClose: true,
             filterable: true,
             remoteSearch: true,   // 开启远程搜索

@@ -107,6 +107,7 @@
         let select = xmSelect.render({
             el: '#group_name',
             name: 'group_name',
+            toolbar: {show: true},
             clickClose: true,
             filterable: true,
             remoteSearch: true,   // 开启远程搜索

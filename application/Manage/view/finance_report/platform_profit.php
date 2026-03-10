@@ -74,6 +74,7 @@
             el: '#group_name',
             name: 'group_name',
             radio: true,
+            toolbar: {show: true},
             clickClose: true,
             filterable: true,
             remoteSearch: true,   // 开启远程搜索
@@ -94,6 +95,7 @@
         let select2 = xmSelect.render({
             el: '#currentPlatform',
             name: 'currentPlatform',
+            toolbar: {show: true},
             clickClose: true,
             filterable: true,
             remoteSearch: true,   // 开启远程搜索
