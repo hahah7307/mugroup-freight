@@ -140,7 +140,7 @@
 
         category_1.on('click', function (params) {
             // 跳转到对应的页面
-            window.location.href = "/Manage/FinanceReport/pie_chart/category/" + params.name + ".html?month={$month}";
+            window.location.href = "/Manage/FinanceReport/pie_chart/category/" + params.name + ".html?month1={$month1}&month2={$month2}";
         });
 
         const category_2 = echarts.init(document.getElementById("main_2"));
@@ -153,7 +153,7 @@
                 }
             },
             title: {
-                text: '一级类目亏损饼状图(点击跳转二级类目)({$ratio_1})',
+                text: '一级类目亏损饼状图(点击跳转二级类目)({$ratio_1 * 100}%)',
                 left: 'center'
             },
             series: [
@@ -187,7 +187,7 @@
 
         category_2.on('click', function (params) {
             // 跳转到对应的页面
-            window.location.href = "/Manage/FinanceReport/pie_chart/category/" + params.name + ".html?month={$month}";
+            window.location.href = "/Manage/FinanceReport/pie_chart/category/" + params.name + ".html?month1={$month1}&month2={$month2}";
         });
 
         const category_3 = echarts.init(document.getElementById("main_3"));
@@ -250,7 +250,7 @@
                 }
             },
             title: {
-                text: '二级类目亏损饼状图(点击弹出产品详情)({$ratio_3})',
+                text: '二级类目亏损饼状图(点击弹出产品详情)({$ratio_3 * 100}%)',
                 left: 'center'
             },
             series: [
@@ -351,7 +351,7 @@
                 }
             },
             title: {
-                text: '{$category}类目亏损饼状图(点击弹出产品详情)({$ratio_5})',
+                text: '{$category}类目亏损饼状图(点击弹出产品详情)({$ratio_5 * 100}%)',
                 left: 'center'
             },
             series: [
