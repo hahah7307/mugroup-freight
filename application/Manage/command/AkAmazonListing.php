@@ -56,6 +56,10 @@ class AkAmazonListing extends Command
                 if (!empty($data)) {
                     $insertData = [];
                     foreach ($data as $listing) {
+                        unset($listing['parent_msku']);
+                        unset($listing['list_price']);
+                        unset($listing['b2b_price']);
+                        unset($listing['b2b_price_discount']);
                         $listing['last_star'] = !empty($listing['last_star']) ? $listing['last_star'] : NULL;
                         $listing['shipping'] = !empty($listing['shipping']) ? $listing['shipping'] : NULL;
                         $listing['open_date'] = !empty($listing['open_date']) ? date('Y-m-d H:i:s', strtotime($listing['open_date'])) : NULL;
