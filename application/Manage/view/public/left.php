@@ -90,6 +90,7 @@
                         <dd><a layui-href="{:url('FinanceReport/platform_profit')}">月度财报利润多平台柱状图</a></dd>
                         <dd><a layui-href="{:url('FinanceReport/index_group_multi')}">多品类利润柱状图</a></dd>
                         <dd><a layui-href="{:url('FinanceReport/pie_chart')}">月度财报利润饼状图</a></dd>
+                        <dd><a layui-href="{:url('SkuReport/sku_sale_qty')}">产品销量年度对比柱状图</a></dd>
                     </dl>
                 </li>
                 <li data-name="Product" class="layui-nav-item">

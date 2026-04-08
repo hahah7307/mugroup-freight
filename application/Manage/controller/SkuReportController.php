@@ -3526,4 +3526,194 @@ ORDER BY
         Session::set(Config::get('BACK_URL'), $this->request->url(), 'manage');
         return view();
     }
+
+    /**
+     * @throws BindParamException
+     * @throws PDOException
+     */
+    public function sku_sale_qty(): \think\response\View
+    {
+        $type = $this->request->get('type', '', 'intval');
+        $this->assign('type', $type);
+        $dateFormat = $type ? "%Y-%m" : "%Y-%m-%d";
+
+        $sku = $this->request->get('sku', '', 'htmlspecialchars');
+        $this->assign('sku', $sku);
+        if (!empty($sku)) {
+            $skuList = array_filter(preg_split('/\r\n|\r|\n/', $sku));
+            $skuSql = 'AND b.warehouseSku IN ("' . implode('", "', $skuList) . '")';
+        } else {
+            $skuSql = '';
+        }
+
+        $name = $this->request->get('name', '', 'htmlspecialchars');
+        $this->assign('name', $name);
+
+        $start_date = $this->request->get('start_date', date('Y-m-01', strtotime('-1 day')), 'htmlspecialchars');
+        $this->assign('start_date', $start_date);
+
+        $end_date = $this->request->get('end_date', date('Y-m-d', strtotime('-1 day')), 'htmlspecialchars');
+        $this->assign('end_date', $end_date);
+        $end_date_top = date('Y-m-d', strtotime('+1 day', strtotime($end_date)));
+
+        $model = new ProductModel();
+        $storeList = $model->query('
+SELECT
+	DATE_FORMAT( a.datePaidPlatform, "' . $dateFormat . '" ) `name`,
+	SUM( b.qty ) value
+FROM
+	mu_ecang_order a FORCE INDEX ( idx_ecang_order_status_date )
+	LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id
+	LEFT JOIN mu_ecang_product c ON b.warehouseSku = c.productSku 
+WHERE
+	c.productTitle LIKE "%' . $name . '%" 
+	AND c.saleStatus IN ( 2, 16, 18 ) 
+	AND a.`status` = 4 
+	AND a.datePaidPlatform >= "' . $start_date . '" 
+	AND a.datePaidPlatform < "' . $end_date_top . '" 
+	' . $skuSql . '
+GROUP BY
+	`name`;
+        ');
+
+        $storeList2 = $model->query('
+SELECT
+	DATE_FORMAT( a.datePaidPlatform, "' . $dateFormat . '" ) `name`,
+	SUM( b.qty ) value
+FROM
+	mu_ecang_order a FORCE INDEX ( idx_ecang_order_status_date )
+	LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id
+	LEFT JOIN mu_ecang_product c ON b.warehouseSku = c.productSku 
+WHERE
+	c.productTitle LIKE "%' . $name . '%" 
+	AND c.saleStatus IN ( 2, 16, 18 ) 
+	AND a.`status` = 4 
+	AND a.datePaidPlatform >= "' . date('Y-m-d', strtotime('-1 year', strtotime($start_date))) . '" 
+	AND a.datePaidPlatform < "' . date('Y-m-d', strtotime('-1 year', strtotime($end_date_top))) . '" 
+	' . $skuSql . '
+GROUP BY
+	`name`;
+        ');
+
+        $storeList3 = $model->query('
+SELECT
+	DATE_FORMAT( a.datePaidPlatform, "' . $dateFormat . '" ) `name`,
+	SUM( b.qty ) value
+FROM
+	mu_ecang_order a FORCE INDEX ( idx_ecang_order_status_date )
+	LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id
+	LEFT JOIN mu_ecang_product c ON b.warehouseSku = c.productSku 
+WHERE
+	c.productTitle LIKE "%' . $name . '%" 
+	AND c.saleStatus IN ( 2, 16, 18 ) 
+	AND a.`status` = 4 
+	AND a.datePaidPlatform >= "' . date('Y-m-d', strtotime('-2 year', strtotime($start_date))) . '" 
+	AND a.datePaidPlatform < "' . date('Y-m-d', strtotime('-2 year', strtotime($end_date_top))) . '" 
+	' . $skuSql . '
+GROUP BY
+	`name`;
+        ');
+
+        $storeData[] = [
+            'date',
+            '2026',
+            '2025',
+            '2024'
+        ];
+
+        $count = max(count($storeList), count($storeList2), count($storeList3));
+        for ($i = 0; $i < $count; $i ++) {
+            $storeData[] = [
+                $type ? substr($storeList2[$i]['name'], -2) . '月' : substr($storeList2[$i]['name'], -5),
+                $storeList[$i]['value'] ?? 0,
+                $storeList2[$i]['value'] ?? 0,
+                $storeList3[$i]['value'] ?? 0
+            ];
+        }
+        $this->assign('storeData', json_encode($storeData));
+
+        $average = $model->query('
+WITH RECURSIVE months AS ( SELECT DATE( "' . $start_date . '" ) AS month_start UNION ALL SELECT DATE_ADD( month_start, INTERVAL 1 MONTH ) FROM months WHERE month_start < "' . $end_date . '" ) SELECT
+DATE_FORMAT( m.month_start, "%Y-%m" ) AS name,
+ROUND(IFNULL( SUM( b.qty ), 0 ) / ( DATEDIFF( LEAST( LAST_DAY( m.month_start ), "' . $end_date . '" ), GREATEST( m.month_start, "' . $start_date . '" ) ) + 1 ),2) AS value 
+FROM
+	months m
+	LEFT JOIN mu_ecang_order a FORCE INDEX ( idx_ecang_order_status_date ) ON a.datePaidPlatform >= GREATEST( m.month_start, "' . $start_date . '" ) 
+	AND a.datePaidPlatform < DATE_ADD( LEAST( LAST_DAY( m.month_start ), "' . $end_date . '" ), INTERVAL 1 DAY ) 
+	AND a.STATUS = 4
+	LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id
+	LEFT JOIN mu_ecang_product c ON b.warehouseSku = c.productSku 
+WHERE
+	c.productTitle LIKE "%' . $name .  '%" 
+	AND c.saleStatus IN ( 2, 16, 18 ) 
+	' . $skuSql . '
+GROUP BY
+	m.month_start 
+ORDER BY
+	m.month_start;
+        ');
+
+        $average2 = $model->query('
+WITH RECURSIVE months AS ( SELECT DATE( "' . date('Y-m-d', strtotime('-1 year', strtotime($start_date))) . '" ) AS month_start UNION ALL SELECT DATE_ADD( month_start, INTERVAL 1 MONTH ) FROM months WHERE month_start < "' . date('Y-m-d', strtotime('-1 year', strtotime($end_date))) . '" ) SELECT
+DATE_FORMAT( m.month_start, "%Y-%m" ) AS name,
+ROUND(IFNULL( SUM( b.qty ), 0 ) / ( DATEDIFF( LEAST( LAST_DAY( m.month_start ), "' . date('Y-m-d', strtotime('-1 year', strtotime($end_date))) . '" ), GREATEST( m.month_start, "' . date('Y-m-d', strtotime('-1 year', strtotime($start_date))) . '" ) ) + 1 ),2) AS value 
+FROM
+	months m
+	LEFT JOIN mu_ecang_order a FORCE INDEX ( idx_ecang_order_status_date ) ON a.datePaidPlatform >= GREATEST( m.month_start, "' . date('Y-m-d', strtotime('-1 year', strtotime($start_date))) . '" ) 
+	AND a.datePaidPlatform < DATE_ADD( LEAST( LAST_DAY( m.month_start ), "' . date('Y-m-d', strtotime('-1 year', strtotime($end_date))) . '" ), INTERVAL 1 DAY ) 
+	AND a.STATUS = 4
+	LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id
+	LEFT JOIN mu_ecang_product c ON b.warehouseSku = c.productSku 
+WHERE
+	c.productTitle LIKE "%' . $name .  '%" 
+	AND c.saleStatus IN ( 2, 16, 18 ) 
+	' . $skuSql . '
+GROUP BY
+	m.month_start 
+ORDER BY
+	m.month_start;
+        ');
+
+        $average3 = $model->query('
+WITH RECURSIVE months AS ( SELECT DATE( "' . date('Y-m-d', strtotime('-2 year', strtotime($start_date))) . '" ) AS month_start UNION ALL SELECT DATE_ADD( month_start, INTERVAL 1 MONTH ) FROM months WHERE month_start < "' . date('Y-m-d', strtotime('-2 year', strtotime($end_date))) . '" ) SELECT
+DATE_FORMAT( m.month_start, "%Y-%m" ) AS name,
+ROUND(IFNULL( SUM( b.qty ), 0 ) / ( DATEDIFF( LEAST( LAST_DAY( m.month_start ), "' . date('Y-m-d', strtotime('-2 year', strtotime($end_date))) . '" ), GREATEST( m.month_start, "' . date('Y-m-d', strtotime('-2 year', strtotime($start_date))) . '" ) ) + 1 ),2) AS value 
+FROM
+	months m
+	LEFT JOIN mu_ecang_order a FORCE INDEX ( idx_ecang_order_status_date ) ON a.datePaidPlatform >= GREATEST( m.month_start, "' . date('Y-m-d', strtotime('-2 year', strtotime($start_date))) . '" ) 
+	AND a.datePaidPlatform < DATE_ADD( LEAST( LAST_DAY( m.month_start ), "' . date('Y-m-d', strtotime('-2 year', strtotime($end_date))) . '" ), INTERVAL 1 DAY ) 
+	AND a.STATUS = 4
+	LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id
+	LEFT JOIN mu_ecang_product c ON b.warehouseSku = c.productSku 
+WHERE
+	c.productTitle LIKE "%' . $name .  '%" 
+	AND c.saleStatus IN ( 2, 16, 18 ) 
+	' . $skuSql . '
+GROUP BY
+	m.month_start 
+ORDER BY
+	m.month_start;
+        ');
+
+        $averageData[] = [
+            'date',
+            '2026',
+            '2025',
+            '2024'
+        ];
+
+        $count = max(count($average), count($average2), count($average3));
+        for ($i = 0; $i < $count; $i ++) {
+            $averageData[] = [
+                substr($average2[$i]['name'], -2) . '月',
+                $average[$i]['value'] ?? 0,
+                $average2[$i]['value'] ?? 0,
+                $average3[$i]['value'] ?? 0
+            ];
+        }
+        $this->assign('averageData', json_encode($averageData));
+
+        Session::set(Config::get('BACK_URL'), $this->request->url(), 'manage');
+        return view();
+    }
 }
