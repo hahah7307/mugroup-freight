@@ -116,7 +116,7 @@
         const category_3 = echarts.init(document.getElementById("main_3"));
         category_3.setOption({
             title: {
-                text: '产品销量对比柱状图（单位：个）',
+                text: '产品总销量对比柱状图（单位：个）',
                 // subtext: 'Fake Data',
                 left: 'center'
             },
@@ -138,7 +138,7 @@
         const category_4 = echarts.init(document.getElementById("main_4"));
         category_4.setOption({
             title: {
-                text: '产品月日销对比柱状图（单位：个）',
+                text: '产品日均销量对比柱状图（单位：个）',
                 // subtext: 'Fake Data',
                 left: 'center'
             },

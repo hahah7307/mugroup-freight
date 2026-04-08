@@ -3616,18 +3616,18 @@ GROUP BY
 
         $storeData[] = [
             'date',
-            '2026',
+            '2024',
             '2025',
-            '2024'
+            '2026'
         ];
 
         $count = max(count($storeList), count($storeList2), count($storeList3));
         for ($i = 0; $i < $count; $i ++) {
             $storeData[] = [
                 $type ? substr($storeList2[$i]['name'], -2) . '月' : substr($storeList2[$i]['name'], -5),
-                $storeList[$i]['value'] ?? 0,
+                $storeList3[$i]['value'] ?? 0,
                 $storeList2[$i]['value'] ?? 0,
-                $storeList3[$i]['value'] ?? 0
+                $storeList[$i]['value'] ?? 0
             ];
         }
         $this->assign('storeData', json_encode($storeData));
@@ -3697,18 +3697,18 @@ ORDER BY
 
         $averageData[] = [
             'date',
-            '2026',
+            '2024',
             '2025',
-            '2024'
+            '2025'
         ];
 
         $count = max(count($average), count($average2), count($average3));
         for ($i = 0; $i < $count; $i ++) {
             $averageData[] = [
                 substr($average2[$i]['name'], -2) . '月',
-                $average[$i]['value'] ?? 0,
+                $average3[$i]['value'] ?? 0,
                 $average2[$i]['value'] ?? 0,
-                $average3[$i]['value'] ?? 0
+                $average[$i]['value'] ?? 0
             ];
         }
         $this->assign('averageData', json_encode($averageData));
