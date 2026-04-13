@@ -1101,9 +1101,9 @@ class AmazonPayment extends Model
                         "report_id"                 =>  $reportId,
                         "table_id"                  =>  $tableId,
                         "payment_id"                =>  number_format($item[10], 0, '', ''),
-                        "sku"                       =>  $item[8],
+                        "sku"                       =>  $item[18],
                         "is_fulfillment"            =>  1,
-                        "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[18])),
+                        "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[12])),
                     ];
                 }
             }
