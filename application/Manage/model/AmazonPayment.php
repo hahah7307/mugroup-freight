@@ -1763,7 +1763,8 @@ class AmazonPayment extends Model
                         + round(str_replace(',', '', $item[36]), 2)
                         + round(str_replace(',', '', $item[41]), 2)
                         + round(str_replace(',', '', $item[44]), 2)
-                        + round(str_replace(',', '', $item[45]), 2),
+                        + round(str_replace(',', '', $item[45]), 2)
+                        + round(str_replace(',', '', $item[50]), 2),
                     "shipping_credits"          =>  0,
                     "gift_wrap_credits"         =>  0,
                     "regulatory_fee"            =>  0,
