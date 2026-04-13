@@ -27,6 +27,8 @@
                     <option value="">请选择店铺</option>
                     <option value="JG_Direct">JG_Direct</option>
                     <option value="WAL_Carajali_US">WAL_Carajali_US</option>
+                    <option value="WAL_Tingyu_US">WAL_Tingyu_US</option>
+                    <option value="WAL_Shanli_US">WAL_Shanli_US</option>
                 </select>
             </div>
             <button type="button" class="layui-btn  layui-btn-normal" id="excel">导入</button>

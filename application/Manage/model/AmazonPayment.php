@@ -1094,6 +1094,18 @@ class AmazonPayment extends Model
                         "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[12])),
                     ];
                 }
+
+                if ($item[6] == "Adjustment" && $item[7] == "WFS Fulfillment fee") {
+                    // WFS尾程
+                    $this->orderAdjustmentWfs[] = [
+                        "report_id"                 =>  $reportId,
+                        "table_id"                  =>  $tableId,
+                        "payment_id"                =>  number_format($item[10], 0, '', ''),
+                        "sku"                       =>  $item[8],
+                        "is_fulfillment"            =>  1,
+                        "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[18])),
+                    ];
+                }
             }
         }
 
