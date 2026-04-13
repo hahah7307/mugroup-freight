@@ -1176,6 +1176,51 @@ FROM
         ');
         $this->assign('sum', $sum);
 
+        $le_sum = $model->query('
+SELECT
+    SUM( goodsNum ) AS value,
+    ROUND( SUM( goodsNum * b.sp_unit_price ), 4 ) AS sum,
+    ROUND( SUM( goodsNum * b.productLength * productWidth * productHeight / 1000000 ), 4 ) AS volume 
+FROM
+    mu_le_inventory_batch a
+    LEFT JOIN mu_ecang_product b ON SUBSTRING( a.lecangsCode, 7 ) = b.productSku 
+WHERE
+    created_date = ' . $sale_day_num . ' 
+    AND b.saleStatus != 18 
+    AND b.saleStatus != 19
+        ');
+        $this->assign('le_sum', $le_sum);
+
+        $lc_sum = $model->query('
+SELECT
+    SUM( sellable_quantity ) AS value,
+    ROUND( SUM( sellable_quantity * b.sp_unit_price ), 4 ) AS sum,
+    ROUND( SUM( sellable_quantity * b.productLength * productWidth * productHeight / 1000000 ), 4 ) AS volume 
+FROM
+    mu_lc_inventory_batch a
+    LEFT JOIN mu_ecang_product b ON a.product_sku = b.productSku 
+WHERE
+    created_date = ' . $sale_day_num . ' 
+    AND b.saleStatus != 18 
+	AND b.saleStatus != 19
+        ');
+        $this->assign('lc_sum', $lc_sum);
+
+        $wyd_sum = $model->query('
+SELECT
+    SUM( inventoryAvailableNum ) AS value,
+    ROUND( SUM( inventoryAvailableNum * b.sp_unit_price ), 4 ) AS sum,
+    ROUND( SUM( inventoryAvailableNum * b.productLength * productWidth * productHeight / 1000000 ), 4 ) AS volume 
+FROM
+    mu_wyd_inventory_batch a
+    LEFT JOIN mu_ecang_product b ON a.masterSku = b.productSku 
+WHERE
+    created_date = ' . $sale_day_num . '  
+    AND b.saleStatus != 18 
+	AND b.saleStatus != 19 
+        ');
+        $this->assign('wyd_sum', $wyd_sum);
+
         $last_sum = $model->query('
 SELECT
 	SUM( value ) value,
@@ -1216,6 +1261,48 @@ WHERE
         ');
         $this->assign('last_sum', $last_sum);
 
+        $le_last_sum = $model->query('
+SELECT
+	SUM( goodsNum ) AS value,
+	ROUND( SUM( goodsNum * b.sp_unit_price ), 4) AS sum
+FROM
+	mu_le_inventory_batch a
+	LEFT JOIN mu_ecang_product b ON SUBSTRING( a.lecangsCode, 7 ) = b.productSku 
+WHERE
+	created_date = ' . date('Ymd', strtotime('-7 day', strtotime($sale_day_num))) . ' 
+	AND b.saleStatus != 18
+	AND b.saleStatus != 19
+        ');
+        $this->assign('le_last_sum', $le_last_sum);
+
+        $lc_last_sum = $model->query('
+SELECT
+	SUM( sellable_quantity ) AS value,
+	ROUND( SUM( sellable_quantity * b.sp_unit_price ), 4) AS sum
+FROM
+	mu_lc_inventory_batch a
+	LEFT JOIN mu_ecang_product b ON a.product_sku = b.productSku 
+WHERE
+	created_date = ' . date('Ymd', strtotime('-7 day', strtotime($sale_day_num))) . ' 
+	AND b.saleStatus != 18
+	AND b.saleStatus != 19
+        ');
+        $this->assign('lc_last_sum', $lc_last_sum);
+
+        $wyd_last_sum = $model->query('
+SELECT
+	SUM( inventoryAvailableNum ) AS value,
+	ROUND( SUM( inventoryAvailableNum * b.sp_unit_price ), 4) AS sum
+FROM
+	mu_wyd_inventory_batch a
+	LEFT JOIN mu_ecang_product b ON a.masterSku = b.productSku 
+WHERE
+	created_date = ' . date('Ymd', strtotime('-7 day', strtotime($sale_day_num))) . ' 
+	AND b.saleStatus != 18
+	AND b.saleStatus != 19
+        ');
+        $this->assign('wyd_last_sum', $wyd_last_sum);
+
         $monthQty = $model->query('
 SELECT
 	SUM( b.qty ) qty
@@ -1230,6 +1317,54 @@ WHERE
 	AND a.datePaidPlatform < "' . date('Y-m-d 16:00:00', strtotime($sale_day_num)) . '";
         ');
         $this->assign('monthQty', $monthQty);
+
+        $le_monthQty = $model->query('
+SELECT
+	SUM( b.qty ) qty
+FROM
+	mu_ecang_order a
+	LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id 
+WHERE
+	a.`status` != 5 
+	AND a.`status` != 7 
+	AND a.`status` != 0 
+	AND a.warehouseCode IN("CAP2","LG-USA-PA01","CAP4","LG-TN","LG-USA-MI","SAV","HOU03","LOCTEKOMS_HOU07","LECANGS_HOU05","LECANGS_CAT","LOCTEKOMS_NJF02")
+	AND a.datePaidPlatform >= "' . date('Y-m-d 16:00:00', strtotime('-7 day', strtotime($sale_day_num))) . '" 
+	AND a.datePaidPlatform < "' . date('Y-m-d 16:00:00', strtotime($sale_day_num)) . '";
+        ');
+        $this->assign('le_monthQty', $le_monthQty);
+
+        $lc_monthQty = $model->query('
+SELECT
+	SUM( b.qty ) qty
+FROM
+	mu_ecang_order a
+	LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id 
+WHERE
+	a.`status` != 5 
+	AND a.`status` != 7 
+	AND a.`status` != 0 
+	AND a.warehouseCode IN("LC-USLAX08","LC-USNJ06","USLAX09","LC-USATL06","LC-USLAX05","LC-USLAX01")
+	AND a.datePaidPlatform >= "' . date('Y-m-d 16:00:00', strtotime('-7 day', strtotime($sale_day_num))) . '" 
+	AND a.datePaidPlatform < "' . date('Y-m-d 16:00:00', strtotime($sale_day_num)) . '";
+        ');
+        $this->assign('lc_monthQty', $lc_monthQty);
+
+        $wyd_monthQty = $model->query('
+SELECT
+	SUM( b.qty ) qty
+FROM
+	mu_ecang_order a
+	LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id 
+WHERE
+	a.`status` != 5 
+	AND a.`status` != 7 
+	AND a.`status` != 0 
+	AND a.warehouseCode IN("WUYOUDA_CAJW04","WUYOUDA_NJJW03","WUYOUDA_CAJW05")
+	AND a.datePaidPlatform >= "' . date('Y-m-d 16:00:00', strtotime('-7 day', strtotime($sale_day_num))) . '" 
+	AND a.datePaidPlatform < "' . date('Y-m-d 16:00:00', strtotime($sale_day_num)) . '";
+        ');
+        $this->assign('wyd_monthQty', $wyd_monthQty);
 
         $orderQty = $model->query('
 SELECT

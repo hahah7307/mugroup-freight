@@ -25,6 +25,9 @@
                 <col>
                 <col>
                 <col>
+<!--                <col>-->
+                <col>
+                <col>
                 <col>
                 <col>
             </colgroup>
@@ -34,8 +37,11 @@
                 <th class="tr">今日库存数量(个)</th>
                 <th class="tr">上周销售库存数量(个)</th>
                 <th class="tr">今日发货包裹数(个)</th>
-                <th class="tr">周库存周转率</th>
-                <th class="tr">年库存周转率</th>
+<!--                <th class="tr">周库存周转率</th>-->
+                <th class="tr">乐歌年周转率</th>
+                <th class="tr">良仓年周转率</th>
+                <th class="tr">无忧达年周转率</th>
+                <th class="tr">综合年库存周转率</th>
             </tr>
             </thead>
             <tbody>
@@ -44,7 +50,10 @@
                     <td class="tr">{$sum.0.value|number_format}</td>
                     <td class="tr">{$monthQty.0.qty|number_format}</td>
                     <td class="tr">{$orderQty.0.count|number_format}</td>
-                    <td class="tr">{$monthQty.0.qty / (($last_sum.0.value + $sum.0.value) / 2)|round=###,2}</td>
+<!--                    <td class="tr">{$monthQty.0.qty / (($last_sum.0.value + $sum.0.value) / 2)|round=###,2}</td>-->
+                    <td class="tr">{$le_monthQty.0.qty / (($le_last_sum.0.value + $le_sum.0.value) / 2) * 52|round=###,2}</td>
+                    <td class="tr">{$lc_monthQty.0.qty / (($lc_last_sum.0.value + $lc_sum.0.value) / 2) * 52|round=###,2}</td>
+                    <td class="tr">{$wyd_monthQty.0.qty / (($wyd_last_sum.0.value + $wyd_sum.0.value) / 2) * 52|round=###,2}</td>
                     <td class="tr"><a href="{:url('inventory_turnover')}">{$monthQty.0.qty / (($last_sum.0.value + $sum.0.value) / 2) * 52|round=###,2}</a></td>
                 </tr>
             </tbody>
