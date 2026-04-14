@@ -1759,11 +1759,10 @@ class AmazonPayment extends Model
                     "fulfillment"               =>  "Seller",
                     "product_sales"             =>  round(str_replace(',', '', $item[11]), 2),
                     "selling_fees"              =>  round(str_replace(',', '', $item[19]), 2)
-                        + round(str_replace(',', '', $item[34]), 2)
                         + round(str_replace(',', '', $item[36]), 2)
-                        + round(str_replace(',', '', $item[41]), 2)
-                        + round(str_replace(',', '', $item[44]), 2)
-                        + round(str_replace(',', '', $item[45]), 2)
+                        + round(str_replace(',', '', $item[38]), 2)
+                        + round(str_replace(',', '', $item[42]), 2)
+                        + round(str_replace(',', '', $item[47]), 2)
                         + round(str_replace(',', '', $item[50]), 2),
                     "shipping_credits"          =>  0,
                     "gift_wrap_credits"         =>  0,
