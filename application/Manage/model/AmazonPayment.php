@@ -1085,6 +1085,8 @@ class AmazonPayment extends Model
                     && $item[7] != "SEM Marketing"
                     && $item[7] != "Review Accelerator"
                     && $item[7] != "Misc Invoices"
+                    && $item[7] != "WFS Fulfillment fee"
+                    && $item[7] != "WFS StorageFee"
                 ) {
                     $this->orderAdjustmentNew[] = [
                         "report_id"                 =>  $reportId,
