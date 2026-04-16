@@ -5,6 +5,7 @@ use app\Manage\model\FinanceOrderAdjustmentModel;
 use app\Manage\model\FinanceOrderRefundModel;
 use app\Manage\model\FinanceOrderSaleModel;
 use app\Manage\model\FinanceOrderStatisticsModel;
+use app\Manage\model\OrderDetailModel;
 use app\Manage\model\OrderModel;
 use Exception;
 use think\console\Command;
@@ -37,69 +38,45 @@ class FinanceSheinOrder extends Command
                         if ($sheinOrderStatistic) {
                             $item['sku'] = $sheinOrderStatistic['platform_sku'];
                         } else {
-                            $item['sku'] = '';
+                            $orderObj = new OrderModel();
+                            $order = $orderObj->with(['details'])->where(['refNo' => $item['payment_id']])->find();
+                            if ($order) {
+                                $item['sku'] = $order['details'][0]['productSku'];
+                            } else {
+                                $item['sku'] = '';
+                            }
                         }
                         $newOrder[] = $item->toArray();
                     }
                 }
+                unset($item);
                 $orderSaleObj->saveAll($newOrder);
             }
 
             $orderRefundObj = new FinanceOrderRefundModel();
-            $refund = $orderRefundObj->where('sku', null)->where(['payment_id' => [['like', 'GSU%']]])->limit(100)->select();
-            $newOrder = [];
-            if (count($refund)) {
-                foreach ($refund as $r) {
-                    if ($r) {
+            $orderRefund = $orderRefundObj->where('sku', null)->limit(100)->select();
+            $newOrderRefund = [];
+            if (count($orderRefund)) {
+                foreach ($orderRefund as $item) {
+                    if ($item) {
                         $statistic = new FinanceOrderStatisticsModel();
-                        $sheinOrderStatistic = $statistic->where(['payment_id' => $r['payment_id']])->find();
-                        if ($sheinOrderStatistic) {
-                            $r['sku'] = $sheinOrderStatistic['platform_sku'];
-                        } else {
-                            $r['sku'] = '';
-                        }
-                        $newOrder[] = $r->toArray();
-                    }
-                }
-                $orderRefundObj->saveAll($newOrder);
-            }
-
-            $orderTemuRefundObj = new FinanceOrderRefundModel();
-            $temuRefund = $orderTemuRefundObj->where('sku', null)->where(['payment_id' => [['like', 'PO-%']]])->limit(100)->select();
-            $newOrderTemu = [];
-            if (count($temuRefund)) {
-                foreach ($temuRefund as $t) {
-                    if ($t) {
-                        $statistic = new FinanceOrderStatisticsModel();
-                        $sheinOrderStatistic = $statistic->where(['payment_id' => $t['payment_id']])->find();
-                        if ($sheinOrderStatistic) {
-                            $t['sku'] = $sheinOrderStatistic['platform_sku'];
-                        } else {
-                            $t['sku'] = '';
-                        }
-                        $newOrderTemu[] = $t->toArray();
-                    }
-                }
-                $orderTemuRefundObj->saveAll($newOrderTemu);
-            }
-
-            $orderTkRefundObj = new FinanceOrderRefundModel();
-            $tkRefund = $orderTkRefundObj->where('sku', null)->limit(100)->select();
-            $newOrderTk = [];
-            if (count($tkRefund)) {
-                foreach ($tkRefund as $t) {
-                    if ($t) {
-                        $statistic = new FinanceOrderStatisticsModel();
-                        $tkOrderStatistic = $statistic->where(['payment_id' => $t['payment_id']])->find();
+                        $tkOrderStatistic = $statistic->where(['payment_id' => $item['payment_id']])->find();
                         if ($tkOrderStatistic) {
-                            $t['sku'] = $tkOrderStatistic['platform_sku'];
+                            $item['sku'] = $tkOrderStatistic['platform_sku'];
                         } else {
-                            $t['sku'] = '';
+                            $orderObj = new OrderModel();
+                            $order = $orderObj->with(['details'])->where(['refNo' => $item['payment_id']])->find();
+                            if ($order) {
+                                $item['sku'] = $order['details'][0]['productSku'];
+                            } else {
+                                $item['sku'] = '';
+                            }
                         }
-                        $newOrderTk[] = $t->toArray();
+                        $newOrderRefund[] = $item->toArray();
                     }
                 }
-                $orderTkRefundObj->saveAll($newOrderTk);
+                unset($item);
+                $orderRefundObj->saveAll($newOrderRefund);
             }
 
             $orderAdjustmentObj = new FinanceOrderAdjustmentModel();
