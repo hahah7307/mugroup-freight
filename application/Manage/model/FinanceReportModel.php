@@ -2298,12 +2298,11 @@ FROM
 			ROUND( a.cny_actual_paid / c.USD, 2 ) evaluation_amount 
 		FROM
 			mu_finance_evaluation a
-			LEFT JOIN mu_finance_order_statistics b ON a.payment = b.saleOrderCode
+			LEFT JOIN mu_finance_order_statistics b ON a.payment = b.payment_id AND a.warehouse_sku = b.warehouse_sku
 			LEFT JOIN mu_finance_report c ON a.report_id = c.id
 			LEFT JOIN mu_ecang_order d ON a.payment = d.saleOrderCode 
 		WHERE
-			d.fulfillmentType = 1 
-			AND a.report_id = ' . $report_id . ' 
+			a.report_id = ' . $report_id . ' 
 			AND b.platform = "walmart" UNION ALL
 		SELECT
 			"walmart" AS platform,
