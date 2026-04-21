@@ -161,10 +161,10 @@ class FinanceWildberriesController extends BaseController
             $financeWildberriesFeeObj = new FinanceWildberriesFeeModel();
             foreach ($data as $item) {
                 if ($item[0]) {
-                    $order = $financeWildberriesFeeObj->where(['order_no' => $item[0]])->find();
-                    if (!empty($order)) {
-                        continue;
-                    }
+//                    $order = $financeWildberriesFeeObj->where(['order_no' => $item[0]])->find();
+//                    if (!empty($order)) {
+//                        continue;
+//                    }
                     $orderData[] = [
                         'order_no'		    =>	$item[0],
                         'product_name'		=>	$item[1],
