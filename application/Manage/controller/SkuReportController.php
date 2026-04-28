@@ -3851,4 +3851,109 @@ ORDER BY
         Session::set(Config::get('BACK_URL'), $this->request->url(), 'manage');
         return view();
     }
+
+    /**
+     * @throws BindParamException
+     * @throws PDOException
+     */
+    public function sku_sale_profit(): \think\response\View
+    {
+        $sku = $this->request->get('sku', '', 'htmlspecialchars');
+        $this->assign('sku', $sku);
+        if (!empty($sku)) {
+            $skuList = array_filter(preg_split('/\r\n|\r|\n/', $sku));
+            $skuSql = 'AND a.warehouse_sku IN ("' . implode('", "', $skuList) . '")';
+        } else {
+            $skuSql = '';
+        }
+
+        $name = $this->request->get('name', '', 'htmlspecialchars');
+        $this->assign('name', $name);
+
+        $start_date = $this->request->get('start_date', date('Y-m', strtotime('-1 month')), 'htmlspecialchars');
+        $this->assign('start_date', $start_date);
+
+        $end_date = $this->request->get('end_date', date('Y-m', strtotime('-1 month')), 'htmlspecialchars');
+        $this->assign('end_date', $end_date);
+        $end_date_top = date('Y-m-d', strtotime('+1 day', strtotime($end_date . '-01')));
+
+        $model = new ProductModel();
+        $storeList = $model->query('
+SELECT
+	SUM( profit ) value,
+	`month` `name`
+FROM
+	mu_finance_report_snapshot a
+	LEFT JOIN mu_ecang_product b ON a.warehouse_sku = b.productSku 
+WHERE
+	b.productTitle LIKE "%' . $name . '%" 
+	AND b.saleStatus IN ( 2, 16, 18 ) 
+	AND a.`month` >= "' . $start_date . '"
+	AND a.`month` <= "' . $end_date_top . '"
+	' . $skuSql . '
+GROUP BY
+	`name` 
+ORDER BY
+	`name` ASC;
+        ');
+
+        $storeList2 = $model->query('
+SELECT
+	SUM( profit ) value,
+	`month` `name`
+FROM
+	mu_finance_report_snapshot a
+	LEFT JOIN mu_ecang_product b ON a.warehouse_sku = b.productSku 
+WHERE
+	b.productTitle LIKE "%' . $name . '%" 
+	AND b.saleStatus IN ( 2, 16, 18 ) 
+	AND a.`month` >= "' . date('Y-m', strtotime('-1 year', strtotime($start_date . '-01'))) . '"
+	AND a.`month` <= "' . date('Y-m', strtotime('-1 year', strtotime($end_date_top . '-01'))) . '"
+	' . $skuSql . '
+GROUP BY
+	`name` 
+ORDER BY
+	`name` ASC;
+        ');
+
+        $storeList3 = $model->query('
+SELECT
+	SUM( profit ) value,
+	`month` `name`
+FROM
+	mu_finance_report_snapshot a
+	LEFT JOIN mu_ecang_product b ON a.warehouse_sku = b.productSku 
+WHERE
+	b.productTitle LIKE "%' . $name . '%" 
+	AND b.saleStatus IN ( 2, 16, 18 ) 
+	AND a.`month` >= "' . date('Y-m', strtotime('-2 year', strtotime($start_date . '-01'))) . '"
+	AND a.`month` <= "' . date('Y-m', strtotime('-2 year', strtotime($end_date_top . '-01'))) . '"
+	' . $skuSql . '
+GROUP BY
+	`name` 
+ORDER BY
+	`name` ASC;
+        ');
+
+        $storeData[] = [
+            'date',
+            '2024',
+            '2025',
+            '2026'
+        ];
+
+        $count = max(count($storeList), count($storeList2), count($storeList3));
+        for ($i = 0; $i < $count; $i ++) {
+            $storeData[] = [
+                substr($storeList2[$i]['name'], -2) . '月',
+                $storeList3[$i]['value'] ?? 0,
+                $storeList2[$i]['value'] ?? 0,
+                $storeList[$i]['value'] ?? 0
+            ];
+        }
+        $this->assign('storeData', json_encode($storeData));
+
+        Session::set(Config::get('BACK_URL'), $this->request->url(), 'manage');
+        return view();
+    }
 }

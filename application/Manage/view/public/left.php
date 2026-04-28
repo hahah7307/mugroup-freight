@@ -86,11 +86,12 @@
                         <dd><a layui-href="{:url('Echarts/listing_group')}">Listing产品组</a></dd>
                         <dd><a layui-href="{:url('SkuReport/warehouse_tail')}">海外仓尾程</a></dd>
                         <dd><a layui-href="{:url('SkuReport/warehouse_rent')}">海外仓仓租</a></dd>
-                        <dd><a layui-href="{:url('FinanceReport/index')}">月度财报利润柱状图</a></dd>
-                        <dd><a layui-href="{:url('FinanceReport/platform_profit')}">月度财报利润多平台柱状图</a></dd>
-                        <dd><a layui-href="{:url('FinanceReport/index_group_multi')}">多品类利润柱状图</a></dd>
-                        <dd><a layui-href="{:url('FinanceReport/pie_chart')}">月度财报利润饼状图</a></dd>
-                        <dd><a layui-href="{:url('SkuReport/sku_sale_qty')}">产品销量年度对比柱状图</a></dd>
+                        <dd><a layui-href="{:url('FinanceReport/index')}">财报利润柱状图</a></dd>
+                        <dd><a layui-href="{:url('FinanceReport/platform_profit')}">财报利润多平台柱状图</a></dd>
+                        <dd><a layui-href="{:url('FinanceReport/index_group_multi')}">品类利润柱状图</a></dd>
+                        <dd><a layui-href="{:url('FinanceReport/pie_chart')}">财报利润饼状图</a></dd>
+                        <dd><a layui-href="{:url('SkuReport/sku_sale_qty')}">销量对比柱状图</a></dd>
+                        <dd><a layui-href="{:url('SkuReport/sku_sale_profit')}">利润对比柱状图</a></dd>
                     </dl>
                 </li>
                 <li data-name="Product" class="layui-nav-item">

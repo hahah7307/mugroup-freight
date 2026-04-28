@@ -24,7 +24,7 @@
 <script src="/static/echarts/test/lib/jquery.min.js"></script>
 <div class="layui-body" id="LAY_app_body">
     <div class="right">
-        <div class="title">产品销量年度对比柱状图</strong></div>
+        <div class="title">销量对比柱状图</strong></div>
         <form class="layui-form" method="get">
             <div class="layui-input-inline w80">
                 <input type="checkbox" name="switch" lay-skin="switch" lay-text="按月|按日" lay-filter="typeSwitch" {if condition="$type eq 1"}checked{/if}>
@@ -116,7 +116,7 @@
         const category_3 = echarts.init(document.getElementById("main_3"));
         category_3.setOption({
             title: {
-                text: '产品总销量对比柱状图（单位：个）',
+                text: '销量对比柱状图（单位：个）',
                 // subtext: 'Fake Data',
                 left: 'center'
             },
@@ -138,7 +138,7 @@
         const category_4 = echarts.init(document.getElementById("main_4"));
         category_4.setOption({
             title: {
-                text: '产品日均销量对比柱状图（单位：个）',
+                text: '日均销量对比柱状图（单位：个）',
                 // subtext: 'Fake Data',
                 left: 'center'
             },
