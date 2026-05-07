@@ -130,4 +130,51 @@ ORDER BY
         echo json_encode(['code' => 200, 'data' => ['list' => $list]]);
         exit();
     }
+
+    /**
+     * @throws DbException
+     */
+    public function getSkuDailySales()
+    {
+        $ip = get_real_ip();
+        if (!in_array($ip, ['127.0.0.1', '122.227.159.146', '139.224.106.228', '47.100.200.11'])) {
+            echo json_encode(['code' => 100, 'msg' => '未被允许的请求！']);
+            exit();
+        }
+
+        $post = $this->request->post();
+        $sale_next = date('Y-m-d', strtotime('+1 day', strtotime($post['sale_end'])));
+        $model = new OrderModel();
+        $list = $model->query('
+SELECT
+    month,
+    userAccount,
+    total_qty,
+    total_qty /
+    (
+        DATEDIFF(
+            LEAST(LAST_DAY(STR_TO_DATE(CONCAT(month, "-01"), "%Y-%m-%d")), "' . $post['sale_end'] . '"),
+            GREATEST(STR_TO_DATE(CONCAT(month, "-01"), "%Y-%m-%d"), "' . $post['sale_start'] . '")
+        ) + 1
+    ) AS avg_daily_qty
+FROM (
+    SELECT
+        DATE_FORMAT(a.datePaidPlatform, "%Y-%m") AS month,
+        a.userAccount,
+        SUM(b.qty) AS total_qty
+    FROM mu_ecang_order a
+    LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id
+    WHERE
+        b.warehouseSku = "' . $post['sku'] . '"
+        AND a.datePaidPlatform >= "' . $post['sale_start'] . '"
+        AND a.datePaidPlatform < "' . $sale_next . '"
+    GROUP BY
+        month,
+        a.userAccount
+) t;
+        ');
+
+        echo json_encode(['code' => 200, 'data' => ['list' => $list]]);
+        exit();
+    }
 }
