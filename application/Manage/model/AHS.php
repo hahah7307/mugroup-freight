@@ -37,7 +37,7 @@ class AHS extends Model
         return ceil($length[0] / self::CM2INCHES) > 96
             || (ceil($length[0] / self::CM2INCHES) + (ceil($length[1]/ self::CM2INCHES) + ceil($length[2] / self::CM2INCHES)) * 2) > 130
             || ceil($length[0] / self::CM2INCHES) * ceil($length[1] / self::CM2INCHES) * ceil($length[2] / self::CM2INCHES) > 17280
-            || ceil($w * self::CM2INCHES) > 110;
+            || ceil($w) > 110;
     }
 
     /**
@@ -65,8 +65,9 @@ class AHS extends Model
         $w *= self::KG2LBS;
         $weightFee = self::AHSWeight($w) ? StorageAhsRuleModel::getAHSFee($storage, 1, $zone, $order) : 0;
         $dimensionFee = self::AHSDimension($a, $b, $c) ? StorageAhsRuleModel::getAHSFee($storage, 2, $zone, $order) : 0;
+        $osFee = self::OSFedex($a, $b, $c, $w) ? StorageAhsRuleModel::getAHSFee($storage, 8, $zone, $order) : 0;
 
-        return max($weightFee, $dimensionFee);
+        return max($weightFee, $dimensionFee, $osFee);
     }
 
     /**
@@ -85,8 +86,9 @@ class AHS extends Model
             $weightFee = 0;
         }
         $dimensionFee = self::AHSDimension($a, $b, $c) ? StorageAhsRuleModel::getAHSFee($storage, 5, $zone, $order) : 0;
+        $osFee = self::OSFedex($a, $b, $c, $w) ? StorageAhsRuleModel::getAHSFee($storage, 10, $zone, $order) : 0;
 
-        return max($weightFee, $dimensionFee);
+        return max($weightFee, $dimensionFee, $osFee);
     }
 
     /**
@@ -103,8 +105,9 @@ class AHS extends Model
             $weightFee = 0;
         }
         $dimensionFee = self::AHSDimension($a, $b, $c) ? StorageAhsRuleModel::getAHSFee($storage, 7, $zone, $order) : 0;
+        $osFee = self::OSFedex($a, $b, $c, $w) ? StorageAhsRuleModel::getAHSFee($storage, 12, $zone, $order) : 0;
 
-        return max($weightFee, $dimensionFee);
+        return max($weightFee, $dimensionFee, $osFee);
     }
 
     /**

@@ -34,7 +34,7 @@ class OrderCalculate extends Command
         $data = OrderCalculateModel::find()->toArray();
 
         $orderObj = new OrderModel();
-        $list = $orderObj->order('id asc')->limit($data['offset'] . ", " . $data['page_num'])->select();
+        $list = $orderObj->where('id', '>', $data['offset'])->order('id asc')->limit($data['page_num'])->select();
         foreach ($list as $item) {
             OrderModel::orderId2DeliverParams($item['id']);
         }
