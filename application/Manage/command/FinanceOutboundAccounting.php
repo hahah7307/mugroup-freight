@@ -35,12 +35,16 @@ class FinanceOutboundAccounting extends Command
                 $updateData = [];
                 foreach ($list as $item) {
                     if ($item) {
-                        $orderStatistic = $orderStatisticObj->where(['saleOrderCode' => $item])->select();
+                        $orderStatistic = $orderStatisticObj->where(['saleOrderCode' => $item['saleOrderCode']])->select();
                         if (!empty($orderStatistic)) {
                             foreach ($orderStatistic as $value) {
+                                $monthList = array_filter(explode(',', $value['accounting_month']));
+                                $monthList[] = $item['month'];
+                                $monthField = implode(',', $monthList);
                                 $updateData[] = [
                                     'id'                =>  $value['id'],
                                     'is_finished'       =>  1,
+                                    'accounting_month'  =>  $monthField
                                 ];
                             }
                         }

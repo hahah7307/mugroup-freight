@@ -933,9 +933,11 @@ class FinanceController extends BaseController
         if ($this->request->isPost()) {
             $post = $this->request->post();
             $report_id = $post['id'];
+            $report = FinanceReportModel::get($report_id);
 
             $outboundObj = new FinanceOrderOutboundModel();
-            $list = $outboundObj->where(['report_id' => $report_id])->select()->column('saleOrderCode');
+            $list = $outboundObj->where(['report_id' => $report_id])->field("saleOrderCode, '".$report['month'] . "' as month")->select()->toArray();
+            Cache::clear();
 
             $outboundAccounting = Cache::get('outboundAccounting');
             if (Cache::set('outboundAccounting', array_merge((array)$outboundAccounting, (array)$list), 48 * 60 * 60)) {
