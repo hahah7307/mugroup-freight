@@ -2496,6 +2496,49 @@ class FinanceExcelInit extends Model
         }
     }
 
+    /**
+     * @throws DbException
+     * @throws ModelNotFoundException
+     * @throws DataNotFoundException
+     */
+    public function getDateProductPerformanceSql($index, $list)
+    {
+        if ($index) {
+            // create new sheet
+            $this->objPHPExcel->createSheet();
+        }
+
+        // Set name sheet
+        $this->objPHPExcel->setActiveSheetIndex($index)->setTitle('产品表现');
+
+        // Add some data
+        $this->objPHPExcel->setActiveSheetIndex($index)
+            ->setCellValue('A1', 'seller_sku')
+            ->setCellValue('B1', 'sid')
+            ->setCellValue('C1', 'asin')
+            ->setCellValue('D1', 'r_date')
+            ->setCellValue('E1', 'currency_code')
+            ->setCellValue('F1', 'product_name')
+            ->setCellValue('G1', 'map_value')
+            ->setCellValue('H1', 'created_date')
+        ;
+
+        $wildberriesIndex = 1;
+        foreach ($list as $item) {
+            $wildberriesIndex ++;
+            $this->objPHPExcel->setActiveSheetIndex($index)
+                ->setCellValue('A' . $wildberriesIndex, $item['seller_sku'])
+                ->setCellValue('B' . $wildberriesIndex, $item['sid'])
+                ->setCellValue('C' . $wildberriesIndex, $item['asin'])
+                ->setCellValue('D' . $wildberriesIndex, $item['r_date'])
+                ->setCellValue('E' . $wildberriesIndex, $item['currency_code'])
+                ->setCellValue('F' . $wildberriesIndex, $item['product_name'])
+                ->setCellValue('G' . $wildberriesIndex, $item['map_value'])
+                ->setCellValue('H' . $wildberriesIndex, $item['created_date'])
+            ;
+        }
+    }
+
     public function excelSheetSet()
     {
         return $this->objPHPExcel;

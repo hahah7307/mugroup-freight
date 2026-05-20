@@ -113,6 +113,7 @@
                     </a>
                     <dl class="layui-nav-child">
                         <dd><a layui-href="{:url('Task/index')}">任务跟踪</a></dd>
+                        <dd><a layui-href="{:url('Product/performance')}">产品表现</a></dd>
 <!--                        <dd><a layui-href="{:url('WarehouseShipment/area_diff')}">仓点核算</a></dd>-->
                         <dd><a layui-href="{:url('WarehouseShipment/warehouse_cost')}">仓点费用</a></dd>
                         <dd><a layui-href="{:url('Param/warehouse_cost')}">参数配置</a></dd>

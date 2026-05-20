@@ -57,4 +57,5 @@ return [
     'app\Manage\command\OrderCalculateUp', //
     'app\Manage\command\WydInventoryBatch', //
     'app\Manage\command\ProductUpdateWyd', //
+    'app\Manage\command\AkAmazonDailyList', //
 ];
