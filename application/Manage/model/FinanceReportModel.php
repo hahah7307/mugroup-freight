@@ -233,7 +233,8 @@ FROM
 			sku 
 		) a
 		LEFT JOIN mu_finance_order_statistics b ON a.payment_id = b.payment_id 
-		AND a.sku = b.platform_sku
+		AND (a.sku = b.platform_sku
+		OR a.sku = b.seller_sku)
 		LEFT JOIN mu_finance_table c ON a.table_id = c.id 
 	WHERE
 		c.platform != "wildberries" 
