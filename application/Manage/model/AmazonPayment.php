@@ -1759,6 +1759,7 @@ class AmazonPayment extends Model
                     "date"                      =>  date('Y-m-d H:i:s', strtotime($item[0])),
                     "payment_id"                =>  $item[4],
                     "fulfillment"               =>  "Seller",
+                    "quantity"                  =>  $item[6],
                     "product_sales"             =>  round(str_replace(',', '', $item[11]), 2),
                     "selling_fees"              =>  round(str_replace(',', '', $item[19]), 2)
                         + round(str_replace(',', '', $item[38]), 2)
@@ -1783,6 +1784,7 @@ class AmazonPayment extends Model
                     "date"                      =>  date('Y-m-d H:i:s', strtotime($item[0])),
                     "payment_id"                =>  $item[4],
                     "fulfillment"               =>  "Seller",
+                    "quantity"                  =>  $item[6],
                     "product_sales"             =>  round(str_replace(',', '', $item[14]), 2),
                     "selling_fees"              =>  round(str_replace(',', '', $item[20]), 2),
                     "shipping_credits"          =>  0,
