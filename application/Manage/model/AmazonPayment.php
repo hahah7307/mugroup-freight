@@ -1437,6 +1437,7 @@ class AmazonPayment extends Model
                             "fulfillment"               =>  "Seller",
                             "product_sales"             =>  sprintf('%.2f', str_replace(',', '', $item[5])),
                             "selling_fees"              =>  0,
+                            "quantity"                  =>  $item[9],
                             "shipping_credits"          =>  0,
                             "gift_wrap_credits"         =>  0,
                             "regulatory_fee"            =>  0,
@@ -1452,6 +1453,7 @@ class AmazonPayment extends Model
                             "fulfillment"               =>  "Seller",
                             "product_sales"             =>  sprintf('%.2f', str_replace(',', '', $item[5])),
                             "selling_fees"              =>  0,
+                            "quantity"                  =>  $item[9],
                             "shipping_credits"          =>  0,
                             "gift_wrap_credits"         =>  0,
                             "regulatory_fee"            =>  0,
@@ -1752,7 +1754,7 @@ class AmazonPayment extends Model
                 $this->userAccount = $order['userAccount'];
             }
 
-            if (!empty($item[0])) {
+            if ($item[3] == "Order") {
                 $this->orderSaleNew[] = [
                     "report_id"                 =>  $reportId,
                     "table_id"                  =>  $tableId,
