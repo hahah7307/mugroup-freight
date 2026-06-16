@@ -2357,6 +2357,40 @@ class FinanceController extends BaseController
     }
 
     /**
+     * @throws DataNotFoundException
+     * @throws DbException
+     * @throws ModelNotFoundException
+     * @throws \Exception
+     */
+    public function relation_refresh()
+    {
+        if ($this->request->isPost()) {
+            $post = $this->request->post();
+            $reportId = $post['id'];
+            $skuRelationObj = new FinanceSkuRelationModel();
+            $list = $skuRelationObj->where(['report_id' => $reportId, 'product_name' => NULL])->select()->toArray();
+            foreach ($list as $key => $item) {
+                $productModel = new ProductModel();
+                $product = $productModel->where(['productSku' => $item['warehouse_sku']])->find();
+                if ($product) {
+                    $list[$key]['product_name'] = $product['productTitle'];
+                    $list[$key]['unit_price'] = $product['sp_unit_price'];
+                    $list[$key]['warehouse_name'] = '全部仓库';
+                }
+            }
+            if ($skuRelationObj->saveAll($list)) {
+
+                echo json_encode(['code' => 1, 'msg' => '更新完成']);
+            } else {
+                echo json_encode(['code' => 0, 'msg' => '更新失败，请重试']);
+            }
+        } else {
+            echo json_encode(['code' => 0, 'msg' => '异常操作']);
+        }
+        exit;
+    }
+
+    /**
      * @throws DbException
      */
     public function operation_expenses($id): \think\response\View

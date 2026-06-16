@@ -22,6 +22,7 @@
             <a class="layui-btn" href="{:url('relation_add', ['id' => $report_id])}">添加</a>
             <button type="button" class="layui-btn  layui-btn-normal" id="excel">导入</button>
             <button data-id="{$report_id}" class="layui-btn layui-btn-danger ml0" lay-submit lay-filter="Empty">清空</button>
+            <button data-id="{$report_id}" class="layui-btn layui-btn-normal ml0" lay-submit lay-filter="Refresh">刷新</button>
             <table class="layui-table" lay-size="sm">
                 <colgroup>
                     <col>
@@ -115,6 +116,36 @@
                 $('button').attr('disabled',true);
                 button.text('请稍候...');
                 axios.post("{:url('relation_empty')}", {id:id})
+                    .then(function (response) {
+                        var res = response.data;
+                        if (res.code === 1) {
+                            layer.alert(res.msg,{icon:1,closeBtn:0,title:false,btnAlign:'c',},function(){
+                                location.reload();
+                            });
+                        } else {
+                            layer.alert(res.msg,{icon:2,closeBtn:0,title:false,btnAlign:'c'},function(){
+                                layer.closeAll();
+                                $('button').attr('disabled',false);
+                                button.text(text);
+                            });
+                        }
+                    })
+                    .catch(function (error) {
+                        console.log(error);
+                    });
+                return false;
+            });
+        });
+
+        // 刷新
+        form.on('submit(Refresh)', function(data){
+            var text = $(this).text(),
+                button = $(this),
+                id = $(this).data('id');
+            layer.confirm('确定刷新列表吗？',{icon:3,closeBtn:0,title:false,btnAlign:'c'},function(){
+                $('button').attr('disabled',true);
+                button.text('请稍候...');
+                axios.post("{:url('relation_refresh')}", {id:id})
                     .then(function (response) {
                         var res = response.data;
                         if (res.code === 1) {
