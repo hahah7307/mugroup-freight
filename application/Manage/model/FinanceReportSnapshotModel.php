@@ -450,6 +450,7 @@ class FinanceReportSnapshotModel extends Model
                 'amount'                                    =>  $tiktokItem['amount'] ?: 0,
                 'sale_selling_fees'                         =>  $tiktokItem['sale_selling_fees'] ?: 0,
                 'refund_selling_fees'                       =>  $tiktokItem['refund_selling_fees'] ?: 0,
+                'fba_fees'                                  =>  $tiktokItem['fba_fees'] ?: 0,
                 'calcuRes'                                  =>  $tiktokItem['calcuRes'] ?: 0,
                 'ddp'                                       =>  $tiktokItem['ddp'] ?: 0,
                 'adCost'                                    =>  $tiktokItem['adCost'] ?: 0,
@@ -533,6 +534,39 @@ class FinanceReportSnapshotModel extends Model
 
         if ($hdArr) {
             return $snapshotObj->insertAll($hdArr);
+        } else {
+            return true;
+        }
+    }
+
+    /**
+     * @throws PDOException
+     * @throws BindParamException
+     */
+    static public function noOutboundSnapshot($report) {
+        $snapshotObj = new FinanceReportSnapshotModel();
+        $noOutboundWarehouseSku = $snapshotObj->query(FinanceReportModel::getPaymentNoOutboundSql($report['id']));
+        $noOutboundArr = [];
+        foreach ($noOutboundWarehouseSku as $noOutboundItem) {
+            $noOutboundArr[] = [
+                'report_id'                                 =>  $report['id'],
+                'month'                                     =>  $report['month'],
+                'platform'                                  =>  $noOutboundItem['platform'],
+                'user_account'                              =>  $noOutboundItem['userAccount'],
+                'warehouse_sku'                             =>  $noOutboundItem['warehouse_sku'],
+                'sale_qty'                                  =>  $noOutboundItem['quantity'] ?: 0,
+                'qty_amount'                                =>  $noOutboundItem['quantity'] ?: 0,
+                'sale_amount'                               =>  $noOutboundItem['payment_amount'] ?: 0,
+                'amount'                                    =>  $noOutboundItem['payment_amount'] ?: 0,
+                'sale_selling_fees'                         =>  $noOutboundItem['payment_selling_fees'] ?: 0,
+                'fba_fees'                                  =>  $noOutboundItem['payment_fba_fees'] ?: 0,
+                'profit'                                    =>  $noOutboundItem['payment_amount'] + $noOutboundItem['payment_selling_fees'] + $noOutboundItem['payment_fba_fees'] ?: 0,
+                'profit_include_evaluation'                 =>  $noOutboundItem['payment_amount'] + $noOutboundItem['payment_selling_fees'] + $noOutboundItem['payment_fba_fees'] ?: 0,
+            ];
+        }
+
+        if ($noOutboundArr) {
+            return $snapshotObj->insertAll($noOutboundArr);
         } else {
             return true;
         }

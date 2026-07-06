@@ -1002,6 +1002,9 @@ class FinanceController extends BaseController
                 $shareObj = new FinanceOrderShareModel();
                 $shareObj->where('report_id', $reportId)->delete();
 
+                $snapshotObj = new FinanceReportSnapshotModel();
+                $snapshotObj->where('report_id', $reportId)->delete();
+
                 $refundObj = new FinanceOrderRefundModel();
                 $refundObj->where(['report_id' => $reportId])->update(['share_code' => null]);
 
@@ -1172,6 +1175,9 @@ class FinanceController extends BaseController
                 $financeReportObj = new FinanceReportModel();
                 $financeReportObj->save(['is_share' => 1], ['id' => $reportId]);
                 $financeReportObj->save(['is_notify' => 0], ['id' => $reportId]);
+
+                $snapshotObj = new FinanceReportSnapshotModel();
+                $snapshotObj->where('report_id', $reportId)->delete();
 
                 Db::commit();
                 echo json_encode(['code' => 1, 'msg' => '清空完成']);
@@ -2602,6 +2608,7 @@ class FinanceController extends BaseController
                         && FinanceReportSnapshotModel::EbaySnapshot($report)
                         && FinanceReportSnapshotModel::TiktokSnapshot($report)
                         && FinanceReportSnapshotModel::HomeDepotSnapshot($report)
+                        && FinanceReportSnapshotModel::noOutboundSnapshot($report)
                     ) {
 
                         Db::commit();
