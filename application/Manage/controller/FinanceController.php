@@ -1139,7 +1139,7 @@ class FinanceController extends BaseController
                         'seller'                    =>  $item[23],
                         'purchaser'                 =>  $item[24],
                         'arriving_date'             =>  date('Ymd', strtotime($item[27])),
-                        'contact_no'                =>  $item[25] . $item[28]
+                        'contact_no'                =>  $item[28]
                     ];
                 }
             }

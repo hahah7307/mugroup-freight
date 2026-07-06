@@ -78,7 +78,7 @@
                     <td>{$v.saleOrderCode}</td>
                     <td>{$v.payment_id}</td>
                     <td>{$v.store.export_no}</td>
-                    <td>{$v.store.content}</td>
+                    <td>{$v.store.contact_no}</td>
                     <td>{$v.seller_sku}</td>
                     <td>{$v.warehouse_sku}</td>
                     <td>{$v.fulfillment}</td>
