@@ -1150,6 +1150,14 @@ class FinanceController extends BaseController
             if(!$financeStoreObj->insertAll($storeData)) {
                 throw new \think\Exception('表格导入失败！');
             }
+
+            // 留存resend订单
+            $reportObj = new FinanceReportModel();
+            $report = $reportObj->find($report_id);
+            if (!FinanceReportSnapshotModel::OrderResendSave($report)) {
+                throw new \think\Exception('Resend订单结存失败！');
+            }
+
             Db::commit();
         } catch (Exception $e) {
             Db::rollback();
@@ -2609,6 +2617,7 @@ class FinanceController extends BaseController
                         && FinanceReportSnapshotModel::TiktokSnapshot($report)
                         && FinanceReportSnapshotModel::HomeDepotSnapshot($report)
                         && FinanceReportSnapshotModel::noOutboundSnapshot($report)
+                        && FinanceReportSnapshotModel::ResendSnapshot($report)
                     ) {
 
                         Db::commit();

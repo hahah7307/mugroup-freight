@@ -571,4 +571,60 @@ class FinanceReportSnapshotModel extends Model
             return true;
         }
     }
+
+    /**
+     * @throws PDOException
+     * @throws BindParamException
+     */
+    static public function OrderResendSave($report) {
+        $orderResendOnj = new FinanceOrderResendModel();
+        $hdWarehouseSku = $orderResendOnj->query(FinanceReportModel::getOrderResend($report['id'], $report['month']));
+        $resendArr = [];
+        foreach ($hdWarehouseSku as $resendItem) {
+            $resendItem['report_id'] = $report['id'];
+        }
+
+        if ($resendArr) {
+            return $orderResendOnj->insertAll($resendArr);
+        } else {
+            return true;
+        }
+    }
+
+    /**
+     * @throws PDOException
+     */
+    static public function ResendSnapshot($report) {
+        $snapshotObj = new FinanceReportSnapshotModel();
+        $financeOrderResendObj = new FinanceOrderResendModel();
+        $resendList = $financeOrderResendObj->with(['store'])->where(['report_id' => $report['report_id']])->select();
+        $resendArr = [];
+        if (count($resendList) > 0) {
+            foreach ($resendList as $resendItem) {
+                $resendArr[] = [
+                    'report_id'                                 =>  $report['id'],
+                    'month'                                     =>  $report['month'],
+                    'platform'                                  =>  $resendItem['platform'],
+                    'user_account'                              =>  $resendItem['user_account'],
+                    'warehouse_sku'                             =>  $resendItem['warehouse_sku'],
+                    'seller'                                    =>  $resendItem['seller'],
+                    'purchaser'                                 =>  $resendItem['purchaser'],
+                    'sale_qty'                                  =>  $resendItem['qty'] ?: 0,
+                    'qty_amount'                                =>  $resendItem['qty'] ?: 0,
+                    'sale_amount'                               =>  0,
+                    'amount'                                    =>  0,
+                    'calcuRes'                                  =>  $resendItem['tail'] ?: 0,
+                    'ddp'                                       =>  $resendItem['store']['sku_ddp_unit'] * $resendItem['qty'] ?: 0,
+                    'profit'                                    =>  $resendItem['tail'] * -1 + $resendItem['store']['sku_ddp_unit'] * $resendItem['qty'] * -1 ?: 0,
+                    'profit_include_evaluation'                 =>  $resendItem['tail'] * -1 + $resendItem['store']['sku_ddp_unit'] * $resendItem['qty'] * -1 ?: 0,
+                ];
+            }
+        }
+
+        if ($resendArr) {
+            return $snapshotObj->insertAll($resendArr);
+        } else {
+            return true;
+        }
+    }
 }

@@ -2,6 +2,7 @@
 namespace app\Manage\command;
 
 use app\Manage\model\FinanceOrderOutboundModel;
+use app\Manage\model\FinanceOrderResendModel;
 use app\Manage\model\FinanceOrderShareValidate;
 use app\Manage\model\FinanceStoreModel;
 use Exception;
@@ -62,6 +63,49 @@ class FinanceOutboundNotify extends Command
                         }
                     }
                     unset($outboundCount);
+                }
+                unset($item);
+            }
+
+            // 所有出库订单全部匹配完才可以执行补发订单匹配
+            $NoOutboundCount = $financeOutboundObj->where(['is_notify' => 0])->count();
+            if ($NoOutboundCount <= 0) {
+                $financeResendObj = new FinanceOrderResendModel();
+                $resend = $financeResendObj->where(['is_notify' => 0])->limit(Config::get('finance_notify_num'))->order('paid_time asc')->select();
+                if (count($resend)) {
+                    $financeStoreObj = new FinanceStoreModel();
+                    foreach ($resend as $item) {
+                        if (!FinanceOrderShareValidate::CompleteStoreImport($item['report_id'])) {
+                            continue;
+                        }
+
+                        $sku = $item['warehouse_sku'];
+                        $storeItems = $financeStoreObj->where(['sku' => $sku, 'report_id' => $item['report_id']])->order('entering_date asc,shipment_date asc, export_no asc')->select(); // 剩余库存
+                        if (count($storeItems) <= 0) {
+                            $financeResendObj->update(['is_notify' => 1], ['id' => $item['id']]);
+                        } else {
+                            $outboundCount = $financeOutboundObj->where(['warehouse_sku' => $sku, 'report_id' => $item['report_id'], 'is_notify' => 1])->sum('qty'); // 已发总计
+                            $resendCount = $financeResendObj->where(['warehouse_sku' => $sku, 'report_id' => $item['report_id'], 'is_notify' => 1])->sum('qty'); // 已发总计
+                            $shipmentCount = $outboundCount + $resendCount;
+                            foreach ($storeItems as $storeItem) {
+                                if ($shipmentCount + $item['qty'] > $storeItem['available_quantity']) {
+                                    $shipmentCount -= $storeItem['available_quantity'];
+                                } else {
+                                    $financeResendObj->update(['store_id' => $storeItem['id'], 'is_notify' => 1], ['id' => $item['id']]);
+                                    $shipmentCount = 0;
+                                    break;
+                                }
+                                unset($storeItem);
+                            }
+                            if ($shipmentCount >= 0) {
+                                $financeResendObj->update(['is_notify' => 1], ['id' => $item['id']]);
+                            }
+                        }
+                        unset($outboundCount);
+                        unset($resendCount);
+                        unset($shipmentCount);
+                    }
+                    unset($item);
                 }
             }
 
