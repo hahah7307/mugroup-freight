@@ -92,6 +92,7 @@
                         <dd><a layui-href="{:url('FinanceReport/pie_chart')}">财报利润饼状图</a></dd>
                         <dd><a layui-href="{:url('SkuReport/sku_sale_qty')}">销量对比柱状图</a></dd>
                         <dd><a layui-href="{:url('SkuReport/sku_sale_profit')}">利润对比柱状图</a></dd>
+                        <dd><a layui-href="{:url('SkuReport/warehouse_fbm')}">FBM仓租排行榜</a></dd>
                     </dl>
                 </li>
                 <li data-name="Product" class="layui-nav-item">

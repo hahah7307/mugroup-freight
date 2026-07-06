@@ -3956,4 +3956,45 @@ ORDER BY
         Session::set(Config::get('BACK_URL'), $this->request->url(), 'manage');
         return view();
     }
+
+    /**
+     * @throws DbException
+     */
+    public function warehouse_fbm(): \think\response\View
+    {
+        $sale_order = $this->request->get('sale_order', 'DESC', 'htmlspecialchars');
+        $this->assign('sale_order', $sale_order);
+
+        $sale_start = $this->request->get('sale_start', date('Y-m', strtotime('-1 month', strtotime(date('Y-m-01 00:00:00')))), 'htmlspecialchars');
+        $this->assign('sale_start', $sale_start);
+
+        $sale_end = $this->request->get('sale_end', date('Y-m'), 'htmlspecialchars');
+        $this->assign('sale_end', $sale_end);
+
+        $model = new ProductModel();
+        $saleList = $model->query('
+SELECT
+    t.main_sku,
+    c.productTitle,
+    c.productImages,
+    t.total
+FROM (
+    SELECT
+        a.main_sku,
+        SUM(a.total) AS total
+    FROM mu_finance_report b
+    JOIN mu_finance_warehouse_fbm a
+        ON a.report_id = b.id
+    WHERE b.month BETWEEN "' . $sale_start . '" AND "' . $sale_end . '"
+    GROUP BY a.main_sku
+) t
+LEFT JOIN mu_ecang_product c
+    ON c.productSku = t.main_sku
+ORDER BY t.total ' . $sale_order . ';
+        ');
+        $this->assign('saleList', $saleList);
+
+        Session::set(Config::get('BACK_URL'), $this->request->url(), 'manage');
+        return view();
+    }
 }
