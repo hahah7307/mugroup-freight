@@ -48,7 +48,7 @@
                     <th>名次</th>
                     <th>仓库Sku</th>
                     <th>产品图片</th>
-                    <th>销售(美金)</th>
+                    <th>仓储费(美金)</th>
                 </tr>
                 </thead>
                 <tbody>

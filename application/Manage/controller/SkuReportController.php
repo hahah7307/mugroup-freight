@@ -90,6 +90,58 @@ class SkuReportController extends BaseController
     }
 
     /**
+     * @throws DbException
+     */
+    public function profit_margin(): \think\response\View
+    {
+        $sale_order = $this->request->get('sale_order', 'DESC', 'htmlspecialchars');
+        $this->assign('sale_order', $sale_order);
+
+        $sale_start = $this->request->get('sale_start', date('Y-m', strtotime('-1 month', strtotime(date('Y-m-01 00:00:00')))), 'htmlspecialchars');
+        $this->assign('sale_start', $sale_start);
+
+        $sale_end = $this->request->get('sale_end', date('Y-m'), 'htmlspecialchars');
+        $this->assign('sale_end', $sale_end);
+
+        $model = new ProductModel();
+        $saleList = $model->query('
+SELECT
+	t.warehouse_sku,
+	c.productTitle,
+	c.productImages,
+	t.amount,
+	t.profit,
+	t.margin 
+FROM
+	(
+	SELECT
+		a.warehouse_sku,
+		round( sum( a.amount ), 2 ) amount,
+		round( sum( a.profit ), 2 ) profit,
+		round( SUM( a.profit ) / sum( a.amount ), 2 ) * 100 AS margin 
+	FROM
+		mu_finance_report b
+		JOIN mu_finance_report_snapshot a ON a.report_id = b.id 
+	WHERE
+		b.MONTH BETWEEN "' . $sale_start . '" 
+		AND "' . $sale_end . '" 
+	GROUP BY
+		a.warehouse_sku 
+	) t
+	LEFT JOIN mu_ecang_product c ON c.productSku = t.warehouse_sku 
+WHERE
+	c.saleStatus != 18 
+	AND c.saleStatus != 19 
+	AND c.productTitle IS NOT NULL 
+ORDER BY
+	t.margin ' . $sale_order . ';
+        ');
+        $this->assign('saleList', $saleList);
+
+        return view();
+    }
+
+    /**
      * @throws PDOException
      * @throws BindParamException
      */

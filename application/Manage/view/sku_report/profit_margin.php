@@ -16,9 +16,9 @@
 <!-- 主体内容 -->
 <div class="layui-body" id="LAY_app_body">
     <div class="right">
-        <div class="title">Sku销售销量排行</div>
+        <a href="{:session('back_url', '', 'manage')}" class="layui-btn layui-btn-danger layui-btn-sm fr"><i class="layui-icon">&#xe603;</i>返回上一页</a>
+        <div class="title">SKU结算维度利润率排行榜</div>
         <form class="layui-form" method="get">
-            销售：
             <div class="layui-inline w120">
                 <select name="sale_order" lay-verify="">
                     <option value="DESC" {if condition="$sale_order eq 'DESC'"}selected{/if}>从高到低</option>
@@ -31,26 +31,12 @@
             <div class="layui-input-inline w200">
                 <input type="text" class="layui-input" id="sale_end" name="sale_end" value="{$sale_end}" placeholder="结束时间">
             </div>
-            <span style="margin-left: 120px">销量：</span>
-            <div class="layui-inline w120">
-                <select name="qty_order" lay-verify="">
-                    <option value="DESC" {if condition="$qty_order eq 'DESC'"}selected{/if}>从高到低</option>
-                    <option value="ASC" {if condition="$qty_order eq 'ASC'"}selected{/if}>从低到高</option>
-                </select>
-            </div>
-            <div class="layui-input-inline w200">
-                <input type="text" class="layui-input" id="qty_start" name="qty_start" value="{$qty_start}" placeholder="开始时间">
-            </div>
-            <div class="layui-input-inline w200">
-                <input type="text" class="layui-input" id="qty_end" name="qty_end" value="{$qty_end}" placeholder="结束时间">
-            </div>
             <div class="layui-inline">
                 <button class="layui-btn" lay-submit lay-filter="Search"><i class="layui-icon">&#xe615;</i> 查询</button>
             </div>
         </form>
 
-        <a href="{:url('profit_margin')}" class="layui-btn" style="margin-top: 8px">利润率</a>
-        <div class="layui-form table-flex">
+        <div class="layui-form">
             <table class="layui-table" lay-size="sm">
                 <colgroup>
                     <col width="50">
@@ -62,43 +48,23 @@
                 <tr>
                     <th>名次</th>
                     <th>仓库Sku</th>
+                    <th>中文品名</th>
                     <th>产品图片</th>
-                    <th>销售(美金)</th>
+                    <th>销售额(美金)</th>
+                    <th>利润额(美金)</th>
+                    <th>利润率(%)</th>
                 </tr>
                 </thead>
                 <tbody>
                 {foreach name="saleList" key="key" item="v"}
-                <tr class="sku-item" data-sku="{$v.warehouseSku}">
-                    <td class="tr">{$key + 1}</td>
-                    <td>{$v.warehouseSku}</td>
-                    <td><img src="{$v.productImages}" height="80" alt=""></td>
-                    <td class="tr">{$v.sale|number_format=###, 3}</td>
-                </tr>
-                {/foreach}
-                </tbody>
-            </table>
-            <table class="layui-table" lay-size="sm">
-                <colgroup>
-                    <col width="50">
-                    <col
-                    <col>
-                    <col>
-                </colgroup>
-                <thead>
                 <tr>
-                    <th>名次</th>
-                    <th>仓库Sku</th>
-                    <th>产品图片</th>
-                    <th>销量(个)</th>
-                </tr>
-                </thead>
-                <tbody>
-                {foreach name="qtyList" key="k" item="item"}
-                <tr class="sku-item" data-sku="{$item.warehouseSku}">
-                    <td class="tr">{$k + 1}</td>
-                    <td>{$item.warehouseSku}</td>
-                    <td><img src="{$item.productImages}" height="80" alt=""></td>
-                    <td class="tr">{$item.qty|number_format=###}</td>
+                    <td class="tr">{$key + 1}</td>
+                    <td>{$v.warehouse_sku}</td>
+                    <td>{$v.productTitle}</td>
+                    <td><img src="{$v.productImages}" height="80" alt=""></td>
+                    <td class="tr">{$v.amount|number_format=###, 2}</td>
+                    <td class="tr">{$v.profit|number_format=###, 2}</td>
+                    <td class="tr">{$v.margin|number_format=###, 2}</td>
                 </tr>
                 {/foreach}
                 </tbody>
@@ -116,24 +82,11 @@
         // 显示日期选择器
         laydate.render({
             elem: '#sale_start',
-            type: 'datetime'
+            type: 'month'
         });
         laydate.render({
             elem: '#sale_end',
-            type: 'datetime'
-        });
-        laydate.render({
-            elem: '#qty_start',
-            type: 'datetime'
-        });
-        laydate.render({
-            elem: '#qty_end',
-            type: 'datetime'
-        });
-
-        $(".sku-item").click(function(){
-            let sku = $(this).data('sku');
-            location.href = "/Manage/SkuReport/quantity/sku/" + sku + ".html";
+            type: 'month'
         });
     });
 </script>
