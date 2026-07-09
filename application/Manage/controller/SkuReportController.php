@@ -4023,6 +4023,15 @@ ORDER BY
         $sale_end = $this->request->get('sale_end', date('Y-m'), 'htmlspecialchars');
         $this->assign('sale_end', $sale_end);
 
+        $percent_order = $this->request->get('percent_order', 'DESC', 'htmlspecialchars');
+        $this->assign('percent_order', $percent_order);
+
+        $percent_start = $this->request->get('percent_start', date('Y-m', strtotime('-1 month', strtotime(date('Y-m-01 00:00:00')))), 'htmlspecialchars');
+        $this->assign('percent_start', $percent_start);
+
+        $percent_end = $this->request->get('percent_end', date('Y-m'), 'htmlspecialchars');
+        $this->assign('percent_end', $percent_end);
+
         $model = new ProductModel();
         $saleList = $model->query('
 SELECT
@@ -4045,6 +4054,56 @@ LEFT JOIN mu_ecang_product c
 ORDER BY t.total ' . $sale_order . ';
         ');
         $this->assign('saleList', $saleList);
+
+        $percentList = $model->query('
+SELECT
+	a.*,
+	b.total,
+	b.total / a.sale_amount * 100 percent,
+	c.productTitle,
+	c.productImages 
+FROM
+	(
+	SELECT
+		b.warehouse_sku,
+		SUM( b.sale_amount ) sale_amount 
+	FROM
+		(
+		SELECT DISTINCT
+			payment_id 
+		FROM
+			mu_finance_report a
+			LEFT JOIN mu_finance_order_sale b ON b.report_id = a.id 
+		WHERE
+			a.`month` BETWEEN "' . $percent_start . '" AND "' . $percent_end . '"
+		) a
+		LEFT JOIN mu_finance_order_statistics b ON a.payment_id = b.payment_id 
+	WHERE
+		b.payment_id IS NOT NULL 
+	GROUP BY
+		warehouse_sku 
+	) a
+	LEFT JOIN (
+	SELECT
+		a.main_sku,
+		SUM( a.total ) AS total 
+	FROM
+		mu_finance_report b
+		JOIN mu_finance_warehouse_fbm a ON a.report_id = b.id 
+	WHERE
+		b.MONTH BETWEEN "' . $percent_start . '" AND "' . $percent_end . '"
+	GROUP BY
+		a.main_sku 
+	) b ON a.warehouse_sku = b.main_sku
+	LEFT JOIN mu_ecang_product c ON c.productSku = a.warehouse_sku 
+WHERE
+	c.saleStatus != 18 
+	AND c.saleStatus != 19 
+	AND c.saleStatus != 20 
+ORDER BY
+	percent ' . $percent_order . ';
+        ');
+        $this->assign('percentList', $percentList);
 
         Session::set(Config::get('BACK_URL'), $this->request->url(), 'manage');
         return view();

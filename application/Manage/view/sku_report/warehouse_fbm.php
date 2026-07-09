@@ -30,12 +30,25 @@
             <div class="layui-input-inline w200">
                 <input type="text" class="layui-input" id="sale_end" name="sale_end" value="{$sale_end}" placeholder="结束时间">
             </div>
+            <span style="margin-left: 120px">销量：</span>
+            <div class="layui-inline w120">
+                <select name="percent_order" lay-verify="">
+                    <option value="DESC" {if condition="$percent_order eq 'DESC'"}selected{/if}>从高到低</option>
+                    <option value="ASC" {if condition="$percent_order eq 'ASC'"}selected{/if}>从低到高</option>
+                </select>
+            </div>
+            <div class="layui-input-inline w200">
+                <input type="text" class="layui-input" id="percent_start" name="percent_start" value="{$percent_start}" placeholder="开始时间">
+            </div>
+            <div class="layui-input-inline w200">
+                <input type="text" class="layui-input" id="percent_end" name="percent_end" value="{$percent_end}" placeholder="结束时间">
+            </div>
             <div class="layui-inline">
                 <button class="layui-btn" lay-submit lay-filter="Search"><i class="layui-icon">&#xe615;</i> 查询</button>
             </div>
         </form>
 
-        <div class="layui-form">
+        <div class="layui-form table-flex">
             <table class="layui-table" lay-size="sm">
                 <colgroup>
                     <col width="50">
@@ -62,6 +75,32 @@
                 {/foreach}
                 </tbody>
             </table>
+            <table class="layui-table" lay-size="sm">
+                <colgroup>
+                    <col width="50">
+                    <col
+                    <col>
+                    <col>
+                </colgroup>
+                <thead>
+                <tr>
+                    <th>名次</th>
+                    <th>仓库Sku</th>
+                    <th>产品图片</th>
+                    <th>仓储费占销售额(%)</th>
+                </tr>
+                </thead>
+                <tbody>
+                {foreach name="percentList" key="k" item="item"}
+                <tr class="sku-item">
+                    <td class="tr">{$k + 1}</td>
+                    <td>{$item.warehouse_sku}</td>
+                    <td><img src="{$item.productImages}" height="80" alt=""></td>
+                    <td class="tr">{$item.percent|number_format=###, 2}</td>
+                </tr>
+                {/foreach}
+                </tbody>
+            </table>
         </div>
 
     </div>
@@ -79,6 +118,14 @@
         });
         laydate.render({
             elem: '#sale_end',
+            type: 'month'
+        });
+        laydate.render({
+            elem: '#percent_start',
+            type: 'month'
+        });
+        laydate.render({
+            elem: '#percent_end',
             type: 'month'
         });
     });
