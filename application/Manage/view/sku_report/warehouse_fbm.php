@@ -48,6 +48,7 @@
             </div>
         </form>
 
+        <a href="{:url('warehouse_cost')}" class="layui-btn" style="margin-top: 8px">账单占比</a>
         <div class="layui-form table-flex">
             <table class="layui-table" lay-size="sm">
                 <colgroup>

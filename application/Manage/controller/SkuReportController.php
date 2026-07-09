@@ -4108,4 +4108,50 @@ ORDER BY
         Session::set(Config::get('BACK_URL'), $this->request->url(), 'manage');
         return view();
     }
+
+    /**
+     * @throws DbException
+     */
+    public function warehouse_cost(): \think\response\View
+    {
+        $model = new ProductModel();
+        $list = $model->query('
+SELECT
+	a.*,
+	b.total paid_total,
+	ROUND( a.total / b.total * 100, 2 ) percent 
+FROM
+	(
+	SELECT
+		a.id,
+		a.`month`,
+		SUM( b.total ) total 
+	FROM
+		mu_finance_report a
+		LEFT JOIN mu_finance_warehouse_fbm b ON a.id = b.report_id 
+	GROUP BY
+		a.id,
+		a.`month` 
+	) a
+	LEFT JOIN (
+	SELECT
+		a.id,
+		a.`month`,
+		SUM( b.total ) total 
+	FROM
+		mu_finance_report a
+		LEFT JOIN mu_finance_warehouse_cost b ON a.id = b.report_id 
+	GROUP BY
+		a.id,
+		a.`month` 
+	) b ON a.`month` = b.`month` 
+WHERE
+	a.`month` >= "2024-06" 
+ORDER BY
+	`month` ASC;
+        ');
+        $this->assign('list', $list);
+
+        return view();
+    }
 }
