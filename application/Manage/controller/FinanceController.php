@@ -1161,9 +1161,9 @@ class FinanceController extends BaseController
             Db::commit();
         } catch (Exception $e) {
             Db::rollback();
-            $this->error($e->getMessage(), Session::get(Config::get('BACK_URL')));
+            $this->error($e->getMessage(), url('Finance/store', ['id' => $report_id]));
         }
-        $this->redirect(Session::get(Config::get('BACK_URL'), 'manage'));
+        $this->redirect(url('Finance/store', ['id' => $report_id]));
     }
 
     public function store_empty()

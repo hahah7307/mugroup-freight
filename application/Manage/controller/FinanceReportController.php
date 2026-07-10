@@ -516,13 +516,13 @@ ORDER BY
         $platform = $model->query('SELECT DISTINCT platform FROM mu_finance_report_snapshot ORDER BY platform ASC;');
         $this->assign('platform', '"' . implode('","', array_column($platform,'platform')) . '"');
 
-        $amount = $model->query('SELECT SUM(sale_amount) sum, `month`, platform FROM mu_finance_report_snapshot' . $where . ' GROUP BY month, platform ORDER BY `month` ASC;');
+        $amount = $model->query('SELECT SUM(amount) sum, `month`, platform FROM mu_finance_report_snapshot' . $where . ' GROUP BY month, platform ORDER BY `month` ASC;');
         $this->assign('amountSeries', self::javascriptFormat($month, $amount));
 
         $profit = $model->query('SELECT SUM(profit) sum, `month`, platform FROM mu_finance_report_snapshot' . $where . ' GROUP BY month, platform ORDER BY `month` ASC;');
         $this->assign('profitSeries', self::javascriptFormat($month, $profit));
 
-        $profitMargin = $model->query('SELECT ROUND(SUM(profit) * 100 / SUM(sale_amount), 2) sum, `month`, platform FROM mu_finance_report_snapshot' . $where . ' GROUP BY month, platform ORDER BY `month` ASC;');
+        $profitMargin = $model->query('SELECT ROUND(SUM(profit) * 100 / SUM(amount), 2) sum, `month`, platform FROM mu_finance_report_snapshot' . $where . ' GROUP BY month, platform ORDER BY `month` ASC;');
         $this->assign('profitMarginSeries', self::javascriptFormat($month, $profitMargin));
 
         $sku_group = $model->query('SELECT DISTINCT group_name FROM mu_finance_sku_group ORDER BY group_name ASC;');

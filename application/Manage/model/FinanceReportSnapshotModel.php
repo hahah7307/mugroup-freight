@@ -450,7 +450,7 @@ class FinanceReportSnapshotModel extends Model
                 'amount'                                    =>  $tiktokItem['amount'] ?: 0,
                 'sale_selling_fees'                         =>  $tiktokItem['sale_selling_fees'] ?: 0,
                 'refund_selling_fees'                       =>  $tiktokItem['refund_selling_fees'] ?: 0,
-                'fba_fees'                                  =>  $tiktokItem['fba_fees'] ?: 0,
+                'fba_fees'                                  =>  $tiktokItem['fba_fee'] ?: 0,
                 'calcuRes'                                  =>  $tiktokItem['calcuRes'] ?: 0,
                 'ddp'                                       =>  $tiktokItem['ddp'] ?: 0,
                 'adCost'                                    =>  $tiktokItem['adCost'] ?: 0,
@@ -579,13 +579,12 @@ class FinanceReportSnapshotModel extends Model
     static public function OrderResendSave($report) {
         $orderResendOnj = new FinanceOrderResendModel();
         $hdWarehouseSku = $orderResendOnj->query(FinanceReportModel::getOrderResend($report['id'], $report['month']));
-        $resendArr = [];
-        foreach ($hdWarehouseSku as $resendItem) {
-            $resendItem['report_id'] = $report['id'];
+        foreach ($hdWarehouseSku as $key => $resendItem) {
+            $hdWarehouseSku[$key]['report_id'] = $report['id'];
         }
 
-        if ($resendArr) {
-            return $orderResendOnj->insertAll($resendArr);
+        if ($hdWarehouseSku) {
+            return $orderResendOnj->insertAll($hdWarehouseSku);
         } else {
             return true;
         }
@@ -597,7 +596,7 @@ class FinanceReportSnapshotModel extends Model
     static public function ResendSnapshot($report) {
         $snapshotObj = new FinanceReportSnapshotModel();
         $financeOrderResendObj = new FinanceOrderResendModel();
-        $resendList = $financeOrderResendObj->with(['store'])->where(['report_id' => $report['report_id']])->select();
+        $resendList = $financeOrderResendObj->with(['store'])->where(['report_id' => $report['id']])->select();
         $resendArr = [];
         if (count($resendList) > 0) {
             foreach ($resendList as $resendItem) {
@@ -613,10 +612,10 @@ class FinanceReportSnapshotModel extends Model
                     'qty_amount'                                =>  $resendItem['qty'] ?: 0,
                     'sale_amount'                               =>  0,
                     'amount'                                    =>  0,
-                    'calcuRes'                                  =>  $resendItem['tail'] ?: 0,
-                    'ddp'                                       =>  $resendItem['store']['sku_ddp_unit'] * $resendItem['qty'] ?: 0,
-                    'profit'                                    =>  $resendItem['tail'] * -1 + $resendItem['store']['sku_ddp_unit'] * $resendItem['qty'] * -1 ?: 0,
-                    'profit_include_evaluation'                 =>  $resendItem['tail'] * -1 + $resendItem['store']['sku_ddp_unit'] * $resendItem['qty'] * -1 ?: 0,
+                    'calcuRes'                                  =>  $resendItem['tail'] * -1 ?: 0,
+                    'ddp'                                       =>  $resendItem['store']['sku_ddp_unit'] * $resendItem['qty'] / $report['USD'] * -1 ?: 0,
+                    'profit'                                    =>  $resendItem['tail'] * -1 + $resendItem['store']['sku_ddp_unit'] * $resendItem['qty'] / $report['USD'] * -1 ?: 0,
+                    'profit_include_evaluation'                 =>  $resendItem['tail'] * -1 + $resendItem['store']['sku_ddp_unit'] * $resendItem['qty'] / $report['USD'] * -1 ?: 0,
                 ];
             }
         }
