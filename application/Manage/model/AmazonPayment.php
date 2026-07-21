@@ -1455,6 +1455,22 @@ class AmazonPayment extends Model
                             "fba_fees"                  =>  0,
                             "date"                      =>  $item[18]
                         ];
+                    } elseif ($key > 0 && $item[4] == '运费冲回') {
+                        $this->orderRefundNew[] = [
+                            "report_id"                 =>  $reportId,
+                            "table_id"                  =>  $tableId,
+                            "payment_id"                =>  $item[2],
+                            "fulfillment"               =>  "Seller",
+                            "product_sales"             =>  sprintf('%.2f', str_replace(',', '', $item[5])),
+                            "selling_fees"              =>  0,
+                            "quantity"                  =>  $item[9],
+                            "shipping_credits"          =>  0,
+                            "gift_wrap_credits"         =>  0,
+                            "regulatory_fee"            =>  0,
+                            "promotional_rebates"       =>  0,
+                            "fba_fees"                  =>  0,
+                            "date"                      =>  $item[18]
+                        ];
                     }
                 }
             }
@@ -1759,6 +1775,7 @@ class AmazonPayment extends Model
                     "product_sales"             =>  round(str_replace(',', '', $item[11]), 2),
                     "selling_fees"              =>  round(str_replace(',', '', $item[19]), 2)
                         + round(str_replace(',', '', $item[38]), 2)
+                        + round(str_replace(',', '', $item[39]), 2)
                         + round(str_replace(',', '', $item[40]), 2)
                         + round(str_replace(',', '', $item[41]), 2)
                         + round(str_replace(',', '', $item[45]), 2)
