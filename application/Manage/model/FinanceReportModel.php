@@ -1556,43 +1556,6 @@ FROM
 			report_id = ' . $report_id . ' 
 			AND platform = "amazon" UNION ALL
 		SELECT
-			"amazon" AS platform,
-			b.user_account,
-			a.warehouse_sku,
-			NULL AS fbm_sale_qty,
-			NULL AS fbm_refund_qty,
-			NULL AS fbm_sale_amount,
-			NULL AS fbm_sale_tax,
-			NULL AS fbm_refund_amount,
-			NULL AS fbm_sale_selling_fees,
-			NULL AS fbm_refund_selling_fees,
-			NULL AS fbm_refund_other,
-			NULL AS calcuRes,
-			NULL AS fbm_ddp,
-			NULL AS fbm_adCost,
-			NULL AS warehouse_rent,
-			NULL AS adjustment,
-			NULL AS liquidation,
-			NULL AS promotion,
-			NULL AS shipping_service,
-			NULL AS lc_adjustment,
-			NULL AS le_adjustment,
-			NULL AS wyd_adjustment,
-			NULL AS operation_expenses,
-			NULL AS operation_factory,
-			NULL AS operation_delivery,
-			b.qty evaluation_qty,
-			ROUND( a.cny_actual_paid / c.USD, 2 ) evaluation_amount 
-		FROM
-			mu_finance_evaluation a
-			LEFT JOIN mu_finance_order_statistics b ON a.payment = b.payment_id AND a.warehouse_sku = b.warehouse_sku
-			LEFT JOIN mu_finance_report c ON a.report_id = c.id
-			LEFT JOIN mu_ecang_order d ON a.payment = d.saleOrderCode 
-		WHERE
-			d.fulfillmentType = 0 
-			AND a.report_id = ' . $report_id . ' 
-			AND b.platform = "amazon" UNION ALL
-		SELECT
 			c.platform AS platform,
 			c.userAccount userAccount,
 			b.warehouse_sku warehouse_sku,
@@ -1665,9 +1628,9 @@ FROM
 			AND b.fulfillment = "FBM" 
 			AND c.platform = "amazon" UNION ALL
 		SELECT
-			c.platform AS platform,
-			c.userAccount userAccount,
-			b.warehouse_sku warehouse_sku,
+            "amazon" AS platform,
+            c.userAccount,
+            a.warehouse_sku,
 			NULL AS fbm_sale_qty,
 			NULL AS fbm_refund_qty,
 			NULL AS fbm_sale_amount,
@@ -1689,17 +1652,16 @@ FROM
 			NULL AS wyd_adjustment,
 			NULL AS operation_expenses,
 			NULL AS operation_factory,
-			b.total operation_delivery,
-			NULL AS evaluation_qty,
-			NULL AS evaluation_amount 
-		FROM
-			mu_finance_operation_delivery a
-			LEFT JOIN mu_finance_order_share b ON a.share_code = b.share_code
-			LEFT JOIN ( SELECT DISTINCT platform, userAccount FROM mu_finance_table WHERE rid = ' . $report_id . ' ) c ON b.user_account = c.userAccount 
-		WHERE
-			a.report_id = ' . $report_id . ' 
-			AND b.fulfillment = "FBM" 
-			AND c.platform = "amazon" 
+			NULL AS operation_delivery,
+            1 evaluation_qty,
+            ROUND( a.cny_actual_paid / b.USD, 2 ) evaluation_amount 
+        FROM
+            mu_finance_evaluation a
+            LEFT JOIN mu_finance_report b ON a.report_id = b.id
+            LEFT JOIN ( SELECT DISTINCT platform, userAccount FROM mu_finance_table WHERE rid = ' . $report_id . ' ) c ON a.content = c.userAccount 
+        WHERE
+            a.report_id = ' . $report_id . ' 
+            AND c.platform = "amazon"
 		) a 
 	GROUP BY
 		platform,
@@ -2270,10 +2232,10 @@ FROM
 			platform,
 			userAccount,
 			warehouse_sku UNION ALL
-		SELECT
-			"walmart" AS platform,
-			d.userAccount userAccount,
-			a.warehouse_sku warehouse_sku,
+        SELECT
+            "walmart" AS platform,
+            c.userAccount,
+            a.warehouse_sku,
 			NULL AS sale_qty,
 			NULL AS refund_qty,
 			NULL AS sale_amount,
@@ -2295,16 +2257,15 @@ FROM
 			NULL AS operation_expenses,
 			NULL AS operation_factory,
 			NULL AS operation_delivery,
-			b.qty evaluation_qty,
-			ROUND( a.cny_actual_paid / c.USD, 2 ) evaluation_amount 
-		FROM
-			mu_finance_evaluation a
-			LEFT JOIN mu_finance_order_statistics b ON a.payment = b.payment_id AND a.warehouse_sku = b.warehouse_sku
-			LEFT JOIN mu_finance_report c ON a.report_id = c.id
-			LEFT JOIN mu_ecang_order d ON a.payment = d.saleOrderCode 
-		WHERE
-			a.report_id = ' . $report_id . ' 
-			AND b.platform = "walmart" UNION ALL
+            1 evaluation_qty,
+            ROUND( a.cny_actual_paid / b.USD, 2 ) evaluation_amount 
+        FROM
+            mu_finance_evaluation a
+            LEFT JOIN mu_finance_report b ON a.report_id = b.id
+            LEFT JOIN ( SELECT DISTINCT platform, userAccount FROM mu_finance_table WHERE rid = ' . $report_id . ' ) c ON a.content = c.userAccount 
+        WHERE
+            a.report_id = ' . $report_id . ' 
+            AND c.platform = "walmart" UNION ALL
 		SELECT
 			"walmart" AS platform,
 			user_account userAccount,
@@ -2839,10 +2800,10 @@ FROM
 			platform,
 			userAccount,
 			warehouse_sku UNION ALL
-		SELECT
-			"wayfair" AS platform,
-			b.user_account userAccount,
-			a.warehouse_sku warehouse_sku,
+        SELECT
+            "wayfair" AS platform,
+            c.userAccount,
+            a.warehouse_sku,
 			NULL AS sale_qty,
 			NULL AS refund_qty,
 			NULL AS sale_amount,
@@ -2860,16 +2821,15 @@ FROM
 			NULL AS operation_expenses,
 			NULL AS operation_factory,
 			NULL AS operation_delivery,
-			b.qty evaluation_qty,
-			ROUND( a.cny_actual_paid / c.USD, 2 ) evaluation_amount 
-		FROM
-			mu_finance_evaluation a
-			LEFT JOIN mu_finance_order_statistics b ON a.payment = b.payment_id AND a.warehouse_sku = b.warehouse_sku
-			LEFT JOIN mu_finance_report c ON a.report_id = c.id
-			LEFT JOIN mu_ecang_order d ON a.payment = d.saleOrderCode 
-		WHERE
-			a.report_id = ' . $report_id . ' 
-			AND b.platform = "wayfairnew" UNION ALL
+            1 evaluation_qty,
+            ROUND( a.cny_actual_paid / b.USD, 2 ) evaluation_amount 
+        FROM
+            mu_finance_evaluation a
+            LEFT JOIN mu_finance_report b ON a.report_id = b.id
+            LEFT JOIN ( SELECT DISTINCT platform, userAccount FROM mu_finance_table WHERE rid = ' . $report_id . ' ) c ON a.content = c.userAccount 
+        WHERE
+            a.report_id = ' . $report_id . ' 
+            AND c.platform = "wayfair" UNION ALL
 		SELECT
 			"wayfair" AS platform,
 			user_account userAccount,
