@@ -115,6 +115,7 @@
                     <dl class="layui-nav-child">
                         <dd><a layui-href="{:url('Task/index')}">任务跟踪</a></dd>
                         <dd><a layui-href="{:url('Product/performance')}">产品表现</a></dd>
+                        <dd><a layui-href="{:url('WarehouseRent/estimate')}">仓储预估</a></dd>
                     </dl>
                 </li>
                 <li data-name="Storage" class="layui-nav-item">
