@@ -155,9 +155,8 @@ class WarehouseRentEstimate extends Command
         foreach ($list as $item) {
             if ($age > $item['age_from']) {
                 return $item['value'];
-            } else {
-                return 10000000; // 没命中返回错误数据
             }
         }
+        return 10000000; // 没命中返回错误数据
     }
 }

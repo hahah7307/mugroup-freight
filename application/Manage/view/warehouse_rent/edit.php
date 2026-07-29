@@ -16,7 +16,7 @@
             <div class="layui-form-item">
                 <label class="layui-form-label">开始时间</label>
                 <div class="layui-input-inline w300">
-                    <input type="text" class="layui-input" id="start_date" name="start_date" value="{:date('Y-m-d', strtotime($info['start_date']))}">
+                    <input type="text" class="layui-input" id="start_date" name="start_date" value="{if condition='$info.start_date neq null'}{:date('Y-m-d', strtotime($info['start_date']))}{/if}">
                 </div>
             </div>
             <div class="layui-form-item">
