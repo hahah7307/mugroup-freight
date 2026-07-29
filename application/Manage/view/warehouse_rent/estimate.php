@@ -4,8 +4,7 @@
 <!-- 主体内容 -->
 <div class="layui-body" id="LAY_app_body">
     <div class="right">
-        <a href="{:url('Storage/index')}" class="layui-btn layui-btn-danger layui-btn-sm fr"><i class="layui-icon">&#xe603;</i>返回上一页</a>
-        <div class="title">出入库费用列表</div>
+        <div class="title">仓储预估</div>
 
         <div class="layui-form">
             <button type="button" class="layui-btn  layui-btn-normal" id="excel">导入</button>
