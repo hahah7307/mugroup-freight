@@ -5,36 +5,24 @@
 <div class="layui-body" id="LAY_app_body">
     <div class="right">
         <a href="{:session('manage.back_url')}" class="layui-btn layui-btn-danger layui-btn-sm fr"><i class="layui-icon">&#xe603;</i>返回上一页</a>
-        <div class="title">编辑运送费</div>
+        <div class="title">编辑</div>
         <div class="layui-form">
             <div class="layui-form-item">
-                <label class="layui-form-label">名称</label>
+                <label class="layui-form-label">标题</label>
                 <div class="layui-input-inline w300">
-                    <input type="text" class="layui-input" name="name" value="{$info.name}">
+                    <input type="text" class="layui-input" name="title" value="{$info.title}">
                 </div>
             </div>
             <div class="layui-form-item">
-                <label class="layui-form-label">费用</label>
+                <label class="layui-form-label">开始时间</label>
                 <div class="layui-input-inline w300">
-                    <input type="text" class="layui-input" name="value" value="{$info.value}">
+                    <input type="text" class="layui-input" id="start_date" name="start_date" value="{:date('Y-m-d', strtotime($info['start_date']))}">
                 </div>
             </div>
             <div class="layui-form-item">
-                <label class="layui-form-label">描述</label>
+                <label class="layui-form-label">结束时间</label>
                 <div class="layui-input-inline w300">
-                    <input type="text" class="layui-input" name="description" value="{$info.description}">
-                </div>
-            </div>
-            <div class="layui-form-item">
-                <label class="layui-form-label">最小重量</label>
-                <div class="layui-input-inline w300">
-                    <input type="text" class="layui-input" name="min" value="{:json_decode($info['condition'], true)['min']}">
-                </div>
-            </div>
-            <div class="layui-form-item">
-                <label class="layui-form-label">最大重量</label>
-                <div class="layui-input-inline w300">
-                    <input type="text" class="layui-input" name="max" value="{:json_decode($info['condition'], true)['max']}">
+                    <input type="text" class="layui-input" id="end_date" name="end_date" value="{if condition='$info.end_date neq null'}{:date('Y-m-d', strtotime($info['end_date']))}{/if}">
                 </div>
             </div>
             <div class="layui-form-item">
@@ -46,9 +34,22 @@
 </div>
 <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 <script>
-    layui.use(['form', 'jquery'], function(){
+    layui.use(['form', 'jquery', 'laydate'], function(){
         var $ = layui.jquery,
-            form = layui.form;
+            form = layui.form,
+            laydate = layui.laydate;
+
+        // 显示日期选择器
+        laydate.render({
+            elem: '#start_date',
+            type: 'date'
+        });
+
+        // 显示日期选择器
+        laydate.render({
+            elem: '#end_date',
+            type: 'date'
+        });
 
         //监听提交
         form.on('submit(formCoding)', function(data){
