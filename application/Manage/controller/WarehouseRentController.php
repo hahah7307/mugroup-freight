@@ -5,7 +5,6 @@ use app\Manage\model\ProductModel;
 use app\Manage\model\StorageWarehouseRentModel;
 use app\Manage\model\WarehouseRentEstimateBatchModel;
 use app\Manage\model\WarehouseRentEstimateModel;
-use app\Manage\model\WarehouseTailModel;
 use DateTime;
 use Exception;
 use PHPExcel_IOFactory;
@@ -15,6 +14,7 @@ use think\db\exception\DataNotFoundException;
 use think\db\exception\ModelNotFoundException;
 use think\exception\DbException;
 use think\Config;
+use think\Session;
 
 class WarehouseRentController extends BaseController
 {
@@ -26,7 +26,7 @@ class WarehouseRentController extends BaseController
         $keyword = $this->request->get('keyword', '', 'htmlspecialchars');
         $this->assign('keyword', $keyword);
         if ($keyword) {
-            $where['saleOrderCode|shipmentNo|refNo|sku'] = ['like', '%' . $keyword . '%'];
+            $where['title'] = ['like', '%' . $keyword . '%'];
         } else {
             $where = [];
         }
@@ -38,125 +38,69 @@ class WarehouseRentController extends BaseController
         $list = $model->where($where)->order('id asc')->paginate($page_num, false, ['query' => ['keyword' => $keyword]]);
         $this->assign('list', $list);
 
-        $this->assign('totalSum', $model->where($where)->sum('total'));
-
+        Session::set(Config::get('BACK_URL'), $this->request->url(), 'manage');
         return view();
     }
 
     /**
-     * @throws DbException
      * @throws PHPExcel_Reader_Exception
-     * @throws \think\Exception
      */
-    public function import(): \think\response\View
+    public function estimate_import()
     {
         // phpexcel
         require_once './static/classes/PHPExcel/Classes/PHPExcel.php';
-
         $filename = input('filename');
-        $month = input('month');
-        $file= "./upload/excel/" . $filename;
+        $origin = input('origin');
+        $file = "./upload/excel/" . $filename;
         $excelReader = PHPExcel_IOFactory::createReaderForFile($file);
         $excelObj = $excelReader->load($file);
-        $worksheets = $excelObj->getSheetNames();
-        $warehouse = 'LC';
-        $worksheet = [];
-        foreach ($worksheets as $k => $v) {
-            if ($v == '运费') {
-                $warehouse = 'LE';
-                $worksheet = $excelObj->getSheet($k);
-//            } elseif (strpos($v, 'B2C')) {
-            } elseif ($v =='B2C') {
-                $worksheet = $excelObj->getSheet($k);
-            }
-        }
+        $worksheet = $excelObj->getSheet(0);
         $data = $worksheet->toArray();
         unset($data[0]);
 
         Db::startTrans();
         try {
-            $warehouseTailData = [];
-            $financeWarehouseTailObj = new WarehouseTailModel();
-            if ($warehouse == "LE") {
+            $tableObj = new WarehouseRentEstimateModel();
+            $table = [
+                'title'         =>  $origin,
+                'created_time'  =>  date('Y-m-d H:i:s')
+            ];
+            if ($id = $tableObj->insertGetId($table)) {
+                $batchData = [];
                 foreach ($data as $item) {
-                    $warehouseTailData[] = [
-                        "saleOrderCode"				=>	$item[1],
-                        "shipmentNo"				=>	$item[4],
-                        "refNo"						=>	$item[5],
-                        "warehouseCode"				=>	$item[10],
-                        "status"					=>	$item[11],
-                        "postalCode"				=>	$item[22],
-                        "shippingDate"				=>	$item[23],
-                        "zone"						=>	intval(substr($item[24], 4, 1)),
-                        "charge_weight"				=>	$item[25],
-                        "real_weight"				=>	$item[26],
-                        "fuel_rate"					=>	$item[28],
-                        "outbound"					=>	$item[29],
-                        "base"						=>	$item[30],
-                        "residential"				=>	$item[31],
-                        "das_1"						=>	$item[34],
-                        "das_2"						=>	$item[35],
-                        "das_3"						=>	$item[36],
-                        "signature"					=>	$item[35],
-                        "ahs"						=>	$item[37],
-                        "oversize"					=>	$item[39],
-                        "ahs_pss"					=>	$item[38],
-                        "oversize_pss"				=>	$item[40],
-                        "fuel_cost"					=>	$item[47],
-                        "total"						=>	$item[52],
-                        "sku"						=>	$item[53],
-                        "length"					=>	$item[54],
-                        "width"						=>	$item[55],
-                        "height"					=>	$item[56],
-                        "month"                     =>  date('Ym', strtotime($month . "-01")),
-                        "warehouseName"             =>  $warehouse
+                    $batchData[] = [
+                        "estimate_id"           =>  $id,
+                        "warehouse_sku"         =>  $item[0],
+                        "warehouse_code"        =>  $item[1],
+                        "store"                 =>  $item[2],
+                        "age"                   =>  $item[3],
+                        "daily_sale"            =>  $item[4],
+                        "is_finished"           =>  0,
                     ];
                 }
-            } elseif ($warehouse == "LC") {
-                foreach ($data as $item) {
-                    $warehouseTailData[] = [
-                        "saleOrderCode"				=>	$item[2],
-                        "shipmentNo"				=>	$item[6],
-                        "refNo"						=>	$item[4],
-                        "warehouseCode"				=>	$item[1],
-                        "postalCode"				=>	$item[12],
-                        "shippingDate"				=>	$item[9],
-                        "zone"						=>	intval($item[15]),
-                        "charge_weight"				=>	$item[13],
-                        "real_weight"				=>	$item[70],
-                        "outbound"					=>	$item[23],
-                        "base"						=>	$item[22],
-                        "residential"				=>	$item[43],
-                        "das_1"						=>	$item[35],
-                        "das_2"						=>	$item[36],
-                        "signature"					=>	$item[33],
-                        "ahs"						=>	$item[26] + $item[27],
-                        "oversize"					=>	$item[28],
-                        "fuel_cost"					=>	$item[24],
-                        "total"						=>	$item[53],
-                        "sku"						=>	substr($item[63], 5),
-                        "length"					=>	$item[65],
-                        "width"						=>	$item[66],
-                        "height"					=>	$item[67],
-                        "month"                     =>  date('Ym', strtotime($month . "-01")),
-                        "warehouseName"             =>  $warehouse
-                    ];
+                $batchObj = new WarehouseRentEstimateBatchModel();
+                if (!$batchObj->insertAll($batchData)) {
+
+                    throw new Exception('表格导入失败');
                 }
+            } else {
+
+                throw new Exception('表格导入失败');
             }
-            $financeWarehouseTailObj->insertAll($warehouseTailData);
 
             Db::commit();
         } catch (Exception $e) {
             Db::rollback();
-            $this->error($e->getMessage(), url('index'));
+            $this->error($e->getMessage(), session('back_url', '', 'manage'));
         }
-        $this->redirect(url('index'));
+        $this->redirect(session('back_url', '', 'manage'));
     }
 
     /**
      * @throws DataNotFoundException
      * @throws DbException
      * @throws ModelNotFoundException
+     * @throws Exception
      */
     public function calculation()
     {
@@ -185,6 +129,7 @@ class WarehouseRentController extends BaseController
 
         $estimateBatch = $estimateBatchObj->where(['estimate_id' => $estimateBatchItem['estimate_id'], 'warehouse_sku' =>$estimateBatchItem['warehouse_sku'], 'is_finished' => 0])->order('age desc')->select();
         $day = 0;
+        $restStore = 0;
         $updateData =[];
         foreach ($estimateBatch as $batch) {
             $storageSum = 0;
@@ -194,14 +139,18 @@ class WarehouseRentController extends BaseController
             }
             unset($i);
             unset($unit);
+            $useDay = ceil($batch['store'] / $batch['daily_sale']);
+            $sum = 0;
+            $batch['store'] -= $restStore;
             if (empty($estimate['end_date'])) {
-
-                $useDay = ceil($batch['store'] / $batch['daily_sale'], 2);
-                $sum = 0;
                 for ($i = 0; $i < $useDay; $i ++) {
                     $store = $batch['store'] - $i * $batch['daily_sale'];
-                    $unit = self::warehouseUnit($batch['age'] + $day + $i, $batch['warehouse_code']);
-                    $sum += $store * $unit;
+                    if ($store >= 0) {
+                        $unit = self::warehouseUnit($batch['age'] + $day + $i, $batch['warehouse_code']);
+                        $sum += $store * $unit;
+                    } else {
+                        $useDay -= 1;
+                    }
                 }
                 $day += $useDay;
                 $updateData[] = [
@@ -211,14 +160,15 @@ class WarehouseRentController extends BaseController
                     'is_finished'   =>  1
                 ];
             } else {
-
-                $useDay = ceil($batch['store'] / $batch['daily_sale']);
-                $sum = 0;
                 if ($useDay >= $days) {
                     for ($i = 0; $i < $days; $i ++) {
                         $store = $batch['store'] - $i * $batch['daily_sale'];
-                        $unit = self::warehouseUnit($batch['age']+ $day + $i, $batch['warehouse_code']);
-                        $sum += $store * $unit;
+                        if ($store >= 0) {
+                            $unit = self::warehouseUnit($batch['age']+ $day + $i, $batch['warehouse_code']);
+                            $sum += $store * $unit;
+                        } {
+                            $useDay -= 1;
+                        }
                     }
                     $day += $days;
                     $updateData[] = [
@@ -231,8 +181,12 @@ class WarehouseRentController extends BaseController
                 } else {
                     for ($i = 0; $i < $useDay; $i ++) {
                         $store = $batch['store'] - $i * $batch['daily_sale'];
-                        $unit = self::warehouseUnit($batch['age'] + $day + $i, $batch['warehouse_code']);
-                        $sum += $store * $unit;
+                        if ($store >= 0) {
+                            $unit = self::warehouseUnit($batch['age'] + $day + $i, $batch['warehouse_code']);
+                            $sum += $store * $unit;
+                        } {
+                            $useDay -= 1;
+                        }
                     }
                     $day += $useDay;
                     $updateData[] = [
@@ -244,6 +198,7 @@ class WarehouseRentController extends BaseController
                     $days -= $useDay;
                 }
             }
+            $restStore = round($useDay * $batch['daily_sale'] - $batch['store'], 2);
             unset($storageSum);
         }
         dump($estimateBatchObj->saveAll($updateData));
