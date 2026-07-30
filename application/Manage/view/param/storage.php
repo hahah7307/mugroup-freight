@@ -199,6 +199,38 @@
         <div>
             <div class="layui-form-item">
                 <div class="layui-inline layui-col-md5">
+                    <label class="layui-form-label">易达云API生产环境地址</label>
+                    <div class="layui-input-inline">
+                        <input type="text" class="layui-input w300" name="eda_api_uri" value="{$config['eda_api_uri']}">
+                    </div>
+                </div>
+                <div class="layui-inline layui-col-md5">
+                    <label class="layui-form-label">Authorization token</label>
+                    <div class="layui-input-inline">
+                        <input type="text" class="layui-input w300" name="eda_token" value="{$config['eda_token']}">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div>
+            <div class="layui-form-item">
+                <div class="layui-inline layui-col-md5">
+                    <label class="layui-form-label">易达云AppKey</label>
+                    <div class="layui-input-inline">
+                        <input type="text" class="layui-input w300" name="eda_app_key" value="{$config['eda_app_key']}">
+                    </div>
+                </div>
+                <div class="layui-inline layui-col-md5">
+                    <label class="layui-form-label">易达云AppSecret</label>
+                    <div class="layui-input-inline">
+                        <input type="text" class="layui-input w300" name="eda_app_secret" value="{$config['eda_app_secret']}">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div>
+            <div class="layui-form-item">
+                <div class="layui-inline layui-col-md5">
                     <label class="layui-form-label">领星API地址</label>
                     <div class="layui-input-inline">
                         <input type="text" class="layui-input w300" name="ak_openapi_uri" value="{$config['ak_openapi_uri']}">

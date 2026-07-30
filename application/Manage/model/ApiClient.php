@@ -105,6 +105,42 @@ class ApiClient extends Model
         }
     }
 
+    static public function edaWarehouseApi($url, $method = 'POST', $params = []): array
+    {
+        $url = Config::get('eda_api_uri') . $url;
+        $header = [
+            'Content-Type: application/json',
+            'Authorization: ' . Config::get('eda_token'),
+            'timestamp: ' . time(),
+            'appKey: ' . Config::get('eda_app_key'),
+            'sign: ' . md5(json_encode($params) . '.' . Config::get('eda_app_secret'))
+        ];
+        $data = self::edaHttpCurl($url, $header, $method, $params);
+        return ['code' => 1, 'data' => json_decode($data, true)];
+    }
+
+    static public function edaHttpCurl($url, $header, $method = 'POST', $params = false){
+        $ch = curl_init();
+        // 关闭SSL验证
+        curl_setopt( $ch, CURLOPT_SSL_VERIFYHOST, false);
+        curl_setopt( $ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
+        if( $method == 'POST' ) {
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($params));
+        }
+
+        $response = curl_exec( $ch );
+        if ($response === FALSE) {
+            return false;
+        }
+        curl_close( $ch );
+
+        return $response;
+    }
+
     static public function httpCurl($url, $method = 'POST', $params = false){
         $ch = curl_init();
         // 关闭SSL验证

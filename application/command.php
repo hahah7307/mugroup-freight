@@ -59,4 +59,5 @@ return [
     'app\Manage\command\ProductUpdateWyd', //
     'app\Manage\command\AkAmazonDailyList', //
     'app\Manage\command\WarehouseRentEstimate', //
+    'app\Manage\command\EdaInventoryBatch', //
 ];
