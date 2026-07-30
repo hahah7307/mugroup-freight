@@ -38,6 +38,7 @@ use app\Manage\model\FinanceStoreModel;
 use app\Manage\model\FinanceTableModel;
 use app\Manage\model\FinanceWarehouseFbmModel;
 use app\Manage\model\FinanceWarehouseModel;
+use app\Manage\model\FinanceWarehouseTailImport;
 use app\Manage\model\FinanceWarehouseWFSModel;
 use app\Manage\model\FinanceWayfairCoreModel;
 use app\Manage\model\FinanceWildberriesFeeModel;
@@ -1738,6 +1739,78 @@ class FinanceController extends BaseController
             echo json_encode(['code' => 0, 'msg' => '异常操作']);
         }
         exit;
+    }
+
+    /**
+     * @throws DbException
+     */
+    public function warehouse_tail(): \think\response\View
+    {
+        $keyword = $this->request->get('keyword', '', 'htmlspecialchars');
+        $this->assign('keyword', $keyword);
+        if ($keyword) {
+            $where['payment_id|saleOrderCode|warehouse_sku|warehouse_no|shipping_no|user_account'] = ['like', '%' . $keyword . '%'];
+        } else {
+            $where = [];
+        }
+
+        $page_num = $this->request->get('page_num', Config::get('PAGE_NUM'));
+        $this->assign('page_num', $page_num);
+
+        // 订单列表
+        $order = new FinanceWarehouseTailImport();
+        $list = $order->where($where)->order('id asc')->paginate($page_num, false, ['query' => ['keyword' => $keyword, 'page_num' => $page_num]]);
+        $this->assign('list', $list);
+
+        Session::set(Config::get('BACK_URL'), $this->request->url(), 'manage');
+        return view();
+    }
+
+    /**
+     * @throws PHPExcel_Reader_Exception
+     */
+    public function warehouse_tail_import()
+    {
+        // phpexcel
+        require_once './static/classes/PHPExcel/Classes/PHPExcel.php';
+
+        $filename = input('filename');
+        $file= "./upload/excel/" . $filename;
+        $excelReader = PHPExcel_IOFactory::createReaderForFile($file);
+        $excelObj = $excelReader->load($file);
+        $worksheet = $excelObj->getSheet(0);
+        $data = $worksheet->toArray();
+        unset($data[0]);
+
+        Db::startTrans();
+        try {
+            $orderData = [];
+            $financeOrderStatisticsObj = new FinanceWarehouseTailImport();
+            foreach ($data as $item) {
+                $order = $financeOrderStatisticsObj->where(['saleOrderCode' => $item[0], 'payment_id' => $item[1], 'warehouse_no' => $item[2], 'warehouse_code' => $item[3], 'shipping_no' => $item[4]])->find();
+                if (!empty($order)) {
+                    continue;
+                }
+                $orderData[] = [
+                    "saleOrderCode"         =>  $item[0],
+                    "payment_id"            =>  $item[1],
+                    "warehouse_no"          =>  $item[2],
+                    "warehouse_code"        =>  $item[3],
+                    "shipping_no"           =>  $item[4],
+                    "user_account"          =>  $item[5],
+                    "warehouse_sku"         =>  $item[6],
+                    "total"                 =>  $item[7],
+                    "month"                 =>  $item[8],
+                ];
+            }
+            $financeOrderStatisticsObj->insertAll($orderData);
+
+            Db::commit();
+        } catch (Exception $e) {
+            Db::rollback();
+            $this->error($e->getMessage(), session('back_url', '', 'manage'));
+        }
+        $this->redirect(session('back_url', '', 'manage'));
     }
 
     /**
