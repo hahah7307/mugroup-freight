@@ -2,6 +2,7 @@
 namespace app\Manage\controller;
 
 use app\Manage\model\AkAmazonDailyListModel;
+use app\Manage\model\EdaProductModel;
 use app\Manage\model\FinanceExcelInit;
 use app\Manage\model\LcProductModel;
 use app\Manage\model\LeProductModel;
@@ -91,6 +92,26 @@ class ProductController extends BaseController
         }
 
         $storage = new WydProductModel();
+        $list = $storage->where($where)->order('id asc')->paginate(Config::get('PAGE_NUM'), false, ['query' => ['keyword' => $keyword]]);
+        $this->assign('list', $list);
+
+        Session::set(Config::get('BACK_URL'), $this->request->url(), 'manage');
+        return view();
+    }
+
+    /**
+     * @throws DbException
+     */
+    public function eda(): \think\response\View
+    {
+        $where = [];
+        $keyword = $this->request->get('keyword', '', 'htmlspecialchars');
+        $this->assign('keyword', $keyword);
+        if ($keyword) {
+            $where['skuCode'] = ['like', '%' . $keyword . '%'];
+        }
+
+        $storage = new EdaProductModel();
         $list = $storage->where($where)->order('id asc')->paginate(Config::get('PAGE_NUM'), false, ['query' => ['keyword' => $keyword]]);
         $this->assign('list', $list);
 
