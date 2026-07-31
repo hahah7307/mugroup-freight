@@ -22,28 +22,17 @@
                         <dd><a layui-href="{:url('Order/index')}">尾程费用</a></dd>
                     </dl>
                 </li>
-<!--                <li data-name="Inventory" class="layui-nav-item">-->
-<!--                    <a layui-href="javascript:;" lay-tips="仓储" lay-direction="2">-->
-<!--                        <i class="layui-icon iconfont icon-kucunchaxun"></i>-->
-<!--                        <cite>仓储</cite>-->
-<!--                    </a>-->
-<!--                    <dl class="layui-nav-child">-->
-<!--                        <dd><a layui-href="{:url('Inventory/index')}">易仓仓储费</a></dd>-->
-<!--                        <dd><a layui-href="{:url('Inventory/adjustment')}">易仓库存调整记录</a></dd>-->
-<!--                        <dd><a layui-href="{:url('LcInventory/index')}">良仓仓储费</a></dd>-->
-<!--                        <dd><a layui-href="{:url('LeInventory/index')}">乐歌仓储费</a></dd>-->
-<!--                    </dl>-->
-<!--                </li>-->
-                <li data-name="Stock" class="layui-nav-item">
+                <li data-name="Inventory" class="layui-nav-item">
                     <a layui-href="javascript:;" lay-tips="库存" lay-direction="2">
                         <i class="layui-icon iconfont icon-kucun"></i>
                         <cite>库存</cite>
                     </a>
                     <dl class="layui-nav-child">
-                        <dd><a layui-href="{:url('Inventory/index')}">易仓批次库存</a></dd>
+<!--                        <dd><a layui-href="{:url('Inventory/index')}">易仓批次库存</a></dd>-->
                         <dd><a layui-href="{:url('LcInventory/index')}">良仓批次库存</a></dd>
                         <dd><a layui-href="{:url('LeInventory/index')}">乐歌批次库存</a></dd>
                         <dd><a layui-href="{:url('WydInventory/index')}">无忧达批次库存</a></dd>
+                        <dd><a layui-href="{:url('EdaInventory/index')}">易达云批次库存</a></dd>
                     </dl>
                 </li>
                 <li data-name="Finance" class="layui-nav-item">

@@ -31,7 +31,6 @@
         <div class="layui-form">
             <table class="layui-table" lay-size="sm">
                 <colgroup>
-                    <col width="50">
                     <col>
                     <col>
                     <col>
@@ -48,9 +47,6 @@
                 </colgroup>
                 <thead>
                 <tr>
-                    <th class="tc">
-                        <input type="checkbox" lay-skin="primary" id="YanNanQiu_checkall" lay-filter="YanNanQiu_checkall">
-                    </th>
                     <th>ID</th>
                     <th>SKU</th>
                     <th>入库单号</th>
@@ -68,11 +64,6 @@
                 <tbody>
                 {foreach name="list" item="v"}
                 <tr>
-                    <td class="tc">
-                        <div class="YanNanQiu_Checkbox">
-                            <input type="checkbox" name="id[]" lay-skin="primary" lay-filter="imgbox" class="YanNanQiu_imgId" value="{$v.id}">
-                        </div>
-                    </td>
                     <td>{$v.id}</td>
                     <td>{$v.product_sku}</td>
                     <td>{$v.receiving_code}</td>
