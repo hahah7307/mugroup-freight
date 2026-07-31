@@ -135,7 +135,11 @@ class WarehouseRentEstimate extends Command
                     $days -= $useDay;
                 }
             }
-            $restStore = round($useDay * $batch['daily_sale'] - $batch['store'], 2);
+            if ($days > 0) {
+                $restStore = round($useDay * $batch['daily_sale'] - $batch['store'], 2);
+            } else {
+                $restStore = 0;
+            }
             unset($storageSum);
         }
         $estimateBatchObj->saveAll($updateData);
@@ -155,6 +159,8 @@ class WarehouseRentEstimate extends Command
         foreach ($list as $item) {
             if ($age > $item['age_from']) {
                 return $item['value'];
+            } elseif ($age == 0) {
+                return 0;
             }
         }
         return 10000000; // 没命中返回错误数据
