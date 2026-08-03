@@ -21,11 +21,11 @@
 
         <table class="layui-table" lay-size="sm" style="width: 1600px">
             <colgroup>
+                <col class="w180">
                 <col>
                 <col>
                 <col>
                 <col>
-<!--                <col>-->
                 <col>
                 <col>
                 <col>
@@ -33,11 +33,11 @@
             </colgroup>
             <thead>
             <tr>
+                <th class="tr">国别</th>
                 <th class="tr">上周库存数量(个)</th>
                 <th class="tr">今日库存数量(个)</th>
                 <th class="tr">上周销售库存数量(个)</th>
                 <th class="tr">今日发货包裹数(个)</th>
-<!--                <th class="tr">周库存周转率</th>-->
                 <th class="tr">乐歌年周转率</th>
                 <th class="tr">良仓年周转率</th>
                 <th class="tr">无忧达年周转率</th>
@@ -46,11 +46,11 @@
             </thead>
             <tbody>
                 <tr>
+                    <td class="tr">美国</td>
                     <td class="tr">{$last_sum.0.value|number_format}</td>
                     <td class="tr">{$sum.0.value|number_format}</td>
                     <td class="tr">{$monthQty.0.qty|number_format}</td>
                     <td class="tr">{$orderQty.0.count|number_format}</td>
-<!--                    <td class="tr">{$monthQty.0.qty / (($last_sum.0.value + $sum.0.value) / 2)|round=###,2}</td>-->
                     <td class="tr">{$le_monthQty.0.qty / (($le_last_sum.0.value + $le_sum.0.value) / 2) * 52|round=###,2}</td>
                     <td class="tr">{$lc_monthQty.0.qty / (($lc_last_sum.0.value + $lc_sum.0.value) / 2) * 52|round=###,2}</td>
                     <td class="tr">{$wyd_monthQty.0.qty / (($wyd_last_sum.0.value + $wyd_sum.0.value) / 2) * 52|round=###,2}</td>
@@ -59,9 +59,81 @@
             </tbody>
         </table>
 
+        <table class="layui-table" lay-size="sm" style="width: 1600px">
+            <colgroup>
+                <col class="w180">
+                <col>
+                <col>
+                <col>
+                <col>
+                <col>
+                <col>
+            </colgroup>
+            <thead>
+            <tr>
+                <th class="tr">国别</th>
+                <th class="tr">上周库存数量(个)</th>
+                <th class="tr">今日库存数量(个)</th>
+                <th class="tr">上周销售库存数量(个)</th>
+                <th class="tr">今日发货包裹数(个)</th>
+                <th class="tr">无忧达年周转率</th>
+                <th class="tr">综合年库存周转率</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td class="tr">欧洲</td>
+                <td class="tr">{$last_sum_de.0.value|number_format}</td>
+                <td class="tr">{$sum_de.0.value|number_format}</td>
+                <td class="tr">{$monthQty_de.0.qty|number_format}</td>
+                <td class="tr">{$orderQty_de.0.count|number_format}</td>
+                <td class="tr">{$wyd_monthQty_de.0.qty / (($wyd_last_sum_de.0.value + $wyd_sum_de.0.value) / 2) * 52|round=###,2}</td>
+                <td class="tr"><a href="{:url('inventory_turnover')}">{$monthQty_de.0.qty / (($last_sum_de.0.value + $sum_de.0.value) / 2) * 52|round=###,2}</a></td>
+            </tr>
+            </tbody>
+        </table>
+
+        <table class="layui-table" lay-size="sm" style="width: 1600px">
+            <colgroup>
+                <col class="w180">
+                <col>
+                <col>
+                <col>
+                <col>
+                <col>
+                <col>
+            </colgroup>
+            <thead>
+            <tr>
+                <th class="tr">国别</th>
+                <th class="tr">上周库存数量(个)</th>
+                <th class="tr">今日库存数量(个)</th>
+                <th class="tr">上周销售库存数量(个)</th>
+                <th class="tr">今日发货包裹数(个)</th>
+                <th class="tr">易达云年周转率</th>
+                <th class="tr">综合年库存周转率</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td class="tr">英国</td>
+                <td class="tr">{$last_sum_uk.0.value|number_format}</td>
+                <td class="tr">{$sum_uk.0.value|number_format}</td>
+                <td class="tr">{$monthQty_uk.0.qty|number_format}</td>
+                <td class="tr">{$orderQty_uk.0.count|number_format}</td>
+                <td class="tr">{$eda_monthQty_uk.0.qty / (($eda_last_sum_uk.0.value + $eda_sum_uk.0.value) / 2) * 52|round=###,2}</td>
+                <td class="tr"><a href="{:url('inventory_turnover')}">{$monthQty_uk.0.qty / (($last_sum_uk.0.value + $sum_uk.0.value) / 2) * 52|round=###,2}</a></td>
+            </tr>
+            </tbody>
+        </table>
+
         <div class="layui-form pie-chart" style="display: flex">
-            <div id="main_1" style="height:500px; width: 800px"></div>
-            <div id="main_2" style="height:500px; width: 800px"></div>
+            <div id="main_1" style="height:500px; width: 600px"></div>
+            <div id="main_5" style="height:500px; width: 600px"></div>
+            <div id="main_6" style="height:500px; width: 600px"></div>
+        </div>
+        <div class="layui-form pie-chart1" style="display: flex">
+            <div id="main_2" style="height:500px; width: 600px"></div>
         </div>
         <div class="layui-form pie-chart2">
             <div id="main_3" style="height:500px; width: 1600px"></div>
@@ -127,7 +199,7 @@
         const category_1 = echarts.init(document.getElementById("main_1"));
         category_1.setOption({
             title: {
-                text: '当日海外仓批次库存数量库龄统计饼状图(合计：{$sum.0.value|number_format}个    {$sum.0.volume/67|number_format}HQ)',
+                text: '美国当日海外仓批次库存数量库龄统计饼状图(合计：{$sum.0.value|number_format}个    {$sum.0.volume/67|number_format}HQ)',
                 // subtext: 'Fake Data',
                 left: 'center'
             },
@@ -136,12 +208,91 @@
             },
             legend: {
                 orient: 'vertical',
-                left: 'left'
+                left: 'left',
+                top: 50
             },
             series: [
                 {
                     type: 'pie',
                     data: {$storeList},
+                    label: {
+                        normal: {
+                            show: true,
+                            position: 'inner', // 数值显示在内部
+                            formatter: function (c) {
+                                return moneyFormat(c.value, 0);
+                            }
+                        },
+                    },
+                    emphasis: {
+                        itemStyle: {
+                            shadowBlur: 10,
+                            shadowOffsetX: 0,
+                            shadowColor: 'rgba(0, 0, 0, 0.5)'
+                        }
+                    }
+                }
+            ]
+        });
+
+        const category_5 = echarts.init(document.getElementById("main_5"));
+        category_5.setOption({
+            title: {
+                text: '欧洲当日海外仓批次库存数量库龄统计饼状图(合计：{$sum_de.0.value|number_format}个    {$sum_de.0.volume/67|number_format}HQ)',
+                // subtext: 'Fake Data',
+                left: 'center'
+            },
+            tooltip: {
+                trigger: 'item'
+            },
+            legend: {
+                orient: 'vertical',
+                left: 'left',
+                top: 50
+            },
+            series: [
+                {
+                    type: 'pie',
+                    data: {$storeListDE},
+                    label: {
+                        normal: {
+                            show: true,
+                            position: 'inner', // 数值显示在内部
+                            formatter: function (c) {
+                                return moneyFormat(c.value, 0);
+                            }
+                        },
+                    },
+                    emphasis: {
+                        itemStyle: {
+                            shadowBlur: 10,
+                            shadowOffsetX: 0,
+                            shadowColor: 'rgba(0, 0, 0, 0.5)'
+                        }
+                    }
+                }
+            ]
+        });
+
+        const category_6 = echarts.init(document.getElementById("main_6"));
+        category_6.setOption({
+            title: {
+                text: '英国当日海外仓批次库存数量库龄统计饼状图(合计：{$sum_uk.0.value|number_format}个    {$sum_uk.0.volume/67|number_format}HQ)',
+                // subtext: 'Fake Data',
+                left: 'center'
+            },
+            tooltip: {
+                trigger: 'item'
+            },
+            legend: {
+                orient: 'vertical',
+                left: 'left',
+                top: 50
+            },
+            series: [
+                {
+                    type: 'pie',
+                    data: {$storeListUK},
                     label: {
                         normal: {
                             show: true,
@@ -174,7 +325,8 @@
             },
             legend: {
                 orient: 'vertical',
-                left: 'left'
+                left: 'left',
+                top: 50
             },
             series: [
                 {
