@@ -110,7 +110,7 @@ class OrderModel extends Model
 
         $orderDetailObj = new OrderDetailModel();
         $tail = [];
-        foreach ($order['details'] as $key => $detail) {
+        foreach ($order['details'] as $detail) {
             // 获取计费重（不同仓库在同一值上会使用不同的重量）
             $lbs = StorageBaseModel::getProductLbs($storage_id, $detail);
 
@@ -177,6 +177,9 @@ class OrderModel extends Model
             $fuel_surcharge_rate = StorageFuelSurchargeRateModel::getFuelSurchargeRate($order);
             if (empty($fuel_surcharge_rate)) {
                 continue;
+            }
+            if ($order['shippingMethod'] == "UPS_ROADIE_GROUND") {
+                $fuel_surcharge_rate['value'] = 0;
             }
             $fuel_cost = round(($base + $ahs + $dasFee + $ResidentialFee + $AHSPeakSurcharge + $ResidentialPeakSurcharge + $signature) * $fuel_surcharge_rate['value'] * 0.01, 2);
 

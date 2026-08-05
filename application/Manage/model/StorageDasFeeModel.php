@@ -36,6 +36,10 @@ class StorageDasFeeModel extends Model
      */
     static public function getDasFee($storage, $das, $order)
     {
+        if ($order['shippingMethod'] == "UPS_ROADIE_GROUND") {
+            return 3.2;
+        }
+
         if (empty($das)) {
             return 0;
         }

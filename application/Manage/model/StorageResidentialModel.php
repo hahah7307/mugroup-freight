@@ -64,6 +64,10 @@ class StorageResidentialModel extends Model
 
     static public function order2deliverType($order): string
     {
+        if ($order['shippingMethod'] == "UPS_ROADIE_GROUND") {
+            return false;
+        }
+
         if (stripos($order['shippingMethod'], 'GROUND') !== false) {
             return 'GD';
         } elseif (stripos($order['shippingMethod'], 'HOME_DELIVERY') !== false) {

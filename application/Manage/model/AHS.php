@@ -85,8 +85,15 @@ class AHS extends Model
         } else {
             $weightFee = 0;
         }
-        $dimensionFee = self::AHSDimension($a, $b, $c) ? StorageAhsRuleModel::getAHSFee($storage, 5, $zone, $order) : 0;
-        $osFee = self::OSFedex($a, $b, $c, $w) ? StorageAhsRuleModel::getAHSFee($storage, 10, $zone, $order) : 0;
+        if ($order['shippingMethod'] == "UPS_ROADIE_GROUND") {
+            $weightFee = self::AHSWeight($w) ? 9.5 : 0;
+            $dimensionFee = self::AHSDimension($a, $b, $c) ? 9.5 : 0;
+            $osFee = self::OSFedex($a, $b, $c, $w) ? 40 : 0;
+        } else {
+            $dimensionFee = self::AHSDimension($a, $b, $c) ? StorageAhsRuleModel::getAHSFee($storage, 5, $zone, $order) : 0;
+            $osFee = self::OSFedex($a, $b, $c, $w) ? StorageAhsRuleModel::getAHSFee($storage, 10, $zone, $order) : 0;
+        }
+
 
         return max($weightFee, $dimensionFee, $osFee);
     }

@@ -63,6 +63,10 @@ class StorageBaseModel extends Model
      */
     static public function getBase($storage, $lbs, $customerZone, $order, $detail)
     {
+        if ($order['shippingMethod'] == "UPS_ROADIE_GROUND") {
+            return ['value' => 10.1];
+        }
+
         if (AHS::AHSDimension($detail['product']['productLength'], $detail['product']['productWidth'], $detail['product']['productHeight'])
             && $order['dateWarehouseShipping'] >= "2025-01-13 00:00:00") {
             $lbs = max($lbs, 40);

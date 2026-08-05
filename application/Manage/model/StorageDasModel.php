@@ -42,6 +42,11 @@ class StorageDasModel extends Model
         $condition['state'] = self::STATE_ACTIVE;
         $condition['start_at'] = ['lt', $order['dateWarehouseShipping']];
         $condition['end_at'] = ['egt', $order['dateWarehouseShipping']];
+        if ($order['shippingMethod'] == "UPS_ROADIE_GROUND") {
+            // 临时先把加州和拥堵地段邮编归类为费用较高的偏远地段
+            return StorageDasUpsRoadieModel::get($condition);
+        }
+
         return self::get($condition);
     }
 }
