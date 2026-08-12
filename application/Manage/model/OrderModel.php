@@ -67,11 +67,18 @@ class OrderModel extends Model
         }
 
         // 计算运费和公式
-        $tail = self::calculateDeliver($orderInfo);
+        if ($orderInfo['warehouseCode'] == 'EDA_UKBHS-B002') {
+            $tail = self::calculateDeliver_uk($orderInfo);
+        } elseif ($orderInfo['warehouseCode'] == 'WUYOUDA_DUSJW2') {
+            $tail = self::calculateDeliver_de($orderInfo);
+        } else {
+            $tail = self::calculateDeliver($orderInfo);
+        }
         if ($tail) {
             $orderInfo['postalFormat'] = $tail[0]['postal_format'];
             $orderInfo['zoneFormat'] = $tail[0]['zone_format'];
             $orderInfo['charged_weight'] = array_sum(array_column($tail, 'charged_weight'));
+            $orderInfo['inbound'] = array_sum(array_column($tail, 'inbound'));
             $orderInfo['outbound'] = array_sum(array_column($tail, 'outbound'));
             $orderInfo['sfp'] = array_sum(array_column($tail, 'sfp'));
             $orderInfo['base'] = array_sum(array_column($tail, 'base'));
@@ -103,6 +110,201 @@ class OrderModel extends Model
      * @throws DataNotFoundException
      */
     static public function calculateDeliver($order): array
+    {
+        $storage_id = $order['area']['storage_id'];
+
+        $postalCode = self::postalFormat($order['address']['postalCode']);
+
+        $orderDetailObj = new OrderDetailModel();
+        $tail = [];
+        foreach ($order['details'] as $detail) {
+            // 获取计费重（不同仓库在同一值上会使用不同的重量）
+            $lbs = StorageBaseModel::getProductLbs($storage_id, $detail);
+
+            // 出库费运算
+            $outbound = StorageOutboundModel::getOutbound($storage_id, $detail, $order);
+            $platform = StorageOutboundModel::outboundPlatform();
+            if (in_array($order['platform'], $platform)
+                || ($order['platform'] == "semitemu" && $order['datePaidPlatform'] >= "2025-04-26 00:00:00")
+                || empty($order['dateWarehouseShipping'])
+                || $order['dateWarehouseShipping'] == '0000-00-00 00:00:00') {
+                $tailData = [
+                    'postal_format'     =>  $postalCode,
+                    'zone_format'       =>  0,
+                    'charged_weight'    =>  $lbs,
+                    'outbound'          =>  $outbound * $detail['qty'],
+                    'base'              =>  0,
+                    'ahs'               =>  0,
+                    'ahs_pss'           =>  0,
+                    'das'               =>  0,
+                    'residential'       =>  0,
+                    'residential_pss'   =>  0,
+                    'signature'         =>  0,
+                    'fuel_cost'         =>  0,
+                    'commission'        =>  0,
+                    'tail_course'       =>  $outbound * $detail['qty']
+                ];
+                $orderDetailObj->update($tailData, ['id' => $detail['id']]);
+                $tail[] = $tailData;
+                continue;
+            }
+
+            // SFP
+            $sfp = StorageSfpModel::getSFP($storage_id, $order);
+
+            // 基础费运算
+            $customerZone = StorageZoneModel::getCustomZone($order, $postalCode);
+            if ($customerZone == 0) {
+                continue;
+            }
+            $baseInfo = StorageBaseModel::getBase($storage_id, $lbs, $customerZone, $order, $detail);
+            $base = $baseInfo ? $baseInfo['value'] : 0;
+
+            // AHS运算 & AHS旺季附加费
+            $ahs = AHS::getAHSFee($storage_id, $customerZone, $detail, $order);
+            $AHSPeakSurcharge = $ahs ? AHS::AHSPeakSurcharge($storage_id, $order) : 0;
+
+            // 偏远地址附加费
+            $dasType = StorageDasModel::getDASType($storage_id, $postalCode, $order);
+            $dasFee = !empty($dasType) ? StorageDasFeeModel::getDasFee($storage_id, $dasType, $order) : 0;
+
+            // 住宅地址附加费 & 住宅旺季附加费
+            $ResidentialFee = StorageResidentialModel::getResidential($storage_id, $order);
+            $ResidentialPeakSurcharge = $ResidentialFee ? StorageResidentialModel::ResidentialPeakSurcharge($storage_id, $order) : 0;
+
+            // 签名费
+            if (!strpos($order['shippingMethod'], "-QIANMING") && !strpos($order['shippingMethod'], "-QM")) {
+                $signature = 0;
+            } else {
+                $signatureData = StorageSignatureModel::getSignature($storage_id, $order);
+                $signature = $signatureData ? $signatureData['value'] : 0;
+            }
+
+            // 燃油费运算
+            $fuel_surcharge_rate = StorageFuelSurchargeRateModel::getFuelSurchargeRate($order);
+            if (empty($fuel_surcharge_rate)) {
+                continue;
+            }
+            if ($order['shippingMethod'] == "UPS_ROADIE_GROUND") {
+                $fuel_surcharge_rate['value'] = 0;
+            }
+            $fuel_cost = round(($base + $ahs + $dasFee + $ResidentialFee + $AHSPeakSurcharge + $ResidentialPeakSurcharge + $signature) * $fuel_surcharge_rate['value'] * 0.01, 2);
+
+            // 佣金（过路费）
+            $commission_rate = StorageCommissionModel::getCommission($storage_id, $order);
+            $commission = round(($base + $ahs + $dasFee + $ResidentialFee + $AHSPeakSurcharge + $ResidentialPeakSurcharge + $signature + $fuel_cost) * $commission_rate, 2);
+
+            // 运费总计
+            $price = round($outbound + $sfp + $base + $ahs + $dasFee + $ResidentialFee + $AHSPeakSurcharge + $ResidentialPeakSurcharge + $signature + $fuel_cost + $commission, 2);
+
+            $tailData = [
+                'postal_format'     =>  $postalCode,
+                'zone_format'       =>  $customerZone,
+                'charged_weight'    =>  $lbs,
+                'sfp'               =>  $sfp,
+                'outbound'          =>  $outbound,
+                'base'              =>  $base,
+                'ahs'               =>  $ahs,
+                'ahs_pss'           =>  $AHSPeakSurcharge,
+                'das'               =>  $dasFee,
+                'residential'       =>  $ResidentialFee,
+                'residential_pss'   =>  $ResidentialPeakSurcharge,
+                'signature'         =>  $signature,
+                'fuel_cost'         =>  $fuel_cost,
+                'commission'        =>  $commission,
+                'tail_course'       =>  $price * $detail['qty']
+            ];
+            $orderDetailObj->update($tailData, ['id' => $detail['id']]);
+            $tail[] = $tailData;
+        }
+
+        return $tail;
+    }
+
+    // 计算运费
+    /**
+     * @throws ModelNotFoundException
+     * @throws DbException
+     * @throws DataNotFoundException
+     */
+    static public function calculateDeliver_uk($order): array
+    {
+        $storage_id = $order['area']['storage_id'];
+
+        $orderDetailObj = new OrderDetailModel();
+        $tail = [];
+        foreach ($order['details'] as $detail) {
+            // 入库费运算
+            $inbound = StorageInboundModel::getInbound($storage_id, $detail, $order);
+
+            // 出库费运算
+            $outbound = StorageOutboundModel::getOutboundUK($storage_id, $detail, $order);
+
+            // 基础费运算
+            $base = StorageBaseUKModel::getBaseUK($storage_id, $order, $detail);
+
+            // AHS运算 & AHS旺季附加费
+            $ahs = 0;
+            $AHSPeakSurcharge = 0;
+
+            // 偏远地址附加费
+            $dasFee = 0;
+
+            // 住宅地址附加费 & 住宅旺季附加费
+            $ResidentialFee = 0;
+            $ResidentialPeakSurcharge = 0;
+
+            // 签名费
+            $signature = 0;
+
+            // 燃油费运算
+            if ($order['shippingMethod'] == "EDA_DPD_UK") {
+                $fuel_surcharge_rate = 18.7;
+            } elseif ($order['shippingMethod'] == "EDA_YODEL_48") {
+                $fuel_surcharge_rate = 9;
+            } else {
+                $fuel_surcharge_rate = 0;
+            }
+            $fuel_cost = round(($base + $ahs + $dasFee + $ResidentialFee + $AHSPeakSurcharge + $ResidentialPeakSurcharge + $signature) * $fuel_surcharge_rate * 0.01, 2);
+
+            // 佣金（过路费）
+            $commission = 0;
+
+            // 运费总计
+            $price = round($inbound + $outbound + $base + $ahs + $dasFee + $ResidentialFee + $AHSPeakSurcharge + $ResidentialPeakSurcharge + $signature + $fuel_cost + $commission, 2);
+
+            $tailData = [
+                'postal_format'     =>  '',
+                'zone_format'       =>  0,
+                'charged_weight'    =>  '',
+                'sfp'               =>  0,
+                'inbound'           =>  $inbound,
+                'outbound'          =>  $outbound,
+                'base'              =>  $base,
+                'ahs'               =>  $ahs,
+                'ahs_pss'           =>  $AHSPeakSurcharge,
+                'das'               =>  $dasFee,
+                'residential'       =>  $ResidentialFee,
+                'residential_pss'   =>  $ResidentialPeakSurcharge,
+                'signature'         =>  $signature,
+                'fuel_cost'         =>  $fuel_cost,
+                'commission'        =>  $commission,
+                'tail_course'       =>  $price * $detail['qty']
+            ];
+            $orderDetailObj->update($tailData, ['id' => $detail['id']]);
+            $tail[] = $tailData;
+        }
+
+        return $tail;
+    }
+
+    // 计算运费
+    /**
+     * @throws ModelNotFoundException
+     * @throws DbException
+     * @throws DataNotFoundException
+     */
+    static public function calculateDeliver_de($order): array
     {
         $storage_id = $order['area']['storage_id'];
 

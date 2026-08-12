@@ -68,6 +68,37 @@ class StorageOutboundModel extends Model
         return $price;
     }
 
+    /**
+     * @throws DbException
+     */
+    static public function getOutboundUK($storage, $detail, $order)
+    {
+        $platform = $order['platform'];
+        $storageOutbound = new StorageOutboundModel();
+        $condition['state'] = 1;
+        $condition['storage_id'] = $storage;
+        $condition['platform_tag'] = $platform;
+        $condition['country_code'] = 'UK';
+        // 命中生效区间
+        $shippingDate = empty($order['dateWarehouseShipping']) ? $order['datePaidPlatform'] : $order['dateWarehouseShipping'];
+        $condition['start_at'] = ['lt', $shippingDate];
+        $condition['end_at'] = ['egt', $shippingDate];
+        $outboundList = $storageOutbound->where($condition)->order('level asc')->select();
+        $price = 0;
+        foreach ($outboundList as $rule) {
+            $ruleCondition = json_decode($rule['condition'], true);
+            if ($ruleCondition['max'] == 0 && $detail['product']['productWeight'] > $ruleCondition['min']) {
+                $price = $rule['value'];
+                break;
+            } elseif ($detail['product']['productWeight'] > $ruleCondition['min'] && $detail['product']['productWeight'] <= $ruleCondition['max']) {
+                $price = $rule['value'];
+                break;
+            }
+            unset($rule);
+        }
+        return $price;
+    }
+
     static public function outboundPlatform()
     {
         $outboundJson = Config::get('outbound_platform');
