@@ -48,10 +48,11 @@ class StorageBaseUKModel extends Model
         $price = 0;
         foreach ($list as $rule) {
             $ruleCondition = json_decode($rule['condition'], true);
-            if ($ruleCondition['max'] == 0 && $detail['product']['productWeight'] > $ruleCondition['min']) {
+            $lbs = $detail['product']['productWeight'];
+            if ($ruleCondition['max'] == 0 && $lbs > $ruleCondition['min']) {
                 $price = $rule['value'];
                 break;
-            } elseif ($detail['product']['productWeight'] > $ruleCondition['min'] && $detail['product']['productWeight'] <= $ruleCondition['max']) {
+            } elseif ($lbs > $ruleCondition['min'] && $lbs <= $ruleCondition['max']) {
                 $price = $rule['value'];
                 break;
             }

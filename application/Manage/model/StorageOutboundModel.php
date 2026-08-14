@@ -58,7 +58,11 @@ class StorageOutboundModel extends Model
                     $lbs = $detail['product']['productWeight'] * self::KG2LB;
                 }
             } else {
-                $lbs = $detail['product']['productWeight'];
+                if ($countryCode == 'UK') {
+                    $lbs = max($detail['product']['productLength'] * $detail['product']['productWidth'] * $detail['product']['productHeight'] / 8000, $detail['product']['productWeight']);
+                } else {
+                    $lbs = $detail['product']['productWeight'];
+                }
             }
 
             if ($ruleCondition['max'] == 0 && $lbs > $ruleCondition['min']) {
