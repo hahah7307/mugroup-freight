@@ -57,6 +57,21 @@ class AHS extends Model
     }
 
     /**
+     */
+    static public function getAHSFeeDE($detail, $order): int
+    {
+        $ahsFee = 0;
+        if ($order['shippingMethod'] == 'DPD_CLASSIC_DE') {
+            $arr = [$detail['product']['productLength'], $detail['product']['productWidth'], $detail['product']['productHeight']];
+            rsort($arr);
+            if ($arr[0] > 120 || $arr[1] > 60 || $arr[0] * $arr[1] * $arr[2] > 150000) {
+                $ahsFee = 5;
+            }
+        }
+        return $ahsFee;
+    }
+
+    /**
      * @throws DbException
      */
     static public function AHSFeeLiang($w, $zone, $a, $b, $c, $order)

@@ -33,13 +33,14 @@ class StorageOutboundModel extends Model
     /**
      * @throws DbException
      */
-    static public function getOutbound($storage, $detail, $order)
+    static public function getOutbound($storage, $detail, $order, $countryCode = "US")
     {
         $platform = $order['platform'];
         $storageOutbound = new StorageOutboundModel();
         $condition['state'] = 1;
         $condition['storage_id'] = $storage;
         $condition['platform_tag'] = $platform;
+        $condition['country_code'] = $countryCode;
         // 命中生效区间
         $shippingDate = empty($order['dateWarehouseShipping']) ? $order['datePaidPlatform'] : $order['dateWarehouseShipping'];
         $condition['start_at'] = ['lt', $shippingDate];
@@ -49,12 +50,17 @@ class StorageOutboundModel extends Model
         foreach ($outboundList as $rule) {
             $ruleCondition = json_decode($rule['condition'], true);
             $lbs = 0;
-            // 出库费良仓取计费重，乐歌取实重
-            if ($storage == StorageModel::LIANGCANGID || $storage == StorageModel::WUYOUDAID) {
-                $lbs = StorageBaseModel::getProductLbs($storage, $detail);
-            } elseif ($storage == StorageModel::LECANGID) {
-                $lbs = $detail['product']['productWeight'] * self::KG2LB;
+            if ($countryCode == 'US') {
+                // 出库费良仓取计费重，乐歌取实重
+                if ($storage == StorageModel::LIANGCANGID || $storage == StorageModel::WUYOUDAID) {
+                    $lbs = StorageBaseModel::getProductLbs($storage, $detail);
+                } elseif ($storage == StorageModel::LECANGID) {
+                    $lbs = $detail['product']['productWeight'] * self::KG2LB;
+                }
+            } else {
+                $lbs = $detail['product']['productWeight'];
             }
+
             if ($ruleCondition['max'] == 0 && $lbs > $ruleCondition['min']) {
                 $price = $rule['value'];
                 break;
@@ -63,37 +69,6 @@ class StorageOutboundModel extends Model
                 break;
             }
             unset($lbs);
-            unset($rule);
-        }
-        return $price;
-    }
-
-    /**
-     * @throws DbException
-     */
-    static public function getOutboundUK($storage, $detail, $order)
-    {
-        $platform = $order['platform'];
-        $storageOutbound = new StorageOutboundModel();
-        $condition['state'] = 1;
-        $condition['storage_id'] = $storage;
-        $condition['platform_tag'] = $platform;
-        $condition['country_code'] = 'UK';
-        // 命中生效区间
-        $shippingDate = empty($order['dateWarehouseShipping']) ? $order['datePaidPlatform'] : $order['dateWarehouseShipping'];
-        $condition['start_at'] = ['lt', $shippingDate];
-        $condition['end_at'] = ['egt', $shippingDate];
-        $outboundList = $storageOutbound->where($condition)->order('level asc')->select();
-        $price = 0;
-        foreach ($outboundList as $rule) {
-            $ruleCondition = json_decode($rule['condition'], true);
-            if ($ruleCondition['max'] == 0 && $detail['product']['productWeight'] > $ruleCondition['min']) {
-                $price = $rule['value'];
-                break;
-            } elseif ($detail['product']['productWeight'] > $ruleCondition['min'] && $detail['product']['productWeight'] <= $ruleCondition['max']) {
-                $price = $rule['value'];
-                break;
-            }
             unset($rule);
         }
         return $price;

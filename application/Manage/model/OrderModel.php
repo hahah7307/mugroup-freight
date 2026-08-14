@@ -238,7 +238,7 @@ class OrderModel extends Model
             $inbound = StorageInboundModel::getInbound($storage_id, $detail, $order);
 
             // 出库费运算
-            $outbound = StorageOutboundModel::getOutboundUK($storage_id, $detail, $order);
+            $outbound = StorageOutboundModel::getOutbound($storage_id, $detail, $order, 'UK');
 
             // 基础费运算
             $base = StorageBaseUKModel::getBaseUK($storage_id, $order, $detail);
@@ -308,105 +308,58 @@ class OrderModel extends Model
     {
         $storage_id = $order['area']['storage_id'];
 
-        $postalCode = self::postalFormat($order['address']['postalCode']);
-
         $orderDetailObj = new OrderDetailModel();
         $tail = [];
         foreach ($order['details'] as $detail) {
-            // 获取计费重（不同仓库在同一值上会使用不同的重量）
-            $lbs = StorageBaseModel::getProductLbs($storage_id, $detail);
-
             // 出库费运算
-            $outbound = StorageOutboundModel::getOutbound($storage_id, $detail, $order);
-            $platform = StorageOutboundModel::outboundPlatform();
-            if (in_array($order['platform'], $platform)
-                || ($order['platform'] == "semitemu" && $order['datePaidPlatform'] >= "2025-04-26 00:00:00")
-                || empty($order['dateWarehouseShipping'])
-                || $order['dateWarehouseShipping'] == '0000-00-00 00:00:00') {
-                $tailData = [
-                    'postal_format'     =>  $postalCode,
-                    'zone_format'       =>  0,
-                    'charged_weight'    =>  $lbs,
-                    'outbound'          =>  $outbound * $detail['qty'],
-                    'base'              =>  0,
-                    'ahs'               =>  0,
-                    'ahs_pss'           =>  0,
-                    'das'               =>  0,
-                    'residential'       =>  0,
-                    'residential_pss'   =>  0,
-                    'signature'         =>  0,
-                    'fuel_cost'         =>  0,
-                    'commission'        =>  0,
-                    'tail_course'       =>  $outbound * $detail['qty']
-                ];
-                $orderDetailObj->update($tailData, ['id' => $detail['id']]);
-                $tail[] = $tailData;
-                continue;
-            }
-
-            // SFP
-            $sfp = StorageSfpModel::getSFP($storage_id, $order);
+            $outbound = StorageOutboundModel::getOutbound($storage_id, $detail, $order, 'DE');
 
             // 基础费运算
-            $customerZone = StorageZoneModel::getCustomZone($order, $postalCode);
-            if ($customerZone == 0) {
-                continue;
-            }
-            $baseInfo = StorageBaseModel::getBase($storage_id, $lbs, $customerZone, $order, $detail);
-            $base = $baseInfo ? $baseInfo['value'] : 0;
+            $base = StorageBaseDEModel::getBaseDE($storage_id, $order, $detail);
 
             // AHS运算 & AHS旺季附加费
-            $ahs = AHS::getAHSFee($storage_id, $customerZone, $detail, $order);
-            $AHSPeakSurcharge = $ahs ? AHS::AHSPeakSurcharge($storage_id, $order) : 0;
-
-            // 偏远地址附加费
-            $dasType = StorageDasModel::getDASType($storage_id, $postalCode, $order);
-            $dasFee = !empty($dasType) ? StorageDasFeeModel::getDasFee($storage_id, $dasType, $order) : 0;
-
-            // 住宅地址附加费 & 住宅旺季附加费
-            $ResidentialFee = StorageResidentialModel::getResidential($storage_id, $order);
-            $ResidentialPeakSurcharge = $ResidentialFee ? StorageResidentialModel::ResidentialPeakSurcharge($storage_id, $order) : 0;
-
-            // 签名费
-            if (!strpos($order['shippingMethod'], "-QIANMING") && !strpos($order['shippingMethod'], "-QM")) {
-                $signature = 0;
+            $ahs = AHS::getAHSFeeDE($detail, $order);
+            if ($order['shippingMethod'] == "DPD_CLASSIC_DE") {
+                $AHSPeakSurcharge = 0.5;
             } else {
-                $signatureData = StorageSignatureModel::getSignature($storage_id, $order);
-                $signature = $signatureData ? $signatureData['value'] : 0;
+                $AHSPeakSurcharge = 0;
             }
 
             // 燃油费运算
-            $fuel_surcharge_rate = StorageFuelSurchargeRateModel::getFuelSurchargeRate($order);
-            if (empty($fuel_surcharge_rate)) {
-                continue;
+            if ($order['shippingMethod'] == "DHL_PAKET") {
+                $fuel_surcharge_rate = 3.25;
+            } elseif ($order['shippingMethod'] == "DPD_CLASSIC_DE") {
+                $fuel_surcharge_rate = 18;
+                $fuel_surcharge_rate_dpd_emer = StorageFuelSurchargeRateDpdEmerModel::getFuelSurchargeRate($order);
+                if (empty($fuel_surcharge_rate_dpd_emer)) {
+                    $fuel_surcharge_rate += 0;
+                } else {
+                    $fuel_surcharge_rate += $fuel_surcharge_rate_dpd_emer['value'];
+                }
+            } else {
+                $fuel_surcharge_rate = 0;
             }
-            if ($order['shippingMethod'] == "UPS_ROADIE_GROUND") {
-                $fuel_surcharge_rate['value'] = 0;
-            }
-            $fuel_cost = round(($base + $ahs + $dasFee + $ResidentialFee + $AHSPeakSurcharge + $ResidentialPeakSurcharge + $signature) * $fuel_surcharge_rate['value'] * 0.01, 2);
-
-            // 佣金（过路费）
-            $commission_rate = StorageCommissionModel::getCommission($storage_id, $order);
-            $commission = round(($base + $ahs + $dasFee + $ResidentialFee + $AHSPeakSurcharge + $ResidentialPeakSurcharge + $signature + $fuel_cost) * $commission_rate, 2);
+            $fuel_cost = round(($base + $ahs + $AHSPeakSurcharge) * $fuel_surcharge_rate * 0.01, 2);
 
             // 运费总计
-            $price = round($outbound + $sfp + $base + $ahs + $dasFee + $ResidentialFee + $AHSPeakSurcharge + $ResidentialPeakSurcharge + $signature + $fuel_cost + $commission, 2);
+            $price = round($outbound + $base + $ahs + $AHSPeakSurcharge + $fuel_cost, 2);
 
             $tailData = [
-                'postal_format'     =>  $postalCode,
-                'zone_format'       =>  $customerZone,
-                'charged_weight'    =>  $lbs,
-                'sfp'               =>  $sfp,
+                'postal_format'     =>  '',
+                'zone_format'       =>  '',
+                'charged_weight'    =>  0,
+                'sfp'               =>  0,
+                'inbound'           =>  0,
                 'outbound'          =>  $outbound,
                 'base'              =>  $base,
                 'ahs'               =>  $ahs,
                 'ahs_pss'           =>  $AHSPeakSurcharge,
-                'das'               =>  $dasFee,
-                'residential'       =>  $ResidentialFee,
-                'residential_pss'   =>  $ResidentialPeakSurcharge,
-                'signature'         =>  $signature,
+                'das'               =>  0,
+                'residential'       =>  0,
+                'residential_pss'   =>  0,
+                'signature'         =>  0,
                 'fuel_cost'         =>  $fuel_cost,
-                'commission'        =>  $commission,
+                'commission'        =>  0,
                 'tail_course'       =>  $price * $detail['qty']
             ];
             $orderDetailObj->update($tailData, ['id' => $detail['id']]);
