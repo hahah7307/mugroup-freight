@@ -1774,15 +1774,9 @@ class AmazonPayment extends Model
                     "quantity"                  =>  $item[6],
                     "product_sales"             =>  round(str_replace(',', '', $item[11]), 2),
                     "selling_fees"              =>  round(str_replace(',', '', $item[19]), 2)
-                        + round(str_replace(',', '', $item[38]), 2)
-                        + round(str_replace(',', '', $item[39]), 2)
-                        + round(str_replace(',', '', $item[40]), 2)
-                        + round(str_replace(',', '', $item[41]), 2)
-                        + round(str_replace(',', '', $item[45]), 2)
-                        + round(str_replace(',', '', $item[49]), 2)
-                        + round(str_replace(',', '', $item[52]), 2)
-                        + round(str_replace(',', '', $item[56]), 2)
-                        + round(str_replace(',', '', $item[57]), 2),
+                        - round(str_replace(',', '', $item[20]), 2)
+                        - round(str_replace(',', '', $item[43]), 2)
+                        - round(str_replace(',', '', $item[21]), 2),
                     "shipping_credits"          =>  0,
                     "gift_wrap_credits"         =>  0,
                     "regulatory_fee"            =>  0,
@@ -1802,7 +1796,7 @@ class AmazonPayment extends Model
                     "quantity"                  =>  $item[6],
                     "product_sales"             =>  round(str_replace(',', '', $item[14]), 2),
                     "selling_fees"              =>  round(str_replace(',', '', $item[20]), 2)
-                        + round(str_replace(',', '', $item[42]), 2),
+                        + round(str_replace(',', '', $item[43]), 2),
                     "shipping_credits"          =>  0,
                     "gift_wrap_credits"         =>  0,
                     "regulatory_fee"            =>  0,
