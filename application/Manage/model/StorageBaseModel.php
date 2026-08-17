@@ -72,6 +72,11 @@ class StorageBaseModel extends Model
             $lbs = max($lbs, 40);
         }
 
+        if (AHS::OSFedex($detail['product']['productLength'], $detail['product']['productWidth'], $detail['product']['productHeight'], $detail['product']['productWeight'])
+            && $order['dateWarehouseShipping'] >= "2026-01-05 00:00:00") {
+            $lbs = max($lbs, 90);
+        }
+
         $condition['storage_id'] = $storage;
         $condition['lbs_weight'] = $lbs;
         $condition['zone'] = $customerZone;
