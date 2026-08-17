@@ -26,6 +26,7 @@
                     <option value="amazon_uk">amazon_uk</option>
                     <option value="amazon_de">amazon_de</option>
                     <option value="amazon_es">amazon_es</option>
+                    <option value="amazon_mx">amazon_mx</option>
                     <option value="amazon_fr">amazon_fr</option>
                     <option value="amazon_it">amazon_it</option>
                     <option value="wayfair">wayfair</option>

@@ -73,6 +73,7 @@ class UploadController extends Controller
                 'amazon_uk',
                 'amazon_de',
                 'amazon_es',
+                'amazon_mx',
                 'amazon_fr',
                 'amazon_it',
                 'wayfair',
