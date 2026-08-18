@@ -692,19 +692,19 @@ class AmazonPayment extends Model
                     "promotional_rebates"       =>  sprintf('%.2f', str_replace(',', '', $item[19])),
                     "promotional_rebates_tax"   =>  sprintf('%.2f', str_replace(',', '', $item[20])),
                     "marketplace_withheld_tax"  =>  sprintf('%.2f', str_replace(',', '', $item[21])),
-                    "selling_fees"              =>  sprintf('%.2f', str_replace(',', '', $item[22])),
-                    "fba_fees"                  =>  sprintf('%.2f', str_replace(',', '', $item[23])),
-                    "other_transaction_fees"    =>  sprintf('%.2f', str_replace(',', '', $item[24])),
-                    "other"                     =>  sprintf('%.2f', str_replace(',', '', $item[25])),
-                    "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[26])),
+                    "selling_fees"              =>  sprintf('%.2f', str_replace(',', '', $item[24])),
+                    "fba_fees"                  =>  sprintf('%.2f', str_replace(',', '', $item[25])),
+                    "other_transaction_fees"    =>  sprintf('%.2f', str_replace(',', '', $item[26])),
+                    "other"                     =>  sprintf('%.2f', str_replace(',', '', $item[27])),
+                    "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[28])),
                 ];
-                if (sprintf('%.2f', str_replace(',', '', $item[24])) != 0) {
+                if (sprintf('%.2f', str_replace(',', '', $item[26])) != 0) {
                     $this->orderAdjustmentNew[] = [
                         "report_id"                 =>  $reportId,
                         "table_id"                  =>  $tableId,
                         "payment_id"                =>  $item[3],
                         "sku"                       =>  $item[4],
-                        "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[24])),
+                        "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[26])),
                         "is_amazon"                 =>  1,
                     ];
                 }
