@@ -2580,10 +2580,15 @@ class FinanceExcelInit extends Model
             'TOLEAD_EU_IT',
             'TOLEAD_EU_DE',
             'TOLEAD_EU_FR',
-            'TOLEAD_EU_ES'
+            'TOLEAD_EU_ES',
+            'US_Carajali_DE'
         ])) {
             return 'EUR';
-        } elseif ($userAccount == 'TOLEAD_EU_UK') {
+        } elseif (in_array($userAccount,
+            [
+                'TOLEAD_EU_UK',
+                'US_Carajali_UK_UK'
+            ])) {
             return 'GBP';
         } else {
             return 'USD';
