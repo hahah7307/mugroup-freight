@@ -41,7 +41,7 @@ class AkAmazonDailyList extends Command
             $pageObj->update($itemArr, $itemArr['id']);
         }
 
-        $page = $pageObj->where(['date' => date('Ymd'), 'is_finished' => 0])->order('id asc')->find();
+        $page = $pageObj->where(['date' => date('Ymd'), 'is_finished' => 0, 'status' => 1])->order('id asc')->find();
         if ($page) {
             Db::startTrans();
             try {
@@ -56,24 +56,31 @@ class AkAmazonDailyList extends Command
                 $akAmazonDailyListRes = AkOpenAPI::makeRequest("/erp/sc/data/sales_report/asinDailyLists", "POST", $params);
                 $data = $akAmazonDailyListRes['data'];
                 $listingObj = new AkAmazonDailyListModel();
-                if (!empty($data)) {
+                if ($akAmazonDailyListRes['code'] == 0 || !empty($data)) {
                     $insertData = [];
                     foreach ($data as $listing) {
                         $listing['created_date'] = date('Ymd');
                         $insertData[] = $listing;
                     }
-                    if ($listingObj->insertAll($insertData)) {
-                        if (count($data) < $page['length']) {
-                            $pageObj->update(['offset' => $page['offset'] + count($data), 'is_finished' => 1], ['id' => $page['id']]);
-                        } else {
-                            $pageObj->update(['offset' => $page['offset'] + count($data)], ['id' => $page['id']]);
-                        }
+                    if ($insertData) {
+                        if ($listingObj->insertAll($insertData)) {
+                            if (count($data) < $page['length']) {
+                                $pageObj->update(['offset' => $page['offset'] + count($data), 'is_finished' => 1], ['id' => $page['id']]);
+                            } else {
+                                $pageObj->update(['offset' => $page['offset'] + count($data)], ['id' => $page['id']]);
+                            }
 
-                        unset($insertData);
+                            unset($insertData);
+                            Db::commit();
+                            echo "success";
+                        } else {
+                            throw new Exception('新增失败');
+                        }
+                    } else {
+                        $pageObj->update(['offset' => $page['offset'] + count($data), 'is_finished' => 1], ['id' => $page['id']]);
+
                         Db::commit();
                         echo "success";
-                    } else {
-                        throw new Exception('新增失败');
                     }
                 } else {
                     if ($akAmazonDailyListRes['message'] == "success") {
