@@ -679,4 +679,78 @@ GROUP BY
 
         return view();
     }
+
+    /**
+     * @throws PDOException
+     * @throws BindParamException
+     */
+    public function warehouse_rent_pie($category = "儿童产品"): \think\response\View
+    {
+        $month1 = input('month1', date('Y-m', strtotime('-3 months', time())), 'htmlspecialchars');
+        $this->assign('month1', $month1);
+
+        $month2 = input('month2', date('Y-m', strtotime('-3 months', time())), 'htmlspecialchars');
+        $this->assign('month2', $month2);
+
+        $model = new FinanceSkuGroupModel();
+        $profit_1 = $model->query('
+SELECT
+	SUM( total ) `value`,
+	group_name name 
+FROM
+	mu_finance_warehouse_fbm a
+	LEFT JOIN mu_finance_sku_group b ON a.main_sku = b.sku 
+	LEFT JOIN mu_finance_report c ON a.report_id = c.id
+WHERE
+	`month` >= "' . $month1 . '" 
+    AND `month` <= "' . $month2 . '" 
+GROUP BY
+	group_name
+ORDER BY
+    value DESC;
+        ');
+        $this->assign('profit_1', json_encode(array_values($profit_1)));
+
+        $profit_2 = $model->query('
+SELECT
+	SUM( total ) `value`,
+	group_name_origin name 
+FROM
+	mu_finance_warehouse_fbm a
+	LEFT JOIN mu_finance_sku_group b ON a.main_sku = b.sku 
+	LEFT JOIN mu_finance_report c ON a.report_id = c.id
+WHERE
+	`month` >= "' . $month1 . '" 
+    AND `month` <= "' . $month2 . '" 
+GROUP BY
+	group_name_origin
+ORDER BY
+    value DESC;
+        ');
+
+        $this->assign('profit_2', json_encode(array_values($profit_2)));
+
+        $profit_3 = $model->query('
+SELECT
+	SUM( total ) `value`,
+	group_name_origin name 
+FROM
+	mu_finance_warehouse_fbm a
+	LEFT JOIN mu_finance_sku_group b ON a.main_sku = b.sku 
+	LEFT JOIN mu_finance_report c ON a.report_id = c.id
+WHERE
+	`month` >= "' . $month1 . '" 
+    AND `month` <= "' . $month2 . '" 
+	AND b.group_name = "' . $category . '"
+GROUP BY
+	group_name_origin
+ORDER BY
+    value DESC;
+        ');
+
+        $this->assign('profit_3', json_encode(array_values($profit_3)));
+        $this->assign('category', $category);
+
+        return view();
+    }
 }

@@ -12,7 +12,6 @@
 <script src="/static/echarts/test/lib/jquery.min.js"></script>
 <div class="layui-body" id="LAY_app_body">
     <div class="right">
-        <a href="{:url('index')}" class="layui-btn layui-btn-danger layui-btn-sm fr"><i class="layui-icon">&#xe603;</i>返回上一页</a>
         <div class="title">月度财报分析饼状图</div>
         <form class="layui-form" method="get">
             <div class="layui-input-inline w200">
