@@ -153,7 +153,7 @@ SELECT
     total_qty /
     (
         DATEDIFF(
-            LEAST(LAST_DAY(STR_TO_DATE(CONCAT(month, "-01"), "%Y-%m-%d")), "' . $post['sale_end'] . '"),
+            LEAST(LAST_DAY(STR_TO_DATE(CONCAT(month, "-01"), "%Y-%m-%d")), "' . $post['sale_end'] . '", CURDATE()),
             GREATEST(STR_TO_DATE(CONCAT(month, "-01"), "%Y-%m-%d"), "' . $post['sale_start'] . '")
         ) + 1
     ) AS avg_daily_qty
