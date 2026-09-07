@@ -5337,9 +5337,10 @@ SELECT
 	a.sku,
 	a.main_platform,
 	a.total,
+	a.share_currency,
 	IFNULL( quantity, 0 ) quantity 
 FROM
-	( SELECT sku, main_platform, SUM( total ) total FROM mu_finance_warehouse WHERE report_id = ' . $report_id . ' GROUP BY sku, main_platform ) a
+	( SELECT sku, main_platform, share_currency, SUM( share_total ) total FROM mu_finance_warehouse WHERE report_id = ' . $report_id . ' GROUP BY sku, main_platform, share_currency ) a
 	LEFT JOIN ( SELECT sku, SUM( quantity ) quantity FROM mu_finance_warehouse WHERE report_id = ' . $report_id . ' AND date = "' . $lastDay . '" GROUP BY sku ) b ON a.sku = b.sku 
 WHERE
 	total != 0;

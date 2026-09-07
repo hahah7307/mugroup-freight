@@ -1470,7 +1470,9 @@ class FinanceController extends BaseController
         $this->assign('report_id', $id);
 
         $sum = $order->where($where)->sum('total');
+        $share_sum = $order->where($where)->sum('share_total');
         $this->assign('sum', $sum);
+        $this->assign('share_sum', $share_sum);
 
         Session::set(Config::get('BACK_URL'), $this->request->url(), 'manage');
         return view();
@@ -1496,6 +1498,7 @@ class FinanceController extends BaseController
         try {
             $warehouseData = [];
             $financeWarehouseObj = new FinanceWarehouseModel();
+            $report = FinanceReportModel::get($report_id);
             foreach ($data as $item) {
                 if ($item[0] != "仓租") {
                     continue;
@@ -1515,7 +1518,9 @@ class FinanceController extends BaseController
                         "volume"                =>  $item[9],
                         "total"                 =>  $item[10],
                         "total_unit"            =>  $item[11],
-                        "main_platform"         =>  $item[12]
+                        "main_platform"         =>  $item[12],
+                        "share_currency"        =>  $item[13],
+                        "share_total"           =>  round($report[$item[11]] / $report[$item[13]] * $item[10], 6)
                     ];
                 }
             }

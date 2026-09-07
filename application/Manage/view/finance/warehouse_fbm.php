@@ -22,10 +22,11 @@
         </form>
 
         <div class="layui-form">
-            <span class="total">仓储费合计：{$sum|number_format=###,6}</span>
+            <span class="total">分摊币种合计：{$sum|number_format=###,6}</span>
             <table class="layui-table" lay-size="sm">
                 <colgroup>
                     <col width="80">
+                    <col>
                     <col>
                     <col>
                     <col>
@@ -41,7 +42,8 @@
                     <th>主件Sku</th>
                     <th>主销售平台</th>
                     <th>月结余库存</th>
-                    <th>总金额</th>
+                    <th>分摊币种金额</th>
+                    <th>分摊币种</th>
                     <th>分摊唯一标识号</th>
                     <th class="tc">操作</th>
                 </tr>
@@ -55,6 +57,7 @@
                     <td>{$v.main_platform}</td>
                     <td class="tr">{$v.quantity}</td>
                     <td class="tr">{$v.total}</td>
+                    <td>{$v.share_currency}</td>
                     <td>{$v.share_code}</td>
                     <td class="tc">
                         <a href="{:url('warehouse_fbm_edit', ['id' => $v.id])}" class="layui-btn layui-btn-normal layui-btn-sm">修改主件</a>

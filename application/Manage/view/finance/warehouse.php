@@ -26,9 +26,13 @@
             <a href="{:url('warehouse_wfs', ['id' => $report_id])}" class="layui-btn">WFS</a>
             <button type="button" class="layui-btn  layui-btn-normal" id="excel">导入</button>
             <button data-id="{$report_id}" class="layui-btn layui-btn-danger ml0" lay-submit lay-filter="Detele">清空</button>
-            <span class="total">仓储费合计：{$sum|number_format=###,6}</span>
+            <span class="total">原币种合计：{$sum|number_format=###,6}</span>
+            <span class="total">分摊币种合计：{$share_sum|number_format=###,6}</span>
             <table class="layui-table" lay-size="sm">
                 <colgroup>
+                    <col>
+                    <col>
+                    <col>
                     <col>
                     <col>
                     <col>
@@ -54,7 +58,10 @@
                     <th>数量</th>
                     <th>库龄</th>
                     <th>体积（m³）</th>
-                    <th>金额（USD）</th>
+                    <th>原币种金额</th>
+                    <th>原币种</th>
+                    <th>分摊币种金额</th>
+                    <th>分摊币种</th>
                     <th>主销售平台</th>
                 </tr>
                 </thead>
@@ -72,6 +79,9 @@
                     <td class="tr">{$v.age}</td>
                     <td class="tr">{$v.volume}</td>
                     <td class="tr">{$v.total}</td>
+                    <td class="tr">{$v.total_unit}</td>
+                    <td class="tr">{$v.share_total}</td>
+                    <td class="tr">{$v.share_currency}</td>
                     <td class="tr">{$v.main_platform}</td>
                 </tr>
                 {/foreach}
