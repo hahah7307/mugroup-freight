@@ -130,8 +130,18 @@ WHERE
      * @throws PDOException
      * @throws BindParamException
      */
-    static public function generatePlatformSaleQtyByWarehouseSku($warehouse_sku, $report)
+    static public function generatePlatformSaleQtyByWarehouseSku($warehouse_sku, $report, $share_currency = "USD")
     {
+        if ($share_currency == "USD") {
+            $user_account = ' AND user_account NOT IN("US_Carajali_UK_UK", "US_Carajali_DE") ';
+        } elseif ($share_currency == "GBP") {
+            $user_account = ' AND user_account IN("US_Carajali_UK_UK") ';
+        } elseif ($share_currency == "EUR") {
+            $user_account = ' AND user_account IN("US_Carajali_DE") ';
+        } else {
+            $user_account = ' AND user_account NOT IN("US_Carajali_UK_UK", "US_Carajali_DE") ';
+        }
+
         $financeOrderShareObj = new FinanceOrderShareModel();
         return $financeOrderShareObj->query('
 SELECT
@@ -142,7 +152,7 @@ FROM
     mu_finance_order_outbound 
 WHERE
     warehouse_sku = "' . $warehouse_sku . '" 
-    AND report_id = ' . $report['id'] . ' 
+    AND report_id = ' . $report['id'] . $user_account . ' 
 GROUP BY
     platform,
     warehouse_sku;
@@ -153,8 +163,18 @@ GROUP BY
      * @throws PDOException
      * @throws BindParamException
      */
-    static public function generateSellerListByWarehouseSku($warehouse_sku, $report, $platform)
+    static public function generateSellerListByWarehouseSku($warehouse_sku, $report, $platform, $share_currency = "USD")
     {
+        if ($share_currency == "USD") {
+            $user_account = ' AND a.user_account NOT IN("US_Carajali_UK_UK", "US_Carajali_DE") ';
+        } elseif ($share_currency == "GBP") {
+            $user_account = ' AND a.user_account IN("US_Carajali_UK_UK") ';
+        } elseif ($share_currency == "EUR") {
+            $user_account = ' AND a.user_account IN("US_Carajali_DE") ';
+        } else {
+            $user_account = ' AND a.user_account NOT IN("US_Carajali_UK_UK", "US_Carajali_DE") ';
+        }
+
         $financeOrderShareObj = new FinanceOrderShareModel();
         return $financeOrderShareObj->query('
 SELECT DISTINCT
@@ -168,7 +188,7 @@ WHERE
     a.warehouse_sku = "' . $warehouse_sku . '"
     AND b.platform = "' . $platform . '"
     AND a.report_id = ' . $report['id'] . '
-    AND a.type = 0;
+    AND a.type = 0' . $user_account . ';
         ');
     }
 
@@ -200,8 +220,18 @@ WHERE
      * @throws PDOException
      * @throws BindParamException
      */
-    static public function generateUserAccountListByWarehouseSkuAndSeller($warehouse_sku, $report, $seller, $platform)
+    static public function generateUserAccountListByWarehouseSkuAndSeller($warehouse_sku, $report, $seller, $platform, $share_currency = "USD")
     {
+        if ($share_currency == "USD") {
+            $user_account = ' AND a.user_account NOT IN("US_Carajali_UK_UK", "US_Carajali_DE") ';
+        } elseif ($share_currency == "GBP") {
+            $user_account = ' AND a.user_account IN("US_Carajali_UK_UK") ';
+        } elseif ($share_currency == "EUR") {
+            $user_account = ' AND a.user_account IN("US_Carajali_DE") ';
+        } else {
+            $user_account = ' AND a.user_account NOT IN("US_Carajali_UK_UK", "US_Carajali_DE") ';
+        }
+
         $financeOrderShareObj = new FinanceOrderShareModel();
         return $financeOrderShareObj->query('
 SELECT DISTINCT
@@ -216,7 +246,7 @@ WHERE
     AND a.warehouse_sku = "' . $warehouse_sku . '"
     AND b.platform = "' . $platform . '"
     AND a.report_id = ' . $report['id'] . '
-    AND a.type = 0;
+    AND a.type = 0' . $user_account . ';
         ');
     }
 

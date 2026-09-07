@@ -62,7 +62,7 @@ class FinanceWarehouseNotify extends Command
                     }
 
                     // 查询该主件sku各平台的销售情况
-                    $saleList = FinanceOrderShareModel::generatePlatformSaleQtyByWarehouseSku($mainSku, $report);
+                    $saleList = FinanceOrderShareModel::generatePlatformSaleQtyByWarehouseSku($mainSku, $report, $item['share_currency']);
 
                     // 如该主件sku在主销售平台无销售数据，新增销售为0的该平台数据
                     $isMainPlatform = false;
@@ -97,7 +97,7 @@ class FinanceWarehouseNotify extends Command
                             }
 
                             // 查询该主件sku在该平台的销售人员，根据销售人员数量均摊仓储费
-                            $userList = FinanceOrderShareModel::generateSellerListByWarehouseSku($mainSku, $report, $platformData['platform']);
+                            $userList = FinanceOrderShareModel::generateSellerListByWarehouseSku($mainSku, $report, $platformData['platform'], $item['share_currency']);
 
                             if ($key + 1 != count($saleList)) {
                                 // 销售数量和剩余库存的逻辑跟随主件sku，而不是当前的配件。费用使用配件
@@ -129,8 +129,7 @@ class FinanceWarehouseNotify extends Command
                                     }
 
                                     // 查询该主件sku该销售人员在该平台的所有店铺，根据店铺数量均摊仓储费
-                                    $userAccountList = FinanceOrderShareModel::generateUserAccountListByWarehouseSkuAndSeller($mainSku, $report, $user['seller'], $platformData['platform']);
-
+                                    $userAccountList = FinanceOrderShareModel::generateUserAccountListByWarehouseSkuAndSeller($mainSku, $report, $user['seller'], $platformData['platform'], $item['share_currency']);
                                     $userAccountSum = 0;
                                     if ($userAccountList) {
                                         foreach ($userAccountList as $ku => $userAccount) {
@@ -185,7 +184,7 @@ class FinanceWarehouseNotify extends Command
                         }
                     } else {
                         // 无销售的主件sku只分摊到主销售平台
-                        $userList = FinanceOrderShareModel::generateSellerListByWarehouseSku($mainSku, $report, $item['main_platform']);
+                        $userList = FinanceOrderShareModel::generateSellerListByWarehouseSku($mainSku, $report, $item['main_platform'], $item['share_currency']);
 
                         $userSum = 0;
                         if ($userList) {
@@ -198,7 +197,7 @@ class FinanceWarehouseNotify extends Command
                                 }
 
                                 // 平台内分摊逻辑同上
-                                $userAccountList = FinanceOrderShareModel::generateUserAccountListByWarehouseSkuAndSeller($mainSku, $report, $user['seller'], $user['platform']);
+                                $userAccountList = FinanceOrderShareModel::generateUserAccountListByWarehouseSkuAndSeller($mainSku, $report, $user['seller'], $user['platform'], $item['share_currency']);
 
                                 $userAccountSum = 0;
                                 if ($userAccountList) {
