@@ -52,19 +52,19 @@ class OrderModel extends Model
         $order = new OrderModel();
         $orderInfo = $order->with(['details.product', 'address', 'area'])->where(['id'=>$orderId])->find();
 
-        if (!in_array($orderInfo['status'], [4, 5])) {
-            return false; // 订单未发货跳过
-        }
+//        if (!in_array($orderInfo['status'], [4, 5])) {
+//            return false; // 订单未发货跳过
+//        }
 
         $storage_id = $orderInfo['area']['storage_id'];
         if (empty($storage_id)) {
             return false; // 匹配不到仓库跳过
         }
 
-        $zip_code = $orderInfo['address']['postalCode'];
-        if (empty($zip_code)) {
-            return false; // 空邮编跳过
-        }
+//        $zip_code = $orderInfo['address']['postalCode'];
+//        if (empty($zip_code)) {
+//            return false; // 空邮编跳过
+//        }
 
         // 计算运费和公式
         if ($orderInfo['warehouseCode'] == 'EDA_UKBHS-B002') {
