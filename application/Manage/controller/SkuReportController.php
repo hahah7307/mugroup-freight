@@ -1462,13 +1462,10 @@ FROM
 	mu_ecang_order a
 	LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id 
 WHERE
-	a.`status` != 5 
-	AND a.`status` != 7 
-	AND a.`status` != 0 
-	AND a.datePaidPlatform >= "' . date('Y-m-d 16:00:00', strtotime('-7 day', strtotime($sale_day_num))) . '" 
-	AND a.datePaidPlatform < "' . date('Y-m-d 16:00:00', strtotime($sale_day_num)) . '"
-    AND a.warehouseCode != "EDA_UKBHS-B002"
-    AND a.warehouseCode != "WUYOUDA_DUSJW2"
+		a.`status` != 0 
+	AND a.datePaidPlatform >= "' . date('Y-m-d 00:00:00', strtotime('-7 day', strtotime($sale_day_num))) . '" 
+	AND a.datePaidPlatform < "' . date('Y-m-d 00:00:00', strtotime($sale_day_num)) . '"
+    AND a.userAccount NOT IN("US_Carajali_DE", "US_Carajali_UK_UK")
         ');
         $this->assign('monthQty', $monthQty);
 
@@ -1479,12 +1476,10 @@ FROM
 	mu_ecang_order a
 	LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id 
 WHERE
-	a.`status` != 5 
-	AND a.`status` != 7 
-	AND a.`status` != 0 
+		a.`status` != 0 
 	AND a.warehouseCode IN("CAP2","LG-USA-PA01","CAP4","LG-TN","LG-USA-MI","SAV","HOU03","LOCTEKOMS_HOU07","LECANGS_HOU05","LECANGS_CAT","LOCTEKOMS_NJF02")
-	AND a.datePaidPlatform >= "' . date('Y-m-d 16:00:00', strtotime('-7 day', strtotime($sale_day_num))) . '" 
-	AND a.datePaidPlatform < "' . date('Y-m-d 16:00:00', strtotime($sale_day_num)) . '";
+	AND a.datePaidPlatform >= "' . date('Y-m-d 00:00:00', strtotime('-7 day', strtotime($sale_day_num))) . '" 
+	AND a.datePaidPlatform < "' . date('Y-m-d 00:00:00', strtotime($sale_day_num)) . '";
         ');
         $this->assign('le_monthQty', $le_monthQty);
 
@@ -1495,12 +1490,10 @@ FROM
 	mu_ecang_order a
 	LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id 
 WHERE
-	a.`status` != 5 
-	AND a.`status` != 7 
-	AND a.`status` != 0 
+		a.`status` != 0 
 	AND a.warehouseCode IN("LC-USLAX08","LC-USNJ06","USLAX09","LC-USATL06","LC-USLAX05","LC-USLAX01")
-	AND a.datePaidPlatform >= "' . date('Y-m-d 16:00:00', strtotime('-7 day', strtotime($sale_day_num))) . '" 
-	AND a.datePaidPlatform < "' . date('Y-m-d 16:00:00', strtotime($sale_day_num)) . '";
+	AND a.datePaidPlatform >= "' . date('Y-m-d 00:00:00', strtotime('-7 day', strtotime($sale_day_num))) . '" 
+	AND a.datePaidPlatform < "' . date('Y-m-d 00:00:00', strtotime($sale_day_num)) . '";
         ');
         $this->assign('lc_monthQty', $lc_monthQty);
 
@@ -1511,12 +1504,10 @@ FROM
 	mu_ecang_order a
 	LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id 
 WHERE
-	a.`status` != 5 
-	AND a.`status` != 7 
-	AND a.`status` != 0 
+		a.`status` != 0 
 	AND a.warehouseCode IN("WUYOUDA_CAJW04","WUYOUDA_NJJW03","WUYOUDA_CAJW05")
-	AND a.datePaidPlatform >= "' . date('Y-m-d 16:00:00', strtotime('-7 day', strtotime($sale_day_num))) . '" 
-	AND a.datePaidPlatform < "' . date('Y-m-d 16:00:00', strtotime($sale_day_num)) . '";
+	AND a.datePaidPlatform >= "' . date('Y-m-d 00:00:00', strtotime('-7 day', strtotime($sale_day_num))) . '" 
+	AND a.datePaidPlatform < "' . date('Y-m-d 00:00:00', strtotime($sale_day_num)) . '";
         ');
         $this->assign('wyd_monthQty', $wyd_monthQty);
 
@@ -1527,13 +1518,10 @@ FROM
 	mu_ecang_order a
 	LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id 
 WHERE
-	a.`status` != 5 
-	AND a.`status` != 7 
-	AND a.`status` != 0 
-	AND a.datePaidPlatform >= "' . date('Y-m-d 16:00:00', strtotime('-1 day', strtotime($sale_day_num))) . '" 
-	AND a.datePaidPlatform < "' . date('Y-m-d 16:00:00', strtotime($sale_day_num)) . '"
-    AND a.warehouseCode != "EDA_UKBHS-B002"
-    AND a.warehouseCode != "WUYOUDA_DUSJW2"
+		a.`status` != 0 
+	AND a.datePaidPlatform >= "' . date('Y-m-d 00:00:00', strtotime('-1 day', strtotime($sale_day_num))) . '" 
+	AND a.datePaidPlatform < "' . date('Y-m-d 00:00:00', strtotime($sale_day_num)) . '"
+    AND a.userAccount NOT IN("US_Carajali_DE", "US_Carajali_UK_UK")
         ');
         $this->assign('orderQty', $orderQty);
 
@@ -1621,12 +1609,10 @@ FROM
 	mu_ecang_order a
 	LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id 
 WHERE
-	a.`status` != 5 
-	AND a.`status` != 7 
-	AND a.`status` != 0 
-	AND a.datePaidPlatform >= "' . date('Y-m-d 16:00:00', strtotime('-7 day', strtotime($sale_day_num))) . '" 
-	AND a.datePaidPlatform < "' . date('Y-m-d 16:00:00', strtotime($sale_day_num)) . '"
-    AND a.warehouseCode = "WUYOUDA_DUSJW2"
+		a.`status` != 0 
+	AND a.datePaidPlatform >= "' . date('Y-m-d 00:00:00', strtotime('-7 day', strtotime($sale_day_num))) . '" 
+	AND a.datePaidPlatform < "' . date('Y-m-d 00:00:00', strtotime($sale_day_num)) . '"
+	AND a.userAccount IN("US_Carajali_DE")
         ');
         $this->assign('monthQty_de', $monthQty_de);
 
@@ -1637,28 +1623,24 @@ FROM
 	mu_ecang_order a
 	LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id 
 WHERE
-	a.`status` != 5 
-	AND a.`status` != 7 
-	AND a.`status` != 0 
-	AND a.datePaidPlatform >= "' . date('Y-m-d 16:00:00', strtotime('-7 day', strtotime($sale_day_num))) . '" 
-	AND a.datePaidPlatform < "' . date('Y-m-d 16:00:00', strtotime($sale_day_num)) . '"
-    AND a.warehouseCode = "WUYOUDA_DUSJW2"
+		a.`status` != 0 
+	AND a.datePaidPlatform >= "' . date('Y-m-d 00:00:00', strtotime('-7 day', strtotime($sale_day_num))) . '" 
+	AND a.datePaidPlatform < "' . date('Y-m-d 00:00:00', strtotime($sale_day_num)) . '"
+	AND a.userAccount IN("US_Carajali_DE")
         ');
         $this->assign('wyd_monthQty_de', $wyd_monthQty_de);
 
         $orderQty_de = $model->query('
 SELECT
-	COUNT(b.id) count
+	COUNT(b.qty) count
 FROM
 	mu_ecang_order a
 	LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id 
 WHERE
-	a.`status` != 5 
-	AND a.`status` != 7 
-	AND a.`status` != 0 
-	AND a.datePaidPlatform >= "' . date('Y-m-d 16:00:00', strtotime('-1 day', strtotime($sale_day_num))) . '" 
-	AND a.datePaidPlatform < "' . date('Y-m-d 16:00:00', strtotime($sale_day_num)) . '"
-    AND a.warehouseCode = "WUYOUDA_DUSJW2"
+		a.`status` != 0 
+	AND a.datePaidPlatform >= "' . date('Y-m-d 00:00:00', strtotime('-1 day', strtotime($sale_day_num))) . '" 
+	AND a.datePaidPlatform < "' . date('Y-m-d 00:00:00', strtotime($sale_day_num)) . '"
+	AND a.userAccount IN("US_Carajali_DE")
         ');
         $this->assign('orderQty_de', $orderQty_de);
 
@@ -1742,12 +1724,10 @@ FROM
 	mu_ecang_order a
 	LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id 
 WHERE
-	a.`status` != 5 
-	AND a.`status` != 7 
-	AND a.`status` != 0 
-	AND a.datePaidPlatform >= "' . date('Y-m-d 16:00:00', strtotime('-7 day', strtotime($sale_day_num))) . '" 
-	AND a.datePaidPlatform < "' . date('Y-m-d 16:00:00', strtotime($sale_day_num)) . '"
-    AND a.warehouseCode = "EDA_UKBHS-B002"
+		a.`status` != 0 
+	AND a.datePaidPlatform >= "' . date('Y-m-d 00:00:00', strtotime('-7 day', strtotime($sale_day_num))) . '" 
+	AND a.datePaidPlatform < "' . date('Y-m-d 00:00:00', strtotime($sale_day_num)) . '"
+	AND a.userAccount IN("US_Carajali_UK_UK")
         ');
         $this->assign('monthQty_uk', $monthQty_uk);
 
@@ -1758,12 +1738,10 @@ FROM
 	mu_ecang_order a
 	LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id 
 WHERE
-	a.`status` != 5 
-	AND a.`status` != 7 
-	AND a.`status` != 0 
-	AND a.datePaidPlatform >= "' . date('Y-m-d 16:00:00', strtotime('-7 day', strtotime($sale_day_num))) . '" 
-	AND a.datePaidPlatform < "' . date('Y-m-d 16:00:00', strtotime($sale_day_num)) . '"
-    AND a.warehouseCode = "EDA_UKBHS-B002"
+		a.`status` != 0 
+	AND a.datePaidPlatform >= "' . date('Y-m-d 00:00:00', strtotime('-7 day', strtotime($sale_day_num))) . '" 
+	AND a.datePaidPlatform < "' . date('Y-m-d 00:00:00', strtotime($sale_day_num)) . '"
+	AND a.userAccount IN("US_Carajali_UK_UK")
         ');
         $this->assign('eda_monthQty_uk', $eda_monthQty_uk);
 
@@ -1774,12 +1752,10 @@ FROM
 	mu_ecang_order a
 	LEFT JOIN mu_ecang_order_detail b ON a.id = b.order_id 
 WHERE
-	a.`status` != 5 
-	AND a.`status` != 7 
-	AND a.`status` != 0 
-	AND a.datePaidPlatform >= "' . date('Y-m-d 16:00:00', strtotime('-1 day', strtotime($sale_day_num))) . '" 
-	AND a.datePaidPlatform < "' . date('Y-m-d 16:00:00', strtotime($sale_day_num)) . '"
-    AND a.warehouseCode = "EDA_UKBHS-B002"
+		a.`status` != 0 
+	AND a.datePaidPlatform >= "' . date('Y-m-d 00:00:00', strtotime('-1 day', strtotime($sale_day_num))) . '" 
+	AND a.datePaidPlatform < "' . date('Y-m-d 00:00:00', strtotime($sale_day_num)) . '"
+	AND a.userAccount IN("US_Carajali_UK_UK")
         ');
         $this->assign('orderQty_uk', $orderQty_uk);
 
