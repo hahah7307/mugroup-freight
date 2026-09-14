@@ -64,7 +64,7 @@ class StorageBaseModel extends Model
     static public function getBase($storage, $lbs, $customerZone, $order, $detail)
     {
         if ($order['shippingMethod'] == "UPS_ROADIE_GROUND") {
-            return ['value' => 10.1];
+            return StorageBaseUpsRoadieModel::getBaseUpsRoadie($storage, $lbs, $customerZone, $order, $detail);
         }
 
         if (AHS::AHSDimension($detail['product']['productLength'], $detail['product']['productWidth'], $detail['product']['productHeight'])

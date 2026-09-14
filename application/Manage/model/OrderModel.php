@@ -155,10 +155,11 @@ class OrderModel extends Model
             // 基础费运算
             $customerZone = StorageZoneModel::getCustomZone($order, $postalCode);
             if ($customerZone == 0) {
-                continue;
+                $base = 0;
+            } else {
+                $baseInfo = StorageBaseModel::getBase($storage_id, $lbs, $customerZone, $order, $detail);
+                $base = $baseInfo ? $baseInfo['value'] : 0;
             }
-            $baseInfo = StorageBaseModel::getBase($storage_id, $lbs, $customerZone, $order, $detail);
-            $base = $baseInfo ? $baseInfo['value'] : 0;
 
             // AHS运算 & AHS旺季附加费
             $ahs = AHS::getAHSFee($storage_id, $customerZone, $detail, $order);

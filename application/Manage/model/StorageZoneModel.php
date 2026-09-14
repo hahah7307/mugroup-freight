@@ -55,7 +55,11 @@ class StorageZoneModel extends Model
             // TODO:邮编不在范围内无法得到分区
             return intval($postalCode) >= $zone['zip_code'] && intval($postalCode) <= $zone['zip_code_bak'] ? $zone['zone'] : 0;
         } elseif ($order['area']['storage_id'] == StorageModel::LECANGID) {
-            $zone = StorageZoneModel::get(['storage_id' => $order['area']['storage_id'], 'type' => $order['area']['type'], 'area_id' => $area['id'], 'zip_code' => $postalCode]);
+            if ($order['shippingMethod'] == "UPS_ROADIE_GROUND") {
+                $zone = StorageZoneUpsRoadieModel::get(['storage_id' => $order['area']['storage_id'], 'area_id' => $area['id'], 'zip_code' => $postalCode]);
+            } else {
+                $zone = StorageZoneModel::get(['storage_id' => $order['area']['storage_id'], 'area_id' => $area['id'], 'zip_code' => $postalCode]);
+            }
             return $zone ? $zone['zone'] : 0;
         } else {
             return 0;

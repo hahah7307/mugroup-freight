@@ -2,8 +2,6 @@
 
 namespace app\Manage\model;
 
-use think\db\exception\DataNotFoundException;
-use think\db\exception\ModelNotFoundException;
 use think\exception\DbException;
 use think\Model;
 
@@ -37,7 +35,7 @@ class StorageDasFeeModel extends Model
     static public function getDasFee($storage, $das, $order)
     {
         if ($order['shippingMethod'] == "UPS_ROADIE_GROUND") {
-            return 3.2;
+            return $das['value'];
         }
 
         if (empty($das)) {
