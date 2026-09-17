@@ -156,11 +156,16 @@ class AmazonPayment extends Model
                     "transaction_fee"           =>  sprintf('%.2f', str_replace(',', '', $item[27])),
                     "total"                     =>  sprintf('%.2f', str_replace(',', '', $item[29])),
                 ];
-            } elseif ($item[2] == 'Adjustment'
+            } elseif (($item[2] == 'Adjustment'
                 ||  $item[2] == 'A-to-z Guarantee Claim'
                 ||  $item[2] == 'SAFE-T reimbursement'
-                ||  $item[2] == 'FBA Transaction fees'
-                ||  $item[2] == 'Fee Adjustment') {
+                ||  $item[2] == 'FBA Transaction fees')
+                && ($item[5] != 'FBA Amazon-Partnered Carrier Shipment Fee'
+                && $item[5] != 'Fulfilment by Amazon (FBA) Inventory Storage Fee'
+                && $item[5] != 'FBA Inbound Placement Service Fee'
+                && $item[5] != 'FBA Inventory Storage Fee'
+                && $item[5] != 'FBA Long Term Storage Fee'
+                )) {
                 $this->orderAdjustmentNew[] = [
                     "report_id"                 =>  $reportId,
                     "table_id"                  =>  $tableId,
