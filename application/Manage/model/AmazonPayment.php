@@ -494,6 +494,14 @@ class AmazonPayment extends Model
                     "description"               =>  $item[5],
                     "total"                     =>  sprintf('%.2f', str_replace(',', '.', str_replace('.', '', $item[26]))),
                 ];
+            } elseif ($item[2] == 'Versanddienstleistungen' && $item[5] == 'Rechnung für den Ruckversand') {
+                $this->orderShippingServiceNew[] = [
+                    "report_id"                 =>  $reportId,
+                    "table_id"                  =>  $tableId,
+                    "payment_id"                =>  $item[3],
+                    "description"               =>  $item[5],
+                    "total"                     =>  sprintf('%.2f', str_replace(',', '.', str_replace('.', '', $item[26]))),
+                ];
             }
         }
 
