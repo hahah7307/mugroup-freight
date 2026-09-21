@@ -592,6 +592,14 @@ ORDER BY
                 $query->where('share_code', null)
                     ->where('wyd_adjustment', 'notnull');
             })
+            ->whereOr(function($query) {
+                $query->where('share_code', null)
+                    ->where('wyd_de_adjustment', 'notnull');
+            })
+            ->whereOr(function($query) {
+                $query->where('share_code', null)
+                    ->where('eda_adjustment', 'notnull');
+            })
             ->limit(100)->select();
         if (count($warehouseAdjustment)) {
             foreach ($warehouseAdjustment as $item) {
@@ -602,20 +610,29 @@ ORDER BY
                 $shareCode = FinanceOrderShareModel::generateRandomCode();
                 $costType = '';
                 $costField = '';
-                if (!empty($item['lc_adjustment'])) {
+                $share_currency = 'USD';
+                if (!empty($item['lc_adjustment']) && $item['lc_adjustment'] != 0) {
                     $costType = 'LCADJUSTMENT';
                     $costField = 'lc_adjustment';
-                } elseif (!empty($item['le_adjustment'])) {
+                } elseif (!empty($item['le_adjustment']) && $item['le_adjustment'] != 0) {
                     $costType = 'LEADJUSTMENT';
                     $costField = 'le_adjustment';
-                } elseif (!empty($item['wyd_adjustment'])) {
+                } elseif (!empty($item['wyd_adjustment']) && $item['wyd_adjustment'] != 0) {
                     $costType = 'WYDADJUSTMENT';
                     $costField = 'wyd_adjustment';
+                } elseif (!empty($item['wyd_de_adjustment']) && $item['wyd_de_adjustment'] != 0) {
+                    $costType = 'WYDADJUSTMENT_DE';
+                    $costField = 'wyd_de_adjustment';
+                    $share_currency = 'EUR';
+                } elseif (!empty($item['eda_adjustment']) && $item['eda_adjustment'] != 0) {
+                    $costType = 'EDAADJUSTMENT';
+                    $costField = 'eda_adjustment';
+                    $share_currency = 'GBP';
                 }
                 $report = FinanceReportModel::get($item['report_id']);
                 $shareItem = [];
                 $sku = FinanceOrderShareModel::getMainSku($item['warehouse_sku']);
-                $userList = FinanceOrderShareModel::generateSellerListByWarehouseSku($sku, $report, $item['platform']);
+                $userList = FinanceOrderShareModel::generateSellerListByWarehouseSku($sku, $report, $item['platform'], $share_currency);
                 if ($userList) {
                     $total = $item[$costField];
                     $userSum = 0;
@@ -631,7 +648,7 @@ ORDER BY
                             $percent = 1 - $percentSum;
                         }
 
-                        $userAccountList = FinanceOrderShareModel::generateUserAccountListByWarehouseSkuAndSeller($sku, $report, $v['seller'], $item['platform']);
+                        $userAccountList = FinanceOrderShareModel::generateUserAccountListByWarehouseSkuAndSeller($sku, $report, $v['seller'], $item['platform'], $share_currency);
                         $userAccountSum = 0;
                         if ($userAccountList) {
                             foreach ($userAccountList as $ku => $userAccount) {

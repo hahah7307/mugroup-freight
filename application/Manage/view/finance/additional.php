@@ -27,8 +27,12 @@
             <span class="total">良仓调整合计：{$lc_adjustment|number_format=###,2}</span>
             <span class="total">乐歌调整合计：{$le_adjustment|number_format=###,2}</span>
             <span class="total">无忧达调整合计：{$wyd_adjustment|number_format=###,2}</span>
+            <span class="total">无忧达德国调整合计：{$wyd_de_adjustment|number_format=###,2}</span>
+            <span class="total">易达云调整合计：{$eda_adjustment|number_format=###,2}</span>
             <table class="layui-table" lay-size="sm">
                 <colgroup>
+                    <col>
+                    <col>
                     <col>
                     <col>
                     <col>
@@ -45,6 +49,8 @@
                     <th>良仓调整费用</th>
                     <th>乐歌调整费用</th>
                     <th>无忧达调整费用</th>
+                    <th>无忧达德国调整费用</th>
+                    <th>易达云调整费用</th>
                     <th>分摊唯一标识号</th>
                 </tr>
                 </thead>
@@ -57,6 +63,8 @@
                     <td class="tr">{$v.lc_adjustment}</td>
                     <td class="tr">{$v.le_adjustment}</td>
                     <td class="tr">{$v.wyd_adjustment}</td>
+                    <td class="tr">{$v.wyd_de_adjustment}</td>
+                    <td class="tr">{$v.eda_adjustment}</td>
                     <td>{$v.share_code}</td>
                 </tr>
                 {/foreach}

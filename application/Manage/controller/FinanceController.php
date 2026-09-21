@@ -1844,6 +1844,8 @@ class FinanceController extends BaseController
         $this->assign('lc_adjustment', $order->where($where)->sum('lc_adjustment'));
         $this->assign('le_adjustment', $order->where($where)->sum('le_adjustment'));
         $this->assign('wyd_adjustment', $order->where($where)->sum('wyd_adjustment'));
+        $this->assign('wyd_de_adjustment', $order->where($where)->sum('wyd_de_adjustment'));
+        $this->assign('eda_adjustment', $order->where($where)->sum('eda_adjustment'));
 
         return view();
     }
@@ -1882,6 +1884,8 @@ class FinanceController extends BaseController
                         "lc_adjustment"         =>  $item[3],
                         "le_adjustment"         =>  $item[4],
                         "wyd_adjustment"        =>  $item[5],
+                        "wyd_de_adjustment"     =>  $item[6],
+                        "eda_adjustment"        =>  $item[7],
                     ];
                 }
             }
