@@ -698,7 +698,7 @@ FROM
 			NULL AS fba_adCost,
 			SUM(
 				(
-					a.sharedAmazonPartneredCarrierShipmentFee
+					a.sharedFbaStorageFee + a.sharedLabelingFee + a.fbaStorageFee + a.longTermStorageFee + a.sharedFbaDisposalFee + a.sharedAmazonPartneredCarrierShipmentFee + a.sharedFbaInboundConvenienceFee + a.sharedFbaInboundDefectFee + a.sharedFbaRemovalFee 
 				) * d.percent 
 			) fba_inventory,
 			NULL AS adjustment,
@@ -718,7 +718,7 @@ FROM
 			AND a.msku = d.seller_sku 
 		WHERE
 			reportDateMonth = "' . $month . '" 
-			AND a.sharedAmazonPartneredCarrierShipmentFee != 0 
+			AND a.sharedFbaStorageFee + a.sharedLabelingFee + a.fbaStorageFee + a.longTermStorageFee + a.sharedFbaDisposalFee + a.sharedAmazonPartneredCarrierShipmentFee + a.sharedFbaInboundConvenienceFee + a.sharedFbaInboundDefectFee + a.sharedFbaRemovalFee != 0 
 			AND d.warehouse_sku IS NOT NULL 
 		GROUP BY
 			platform,
@@ -1289,7 +1289,8 @@ FROM
 			WHERE
 				a.report_id = ' . $report_id . ' 
 				AND a.platform = "amazon" 
-				AND lc_adjustment IS NOT NULL UNION ALL
+				AND lc_adjustment IS NOT NULL
+				AND lc_adjustment != 0 UNION ALL
 			SELECT
 				"amazon" AS platform,
 				b.user_account userAccount,
@@ -1324,7 +1325,8 @@ FROM
 			WHERE
 				a.report_id = ' . $report_id . ' 
 				AND a.platform = "amazon" 
-				AND le_adjustment IS NOT NULL UNION ALL
+				AND le_adjustment IS NOT NULL
+				AND le_adjustment != 0 UNION ALL
 			SELECT
 				"amazon" AS platform,
 				b.user_account userAccount,
@@ -1359,7 +1361,8 @@ FROM
 			WHERE
 				a.report_id = ' . $report_id . ' 
 				AND a.platform = "amazon" 
-				AND wyd_adjustment IS NOT NULL UNION ALL
+				AND wyd_adjustment IS NOT NULL
+				AND wyd_adjustment != 0 UNION ALL
 			SELECT
 				"amazon" AS platform,
 				b.user_account userAccount,
@@ -2096,7 +2099,8 @@ FROM
 			WHERE
 				a.report_id = ' . $report_id . ' 
 				AND a.platform = "walmart" 
-				AND lc_adjustment IS NOT NULL UNION ALL
+				AND lc_adjustment IS NOT NULL
+				AND lc_adjustment != 0 UNION ALL
 			SELECT
 				"walmart" AS platform,
 				b.user_account userAccount,
@@ -2130,7 +2134,8 @@ FROM
 			WHERE
 				a.report_id = ' . $report_id . ' 
 				AND a.platform = "walmart" 
-				AND le_adjustment IS NOT NULL UNION ALL
+				AND le_adjustment IS NOT NULL
+				AND le_adjustment != 0 UNION ALL
 			SELECT
 				"walmart" AS platform,
 				b.user_account userAccount,
@@ -2164,7 +2169,8 @@ FROM
 			WHERE
 				a.report_id = ' . $report_id . ' 
 				AND a.platform = "walmart" 
-				AND wyd_adjustment IS NOT NULL UNION ALL
+				AND wyd_adjustment IS NOT NULL
+				AND wyd_adjustment != 0 UNION ALL
 			SELECT
 				"walmart" AS platform,
 				user_account userAccount,
@@ -2738,7 +2744,8 @@ FROM
 			WHERE
 				a.report_id = ' . $report_id . ' 
 				AND a.platform = "wayfair" 
-				AND lc_adjustment IS NOT NULL UNION ALL
+				AND lc_adjustment IS NOT NULL
+				AND lc_adjustment != 0 UNION ALL
 			SELECT
 				"wayfair" AS platform,
 				b.user_account userAccount,
@@ -2768,7 +2775,8 @@ FROM
 			WHERE
 				a.report_id = ' . $report_id . ' 
 				AND a.platform = "wayfair" 
-				AND le_adjustment IS NOT NULL UNION ALL
+				AND le_adjustment IS NOT NULL
+				AND le_adjustment != 0 UNION ALL
 			SELECT
 				"wayfair" AS platform,
 				b.user_account userAccount,
@@ -2798,7 +2806,8 @@ FROM
 			WHERE
 				a.report_id = ' . $report_id . ' 
 				AND a.platform = "wayfair" 
-				AND wyd_adjustment IS NOT NULL UNION ALL
+				AND wyd_adjustment IS NOT NULL
+				AND wyd_adjustment != 0 UNION ALL
 			SELECT
 				"wayfair" AS platform,
 				b.user_account userAccount,
@@ -3287,7 +3296,8 @@ FROM
 			WHERE
 				a.report_id = ' . $report_id . ' 
 				AND c.platform = "shein" 
-				AND lc_adjustment IS NOT NULL UNION ALL
+				AND lc_adjustment IS NOT NULL
+				AND lc_adjustment != 0 UNION ALL
 			SELECT
 				"shein" AS platform,
 				b.user_account userAccount,
@@ -3317,7 +3327,8 @@ FROM
 			WHERE
 				a.report_id = ' . $report_id . ' 
 				AND c.platform = "shein" 
-				AND le_adjustment IS NOT NULL UNION ALL
+				AND le_adjustment IS NOT NULL
+				AND le_adjustment != 0 UNION ALL
 			SELECT
 				"shein" AS platform,
 				b.user_account userAccount,
@@ -3347,7 +3358,8 @@ FROM
 			WHERE
 				a.report_id = ' . $report_id . ' 
 				AND c.platform = "shein" 
-				AND wyd_adjustment IS NOT NULL UNION ALL
+				AND wyd_adjustment IS NOT NULL
+				AND wyd_adjustment != 0 UNION ALL
 			SELECT
 				"shein" AS platform,
 				b.user_account userAccount,
@@ -3849,7 +3861,8 @@ FROM
 			WHERE
 				a.report_id = ' . $report_id . ' 
 				AND c.platform = "temu" 
-				AND lc_adjustment IS NOT NULL UNION ALL
+				AND lc_adjustment IS NOT NULL
+				AND lc_adjustment != 0 UNION ALL
 			SELECT
 				"temu" AS platform,
 				b.user_account userAccount,
@@ -3880,7 +3893,8 @@ FROM
 			WHERE
 				a.report_id = ' . $report_id . ' 
 				AND c.platform = "temu" 
-				AND le_adjustment IS NOT NULL UNION ALL
+				AND le_adjustment IS NOT NULL
+				AND le_adjustment != 0 UNION ALL
 			SELECT
 				"temu" AS platform,
 				b.user_account userAccount,
@@ -3911,7 +3925,8 @@ FROM
 			WHERE
 				a.report_id = ' . $report_id . ' 
 				AND c.platform = "temu" 
-				AND wyd_adjustment IS NOT NULL UNION ALL
+				AND wyd_adjustment IS NOT NULL
+				AND wyd_adjustment != 0 UNION ALL
 			SELECT
 				"temu" AS platform,
 				b.user_account userAccount,
@@ -4453,7 +4468,8 @@ FROM
 			WHERE
 				a.report_id = ' . $report_id . ' 
 				AND c.platform = "ebay" 
-				AND lc_adjustment IS NOT NULL UNION ALL
+				AND lc_adjustment IS NOT NULL
+				AND lc_adjustment != 0 UNION ALL
 			SELECT
 				"ebay" AS platform,
 				b.user_account userAccount,
@@ -4484,7 +4500,8 @@ FROM
 			WHERE
 				a.report_id = ' . $report_id . ' 
 				AND c.platform = "ebay" 
-				AND le_adjustment IS NOT NULL UNION ALL
+				AND le_adjustment IS NOT NULL
+				AND le_adjustment != 0 UNION ALL
 			SELECT
 				"ebay" AS platform,
 				b.user_account userAccount,
@@ -4515,7 +4532,8 @@ FROM
 			WHERE
 				a.report_id = ' . $report_id . ' 
 				AND c.platform = "ebay" 
-				AND wyd_adjustment IS NOT NULL UNION ALL
+				AND wyd_adjustment IS NOT NULL
+				AND wyd_adjustment != 0 UNION ALL
 			SELECT
 				"ebay" AS platform,
 				b.user_account userAccount,
@@ -6178,7 +6196,8 @@ FROM
 			WHERE
 				a.report_id = ' . $report_id . ' 
 				AND c.platform = "tiktok" 
-				AND lc_adjustment IS NOT NULL UNION ALL
+				AND lc_adjustment IS NOT NULL
+				AND lc_adjustment != 0 UNION ALL
 			SELECT
 				"tiktok" AS platform,
 				b.user_account userAccount,
@@ -6210,7 +6229,8 @@ FROM
 			WHERE
 				a.report_id = ' . $report_id . ' 
 				AND c.platform = "tiktok" 
-				AND le_adjustment IS NOT NULL UNION ALL
+				AND le_adjustment IS NOT NULL
+				AND le_adjustment != 0 UNION ALL
 			SELECT
 				"tiktok" AS platform,
 				b.user_account userAccount,
@@ -6242,7 +6262,8 @@ FROM
 			WHERE
 				a.report_id = ' . $report_id . ' 
 				AND c.platform = "tiktok" 
-				AND wyd_adjustment IS NOT NULL 
+				AND wyd_adjustment IS NOT NULL
+				AND wyd_adjustment != 0 
 			) a 
 		GROUP BY
 			platform,
@@ -6731,7 +6752,8 @@ FROM
 			WHERE
 				a.report_id = ' . $report_id . ' 
 				AND c.platform = "hd" 
-				AND lc_adjustment IS NOT NULL UNION ALL
+				AND lc_adjustment IS NOT NULL
+				AND lc_adjustment != 0 UNION ALL
 			SELECT
 				"hd" AS platform,
 				b.user_account userAccount,
@@ -6763,7 +6785,8 @@ FROM
 			WHERE
 				a.report_id = ' . $report_id . ' 
 				AND c.platform = "hd" 
-				AND le_adjustment IS NOT NULL UNION ALL
+				AND le_adjustment IS NOT NULL
+				AND le_adjustment != 0 UNION ALL
 			SELECT
 				"hd" AS platform,
 				b.user_account userAccount,
@@ -6796,6 +6819,7 @@ FROM
 				a.report_id = ' . $report_id . ' 
 				AND c.platform = "hd" 
 				AND wyd_adjustment IS NOT NULL 
+				AND wyd_adjustment != 0
 			) a 
 		GROUP BY
 			platform,
