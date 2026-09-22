@@ -749,7 +749,19 @@ FROM
 			NULL AS operation_factory,
 			NULL AS operation_delivery,
 			b.qty evaluation_qty,
-			ROUND( a.cny_actual_paid / c.USD, 2 ) evaluation_amount 
+            ROUND(
+                a.cny_actual_paid /
+            CASE
+                a.share_currency 
+                WHEN "USD" THEN
+                c.USD 
+                WHEN "EUR" THEN
+                c.EUR 
+                WHEN "GBP" THEN
+                c.GBP 
+            END,
+                2 
+            ) evaluation_amount 
 		FROM
 			mu_finance_evaluation a
 			LEFT JOIN mu_finance_order_statistics b ON a.payment = b.payment_id AND a.warehouse_sku = b.warehouse_sku
@@ -1693,7 +1705,19 @@ FROM
 			NULL AS operation_factory,
 			NULL AS operation_delivery,
             1 evaluation_qty,
-            ROUND( a.cny_actual_paid / b.USD, 2 ) evaluation_amount 
+            ROUND(
+                a.cny_actual_paid /
+            CASE
+                a.share_currency 
+                WHEN "USD" THEN
+                b.USD 
+                WHEN "EUR" THEN
+                b.EUR 
+                WHEN "GBP" THEN
+                b.GBP 
+            END,
+                2 
+            ) evaluation_amount 
         FROM
             mu_finance_evaluation a
             LEFT JOIN mu_finance_report b ON a.report_id = b.id
