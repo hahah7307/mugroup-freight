@@ -1958,14 +1958,32 @@ class AmazonPayment extends Model
                     "fulfillment"               =>  "Seller",
                     "quantity"                  =>  $item[6],
                     "product_sales"             =>  round(str_replace(',', '', $item[14]), 2),
-                    "selling_fees"              =>  round(str_replace(',', '', $item[20]), 2)
-                        + round(str_replace(',', '', $item[43]), 2),
+                    "selling_fees"              =>  round(str_replace(',', '', $item[20]), 2),
                     "shipping_credits"          =>  0,
                     "gift_wrap_credits"         =>  0,
                     "regulatory_fee"            =>  0,
                     "promotional_rebates"       =>  0,
                     "fba_fees"                  =>  round(str_replace(',', '', $item[21]), 2),
                     "marketplace_withheld_tax"  =>  round(str_replace(',', '', $item[34]), 2)
+                ];
+            }
+
+            if (round(str_replace(',', '', $item[43]), 2) != 0) {
+                $this->orderRefundNew[] = [
+                    "report_id"                 =>  $reportId,
+                    "table_id"                  =>  $tableId,
+                    "date"                      =>  date('Y-m-d H:i:s', strtotime($item[0])),
+                    "payment_id"                =>  $item[4],
+                    "fulfillment"               =>  "Seller",
+                    "quantity"                  =>  0,
+                    "product_sales"             =>  0,
+                    "selling_fees"              =>  round(str_replace(',', '', $item[43]), 2),
+                    "shipping_credits"          =>  0,
+                    "gift_wrap_credits"         =>  0,
+                    "regulatory_fee"            =>  0,
+                    "promotional_rebates"       =>  0,
+                    "fba_fees"                  =>  0,
+                    "marketplace_withheld_tax"  =>  0
                 ];
             }
 
