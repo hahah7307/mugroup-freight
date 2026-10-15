@@ -165,6 +165,7 @@ class AmazonPayment extends Model
                 && $item[5] != 'FBA Inbound Placement Service Fee'
                 && $item[5] != 'FBA Inventory Storage Fee'
                 && $item[5] != 'FBA Long Term Storage Fee'
+                && $item[5] != 'FBA Removal Order: Disposal Fee'
                 )) {
                 $this->orderAdjustmentNew[] = [
                     "report_id"                 =>  $reportId,
