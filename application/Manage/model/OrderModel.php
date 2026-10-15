@@ -337,6 +337,8 @@ class OrderModel extends Model
                 } else {
                     $fuel_surcharge_rate += $fuel_surcharge_rate_dpd_emer['value'];
                 }
+            } elseif ($order['shippingMethod'] == "GLS_PAKET") {
+                $fuel_surcharge_rate = 31.5;
             } else {
                 $fuel_surcharge_rate = 0;
             }
