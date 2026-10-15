@@ -1308,21 +1308,39 @@ class AmazonPayment extends Model
             }
 
             if (gettype($item[5]) == 'string' && ($item[5] == 'PENDING PAYMENT' || $item[5] == 'PAID' || $item[5] == '待付款' || $item[5] == '已支付') && !strpos($item['0'], '_CM')) {
-                $this->orderSaleNew[] = [
-                    "report_id"                 =>  $reportId,
-                    "table_id"                  =>  $tableId,
-                    "date"                      =>  date('Y-m-d H:i:s', strtotime($item[1])),
-                    "payment_id"                =>  $item[2],
-                    "quantity"                  =>  '',
-                    "fulfillment"               =>  "Seller",
-                    "product_sales"             =>  sprintf('%.2f', str_replace(',', '', $item[4])),
-                    "shipping_credits"          =>  0,
-                    "gift_wrap_credits"         =>  0,
-                    "regulatory_fee"            =>  0,
-                    "promotional_rebates"       =>  0,
-                    "selling_fees"              =>  round(sprintf('%.4f', str_replace(',', '', $item[4])) * 0.04 * -1, 2),
-                    "fba_fees"                  =>  0,
-                ];
+                if ($item[7] == "discount") {
+                    $this->orderSaleNew[] = [
+                        "report_id"                 =>  $reportId,
+                        "table_id"                  =>  $tableId,
+                        "date"                      =>  '',
+                        "payment_id"                =>  $item[2],
+                        "quantity"                  =>  '',
+                        "fulfillment"               =>  "Seller",
+                        "product_sales"             =>  sprintf('%.2f', str_replace(',', '', $item[4])),
+                        "shipping_credits"          =>  0,
+                        "gift_wrap_credits"         =>  0,
+                        "regulatory_fee"            =>  0,
+                        "promotional_rebates"       =>  0,
+                        "selling_fees"              =>  0,
+                        "fba_fees"                  =>  0,
+                    ];
+                } else {
+                    $this->orderSaleNew[] = [
+                        "report_id"                 =>  $reportId,
+                        "table_id"                  =>  $tableId,
+                        "date"                      =>  date('Y-m-d H:i:s', strtotime($item[1])),
+                        "payment_id"                =>  $item[2],
+                        "quantity"                  =>  '',
+                        "fulfillment"               =>  "Seller",
+                        "product_sales"             =>  sprintf('%.2f', str_replace(',', '', $item[4])),
+                        "shipping_credits"          =>  0,
+                        "gift_wrap_credits"         =>  0,
+                        "regulatory_fee"            =>  0,
+                        "promotional_rebates"       =>  0,
+                        "selling_fees"              =>  round(sprintf('%.4f', str_replace(',', '', $item[4])) * 0.04 * -1, 2),
+                        "fba_fees"                  =>  0,
+                    ];
+                }
             } elseif (gettype($item[2]) == 'string' && $item[2] == 'Return') {
                 if (is_numeric($item[9])) {
                     $count = FinanceOrderRefundModel::wayfairPaymentSkuCount($item[5]);
