@@ -44,6 +44,10 @@ class StorageAhsRuleModel extends Model
      */
     static public function getAHSFee($storage, $ahs_id, $zone, $order)
     {
+        if ($zone == 0) {
+            return 0;
+        }
+
         $condition['storage_id'] = $storage;
         $condition['ahs_id'] = $ahs_id;
         $condition['state'] = 1;
