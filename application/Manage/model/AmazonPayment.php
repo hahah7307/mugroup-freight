@@ -1186,7 +1186,8 @@ class AmazonPayment extends Model
                         "fba_fees"                  =>  0,
                     ];
                 }
-                if ($item[13] == 'Total Walmart Funded Savings') {
+                if ($item[13] == 'Total Walmart Funded Savings'
+                    || $item[13] == 'Other tax (Fees)') {
                     $this->orderAdjustmentNew[] = [
                         "report_id"                 =>  $reportId,
                         "table_id"                  =>  $tableId,
