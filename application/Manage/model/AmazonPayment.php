@@ -1313,7 +1313,7 @@ class AmazonPayment extends Model
                     $this->orderSaleNew[] = [
                         "report_id"                 =>  $reportId,
                         "table_id"                  =>  $tableId,
-                        "date"                      =>  '',
+                        "date"                      =>  NULL,
                         "payment_id"                =>  $item[2],
                         "quantity"                  =>  '',
                         "fulfillment"               =>  "Seller",
