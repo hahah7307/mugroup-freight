@@ -47,7 +47,7 @@ class FinanceWayfairOrder extends Command
                             $newOrder[] = [
                                 'table_id'          =>  $item['table_id'],
                                 'invoice_no'        =>  $item['payment_id'],
-                                'invoice_date'      =>  empty($statisticLast) ? NULL : $statisticLast['shipping_time'],
+                                'invoice_date'      =>  empty($statisticLast['shipping_time']) ? NULL : $statisticLast['shipping_time'],
                                 'payment_id'        =>  $item['payment_id'],
                                 'sale_amount'       =>  $item['product_sales'],
                                 'status'            =>  1,
@@ -79,7 +79,7 @@ class FinanceWayfairOrder extends Command
 
                 // 默认wayfair的invoice不会跨月出现
                 $financeOrderSaleObj = new FinanceOrderSaleModel();
-                if ($financeOrderSaleObj->saveAll(array_filter($list))) {
+                if ($financeOrderSaleObj->insertAll(array_filter($list))) {
                     $tableIdUnique = array_unique($tableId);
                     foreach ($tableIdUnique as $value) {
                         $productSale = $financeOrderSaleObj->where(['table_id' => $value])->sum('product_sales');
