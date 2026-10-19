@@ -5312,7 +5312,6 @@ FROM
 				LEFT JOIN mu_finance_table b ON a.table_id = b.id 
 			WHERE
 				report_id = ' . $report_id . '
-				AND b.platform = "amazon"
 			) a
 			LEFT JOIN mu_finance_order_statistics b ON a.payment_id = b.payment_id 
 		GROUP BY
