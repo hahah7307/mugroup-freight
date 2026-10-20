@@ -196,6 +196,25 @@
             }
         }
 
+        const colorMap = {
+            '30': '#5470C6',
+            '60': '#91CC75',
+            '90': '#FAC858',
+            '120': '#EE6666',
+            '150': '#73C0DE',
+            '180': '#3BA272',
+            '210': '#FC8452',
+            '240': '#9A60B4',
+            '270': '#EA7CCC',
+            '300': '#5470C6',
+            '330': '#91CC75',
+            '360': '#FAC858',
+            '450': '#EE6666',
+            '540': '#73C0DE',
+            '630': '#3BA272',
+            '720': '#FC8452'
+        };
+
         const category_1 = echarts.init(document.getElementById("main_1"));
         category_1.setOption({
             title: {
@@ -229,6 +248,11 @@
                             shadowBlur: 10,
                             shadowOffsetX: 0,
                             shadowColor: 'rgba(0, 0, 0, 0.5)'
+                        }
+                    },
+                    itemStyle: {
+                        color: function(params) {
+                            return colorMap[params.name] || '#999999';
                         }
                     }
                 }
@@ -269,6 +293,11 @@
                             shadowOffsetX: 0,
                             shadowColor: 'rgba(0, 0, 0, 0.5)'
                         }
+                    },
+                    itemStyle: {
+                        color: function(params) {
+                            return colorMap[params.name] || '#999999';
+                        }
                     }
                 }
             ]
@@ -307,6 +336,11 @@
                             shadowBlur: 10,
                             shadowOffsetX: 0,
                             shadowColor: 'rgba(0, 0, 0, 0.5)'
+                        }
+                    },
+                    itemStyle: {
+                        color: function(params) {
+                            return colorMap[params.name] || '#999999';
                         }
                     }
                 }
