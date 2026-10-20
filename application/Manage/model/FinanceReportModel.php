@@ -5197,6 +5197,7 @@ FROM
 WHERE
 	a.report_id = ' . $report_id . '
 	AND b.saleOrderCode IS NOT NULL
+	AND b.is_finished != 1
 ORDER BY
 	b.paid_time;
         ';
