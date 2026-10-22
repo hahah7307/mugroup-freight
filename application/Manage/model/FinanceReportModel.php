@@ -5415,6 +5415,9 @@ SELECT DISTINCT
 	b.warehouse_sku,
 	a.fulfillment,
 	b.qty,
+	b.sale_amount,
+	b.selling_fee,
+	b.fba_fee,
 	b.is_finished is_accounting 
 FROM
 	mu_finance_order_sale a
