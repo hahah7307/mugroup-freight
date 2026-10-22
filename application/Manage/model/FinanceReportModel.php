@@ -61,14 +61,14 @@ FROM
 		b.saleOrderCode,
 		b.platform_sku seller_sku,
 		b.warehouse_sku,
-		b.qty sale_qty,
+		IF(b.is_finished, 0, b.qty) sale_qty,
 		NULL AS refund_qty,
 		ROUND( b.sale_amount, 7 ) sale_amount,
 		NULL AS refund_amount,
 		ROUND( b.selling_fee, 7 ) sale_selling_fees,
 		NULL AS refund_selling_fees,
 		ROUND( b.fba_fee, 7 ) fba_fees,
-		f.sku_ddp_unit * b.qty ddp,
+		NULL AS ddp,
 		NULL AS tail,
 		NULL AS calcuRes 
 	FROM
@@ -84,11 +84,7 @@ FROM
 			report_id = ' . $report_id . ' 
 			AND platform != "wildberries" 
 		) a
-		LEFT JOIN mu_finance_order_statistics b ON a.payment_id = b.payment_id
-		LEFT JOIN mu_finance_order_outbound e ON b.saleOrderCode = e.saleOrderCode 
-		AND b.warehouse_sku = e.warehouse_sku
-		LEFT JOIN mu_finance_store f ON e.store_id = f.id 
-		WHERE e.report_id = ' . $report_id . '  UNION ALL
+		LEFT JOIN mu_finance_order_statistics b ON a.payment_id = b.payment_id UNION ALL
 	SELECT
 		"Order" AS type,
 		a.platform,
@@ -926,7 +922,7 @@ SELECT
 	SUM( ROUND( liquidation, 6 ) ) liquidation,
 	SUM( ROUND( promotion, 6 ) ) promotion,
 	SUM( ROUND( shipping_service, 6 ) ) shipping_service,
-	SUM( ROUND( lc_adjustment, 6 ) ) lc_adjustment,
+	SUM( ROUND( eda_adjustment, 6 ) ) eda_adjustment,
 	SUM( ROUND( le_adjustment, 6 ) ) le_adjustment,
 	SUM( ROUND( wyd_adjustment, 6 ) ) wyd_adjustment,
 	SUM( ROUND( operation_expenses, 6 ) ) operation_expenses,
@@ -937,24 +933,24 @@ SELECT
 	ROUND( SUM( IFNULL( calcuRes, 0 ) ) / SUM( IFNULL( fbm_sale_amount, 0 ) ) * - 1, 4 ) tail_percent,
 	ROUND( SUM( IFNULL( fbm_ddp, 0 ) ) / SUM( IFNULL( fbm_sale_amount, 0 ) ) * - 1, 4 ) ddp_percent,
 	ROUND(
-		SUM( IFNULL( fbm_sale_amount, 0 ) ) + SUM( IFNULL( fbm_sale_tax, 0 ) ) + SUM( IFNULL( fbm_refund_amount, 0 ) ) + SUM( IFNULL( fbm_sale_selling_fees, 0 ) ) + SUM( IFNULL( fbm_refund_selling_fees, 0 ) ) + SUM( IFNULL( fbm_refund_other, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( fbm_ddp, 0 ) ) + SUM( IFNULL( fbm_adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( liquidation, 0 ) ) + SUM( IFNULL( promotion, 0 ) ) + SUM( IFNULL( shipping_service, 0 ) ) + SUM( IFNULL( lc_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( wyd_adjustment, 0 ) ) + ROUND( SUM( IFNULL( operation_expenses, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_factory, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_delivery, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ),
+		SUM( IFNULL( fbm_sale_amount, 0 ) ) + SUM( IFNULL( fbm_sale_tax, 0 ) ) + SUM( IFNULL( fbm_refund_amount, 0 ) ) + SUM( IFNULL( fbm_sale_selling_fees, 0 ) ) + SUM( IFNULL( fbm_refund_selling_fees, 0 ) ) + SUM( IFNULL( fbm_refund_other, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( fbm_ddp, 0 ) ) + SUM( IFNULL( fbm_adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( liquidation, 0 ) ) + SUM( IFNULL( promotion, 0 ) ) + SUM( IFNULL( shipping_service, 0 ) ) + SUM( IFNULL( eda_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( wyd_adjustment, 0 ) ) + ROUND( SUM( IFNULL( operation_expenses, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_factory, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_delivery, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ),
 		2 
 	) profit,
 	ROUND(
 		(
-			SUM( IFNULL( fbm_sale_amount, 0 ) ) + SUM( IFNULL( fbm_sale_tax, 0 ) ) + SUM( IFNULL( fbm_refund_amount, 0 ) ) + SUM( IFNULL( fbm_sale_selling_fees, 0 ) ) + SUM( IFNULL( fbm_refund_selling_fees, 0 ) ) + SUM( IFNULL( fbm_refund_other, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( fbm_ddp, 0 ) ) + SUM( IFNULL( fbm_adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( liquidation, 0 ) ) + SUM( IFNULL( promotion, 0 ) ) + SUM( IFNULL( shipping_service, 0 ) ) + SUM( IFNULL( lc_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( wyd_adjustment, 0 ) ) + ROUND( SUM( IFNULL( operation_expenses, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_factory, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_delivery, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) 
+			SUM( IFNULL( fbm_sale_amount, 0 ) ) + SUM( IFNULL( fbm_sale_tax, 0 ) ) + SUM( IFNULL( fbm_refund_amount, 0 ) ) + SUM( IFNULL( fbm_sale_selling_fees, 0 ) ) + SUM( IFNULL( fbm_refund_selling_fees, 0 ) ) + SUM( IFNULL( fbm_refund_other, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( fbm_ddp, 0 ) ) + SUM( IFNULL( fbm_adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( liquidation, 0 ) ) + SUM( IFNULL( promotion, 0 ) ) + SUM( IFNULL( shipping_service, 0 ) ) + SUM( IFNULL( eda_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( wyd_adjustment, 0 ) ) + ROUND( SUM( IFNULL( operation_expenses, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_factory, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_delivery, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) 
 		) / SUM( IFNULL( fbm_sale_amount, 0 ) ),
 		4 
 	) gross_profit_margin,
 	SUM( ROUND( evaluation_qty, 3 ) ) evaluation_qty,
 	SUM( ROUND( evaluation_amount, 2 ) ) evaluation_amount,
 	ROUND(
-		SUM( IFNULL( fbm_sale_amount, 0 ) ) + SUM( IFNULL( fbm_sale_tax, 0 ) ) + SUM( IFNULL( fbm_refund_amount, 0 ) ) + SUM( IFNULL( fbm_sale_selling_fees, 0 ) ) + SUM( IFNULL( fbm_refund_selling_fees, 0 ) ) + SUM( IFNULL( fbm_refund_other, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( fbm_ddp, 0 ) ) + SUM( IFNULL( fbm_adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( liquidation, 0 ) ) + SUM( IFNULL( promotion, 0 ) ) + SUM( IFNULL( shipping_service, 0 ) ) + SUM( IFNULL( lc_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( wyd_adjustment, 0 ) ) + ROUND( SUM( IFNULL( operation_expenses, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_factory, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_delivery, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + SUM( IFNULL( evaluation_amount, 0 ) ),
+		SUM( IFNULL( fbm_sale_amount, 0 ) ) + SUM( IFNULL( fbm_sale_tax, 0 ) ) + SUM( IFNULL( fbm_refund_amount, 0 ) ) + SUM( IFNULL( fbm_sale_selling_fees, 0 ) ) + SUM( IFNULL( fbm_refund_selling_fees, 0 ) ) + SUM( IFNULL( fbm_refund_other, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( fbm_ddp, 0 ) ) + SUM( IFNULL( fbm_adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( liquidation, 0 ) ) + SUM( IFNULL( promotion, 0 ) ) + SUM( IFNULL( shipping_service, 0 ) ) + SUM( IFNULL( eda_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( wyd_adjustment, 0 ) ) + ROUND( SUM( IFNULL( operation_expenses, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_factory, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_delivery, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + SUM( IFNULL( evaluation_amount, 0 ) ),
 		2 
 	) profit_include_evaluation,
 	ROUND(
 		(
-			SUM( IFNULL( fbm_sale_amount, 0 ) ) + SUM( IFNULL( fbm_sale_tax, 0 ) ) + SUM( IFNULL( fbm_refund_amount, 0 ) ) + SUM( IFNULL( fbm_sale_selling_fees, 0 ) ) + SUM( IFNULL( fbm_refund_selling_fees, 0 ) ) + SUM( IFNULL( fbm_refund_other, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( fbm_ddp, 0 ) ) + SUM( IFNULL( fbm_adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( liquidation, 0 ) ) + SUM( IFNULL( promotion, 0 ) ) + SUM( IFNULL( shipping_service, 0 ) ) + SUM( IFNULL( lc_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( wyd_adjustment, 0 ) ) + ROUND( SUM( IFNULL( operation_expenses, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_factory, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_delivery, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + SUM( IFNULL( evaluation_amount, 0 ) ) 
+			SUM( IFNULL( fbm_sale_amount, 0 ) ) + SUM( IFNULL( fbm_sale_tax, 0 ) ) + SUM( IFNULL( fbm_refund_amount, 0 ) ) + SUM( IFNULL( fbm_sale_selling_fees, 0 ) ) + SUM( IFNULL( fbm_refund_selling_fees, 0 ) ) + SUM( IFNULL( fbm_refund_other, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( fbm_ddp, 0 ) ) + SUM( IFNULL( fbm_adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( liquidation, 0 ) ) + SUM( IFNULL( promotion, 0 ) ) + SUM( IFNULL( shipping_service, 0 ) ) + SUM( IFNULL( eda_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( wyd_adjustment, 0 ) ) + ROUND( SUM( IFNULL( operation_expenses, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_factory, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_delivery, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + SUM( IFNULL( evaluation_amount, 0 ) ) 
 		) / SUM( IFNULL( fbm_sale_amount, 0 ) ),
 		4 
 	) gross_profit_margin_include_evaluation,
@@ -983,7 +979,7 @@ FROM
 		SUM( ROUND( liquidation, 6 ) ) liquidation,
 		SUM( ROUND( promotion, 6 ) ) promotion,
 		SUM( ROUND( shipping_service, 6 ) ) shipping_service,
-		SUM( ROUND( lc_adjustment, 6 ) ) lc_adjustment,
+		SUM( ROUND( eda_adjustment, 6 ) ) eda_adjustment,
 		SUM( ROUND( le_adjustment, 6 ) ) le_adjustment,
 		SUM( ROUND( wyd_adjustment, 6 ) ) wyd_adjustment,
 		SUM( ROUND( operation_expenses, 6 ) ) operation_expenses,
@@ -1014,7 +1010,7 @@ FROM
 			SUM( ROUND( liquidation, 6 ) ) liquidation,
 			SUM( ROUND( promotion, 6 ) ) promotion,
 			SUM( ROUND( shipping_service, 6 ) ) shipping_service,
-			SUM( ROUND( lc_adjustment, 6 ) ) lc_adjustment,
+			SUM( ROUND( eda_adjustment, 6 ) ) eda_adjustment,
 			SUM( ROUND( le_adjustment, 6 ) ) le_adjustment,
 			SUM( ROUND( wyd_adjustment, 6 ) ) wyd_adjustment,
 			NULL AS operation_expenses,
@@ -1049,7 +1045,7 @@ FROM
 				NULL AS liquidation,
 				NULL AS promotion,
 				NULL AS shipping_service,
-				NULL AS lc_adjustment,
+				NULL AS eda_adjustment,
 				NULL AS le_adjustment,
 				NULL AS wyd_adjustment 
 			FROM
@@ -1094,7 +1090,7 @@ FROM
 				NULL AS liquidation,
 				NULL AS promotion,
 				NULL AS shipping_service,
-				NULL AS lc_adjustment,
+				NULL AS eda_adjustment,
 				NULL AS le_adjustment,
 				NULL AS wyd_adjustment 
 			FROM
@@ -1140,7 +1136,7 @@ FROM
 				NULL AS liquidation,
 				NULL AS promotion,
 				NULL AS shipping_service,
-				NULL AS lc_adjustment,
+				NULL AS eda_adjustment,
 				NULL AS le_adjustment,
 				NULL AS wyd_adjustment 
 			FROM
@@ -1187,7 +1183,7 @@ FROM
 				NULL AS liquidation,
 				NULL AS promotion,
 				NULL AS shipping_service,
-				NULL AS lc_adjustment,
+				NULL AS eda_adjustment,
 				NULL AS le_adjustment,
 				NULL AS wyd_adjustment 
 			FROM
@@ -1222,7 +1218,7 @@ FROM
 				NULL AS liquidation,
 				NULL AS promotion,
 				c.total shipping_service,
-				NULL AS lc_adjustment,
+				NULL AS eda_adjustment,
 				NULL AS le_adjustment,
 				NULL AS wyd_adjustment 
 			FROM
@@ -1256,7 +1252,7 @@ FROM
 				NULL AS liquidation,
 				NULL AS promotion,
 				NULL AS shipping_service,
-				NULL AS lc_adjustment,
+				NULL AS eda_adjustment,
 				NULL AS le_adjustment,
 				NULL AS wyd_adjustment 
 			FROM
@@ -1290,7 +1286,7 @@ FROM
 				NULL AS liquidation,
 				NULL AS promotion,
 				NULL AS shipping_service,
-				b.total lc_adjustment,
+				b.total eda_adjustment,
 				NULL AS le_adjustment,
 				NULL AS wyd_adjustment 
 			FROM
@@ -1301,8 +1297,8 @@ FROM
 			WHERE
 				a.report_id = ' . $report_id . ' 
 				AND a.platform = "amazon" 
-				AND lc_adjustment IS NOT NULL
-				AND lc_adjustment != 0 UNION ALL
+				AND eda_adjustment IS NOT NULL
+				AND eda_adjustment != 0 UNION ALL
 			SELECT
 				"amazon" AS platform,
 				b.user_account userAccount,
@@ -1326,7 +1322,7 @@ FROM
 				NULL AS liquidation,
 				NULL AS promotion,
 				NULL AS shipping_service,
-				NULL AS lc_adjustment,
+				NULL AS eda_adjustment,
 				b.total le_adjustment,
 				NULL AS wyd_adjustment 
 			FROM
@@ -1362,7 +1358,7 @@ FROM
 				NULL AS liquidation,
 				NULL AS promotion,
 				NULL AS shipping_service,
-				NULL AS lc_adjustment,
+				NULL AS eda_adjustment,
 				NULL AS le_adjustment,
 				b.total wyd_adjustment 
 			FROM
@@ -1398,7 +1394,7 @@ FROM
 				NULL AS liquidation,
 				NULL AS promotion,
 				NULL AS shipping_service,
-				NULL AS lc_adjustment,
+				NULL AS eda_adjustment,
 				NULL AS le_adjustment,
 				NULL AS wyd_adjustment 
 			FROM
@@ -1438,7 +1434,7 @@ FROM
 			NULL AS liquidation,
 			NULL AS promotion,
 			NULL AS shipping_service,
-			NULL AS lc_adjustment,
+			NULL AS eda_adjustment,
 			NULL AS le_adjustment,
 			NULL AS wyd_adjustment,
 			NULL AS operation_expenses,
@@ -1480,7 +1476,7 @@ FROM
 			NULL AS liquidation,
 			SUM( ( a.sharedLdFee + a.sharedCouponFee + a.sharedVineFee ) * d.percent ) promotion,
 			NULL AS shipping_service,
-			NULL AS lc_adjustment,
+			NULL AS eda_adjustment,
 			NULL AS le_adjustment,
 			NULL AS wyd_adjustment,
 			NULL AS operation_expenses,
@@ -1522,7 +1518,7 @@ FROM
 			a.total * c.percent liquidation,
 			NULL AS promotion,
 			NULL AS shipping_service,
-			NULL AS lc_adjustment,
+			NULL AS eda_adjustment,
 			NULL AS le_adjustment,
 			NULL AS wyd_adjustment,
 			NULL AS operation_expenses,
@@ -1557,7 +1553,7 @@ FROM
 			NULL AS liquidation,
 			total promotion,
 			NULL AS shipping_service,
-			NULL AS lc_adjustment,
+			NULL AS eda_adjustment,
 			NULL AS le_adjustment,
 			NULL AS wyd_adjustment,
 			NULL AS operation_expenses,
@@ -1590,7 +1586,7 @@ FROM
 			NULL AS liquidation,
 			NULL AS promotion,
 			NULL AS shipping_service,
-			NULL AS lc_adjustment,
+			NULL AS eda_adjustment,
 			NULL AS le_adjustment,
 			NULL AS wyd_adjustment,
 			b.total operation_expenses,
@@ -1626,7 +1622,7 @@ FROM
 			NULL AS liquidation,
 			NULL AS promotion,
 			NULL AS shipping_service,
-			NULL AS lc_adjustment,
+			NULL AS eda_adjustment,
 			NULL AS le_adjustment,
 			NULL AS wyd_adjustment,
 			NULL AS operation_expenses,
@@ -1662,7 +1658,7 @@ FROM
 			NULL AS liquidation,
 			NULL AS promotion,
 			NULL AS shipping_service,
-			NULL AS lc_adjustment,
+			NULL AS eda_adjustment,
 			NULL AS le_adjustment,
 			NULL AS wyd_adjustment,
 			NULL AS operation_expenses,
@@ -1698,7 +1694,7 @@ FROM
 			NULL AS liquidation,
 			NULL AS promotion,
 			NULL AS shipping_service,
-			NULL AS lc_adjustment,
+			NULL AS eda_adjustment,
 			NULL AS le_adjustment,
 			NULL AS wyd_adjustment,
 			NULL AS operation_expenses,
@@ -1773,7 +1769,7 @@ SELECT
 	SUM( ROUND( wfs_warehouse, 8 ) ) wfs_warehouse,
 	SUM( ROUND( wfs_return_shipping, 6 ) ) wfs_return_shipping,
 	SUM( ROUND( adjustment, 6 ) ) adjustment,
-	SUM( ROUND( lc_adjustment, 6 ) ) lc_adjustment,
+	SUM( ROUND( eda_adjustment, 6 ) ) eda_adjustment,
 	SUM( ROUND( le_adjustment, 6 ) ) le_adjustment,
 	SUM( ROUND( wyd_adjustment, 6 ) ) wyd_adjustment,
 	SUM( ROUND( wfs_adjustment, 6 ) ) wfs_adjustment,
@@ -1785,24 +1781,24 @@ SELECT
 	ROUND( SUM( IFNULL( calcuRes, 0 ) ) / SUM( IFNULL( sale_amount, 0 ) ) * - 1, 4 ) tail_percent,
 	ROUND( SUM( IFNULL( ddp, 0 ) ) / SUM( IFNULL( sale_amount, 0 ) ) * - 1, 4 ) ddp_percent,
 	ROUND(
-		SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( wfs_fulfillment, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( wfs_warehouse, 0 ) ) + SUM( IFNULL( wfs_return_shipping, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( lc_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( wyd_adjustment, 0 ) ) + SUM( IFNULL( wfs_adjustment, 0 ) ) + ROUND( SUM( IFNULL( operation_expenses, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_factory, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_delivery, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ),
+		SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( wfs_fulfillment, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( wfs_warehouse, 0 ) ) + SUM( IFNULL( wfs_return_shipping, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( eda_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( wyd_adjustment, 0 ) ) + SUM( IFNULL( wfs_adjustment, 0 ) ) + ROUND( SUM( IFNULL( operation_expenses, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_factory, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_delivery, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ),
 		2 
 	) profit,
 	ROUND(
 		(
-			SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( wfs_fulfillment, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( wfs_warehouse, 0 ) ) + SUM( IFNULL( wfs_return_shipping, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( lc_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( wyd_adjustment, 0 ) ) + SUM( IFNULL( wfs_adjustment, 0 ) ) + ROUND( SUM( IFNULL( operation_expenses, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_factory, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_delivery, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) 
+			SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( wfs_fulfillment, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( wfs_warehouse, 0 ) ) + SUM( IFNULL( wfs_return_shipping, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( eda_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( wyd_adjustment, 0 ) ) + SUM( IFNULL( wfs_adjustment, 0 ) ) + ROUND( SUM( IFNULL( operation_expenses, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_factory, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_delivery, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) 
 		) / SUM( IFNULL( sale_amount, 0 ) ),
 		4 
 	) gross_profit_margin,
 	SUM( ROUND( evaluation_qty, 3 ) ) evaluation_qty,
 	SUM( ROUND( evaluation_amount, 2 ) ) evaluation_amount,
 	ROUND(
-		SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( wfs_fulfillment, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( wfs_warehouse, 0 ) ) + SUM( IFNULL( wfs_return_shipping, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( lc_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( wyd_adjustment, 0 ) ) + SUM( IFNULL( wfs_adjustment, 0 ) ) + ROUND( SUM( IFNULL( operation_expenses, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_factory, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_delivery, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + SUM( IFNULL( evaluation_amount, 0 ) ),
+		SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( wfs_fulfillment, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( wfs_warehouse, 0 ) ) + SUM( IFNULL( wfs_return_shipping, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( eda_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( wyd_adjustment, 0 ) ) + SUM( IFNULL( wfs_adjustment, 0 ) ) + ROUND( SUM( IFNULL( operation_expenses, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_factory, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_delivery, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + SUM( IFNULL( evaluation_amount, 0 ) ),
 		2 
 	) profit_include_evaluation,
 	ROUND(
 		(
-			SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( wfs_fulfillment, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( wfs_warehouse, 0 ) ) + SUM( IFNULL( wfs_return_shipping, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( lc_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( wyd_adjustment, 0 ) ) + SUM( IFNULL( wfs_adjustment, 0 ) ) + ROUND( SUM( IFNULL( operation_expenses, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_factory, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_delivery, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + SUM( IFNULL( evaluation_amount, 0 ) ) 
+			SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( wfs_fulfillment, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( wfs_warehouse, 0 ) ) + SUM( IFNULL( wfs_return_shipping, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( eda_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( wyd_adjustment, 0 ) ) + SUM( IFNULL( wfs_adjustment, 0 ) ) + ROUND( SUM( IFNULL( operation_expenses, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_factory, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_delivery, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + SUM( IFNULL( evaluation_amount, 0 ) ) 
 		) / SUM( IFNULL( sale_amount, 0 ) ),
 		2 
 	) gross_profit_margin_include_evaluation,
@@ -1829,7 +1825,7 @@ FROM
 		SUM( ROUND( wfs_warehouse, 8 ) ) * - 1 wfs_warehouse,
 		SUM( ROUND( wfs_return_shipping, 6 ) ) wfs_return_shipping,
 		SUM( ROUND( adjustment, 6 ) ) adjustment,
-		SUM( ROUND( lc_adjustment, 6 ) ) lc_adjustment,
+		SUM( ROUND( eda_adjustment, 6 ) ) eda_adjustment,
 		SUM( ROUND( le_adjustment, 6 ) ) le_adjustment,
 		SUM( ROUND( wyd_adjustment, 6 ) ) wyd_adjustment,
 		SUM( ROUND( wfs_adjustment, 6 ) ) wfs_adjustment,
@@ -1858,7 +1854,7 @@ FROM
 			SUM( ROUND( wfs_warehouse, 8 ) ) wfs_warehouse,
 			SUM( ROUND( wfs_return_shipping, 6 ) ) wfs_return_shipping,
 			SUM( ROUND( adjustment, 6 ) ) adjustment,
-			SUM( ROUND( lc_adjustment, 6 ) ) lc_adjustment,
+			SUM( ROUND( eda_adjustment, 6 ) ) eda_adjustment,
 			SUM( ROUND( le_adjustment, 6 ) ) le_adjustment,
 			SUM( ROUND( wyd_adjustment, 6 ) ) wyd_adjustment,
 			SUM( ROUND( wfs_adjustment, 6 ) ) wfs_adjustment,
@@ -1891,7 +1887,7 @@ FROM
 				NULL AS wfs_warehouse,
 				NULL AS wfs_return_shipping,
 				NULL AS adjustment,
-				NULL AS lc_adjustment,
+				NULL AS eda_adjustment,
 				NULL AS le_adjustment,
 				NULL AS wyd_adjustment,
 				NULL AS wfs_adjustment 
@@ -1935,7 +1931,7 @@ FROM
 				NULL AS wfs_warehouse,
 				NULL AS wfs_return_shipping,
 				NULL AS adjustment,
-				NULL AS lc_adjustment,
+				NULL AS eda_adjustment,
 				NULL AS le_adjustment,
 				NULL AS wyd_adjustment,
 				NULL AS wfs_adjustment 
@@ -1980,7 +1976,7 @@ FROM
 				NULL AS wfs_warehouse,
 				NULL AS wfs_return_shipping,
 				NULL AS adjustment,
-				NULL AS lc_adjustment,
+				NULL AS eda_adjustment,
 				NULL AS le_adjustment,
 				NULL AS wyd_adjustment,
 				NULL AS wfs_adjustment 
@@ -2013,7 +2009,7 @@ FROM
 				NULL AS wfs_warehouse,
 				NULL AS wfs_return_shipping,
 				NULL AS adjustment,
-				NULL AS lc_adjustment,
+				NULL AS eda_adjustment,
 				NULL AS le_adjustment,
 				NULL AS wyd_adjustment,
 				NULL AS wfs_adjustment 
@@ -2046,7 +2042,7 @@ FROM
 				NULL AS wfs_warehouse,
 				c.total wfs_return_shipping,
 				NULL AS adjustment,
-				NULL AS lc_adjustment,
+				NULL AS eda_adjustment,
 				NULL AS le_adjustment,
 				NULL AS wyd_adjustment,
 				NULL AS wfs_adjustment 
@@ -2079,7 +2075,7 @@ FROM
 				NULL AS wfs_warehouse,
 				NULL AS wfs_return_shipping,
 				c.total adjustment,
-				NULL AS lc_adjustment,
+				NULL AS eda_adjustment,
 				NULL AS le_adjustment,
 				NULL AS wyd_adjustment,
 				NULL AS wfs_adjustment 
@@ -2111,7 +2107,7 @@ FROM
 				NULL AS wfs_warehouse,
 				NULL AS wfs_return_shipping,
 				NULL AS adjustment,
-				b.total lc_adjustment,
+				b.total eda_adjustment,
 				NULL AS le_adjustment,
 				NULL AS wyd_adjustment,
 				NULL AS wfs_adjustment 
@@ -2123,8 +2119,8 @@ FROM
 			WHERE
 				a.report_id = ' . $report_id . ' 
 				AND a.platform = "walmart" 
-				AND lc_adjustment IS NOT NULL
-				AND lc_adjustment != 0 UNION ALL
+				AND eda_adjustment IS NOT NULL
+				AND eda_adjustment != 0 UNION ALL
 			SELECT
 				"walmart" AS platform,
 				b.user_account userAccount,
@@ -2146,7 +2142,7 @@ FROM
 				NULL AS wfs_warehouse,
 				NULL AS wfs_return_shipping,
 				NULL AS adjustment,
-				NULL AS lc_adjustment,
+				NULL AS eda_adjustment,
 				b.total le_adjustment,
 				NULL AS wyd_adjustment,
 				NULL AS wfs_adjustment 
@@ -2181,7 +2177,7 @@ FROM
 				NULL AS wfs_warehouse,
 				NULL AS wfs_return_shipping,
 				NULL AS adjustment,
-				NULL AS lc_adjustment,
+				NULL AS eda_adjustment,
 				NULL AS le_adjustment,
 				b.total wyd_adjustment,
 				NULL AS wfs_adjustment 
@@ -2216,7 +2212,7 @@ FROM
 				NULL AS wfs_warehouse,
 				NULL AS wfs_return_shipping,
 				NULL AS adjustment,
-				NULL AS lc_adjustment,
+				NULL AS eda_adjustment,
 				NULL AS le_adjustment,
 				NULL AS wyd_adjustment,
 				wfs_adjustment wfs_adjustment 
@@ -2247,7 +2243,7 @@ FROM
 				ROUND( a.total * b.percent, 7 ) wfs_warehouse,
 				NULL AS adjustment,
 				NULL AS wfs_return_shipping,
-				NULL AS lc_adjustment,
+				NULL AS eda_adjustment,
 				NULL AS le_adjustment,
 				NULL AS wyd_adjustment,
 				NULL AS wfs_adjustment 
@@ -2278,7 +2274,7 @@ FROM
 				NULL AS wfs_warehouse,
 				NULL AS adjustment,
 				NULL AS wfs_return_shipping,
-				NULL AS lc_adjustment,
+				NULL AS eda_adjustment,
 				NULL AS le_adjustment,
 				NULL AS wyd_adjustment,
 				NULL AS wfs_adjustment 
@@ -2316,7 +2312,7 @@ FROM
 			NULL AS wfs_warehouse,
 			NULL AS wfs_return_shipping,
 			NULL AS adjustment,
-			NULL AS lc_adjustment,
+			NULL AS eda_adjustment,
 			NULL AS le_adjustment,
 			NULL AS wyd_adjustment,
 			NULL AS wfs_adjustment,
@@ -2350,7 +2346,7 @@ FROM
 			NULL AS wfs_warehouse,
 			NULL AS wfs_return_shipping,
 			NULL AS adjustment,
-			NULL AS lc_adjustment,
+			NULL AS eda_adjustment,
 			NULL AS le_adjustment,
 			NULL AS wyd_adjustment,
 			NULL AS wfs_adjustment,
@@ -2382,7 +2378,7 @@ FROM
 			NULL AS wfs_warehouse,
 			NULL AS wfs_return_shipping,
 			NULL AS adjustment,
-			NULL AS lc_adjustment,
+			NULL AS eda_adjustment,
 			NULL AS le_adjustment,
 			NULL AS wyd_adjustment,
 			NULL AS wfs_adjustment,
@@ -2417,7 +2413,7 @@ FROM
 			NULL AS wfs_warehouse,
 			NULL AS wfs_return_shipping,
 			NULL AS adjustment,
-			NULL AS lc_adjustment,
+			NULL AS eda_adjustment,
 			NULL AS le_adjustment,
 			NULL AS wyd_adjustment,
 			NULL AS wfs_adjustment,
@@ -2452,7 +2448,7 @@ FROM
 			NULL AS wfs_warehouse,
 			NULL AS wfs_return_shipping,
 			NULL AS adjustment,
-			NULL AS lc_adjustment,
+			NULL AS eda_adjustment,
 			NULL AS le_adjustment,
 			NULL AS wyd_adjustment,
 			NULL AS wfs_adjustment,
@@ -2514,7 +2510,7 @@ SELECT
 	SUM( ROUND( adCost, 7 ) ) adCost,
 	SUM( ROUND( warehouse_rent, 6 ) ) warehouse_rent,
 	SUM( ROUND( adjustment, 6 ) ) adjustment,
-	SUM( ROUND( lc_adjustment, 6 ) ) lc_adjustment,
+	SUM( ROUND( eda_adjustment, 6 ) ) eda_adjustment,
 	SUM( ROUND( le_adjustment, 6 ) ) le_adjustment,
 	SUM( ROUND( wyd_adjustment, 6 ) ) wyd_adjustment,
 	SUM( ROUND( operation_expenses, 6 ) ) operation_expenses,
@@ -2525,24 +2521,24 @@ SELECT
 	ROUND( SUM( IFNULL( calcuRes, 0 ) ) / SUM( IFNULL( sale_amount, 0 ) ) * - 1, 4 ) tail_percent,
 	ROUND( SUM( IFNULL( ddp, 0 ) ) / SUM( IFNULL( sale_amount, 0 ) ) * - 1, 4 ) ddp_percent,
 	ROUND(
-		SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( lc_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( wyd_adjustment, 0 ) ) + ROUND( SUM( IFNULL( operation_expenses, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_factory, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_delivery, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ),
+		SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( eda_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( wyd_adjustment, 0 ) ) + ROUND( SUM( IFNULL( operation_expenses, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_factory, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_delivery, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ),
 		2 
 	) profit,
 	ROUND(
 		(
-			SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( lc_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( wyd_adjustment, 0 ) ) + ROUND( SUM( IFNULL( operation_expenses, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_factory, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_delivery, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) 
+			SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( eda_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( wyd_adjustment, 0 ) ) + ROUND( SUM( IFNULL( operation_expenses, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_factory, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_delivery, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) 
 		) / SUM( IFNULL( sale_amount, 0 ) ),
 		4 
 	) gross_profit_margin,
 	SUM( ROUND( evaluation_qty, 3 ) ) evaluation_qty,
 	SUM( ROUND( evaluation_amount, 2 ) ) evaluation_amount,
 	ROUND(
-		SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( lc_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( wyd_adjustment, 0 ) ) + ROUND( SUM( IFNULL( operation_expenses, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_factory, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_delivery, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + SUM( IFNULL( evaluation_amount, 0 ) ),
+		SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( eda_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( wyd_adjustment, 0 ) ) + ROUND( SUM( IFNULL( operation_expenses, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_factory, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_delivery, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + SUM( IFNULL( evaluation_amount, 0 ) ),
 		2 
 	) profit_include_evaluation,
 	ROUND(
 		(
-			SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( lc_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( wyd_adjustment, 0 ) ) + ROUND( SUM( IFNULL( operation_expenses, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_factory, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_delivery, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + SUM( IFNULL( evaluation_amount, 0 ) ) 
+			SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( eda_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( wyd_adjustment, 0 ) ) + ROUND( SUM( IFNULL( operation_expenses, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_factory, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_delivery, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + SUM( IFNULL( evaluation_amount, 0 ) ) 
 		) / SUM( IFNULL( sale_amount, 0 ) ),
 		2 
 	) gross_profit_margin_include_evaluation,
@@ -2566,7 +2562,7 @@ FROM
 		SUM( ROUND( adCost, 7 ) ) adCost,
 		SUM( ROUND( warehouse_rent, 6 ) ) * - 1 warehouse_rent,
 		SUM( ROUND( adjustment, 6 ) ) adjustment,
-		SUM( ROUND( lc_adjustment, 6 ) ) lc_adjustment,
+		SUM( ROUND( eda_adjustment, 6 ) ) eda_adjustment,
 		SUM( ROUND( le_adjustment, 6 ) ) le_adjustment,
 		SUM( ROUND( wyd_adjustment, 6 ) ) wyd_adjustment,
 		SUM( ROUND( operation_expenses, 6 ) ) operation_expenses,
@@ -2591,7 +2587,7 @@ FROM
 			NULL AS adCost,
 			SUM( ROUND( warehouse_rent, 6 ) ) warehouse_rent,
 			SUM( ROUND( adjustment, 6 ) ) adjustment,
-			SUM( ROUND( lc_adjustment, 6 ) ) lc_adjustment,
+			SUM( ROUND( eda_adjustment, 6 ) ) eda_adjustment,
 			SUM( ROUND( le_adjustment, 6 ) ) le_adjustment,
 			SUM( ROUND( wyd_adjustment, 6 ) ) wyd_adjustment,
 			NULL AS operation_expenses,
@@ -2620,7 +2616,7 @@ FROM
 				NULL AS adCost,
 				NULL AS warehouse_rent,
 				NULL AS adjustment,
-				NULL AS lc_adjustment,
+				NULL AS eda_adjustment,
 				NULL AS le_adjustment,
 				NULL AS wyd_adjustment 
 			FROM
@@ -2659,7 +2655,7 @@ FROM
 				NULL AS adCost,
 				NULL AS warehouse_rent,
 				NULL AS adjustment,
-				NULL AS lc_adjustment,
+				NULL AS eda_adjustment,
 				NULL AS le_adjustment,
 				NULL AS wyd_adjustment 
 			FROM
@@ -2700,7 +2696,7 @@ FROM
 				NULL AS adCost,
 				NULL AS warehouse_rent,
 				NULL AS adjustment,
-				NULL AS lc_adjustment,
+				NULL AS eda_adjustment,
 				NULL AS le_adjustment,
 				NULL AS wyd_adjustment 
 			FROM
@@ -2729,7 +2725,7 @@ FROM
 				NULL AS adCost,
 				NULL AS warehouse_rent,
 				c.total adjustment,
-				NULL AS lc_adjustment,
+				NULL AS eda_adjustment,
 				NULL AS le_adjustment,
 				NULL AS wyd_adjustment
 			FROM
@@ -2757,7 +2753,7 @@ FROM
 				NULL AS adCost,
 				NULL AS warehouse_rent,
 				NULL AS adjustment,
-				b.total lc_adjustment,
+				b.total eda_adjustment,
 				NULL AS wyd_adjustment,
 				NULL AS le_adjustment 
 			FROM
@@ -2768,8 +2764,8 @@ FROM
 			WHERE
 				a.report_id = ' . $report_id . ' 
 				AND a.platform = "wayfair" 
-				AND lc_adjustment IS NOT NULL
-				AND lc_adjustment != 0 UNION ALL
+				AND eda_adjustment IS NOT NULL
+				AND eda_adjustment != 0 UNION ALL
 			SELECT
 				"wayfair" AS platform,
 				b.user_account userAccount,
@@ -2788,7 +2784,7 @@ FROM
 				NULL AS adCost,
 				NULL AS warehouse_rent,
 				NULL AS adjustment,
-				NULL AS lc_adjustment,
+				NULL AS eda_adjustment,
 				b.total le_adjustment,
 				NULL AS wyd_adjustment 
 			FROM
@@ -2819,7 +2815,7 @@ FROM
 				NULL AS adCost,
 				NULL AS warehouse_rent,
 				NULL AS adjustment,
-				NULL AS lc_adjustment,
+				NULL AS eda_adjustment,
 				NULL AS le_adjustment,
 				b.total wyd_adjustment 
 			FROM
@@ -2850,7 +2846,7 @@ FROM
 				NULL AS adCost,
 				ROUND( SUM( b.total ), 6 ) warehouse_rent,
 				NULL AS adjustment,
-				NULL AS lc_adjustment,
+				NULL AS eda_adjustment,
 				NULL AS le_adjustment,
 				NULL AS wyd_adjustment 
 			FROM
@@ -2884,7 +2880,7 @@ FROM
 			NULL AS adCost,
 			NULL AS warehouse_rent,
 			NULL AS adjustment,
-			NULL AS lc_adjustment,
+			NULL AS eda_adjustment,
 			NULL AS le_adjustment,
 			NULL AS wyd_adjustment,
 			NULL AS operation_expenses,
@@ -2914,7 +2910,7 @@ FROM
 			total adCost,
 			NULL AS warehouse_rent,
 			NULL AS adjustment,
-			NULL AS lc_adjustment,
+			NULL AS eda_adjustment,
 			NULL AS le_adjustment,
 			NULL AS wyd_adjustment,
 			NULL AS operation_expenses,
@@ -2942,7 +2938,7 @@ FROM
 			NULL AS adCost,
 			NULL AS warehouse_rent,
 			NULL AS adjustment,
-			NULL AS lc_adjustment,
+			NULL AS eda_adjustment,
 			NULL AS le_adjustment,
 			NULL AS wyd_adjustment,
 			b.total operation_expenses,
@@ -2973,7 +2969,7 @@ FROM
 			NULL AS adCost,
 			NULL AS warehouse_rent,
 			NULL AS adjustment,
-			NULL AS lc_adjustment,
+			NULL AS eda_adjustment,
 			NULL AS le_adjustment,
 			NULL AS wyd_adjustment,
 			NULL AS operation_expenses,
@@ -3004,7 +3000,7 @@ FROM
 			NULL AS adCost,
 			NULL AS warehouse_rent,
 			NULL AS adjustment,
-			NULL AS lc_adjustment,
+			NULL AS eda_adjustment,
 			NULL AS le_adjustment,
 			NULL AS wyd_adjustment,
 			NULL AS operation_expenses,
@@ -3065,7 +3061,7 @@ SELECT
 	SUM( ROUND( adCost, 7 ) ) adCost,
 	SUM( ROUND( warehouse_rent, 6 ) ) warehouse_rent,
 	SUM( ROUND( adjustment, 6 ) ) adjustment,
-	SUM( ROUND( lc_adjustment, 6 ) ) lc_adjustment,
+	SUM( ROUND( eda_adjustment, 6 ) ) eda_adjustment,
 	SUM( ROUND( le_adjustment, 6 ) ) le_adjustment,
 	SUM( ROUND( wyd_adjustment, 6 ) ) wyd_adjustment,
 	SUM( ROUND( operation_expenses, 6 ) ) operation_expenses,
@@ -3076,24 +3072,24 @@ SELECT
 	ROUND( SUM( IFNULL( calcuRes, 0 ) ) / SUM( IFNULL( sale_amount, 0 ) ) * - 1, 4 ) tail_percent,
 	ROUND( SUM( IFNULL( ddp, 0 ) ) / SUM( IFNULL( sale_amount, 0 ) ) * - 1, 4 ) ddp_percent,
 	ROUND(
-		SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( lc_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( wyd_adjustment, 0 ) ) + ROUND( SUM( IFNULL( operation_expenses, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_factory, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_delivery, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ),
+		SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( eda_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( wyd_adjustment, 0 ) ) + ROUND( SUM( IFNULL( operation_expenses, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_factory, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_delivery, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ),
 		2 
 	) profit,
 	ROUND(
 		(
-			SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( lc_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( wyd_adjustment, 0 ) ) + ROUND( SUM( IFNULL( operation_expenses, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_factory, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_delivery, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) 
+			SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( eda_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( wyd_adjustment, 0 ) ) + ROUND( SUM( IFNULL( operation_expenses, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_factory, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_delivery, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) 
 		) / SUM( IFNULL( sale_amount, 0 ) ),
 		4 
 	) gross_profit_margin,
 	SUM( ROUND( evaluation_qty, 3 ) ) evaluation_qty,
 	SUM( ROUND( evaluation_amount, 2 ) ) evaluation_amount,
 	ROUND(
-		SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( lc_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( wyd_adjustment, 0 ) ) + ROUND( SUM( IFNULL( operation_expenses, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_factory, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_delivery, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + SUM( IFNULL( evaluation_amount, 0 ) ),
+		SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( eda_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( wyd_adjustment, 0 ) ) + ROUND( SUM( IFNULL( operation_expenses, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_factory, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_delivery, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + SUM( IFNULL( evaluation_amount, 0 ) ),
 		2 
 	) profit_include_evaluation,
 	ROUND(
 		(
-			SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( lc_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( wyd_adjustment, 0 ) ) + ROUND( SUM( IFNULL( operation_expenses, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_factory, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_delivery, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + SUM( IFNULL( evaluation_amount, 0 ) ) 
+			SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( eda_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( wyd_adjustment, 0 ) ) + ROUND( SUM( IFNULL( operation_expenses, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_factory, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_delivery, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + SUM( IFNULL( evaluation_amount, 0 ) ) 
 		) / SUM( IFNULL( sale_amount, 0 ) ),
 		2 
 	) gross_profit_margin_include_evaluation,
@@ -3117,7 +3113,7 @@ FROM
 		SUM( ROUND( adCost, 7 ) ) adCost,
 		SUM( ROUND( warehouse_rent, 6 ) ) * - 1 warehouse_rent,
 		SUM( ROUND( adjustment, 6 ) ) adjustment,
-		SUM( ROUND( lc_adjustment, 6 ) ) lc_adjustment,
+		SUM( ROUND( eda_adjustment, 6 ) ) eda_adjustment,
 		SUM( ROUND( le_adjustment, 6 ) ) le_adjustment,
 		SUM( ROUND( wyd_adjustment, 6 ) ) wyd_adjustment,
 		SUM( ROUND( operation_expenses, 6 ) ) operation_expenses,
@@ -3142,7 +3138,7 @@ FROM
 			NULL AS adCost,
 			SUM( ROUND( warehouse_rent, 6 ) ) warehouse_rent,
 			SUM( ROUND( adjustment, 6 ) ) adjustment,
-			SUM( ROUND( lc_adjustment, 6 ) ) lc_adjustment,
+			SUM( ROUND( eda_adjustment, 6 ) ) eda_adjustment,
 			SUM( ROUND( le_adjustment, 6 ) ) le_adjustment,
 			SUM( ROUND( wyd_adjustment, 6 ) ) wyd_adjustment,
 			NULL AS operation_expenses,
@@ -3171,7 +3167,7 @@ FROM
 				NULL AS adCost,
 				NULL AS warehouse_rent,
 				NULL AS adjustment,
-				NULL AS lc_adjustment,
+				NULL AS eda_adjustment,
 				NULL AS le_adjustment,
 				NULL AS wyd_adjustment 
 			FROM
@@ -3211,7 +3207,7 @@ FROM
 				NULL AS adCost,
 				NULL AS warehouse_rent,
 				NULL AS adjustment,
-				NULL AS lc_adjustment,
+				NULL AS eda_adjustment,
 				NULL AS le_adjustment,
 				NULL AS wyd_adjustment 
 			FROM
@@ -3252,7 +3248,7 @@ FROM
 				NULL AS adCost,
 				NULL AS warehouse_rent,
 				NULL AS adjustment,
-				NULL AS lc_adjustment,
+				NULL AS eda_adjustment,
 				NULL AS le_adjustment,
 				NULL AS wyd_adjustment 
 			FROM
@@ -3281,7 +3277,7 @@ FROM
 				NULL AS adCost,
 				NULL AS warehouse_rent,
 				c.total adjustment,
-				NULL AS lc_adjustment,
+				NULL AS eda_adjustment,
 				NULL AS le_adjustment,
 				NULL AS wyd_adjustment 
 			FROM
@@ -3309,7 +3305,7 @@ FROM
 				NULL AS adCost,
 				NULL AS warehouse_rent,
 				NULL AS adjustment,
-				b.total lc_adjustment,
+				b.total eda_adjustment,
 				NULL AS le_adjustment,
 				NULL AS wyd_adjustment 
 			FROM
@@ -3320,8 +3316,8 @@ FROM
 			WHERE
 				a.report_id = ' . $report_id . ' 
 				AND c.platform = "shein" 
-				AND lc_adjustment IS NOT NULL
-				AND lc_adjustment != 0 UNION ALL
+				AND eda_adjustment IS NOT NULL
+				AND eda_adjustment != 0 UNION ALL
 			SELECT
 				"shein" AS platform,
 				b.user_account userAccount,
@@ -3340,7 +3336,7 @@ FROM
 				NULL AS adCost,
 				NULL AS warehouse_rent,
 				NULL AS adjustment,
-				NULL AS lc_adjustment,
+				NULL AS eda_adjustment,
 				b.total le_adjustment,
 				NULL AS wyd_adjustment 
 			FROM
@@ -3371,7 +3367,7 @@ FROM
 				NULL AS adCost,
 				NULL AS warehouse_rent,
 				NULL AS adjustment,
-				NULL AS lc_adjustment,
+				NULL AS eda_adjustment,
 				NULL AS le_adjustment,
 				b.total wyd_adjustment 
 			FROM
@@ -3402,7 +3398,7 @@ FROM
 				NULL AS adCost,
 				ROUND( SUM( b.total ), 6 ) warehouse_rent,
 				NULL AS adjustment,
-				NULL AS lc_adjustment,
+				NULL AS eda_adjustment,
 				NULL AS le_adjustment,
 				NULL AS wyd_adjustment 
 			FROM
@@ -3436,7 +3432,7 @@ FROM
 			NULL AS adCost,
 			NULL AS warehouse_rent,
 			NULL AS adjustment,
-			NULL AS lc_adjustment,
+			NULL AS eda_adjustment,
 			NULL AS le_adjustment,
 			NULL AS wyd_adjustment,
 			NULL AS operation_expenses,
@@ -3468,7 +3464,7 @@ FROM
 			total adCost,
 			NULL AS warehouse_rent,
 			NULL AS adjustment,
-			NULL AS lc_adjustment,
+			NULL AS eda_adjustment,
 			NULL AS le_adjustment,
 			NULL AS wyd_adjustment,
 			NULL AS operation_expenses,
@@ -3496,7 +3492,7 @@ FROM
 			NULL AS adCost,
 			NULL AS warehouse_rent,
 			NULL AS adjustment,
-			NULL AS lc_adjustment,
+			NULL AS eda_adjustment,
 			NULL AS le_adjustment,
 			NULL AS wyd_adjustment,
 			b.total operation_expenses,
@@ -3527,7 +3523,7 @@ FROM
 			NULL AS adCost,
 			NULL AS warehouse_rent,
 			NULL AS adjustment,
-			NULL AS lc_adjustment,
+			NULL AS eda_adjustment,
 			NULL AS le_adjustment,
 			NULL AS wyd_adjustment,
 			NULL AS operation_expenses,
@@ -3558,7 +3554,7 @@ FROM
 			NULL AS adCost,
 			NULL AS warehouse_rent,
 			NULL AS adjustment,
-			NULL AS lc_adjustment,
+			NULL AS eda_adjustment,
 			NULL AS le_adjustment,
 			NULL AS wyd_adjustment,
 			NULL AS operation_expenses,
@@ -3620,7 +3616,7 @@ SELECT
 	SUM( ROUND( adCost, 7 ) ) adCost,
 	SUM( ROUND( warehouse_rent, 6 ) ) warehouse_rent,
 	SUM( ROUND( adjustment, 6 ) ) adjustment,
-	SUM( ROUND( lc_adjustment, 6 ) ) lc_adjustment,
+	SUM( ROUND( eda_adjustment, 6 ) ) eda_adjustment,
 	SUM( ROUND( le_adjustment, 6 ) ) le_adjustment,
 	SUM( ROUND( wyd_adjustment, 6 ) ) wyd_adjustment,
 	SUM( ROUND( operation_expenses, 6 ) ) operation_expenses,
@@ -3634,24 +3630,24 @@ SELECT
 	) tail_percent,
 	ROUND( SUM( IFNULL( ddp, 0 ) ) / SUM( IFNULL( sale_amount, 0 ) ) * - 1, 4 ) ddp_percent,
 	ROUND(
-		SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( waybill, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( lc_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( wyd_adjustment, 0 ) ) + ROUND( SUM( IFNULL( operation_expenses, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_factory, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_delivery, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ),
+		SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( waybill, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( eda_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( wyd_adjustment, 0 ) ) + ROUND( SUM( IFNULL( operation_expenses, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_factory, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_delivery, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ),
 		2 
 	) profit,
 	ROUND(
 		(
-			SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( waybill, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( lc_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( wyd_adjustment, 0 ) ) + ROUND( SUM( IFNULL( operation_expenses, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_factory, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_delivery, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) 
+			SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( waybill, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( eda_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( wyd_adjustment, 0 ) ) + ROUND( SUM( IFNULL( operation_expenses, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_factory, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_delivery, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) 
 		) / SUM( IFNULL( sale_amount, 0 ) ),
 		4 
 	) gross_profit_margin,
 	SUM( ROUND( evaluation_qty, 3 ) ) evaluation_qty,
 	SUM( ROUND( evaluation_amount, 2 ) ) evaluation_amount,
 	ROUND(
-		SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( waybill, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( lc_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( wyd_adjustment, 0 ) ) + ROUND( SUM( IFNULL( operation_expenses, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_factory, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_delivery, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + SUM( IFNULL( evaluation_amount, 0 ) ),
+		SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( waybill, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( eda_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( wyd_adjustment, 0 ) ) + ROUND( SUM( IFNULL( operation_expenses, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_factory, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_delivery, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + SUM( IFNULL( evaluation_amount, 0 ) ),
 		2 
 	) profit_include_evaluation,
 	ROUND(
 		(
-			SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( waybill, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( lc_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( wyd_adjustment, 0 ) ) + ROUND( SUM( IFNULL( operation_expenses, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_factory, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_delivery, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + SUM( IFNULL( evaluation_amount, 0 ) ) 
+			SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( waybill, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( eda_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( wyd_adjustment, 0 ) ) + ROUND( SUM( IFNULL( operation_expenses, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_factory, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_delivery, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + SUM( IFNULL( evaluation_amount, 0 ) ) 
 		) / SUM( IFNULL( sale_amount, 0 ) ),
 		2 
 	) gross_profit_margin_include_evaluation,
@@ -3676,7 +3672,7 @@ FROM
 		SUM( ROUND( adCost, 7 ) ) adCost,
 		SUM( ROUND( warehouse_rent, 6 ) ) * - 1 warehouse_rent,
 		SUM( ROUND( adjustment, 6 ) ) adjustment,
-		SUM( ROUND( lc_adjustment, 6 ) ) lc_adjustment,
+		SUM( ROUND( eda_adjustment, 6 ) ) eda_adjustment,
 		SUM( ROUND( le_adjustment, 6 ) ) le_adjustment,
 		SUM( ROUND( wyd_adjustment, 6 ) ) wyd_adjustment,
 		SUM( ROUND( operation_expenses, 6 ) ) operation_expenses,
@@ -3702,7 +3698,7 @@ FROM
 			NULL AS adCost,
 			SUM( ROUND( warehouse_rent, 6 ) ) warehouse_rent,
 			SUM( ROUND( adjustment, 6 ) ) adjustment,
-			SUM( ROUND( lc_adjustment, 6 ) ) lc_adjustment,
+			SUM( ROUND( eda_adjustment, 6 ) ) eda_adjustment,
 			SUM( ROUND( le_adjustment, 6 ) ) le_adjustment,
 			SUM( ROUND( wyd_adjustment, 6 ) ) wyd_adjustment,
 			NULL AS operation_expenses,
@@ -3732,7 +3728,7 @@ FROM
 				NULL AS adCost,
 				NULL AS warehouse_rent,
 				NULL AS adjustment,
-				NULL AS lc_adjustment,
+				NULL AS eda_adjustment,
 				NULL AS le_adjustment,
 				NULL AS wyd_adjustment 
 			FROM
@@ -3773,7 +3769,7 @@ FROM
 				NULL AS adCost,
 				NULL AS warehouse_rent,
 				NULL AS adjustment,
-				NULL AS lc_adjustment,
+				NULL AS eda_adjustment,
 				NULL AS le_adjustment,
 				NULL AS wyd_adjustment 
 			FROM
@@ -3815,7 +3811,7 @@ FROM
 				NULL AS adCost,
 				NULL AS warehouse_rent,
 				NULL AS adjustment,
-				NULL AS lc_adjustment,
+				NULL AS eda_adjustment,
 				NULL AS le_adjustment,
 				NULL AS wyd_adjustment 
 			FROM
@@ -3845,7 +3841,7 @@ FROM
 				NULL AS adCost,
 				NULL AS warehouse_rent,
 				c.total adjustment,
-				NULL AS lc_adjustment,
+				NULL AS eda_adjustment,
 				NULL AS le_adjustment,
 				NULL AS wyd_adjustment 
 			FROM
@@ -3874,7 +3870,7 @@ FROM
 				NULL AS adCost,
 				NULL AS warehouse_rent,
 				NULL AS adjustment,
-				b.total lc_adjustment,
+				b.total eda_adjustment,
 				NULL AS le_adjustment,
 				NULL AS wyd_adjustment 
 			FROM
@@ -3885,8 +3881,8 @@ FROM
 			WHERE
 				a.report_id = ' . $report_id . ' 
 				AND c.platform = "temu" 
-				AND lc_adjustment IS NOT NULL
-				AND lc_adjustment != 0 UNION ALL
+				AND eda_adjustment IS NOT NULL
+				AND eda_adjustment != 0 UNION ALL
 			SELECT
 				"temu" AS platform,
 				b.user_account userAccount,
@@ -3906,7 +3902,7 @@ FROM
 				NULL AS adCost,
 				NULL AS warehouse_rent,
 				NULL AS adjustment,
-				NULL AS lc_adjustment,
+				NULL AS eda_adjustment,
 				b.total le_adjustment,
 				NULL AS wyd_adjustment 
 			FROM
@@ -3938,7 +3934,7 @@ FROM
 				NULL AS adCost,
 				NULL AS warehouse_rent,
 				NULL AS adjustment,
-				NULL AS lc_adjustment,
+				NULL AS eda_adjustment,
 				NULL AS le_adjustment,
 				b.total wyd_adjustment 
 			FROM
@@ -3970,7 +3966,7 @@ FROM
 				NULL AS adCost,
 				ROUND( SUM( b.total ), 6 ) warehouse_rent,
 				NULL AS adjustment,
-				NULL AS lc_adjustment,
+				NULL AS eda_adjustment,
 				NULL AS le_adjustment,
 				NULL AS wyd_adjustment 
 			FROM
@@ -4005,7 +4001,7 @@ FROM
 			NULL AS adCost,
 			NULL AS warehouse_rent,
 			NULL AS adjustment,
-			NULL AS lc_adjustment,
+			NULL AS eda_adjustment,
 			NULL AS le_adjustment,
 			NULL AS wyd_adjustment,
 			NULL AS operation_expenses,
@@ -4038,7 +4034,7 @@ FROM
 			total adCost,
 			NULL AS warehouse_rent,
 			NULL AS adjustment,
-			NULL AS lc_adjustment,
+			NULL AS eda_adjustment,
 			NULL AS le_adjustment,
 			NULL AS wyd_adjustment,
 			NULL AS operation_expenses,
@@ -4067,7 +4063,7 @@ FROM
 			NULL AS adCost,
 			NULL AS warehouse_rent,
 			NULL AS adjustment,
-			NULL AS lc_adjustment,
+			NULL AS eda_adjustment,
 			NULL AS le_adjustment,
 			NULL AS wyd_adjustment,
 			b.total operation_expenses,
@@ -4099,7 +4095,7 @@ FROM
 			NULL AS adCost,
 			NULL AS warehouse_rent,
 			NULL AS adjustment,
-			NULL AS lc_adjustment,
+			NULL AS eda_adjustment,
 			NULL AS le_adjustment,
 			NULL AS wyd_adjustment,
 			NULL AS operation_expenses,
@@ -4131,7 +4127,7 @@ FROM
 			NULL AS adCost,
 			NULL AS warehouse_rent,
 			NULL AS adjustment,
-			NULL AS lc_adjustment,
+			NULL AS eda_adjustment,
 			NULL AS le_adjustment,
 			NULL AS wyd_adjustment,
 			NULL AS operation_expenses,
@@ -4193,7 +4189,7 @@ SELECT
 	SUM( ROUND( adCost, 7 ) ) adCost,
 	SUM( ROUND( warehouse_rent, 6 ) ) warehouse_rent,
 	SUM( ROUND( adjustment, 6 ) ) adjustment,
-	SUM( ROUND( lc_adjustment, 6 ) ) lc_adjustment,
+	SUM( ROUND( eda_adjustment, 6 ) ) eda_adjustment,
 	SUM( ROUND( le_adjustment, 6 ) ) le_adjustment,
 	SUM( ROUND( wyd_adjustment, 6 ) ) wyd_adjustment,
 	SUM( ROUND( operation_expenses, 6 ) ) operation_expenses,
@@ -4204,24 +4200,24 @@ SELECT
 	ROUND( SUM( IFNULL( calcuRes, 0 ) ) / SUM( IFNULL( sale_amount, 0 ) ) * - 1, 4 ) tail_percent,
 	ROUND( SUM( IFNULL( ddp, 0 ) ) / SUM( IFNULL( sale_amount, 0 ) ) * - 1, 4 ) ddp_percent,
 	ROUND(
-		SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( lc_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( wyd_adjustment, 0 ) ) + ROUND( SUM( IFNULL( operation_expenses, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = 8 ), 2 ) + ROUND( SUM( IFNULL( operation_factory, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = 8 ), 2 ) + ROUND( SUM( IFNULL( operation_delivery, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = 8 ), 2 ),
+		SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( eda_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( wyd_adjustment, 0 ) ) + ROUND( SUM( IFNULL( operation_expenses, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = 8 ), 2 ) + ROUND( SUM( IFNULL( operation_factory, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = 8 ), 2 ) + ROUND( SUM( IFNULL( operation_delivery, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = 8 ), 2 ),
 		2 
 	) profit,
 	ROUND(
 		(
-			SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( lc_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( wyd_adjustment, 0 ) ) + ROUND( SUM( IFNULL( operation_expenses, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = 8 ), 2 ) + ROUND( SUM( IFNULL( operation_factory, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = 8 ), 2 ) + ROUND( SUM( IFNULL( operation_delivery, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = 8 ), 2 ) 
+			SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( eda_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( wyd_adjustment, 0 ) ) + ROUND( SUM( IFNULL( operation_expenses, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = 8 ), 2 ) + ROUND( SUM( IFNULL( operation_factory, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = 8 ), 2 ) + ROUND( SUM( IFNULL( operation_delivery, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = 8 ), 2 ) 
 		) / SUM( IFNULL( sale_amount, 0 ) ),
 		4 
 	) gross_profit_margin,
 	SUM( ROUND( evaluation_qty, 3 ) ) evaluation_qty,
 	SUM( ROUND( evaluation_amount, 2 ) ) evaluation_amount,
 	ROUND(
-		SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( lc_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( wyd_adjustment, 0 ) ) + ROUND( SUM( IFNULL( operation_expenses, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = 8 ), 2 ) + ROUND( SUM( IFNULL( operation_factory, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = 8 ), 2 ) + ROUND( SUM( IFNULL( operation_delivery, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = 8 ), 2 ) + SUM( IFNULL( evaluation_amount, 0 ) ),
+		SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( eda_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( wyd_adjustment, 0 ) ) + ROUND( SUM( IFNULL( operation_expenses, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = 8 ), 2 ) + ROUND( SUM( IFNULL( operation_factory, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = 8 ), 2 ) + ROUND( SUM( IFNULL( operation_delivery, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = 8 ), 2 ) + SUM( IFNULL( evaluation_amount, 0 ) ),
 		2 
 	) profit_include_evaluation,
 	ROUND(
 		(
-			SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( lc_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( wyd_adjustment, 0 ) ) + ROUND( SUM( IFNULL( operation_expenses, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = 8 ), 2 ) + ROUND( SUM( IFNULL( operation_factory, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = 8 ), 2 ) + ROUND( SUM( IFNULL( operation_delivery, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = 8 ), 2 ) + SUM( IFNULL( evaluation_amount, 0 ) ) 
+			SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( eda_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( wyd_adjustment, 0 ) ) + ROUND( SUM( IFNULL( operation_expenses, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = 8 ), 2 ) + ROUND( SUM( IFNULL( operation_factory, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = 8 ), 2 ) + ROUND( SUM( IFNULL( operation_delivery, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = 8 ), 2 ) + SUM( IFNULL( evaluation_amount, 0 ) ) 
 		) / SUM( IFNULL( sale_amount, 0 ) ),
 		2 
 	) gross_profit_margin_include_evaluation,
@@ -4246,7 +4242,7 @@ FROM
 		SUM( ROUND( adCost, 7 ) ) adCost,
 		SUM( ROUND( warehouse_rent, 6 ) ) * - 1 warehouse_rent,
 		SUM( ROUND( adjustment, 6 ) ) adjustment,
-		SUM( ROUND( lc_adjustment, 6 ) ) lc_adjustment,
+		SUM( ROUND( eda_adjustment, 6 ) ) eda_adjustment,
 		SUM( ROUND( le_adjustment, 6 ) ) le_adjustment,
 		SUM( ROUND( wyd_adjustment, 6 ) ) wyd_adjustment,
 		SUM( ROUND( operation_expenses, 6 ) ) operation_expenses,
@@ -4272,7 +4268,7 @@ FROM
 			NULL AS adCost,
 			SUM( ROUND( warehouse_rent, 6 ) ) warehouse_rent,
 			SUM( ROUND( adjustment, 6 ) ) adjustment,
-			SUM( ROUND( lc_adjustment, 6 ) ) lc_adjustment,
+			SUM( ROUND( eda_adjustment, 6 ) ) eda_adjustment,
 			SUM( ROUND( le_adjustment, 6 ) ) le_adjustment,
 			SUM( ROUND( wyd_adjustment, 6 ) ) wyd_adjustment,
 			NULL AS operation_expenses,
@@ -4302,7 +4298,7 @@ FROM
 				NULL AS adCost,
 				NULL AS warehouse_rent,
 				NULL AS adjustment,
-				NULL AS lc_adjustment,
+				NULL AS eda_adjustment,
 				NULL AS le_adjustment,
 				NULL AS wyd_adjustment 
 			FROM
@@ -4343,7 +4339,7 @@ FROM
 				NULL AS adCost,
 				NULL AS warehouse_rent,
 				NULL AS adjustment,
-				NULL AS lc_adjustment,
+				NULL AS eda_adjustment,
 				NULL AS le_adjustment,
 				NULL AS wyd_adjustment
 			FROM
@@ -4385,7 +4381,7 @@ FROM
 				NULL AS adCost,
 				NULL AS warehouse_rent,
 				NULL AS adjustment,
-				NULL AS lc_adjustment,
+				NULL AS eda_adjustment,
 				NULL AS le_adjustment,
 				NULL AS wyd_adjustment 
 			FROM
@@ -4422,7 +4418,7 @@ FROM
 				NULL AS adCost,
 				NULL AS warehouse_rent,
 				NULL AS adjustment,
-				NULL AS lc_adjustment,
+				NULL AS eda_adjustment,
 				NULL AS le_adjustment,
 				NULL AS wyd_adjustment 
 			FROM
@@ -4452,7 +4448,7 @@ FROM
 				NULL AS adCost,
 				NULL AS warehouse_rent,
 				c.total adjustment,
-				NULL AS lc_adjustment,
+				NULL AS eda_adjustment,
 				NULL AS le_adjustment,
 				NULL AS wyd_adjustment 
 			FROM
@@ -4481,7 +4477,7 @@ FROM
 				NULL AS adCost,
 				NULL AS warehouse_rent,
 				NULL AS adjustment,
-				b.total lc_adjustment,
+				b.total eda_adjustment,
 				NULL AS le_adjustment,
 				NULL AS wyd_adjustment 
 			FROM
@@ -4492,8 +4488,8 @@ FROM
 			WHERE
 				a.report_id = ' . $report_id . ' 
 				AND c.platform = "ebay" 
-				AND lc_adjustment IS NOT NULL
-				AND lc_adjustment != 0 UNION ALL
+				AND eda_adjustment IS NOT NULL
+				AND eda_adjustment != 0 UNION ALL
 			SELECT
 				"ebay" AS platform,
 				b.user_account userAccount,
@@ -4513,7 +4509,7 @@ FROM
 				NULL AS adCost,
 				NULL AS warehouse_rent,
 				NULL AS adjustment,
-				NULL AS lc_adjustment,
+				NULL AS eda_adjustment,
 				b.total le_adjustment,
 				NULL AS wyd_adjustment 
 			FROM
@@ -4545,7 +4541,7 @@ FROM
 				NULL AS adCost,
 				NULL AS warehouse_rent,
 				NULL AS adjustment,
-				NULL AS lc_adjustment,
+				NULL AS eda_adjustment,
 				NULL AS le_adjustment,
 				b.total wyd_adjustment 
 			FROM
@@ -4577,7 +4573,7 @@ FROM
 				NULL AS adCost,
 				ROUND( SUM( b.total ), 6 ) warehouse_rent,
 				NULL AS adjustment,
-				NULL AS lc_adjustment,
+				NULL AS eda_adjustment,
 				NULL AS le_adjustment,
 				NULL AS wyd_adjustment 
 			FROM
@@ -4612,7 +4608,7 @@ FROM
 			NULL AS adCost,
 			NULL AS warehouse_rent,
 			NULL AS adjustment,
-			NULL AS lc_adjustment,
+			NULL AS eda_adjustment,
 			NULL AS le_adjustment,
 			NULL AS wyd_adjustment,
 			NULL AS operation_expenses,
@@ -4645,7 +4641,7 @@ FROM
 			total adCost,
 			NULL AS warehouse_rent,
 			NULL AS adjustment,
-			NULL AS lc_adjustment,
+			NULL AS eda_adjustment,
 			NULL AS le_adjustment,
 			NULL AS wyd_adjustment,
 			NULL AS operation_expenses,
@@ -4674,7 +4670,7 @@ FROM
 			NULL AS adCost,
 			NULL AS warehouse_rent,
 			NULL AS adjustment,
-			NULL AS lc_adjustment,
+			NULL AS eda_adjustment,
 			NULL AS le_adjustment,
 			NULL AS wyd_adjustment,
 			b.total operation_expenses,
@@ -4706,7 +4702,7 @@ FROM
 			NULL AS adCost,
 			NULL AS warehouse_rent,
 			NULL AS adjustment,
-			NULL AS lc_adjustment,
+			NULL AS eda_adjustment,
 			NULL AS le_adjustment,
 			NULL AS wyd_adjustment,
 			NULL AS operation_expenses,
@@ -4738,7 +4734,7 @@ FROM
 			NULL AS adCost,
 			NULL AS warehouse_rent,
 			NULL AS adjustment,
-			NULL AS lc_adjustment,
+			NULL AS eda_adjustment,
 			NULL AS le_adjustment,
 			NULL AS wyd_adjustment,
 			NULL AS operation_expenses,
@@ -5919,7 +5915,7 @@ SELECT
 	SUM( ROUND( adCost, 7 ) ) adCost,
 	SUM( ROUND( warehouse_rent, 6 ) ) warehouse_rent,
 	SUM( ROUND( adjustment, 6 ) ) adjustment,
-	SUM( ROUND( lc_adjustment, 6 ) ) lc_adjustment,
+	SUM( ROUND( eda_adjustment, 6 ) ) eda_adjustment,
 	SUM( ROUND( le_adjustment, 6 ) ) le_adjustment,
 	SUM( ROUND( wyd_adjustment, 6 ) ) wyd_adjustment,
 	SUM( ROUND( operation_expenses, 6 ) ) operation_expenses,
@@ -5930,24 +5926,24 @@ SELECT
 	ROUND( SUM( IFNULL( calcuRes, 0 ) ) / SUM( IFNULL( sale_amount, 0 ) ) * - 1, 4 ) tail_percent,
 	ROUND( SUM( IFNULL( ddp, 0 ) ) / SUM( IFNULL( sale_amount, 0 ) ) * - 1, 4 ) ddp_percent,
 	ROUND(
-		SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( fba_fee, 0 ) ) + SUM( IFNULL( sale_tax, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( lc_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( wyd_adjustment, 0 ) ) + ROUND( SUM( IFNULL( operation_expenses, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_factory, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_delivery, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ),
+		SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( fba_fee, 0 ) ) + SUM( IFNULL( sale_tax, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( eda_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( wyd_adjustment, 0 ) ) + ROUND( SUM( IFNULL( operation_expenses, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_factory, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_delivery, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ),
 		2 
 	) profit,
 	ROUND(
 		(
-			SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( fba_fee, 0 ) ) + SUM( IFNULL( sale_tax, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( lc_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( wyd_adjustment, 0 ) ) + ROUND( SUM( IFNULL( operation_expenses, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_factory, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_delivery, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) 
+			SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( fba_fee, 0 ) ) + SUM( IFNULL( sale_tax, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( eda_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( wyd_adjustment, 0 ) ) + ROUND( SUM( IFNULL( operation_expenses, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_factory, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_delivery, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) 
 		) / SUM( IFNULL( sale_amount, 0 ) ),
 		4 
 	) gross_profit_margin,
 	SUM( ROUND( evaluation_qty, 3 ) ) evaluation_qty,
 	SUM( ROUND( evaluation_amount, 2 ) ) evaluation_amount,
 	ROUND(
-		SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( fba_fee, 0 ) ) + SUM( IFNULL( sale_tax, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( lc_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( wyd_adjustment, 0 ) ) + ROUND( SUM( IFNULL( operation_expenses, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_factory, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_delivery, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + SUM( IFNULL( evaluation_amount, 0 ) ),
+		SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( fba_fee, 0 ) ) + SUM( IFNULL( sale_tax, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( eda_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( wyd_adjustment, 0 ) ) + ROUND( SUM( IFNULL( operation_expenses, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_factory, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_delivery, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + SUM( IFNULL( evaluation_amount, 0 ) ),
 		2 
 	) profit_include_evaluation,
 	ROUND(
 		(
-			SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( fba_fee, 0 ) ) + SUM( IFNULL( sale_tax, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( lc_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( wyd_adjustment, 0 ) ) + ROUND( SUM( IFNULL( operation_expenses, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_factory, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_delivery, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + SUM( IFNULL( evaluation_amount, 0 ) ) 
+			SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( fba_fee, 0 ) ) + SUM( IFNULL( sale_tax, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( adjustment, 0 ) ) + SUM( IFNULL( eda_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( wyd_adjustment, 0 ) ) + ROUND( SUM( IFNULL( operation_expenses, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_factory, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_delivery, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + SUM( IFNULL( evaluation_amount, 0 ) ) 
 		) / SUM( IFNULL( sale_amount, 0 ) ),
 		2 
 	) gross_profit_margin_include_evaluation,
@@ -5973,7 +5969,7 @@ FROM
 		SUM( ROUND( adCost, 7 ) ) adCost,
 		SUM( ROUND( warehouse_rent, 6 ) ) * - 1 warehouse_rent,
 		SUM( ROUND( adjustment, 6 ) ) adjustment,
-		SUM( ROUND( lc_adjustment, 6 ) ) lc_adjustment,
+		SUM( ROUND( eda_adjustment, 6 ) ) eda_adjustment,
 		SUM( ROUND( le_adjustment, 6 ) ) le_adjustment,
 		SUM( ROUND( wyd_adjustment, 6 ) ) wyd_adjustment,
 		SUM( ROUND( operation_expenses, 6 ) ) operation_expenses,
@@ -6000,7 +5996,7 @@ FROM
 			NULL AS adCost,
 			SUM( ROUND( warehouse_rent, 6 ) ) warehouse_rent,
 			SUM( ROUND( adjustment, 6 ) ) adjustment,
-			SUM( ROUND( lc_adjustment, 6 ) ) lc_adjustment,
+			SUM( ROUND( eda_adjustment, 6 ) ) eda_adjustment,
 			SUM( ROUND( le_adjustment, 6 ) ) le_adjustment,
 			SUM( ROUND( wyd_adjustment, 6 ) ) wyd_adjustment,
 			NULL AS operation_expenses,
@@ -6031,7 +6027,7 @@ FROM
 				NULL AS adCost,
 				NULL AS warehouse_rent,
 				NULL AS adjustment,
-				NULL AS lc_adjustment,
+				NULL AS eda_adjustment,
 				NULL AS le_adjustment,
 				NULL AS wyd_adjustment 
 			FROM
@@ -6073,7 +6069,7 @@ FROM
 				NULL AS adCost,
 				NULL AS warehouse_rent,
 				NULL AS adjustment,
-				NULL AS lc_adjustment,
+				NULL AS eda_adjustment,
 				NULL AS le_adjustment,
 				NULL AS wyd_adjustment 
 			FROM
@@ -6116,7 +6112,7 @@ FROM
 				NULL AS adCost,
 				NULL AS warehouse_rent,
 				NULL AS adjustment,
-				NULL AS lc_adjustment,
+				NULL AS eda_adjustment,
 				NULL AS le_adjustment,
 				NULL AS wyd_adjustment 
 			FROM
@@ -6147,7 +6143,7 @@ FROM
 				NULL AS adCost,
 				ROUND( SUM( b.total ), 6 ) warehouse_rent,
 				NULL AS adjustment,
-				NULL AS lc_adjustment,
+				NULL AS eda_adjustment,
 				NULL AS le_adjustment,
 				NULL AS wyd_adjustment 
 			FROM
@@ -6181,7 +6177,7 @@ FROM
 				NULL AS adCost,
 				NULL AS warehouse_rent,
 				b.total adjustment,
-				NULL AS lc_adjustment,
+				NULL AS eda_adjustment,
 				NULL AS le_adjustment,
 				NULL AS wyd_adjustment 
 			FROM
@@ -6212,7 +6208,7 @@ FROM
 				NULL AS adCost,
 				NULL AS warehouse_rent,
 				NULL AS adjustment,
-				b.total lc_adjustment,
+				b.total eda_adjustment,
 				NULL AS le_adjustment,
 				NULL AS wyd_adjustment 
 			FROM
@@ -6223,8 +6219,8 @@ FROM
 			WHERE
 				a.report_id = ' . $report_id . ' 
 				AND c.platform = "tiktok" 
-				AND lc_adjustment IS NOT NULL
-				AND lc_adjustment != 0 UNION ALL
+				AND eda_adjustment IS NOT NULL
+				AND eda_adjustment != 0 UNION ALL
 			SELECT
 				"tiktok" AS platform,
 				b.user_account userAccount,
@@ -6245,7 +6241,7 @@ FROM
 				NULL AS adCost,
 				NULL AS warehouse_rent,
 				NULL AS adjustment,
-				NULL AS lc_adjustment,
+				NULL AS eda_adjustment,
 				b.total le_adjustment,
 				NULL AS wyd_adjustment 
 			FROM
@@ -6278,7 +6274,7 @@ FROM
 				NULL AS adCost,
 				NULL AS warehouse_rent,
 				NULL AS adjustment,
-				NULL AS lc_adjustment,
+				NULL AS eda_adjustment,
 				NULL AS le_adjustment,
 				b.total wyd_adjustment 
 			FROM
@@ -6313,7 +6309,7 @@ FROM
 			NULL AS adCost,
 			NULL AS warehouse_rent,
 			NULL AS adjustment,
-			NULL AS lc_adjustment,
+			NULL AS eda_adjustment,
 			NULL AS le_adjustment,
 			NULL AS wyd_adjustment,
 			NULL AS operation_expenses,
@@ -6347,7 +6343,7 @@ FROM
 			total adCost,
 			NULL AS warehouse_rent,
 			NULL AS adjustment,
-			NULL AS lc_adjustment,
+			NULL AS eda_adjustment,
 			NULL AS le_adjustment,
 			NULL AS wyd_adjustment,
 			NULL AS operation_expenses,
@@ -6377,7 +6373,7 @@ FROM
 			NULL AS adCost,
 			NULL AS warehouse_rent,
 			NULL AS adjustment,
-			NULL AS lc_adjustment,
+			NULL AS eda_adjustment,
 			NULL AS le_adjustment,
 			NULL AS wyd_adjustment,
 			b.total operation_expenses,
@@ -6410,7 +6406,7 @@ FROM
 			NULL AS adCost,
 			NULL AS warehouse_rent,
 			NULL AS adjustment,
-			NULL AS lc_adjustment,
+			NULL AS eda_adjustment,
 			NULL AS le_adjustment,
 			NULL AS wyd_adjustment,
 			NULL AS operation_expenses,
@@ -6443,7 +6439,7 @@ FROM
 			NULL AS adCost,
 			NULL AS warehouse_rent,
 			NULL AS adjustment,
-			NULL AS lc_adjustment,
+			NULL AS eda_adjustment,
 			NULL AS le_adjustment,
 			NULL AS wyd_adjustment,
 			NULL AS operation_expenses,
@@ -6506,7 +6502,7 @@ SELECT
 	SUM( ROUND( ddp, 2 ) ) ddp,
 	SUM( ROUND( adCost, 7 ) ) adCost,
 	SUM( ROUND( warehouse_rent, 6 ) ) warehouse_rent,
-	SUM( ROUND( lc_adjustment, 6 ) ) lc_adjustment,
+	SUM( ROUND( eda_adjustment, 6 ) ) eda_adjustment,
 	SUM( ROUND( le_adjustment, 6 ) ) le_adjustment,
 	SUM( ROUND( wyd_adjustment, 6 ) ) wyd_adjustment,
 	SUM( ROUND( operation_expenses, 6 ) ) operation_expenses,
@@ -6517,24 +6513,24 @@ SELECT
 	ROUND( SUM( IFNULL( calcuRes, 0 ) ) / SUM( IFNULL( sale_amount, 0 ) ) * - 1, 4 ) tail_percent,
 	ROUND( SUM( IFNULL( ddp, 0 ) ) / SUM( IFNULL( sale_amount, 0 ) ) * - 1, 4 ) ddp_percent,
 	ROUND(
-		SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( fba_fee, 0 ) ) + SUM( IFNULL( sale_tax, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( waybill, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( lc_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( wyd_adjustment, 0 ) ) + ROUND( SUM( IFNULL( operation_expenses, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_factory, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_delivery, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ),
+		SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( fba_fee, 0 ) ) + SUM( IFNULL( sale_tax, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( waybill, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( eda_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( wyd_adjustment, 0 ) ) + ROUND( SUM( IFNULL( operation_expenses, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_factory, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_delivery, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ),
 		2 
 	) profit,
 	ROUND(
 		(
-			SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( fba_fee, 0 ) ) + SUM( IFNULL( sale_tax, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( waybill, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( lc_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( wyd_adjustment, 0 ) ) + ROUND( SUM( IFNULL( operation_expenses, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_factory, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_delivery, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) 
+			SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( fba_fee, 0 ) ) + SUM( IFNULL( sale_tax, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( waybill, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( eda_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( wyd_adjustment, 0 ) ) + ROUND( SUM( IFNULL( operation_expenses, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_factory, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_delivery, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) 
 		) / SUM( IFNULL( sale_amount, 0 ) ),
 		4 
 	) gross_profit_margin,
 	SUM( ROUND( evaluation_qty, 3 ) ) evaluation_qty,
 	SUM( ROUND( evaluation_amount, 2 ) ) evaluation_amount,
 	ROUND(
-		SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( fba_fee, 0 ) ) + SUM( IFNULL( sale_tax, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( waybill, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( lc_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( wyd_adjustment, 0 ) ) + ROUND( SUM( IFNULL( operation_expenses, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_factory, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_delivery, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + SUM( IFNULL( evaluation_amount, 0 ) ),
+		SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( fba_fee, 0 ) ) + SUM( IFNULL( sale_tax, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( waybill, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( eda_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( wyd_adjustment, 0 ) ) + ROUND( SUM( IFNULL( operation_expenses, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_factory, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_delivery, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + SUM( IFNULL( evaluation_amount, 0 ) ),
 		2 
 	) profit_include_evaluation,
 	ROUND(
 		(
-			SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( fba_fee, 0 ) ) + SUM( IFNULL( sale_tax, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( waybill, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( lc_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( wyd_adjustment, 0 ) ) + ROUND( SUM( IFNULL( operation_expenses, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_factory, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_delivery, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + SUM( IFNULL( evaluation_amount, 0 ) ) 
+			SUM( IFNULL( sale_amount, 0 ) ) + SUM( IFNULL( refund_amount, 0 ) ) + SUM( IFNULL( sale_selling_fees, 0 ) ) + SUM( IFNULL( refund_selling_fees, 0 ) ) + SUM( IFNULL( fba_fee, 0 ) ) + SUM( IFNULL( sale_tax, 0 ) ) + SUM( IFNULL( calcuRes, 0 ) ) + SUM( IFNULL( waybill, 0 ) ) + SUM( IFNULL( ddp, 0 ) ) + SUM( IFNULL( adCost, 0 ) ) + SUM( IFNULL( warehouse_rent, 0 ) ) + SUM( IFNULL( eda_adjustment, 0 ) ) + SUM( IFNULL( le_adjustment, 0 ) ) + SUM( IFNULL( wyd_adjustment, 0 ) ) + ROUND( SUM( IFNULL( operation_expenses, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_factory, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + ROUND( SUM( IFNULL( operation_delivery, 0 ) ) / ( SELECT USD FROM mu_finance_report WHERE id = ' . $report_id . ' ), 2 ) + SUM( IFNULL( evaluation_amount, 0 ) ) 
 		) / SUM( IFNULL( sale_amount, 0 ) ),
 		2 
 	) gross_profit_margin_include_evaluation,
@@ -6560,7 +6556,7 @@ FROM
 		SUM( ROUND( ddp, 2 ) ) * - 1 ddp,
 		SUM( ROUND( adCost, 7 ) ) adCost,
 		SUM( ROUND( warehouse_rent, 6 ) ) * - 1 warehouse_rent,
-		SUM( ROUND( lc_adjustment, 6 ) ) lc_adjustment,
+		SUM( ROUND( eda_adjustment, 6 ) ) eda_adjustment,
 		SUM( ROUND( le_adjustment, 6 ) ) le_adjustment,
 		SUM( ROUND( wyd_adjustment, 6 ) ) wyd_adjustment,
 		SUM( ROUND( operation_expenses, 6 ) ) operation_expenses,
@@ -6587,7 +6583,7 @@ FROM
 			SUM( ROUND( ddp, 2 ) ) ddp,
 			NULL AS adCost,
 			SUM( ROUND( warehouse_rent, 6 ) ) warehouse_rent,
-			SUM( ROUND( lc_adjustment, 6 ) ) lc_adjustment,
+			SUM( ROUND( eda_adjustment, 6 ) ) eda_adjustment,
 			SUM( ROUND( le_adjustment, 6 ) ) le_adjustment,
 			SUM( ROUND( wyd_adjustment, 6 ) ) wyd_adjustment,
 			NULL AS operation_expenses,
@@ -6618,7 +6614,7 @@ FROM
 				NULL AS ddp,
 				NULL AS adCost,
 				NULL AS warehouse_rent,
-				NULL AS lc_adjustment,
+				NULL AS eda_adjustment,
 				NULL AS le_adjustment,
 				NULL AS wyd_adjustment 
 			FROM
@@ -6660,7 +6656,7 @@ FROM
 				c.sku_ddp_unit * b.qty / d.USD ddp,
 				NULL AS adCost,
 				NULL AS warehouse_rent,
-				NULL AS lc_adjustment,
+				NULL AS eda_adjustment,
 				NULL AS le_adjustment,
 				NULL AS wyd_adjustment 
 			FROM
@@ -6703,7 +6699,7 @@ FROM
 				NULL AS ddp,
 				NULL AS adCost,
 				NULL AS warehouse_rent,
-				NULL AS lc_adjustment,
+				NULL AS eda_adjustment,
 				NULL AS le_adjustment,
 				NULL AS wyd_adjustment 
 			FROM
@@ -6734,7 +6730,7 @@ FROM
 				NULL AS ddp,
 				NULL AS adCost,
 				ROUND( SUM( b.total ), 6 ) warehouse_rent,
-				NULL AS lc_adjustment,
+				NULL AS eda_adjustment,
 				NULL AS le_adjustment,
 				NULL AS wyd_adjustment 
 			FROM
@@ -6768,7 +6764,7 @@ FROM
 				NULL AS ddp,
 				NULL AS adCost,
 				NULL AS warehouse_rent,
-				b.total lc_adjustment,
+				b.total eda_adjustment,
 				NULL AS le_adjustment,
 				NULL AS wyd_adjustment 
 			FROM
@@ -6779,8 +6775,8 @@ FROM
 			WHERE
 				a.report_id = ' . $report_id . ' 
 				AND c.platform = "hd" 
-				AND lc_adjustment IS NOT NULL
-				AND lc_adjustment != 0 UNION ALL
+				AND eda_adjustment IS NOT NULL
+				AND eda_adjustment != 0 UNION ALL
 			SELECT
 				"hd" AS platform,
 				b.user_account userAccount,
@@ -6801,7 +6797,7 @@ FROM
 				NULL AS ddp,
 				NULL AS adCost,
 				NULL AS warehouse_rent,
-				NULL AS lc_adjustment,
+				NULL AS eda_adjustment,
 				b.total le_adjustment,
 				NULL AS wyd_adjustment 
 			FROM
@@ -6834,7 +6830,7 @@ FROM
 				NULL AS ddp,
 				NULL AS adCost,
 				NULL AS warehouse_rent,
-				NULL AS lc_adjustment,
+				NULL AS eda_adjustment,
 				NULL AS le_adjustment,
 				b.total wyd_adjustment 
 			FROM
@@ -6869,7 +6865,7 @@ FROM
 			NULL AS ddp,
 			NULL AS adCost,
 			NULL AS warehouse_rent,
-			NULL AS lc_adjustment,
+			NULL AS eda_adjustment,
 			NULL AS le_adjustment,
 			NULL AS wyd_adjustment,
 			NULL AS operation_expenses,
@@ -6903,7 +6899,7 @@ FROM
 			NULL AS ddp,
 			total adCost,
 			NULL AS warehouse_rent,
-			NULL AS lc_adjustment,
+			NULL AS eda_adjustment,
 			NULL AS le_adjustment,
 			NULL AS wyd_adjustment,
 			NULL AS operation_expenses,
@@ -6933,7 +6929,7 @@ FROM
 			NULL AS ddp,
 			NULL AS adCost,
 			NULL AS warehouse_rent,
-			NULL AS lc_adjustment,
+			NULL AS eda_adjustment,
 			NULL AS le_adjustment,
 			NULL AS wyd_adjustment,
 			b.total operation_expenses,
@@ -6966,7 +6962,7 @@ FROM
 			NULL AS ddp,
 			NULL AS adCost,
 			NULL AS warehouse_rent,
-			NULL AS lc_adjustment,
+			NULL AS eda_adjustment,
 			NULL AS le_adjustment,
 			NULL AS wyd_adjustment,
 			NULL AS operation_expenses,
@@ -6999,7 +6995,7 @@ FROM
 			NULL AS ddp,
 			NULL AS adCost,
 			NULL AS warehouse_rent,
-			NULL AS lc_adjustment,
+			NULL AS eda_adjustment,
 			NULL AS le_adjustment,
 			NULL AS wyd_adjustment,
 			NULL AS operation_expenses,
@@ -7032,7 +7028,7 @@ FROM
 			NULL AS ddp,
 			NULL AS adCost,
 			NULL AS warehouse_rent,
-			NULL AS lc_adjustment,
+			NULL AS eda_adjustment,
 			NULL AS le_adjustment,
 			NULL AS wyd_adjustment,
 			NULL AS operation_expenses,
