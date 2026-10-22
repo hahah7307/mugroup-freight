@@ -262,7 +262,7 @@ SELECT
 	warehouse_sku,
 	SUM( qty ) qty
 FROM
-	( SELECT DISTINCT payment_id FROM mu_finance_order_sale WHERE table_id in (SELECT id FROM mu_finance_table WHERE rid = ' . $table['rid'] . ' AND userAccount = "' . $table['userAccount'] . '")) a
+	( SELECT DISTINCT payment_id FROM mu_finance_order_outbound WHERE report_id = ' . $table['rid'] . ' AND user_account = "' . $table['userAccount'] . '" ) a
 	LEFT JOIN mu_finance_order_statistics b ON a.payment_id = b.payment_id
 	LEFT JOIN mu_ecang_product c ON b.warehouse_sku = c.productSku 
 WHERE
