@@ -67,8 +67,15 @@ class AkAmazonListing extends Command
                         $listing['pair_update_time'] = !empty($listing['pair_update_time']) ? $listing['pair_update_time'] : NULL;
                         $listing['on_sale_time'] = !empty($listing['on_sale_time']) ? $listing['on_sale_time'] : NULL;
                         $listing['first_order_time'] = !empty($listing['first_order_time']) ? $listing['first_order_time'] : NULL;
+                        $listing['fba_fee_update_time'] = !empty($listing['fba_fee_update_time']) ? $listing['fba_fee_update_time'] : NULL;
+                        $listing['first_order_time'] = !empty($listing['first_order_time']) ? $listing['first_order_time'] : NULL;
+                        $listing['report_fba_fee_update_time'] = !empty($listing['report_fba_fee_update_time']) ? $listing['report_fba_fee_update_time'] : NULL;
+                        $listing['estimated_referral_fee_update_time'] = !empty($listing['estimated_referral_fee_update_time']) ? $listing['estimated_referral_fee_update_time'] : NULL;
                         $listing['landed_price'] = !empty($listing['landed_price']) ? $listing['landed_price'] : 0;
                         $listing['listing_price'] = !empty($listing['listing_price']) ? $listing['listing_price'] : 0;
+                        $listing['fba_fee'] = !empty($listing['fba_fee']) ? $listing['fba_fee'] : 0;
+                        $listing['report_fba_fee'] = !empty($listing['report_fba_fee']) ? $listing['report_fba_fee'] : 0;
+                        $listing['estimated_referral_fee'] = !empty($listing['estimated_referral_fee']) ? $listing['estimated_referral_fee'] : 0;
                         $listing['dimension_info'] = isset($listing['dimension_info']) ? json_encode($listing['dimension_info']) : json_encode([]);
                         $listing['small_rank'] = isset($listing['small_rank']) ? json_encode($listing['small_rank']) : json_encode([]);
                         $listing['seller_category_new'] = isset($listing['seller_category_new']) ? json_encode($listing['seller_category_new']) : json_encode([]);
