@@ -20,6 +20,9 @@
                     </a>
                     <dl class="layui-nav-child">
                         <dd><a layui-href="{:url('Order/index')}">尾程费用</a></dd>
+                        <dd><a layui-href="{:url('Cost/cost_estimate_le')}">乐歌费用试算</a></dd>
+                        <dd><a layui-href="{:url('Cost/cost_estimate_wyd')}">无忧达费用试算</a></dd>
+                        <dd><a layui-href="{:url('Cost/cost_estimate_eda')}">易达云费用试算</a></dd>
                     </dl>
                 </li>
                 <li data-name="Inventory" class="layui-nav-item">
