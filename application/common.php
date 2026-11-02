@@ -286,3 +286,11 @@ function userId2Name($string): string
 
     return implode(',', $newList);
 }
+
+function json_decode_sort_asc($string)
+{
+    $data = json_decode($string, true);
+    array_multisort(array_column($data, 'totalAmount'), SORT_ASC, $data);
+
+    return $data;
+}
