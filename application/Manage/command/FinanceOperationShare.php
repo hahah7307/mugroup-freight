@@ -56,7 +56,7 @@ class FinanceOperationShare extends Command
 //                        continue;
 //                    }
 
-                    $seller = FinanceOrderShareModel::generateSellerListByWarehouseSku($item['sku'], $reportItem, 'amazon');
+                    $seller = FinanceOrderShareModel::generateSellerListByWarehouseSku($item['sku'], $reportItem, 'amazon', $item['share_currency']);
                     $shareCode = FinanceOrderShareModel::generateRandomCode();
                     if ($seller) {
                         $shareItem = [];
@@ -74,7 +74,7 @@ class FinanceOperationShare extends Command
                                 $percent = 1 - $percentSum;
                             }
 
-                            $userAccountList = FinanceOrderShareModel::generateUserAccountListByWarehouseSkuAndSeller($item['sku'], $reportItem, $v['seller'], 'amazon');
+                            $userAccountList = FinanceOrderShareModel::generateUserAccountListByWarehouseSkuAndSeller($item['sku'], $reportItem, $v['seller'], 'amazon', $item['share_currency']);
                             $userAccountSum = 0;
                             $userAccountPercent = 0;
                             $userAccountPercentSum = 0;
@@ -182,7 +182,7 @@ class FinanceOperationShare extends Command
                                     'total'         =>  $userPercent * $item['total']
                                 ];
                             } else {
-                                $userAccountList = FinanceOrderShareModel::generateUserAccountListByWarehouseSkuAndSeller($item['sku'], $reportItem, $user['seller'], $user['platform']);
+                                $userAccountList = FinanceOrderShareModel::generateUserAccountListByWarehouseSkuAndSeller($item['sku'], $reportItem, $user['seller'], $user['platform'], $item['share_currency']);
                                 $userAccountPercentSum = 0;
                                 if ($userAccountList) {
                                     foreach ($userAccountList as $ku => $userAccount) {
@@ -254,7 +254,7 @@ class FinanceOperationShare extends Command
                         continue;
                     }
 
-                    $seller = FinanceOrderShareModel::generateSellerListByWarehouseSku($item['sku'], $reportItem, 'amazon');
+                    $seller = FinanceOrderShareModel::generateSellerListByWarehouseSku($item['sku'], $reportItem, 'amazon', $item['share_currency']);
                     $shareCode = FinanceOrderShareModel::generateRandomCode();
                     if ($seller) {
                         $shareItem = [];
@@ -272,7 +272,7 @@ class FinanceOperationShare extends Command
                                 $percent = 1 - $percentSum;
                             }
 
-                            $userAccountList = FinanceOrderShareModel::generateUserAccountListByWarehouseSkuAndSeller($item['sku'], $reportItem, $v['seller'], 'amazon');
+                            $userAccountList = FinanceOrderShareModel::generateUserAccountListByWarehouseSkuAndSeller($item['sku'], $reportItem, $v['seller'], 'amazon', $item['share_currency']);
                             $userAccountSum = 0;
                             $userAccountPercent = 0;
                             $userAccountPercentSum = 0;

@@ -112,6 +112,7 @@ class FinanceOperationController extends BaseController
                     "content"               =>  $item[5],
                     "type"                  =>  $item[6],
                     "export_platform"       =>  $item[8],
+                    "share_currency"        =>  $item[9],
                 ];
             }
             $financeOperationExpensesObj->insertAll($expensesData);
@@ -228,7 +229,8 @@ class FinanceOperationController extends BaseController
                     "content"               =>  $item[4],
                     "type"                  =>  $item[5],
                     "factory_type"          =>  $item[6],
-                    "invoice_no"            =>  $item[7]
+                    "invoice_no"            =>  $item[7],
+                    "share_currency"        =>  $item[8],
                 ];
             }
             $financeOperationFactoryObj->insertAll($factoryData);
@@ -347,6 +349,7 @@ class FinanceOperationController extends BaseController
                     "user_account"          =>  $item[6],
                     "sku"                   =>  $item[7],
                     "total"                 =>  sprintf('%.2f', str_replace(',', '', $item[8])),
+                    "share_currency"        =>  $item[9],
                 ];
             }
             $financeOperationDeliveryObj->insertAll($deliveryData);
