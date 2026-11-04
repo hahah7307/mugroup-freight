@@ -2,6 +2,7 @@
 namespace app\Manage\controller;
 
 use app\Manage\model\ApiClient;
+use app\Manage\model\CostEstimateEdaModel;
 use app\Manage\model\CostEstimateLeModel;
 use app\Manage\model\CostEstimateWydModel;
 use app\Manage\model\TaskModel;
@@ -100,6 +101,65 @@ class CostController extends BaseController
                 $post['classType'] = $data['classType'];
                 $post['created_time'] = date('Y-m-d H:i:s');
                 $model = new CostEstimateWydModel();
+                if ($model->insert($post)) {
+                    echo json_encode(['code' => 1, 'msg' => '添加成功']);
+                } else {
+                    echo json_encode(['code' => 0, 'msg' => '添加失败，请重试']);
+                }
+            } else {
+                echo json_encode(['code' => 0, 'msg' => '异常请求']);
+            }
+            exit();
+        } else {
+
+            return view();
+        }
+    }
+
+    /**
+     * @throws DbException
+     */
+    public function cost_estimate_eda(): \think\response\View
+    {
+        $where = [];
+        $keyword = $this->request->get('keyword', '', 'htmlspecialchars');
+        $this->assign('keyword', $keyword);
+        if ($keyword) {
+            $where['warehouseCode'] = ['like', '%' . $keyword . '%'];
+        }
+
+        $cost = new CostEstimateEdaModel();
+        $list = $cost->where($where)->order('id desc')->paginate(Config::get('PAGE_NUM'), false, ['query' => ['keyword' => $keyword]]);
+        $this->assign('list', $list);
+
+        Session::set(Config::get('BACK_URL'), $this->request->url(), 'manage');
+        return view();
+    }
+
+    // 添加
+    public function cost_estimate_eda_add()
+    {
+        if ($this->request->isPost()) {
+            $post = $this->request->post();
+            $requestData = $post;
+            if ($requestData['manualInputSwitch'] == 1) {
+                $requestData['manualInputSwitch'] = true;
+                unset($requestData['skuInfoDetails']);
+            } else {
+                $requestData['manualInputSwitch'] = false;
+                unset($requestData['packageDetails']);
+            }
+            $requestData = array_filter($requestData);
+            $apiRes = ApiClient::edaWarehouseApi("/webApi/estimate/v1/trial", "POST", $requestData);
+            if ($apiRes['code'] == 1) {
+                $data = $apiRes['data']['data'];
+                $post = array_filter($post);
+                $post['skuInfoDetails'] = json_encode($post['skuInfoDetails']);
+                $post['packageDetails'] = json_encode($post['packageDetails']);
+                $post['successItems'] = json_encode($data['successItems']);
+                $post['failItems'] = json_encode($data['failItems']);
+                $post['created_time'] = date('Y-m-d H:i:s');
+                $model = new CostEstimateEdaModel();
                 if ($model->insert($post)) {
                     echo json_encode(['code' => 1, 'msg' => '添加成功']);
                 } else {
