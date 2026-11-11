@@ -2,7 +2,9 @@
 namespace app\Manage\controller;
 
 use app\Manage\model\FinanceExcelInit;
+use app\Manage\model\FinanceSkuGroupModel;
 use app\Manage\model\ProductModel;
+use app\Manage\model\UserModel;
 use PHPExcel;
 use PHPExcel_IOFactory;
 use think\db\exception\BindParamException;
@@ -4475,6 +4477,189 @@ WHERE
 	a.`month` >= "2024-06" 
 ORDER BY
 	`month` ASC;
+        ');
+        $this->assign('list', $list);
+
+        return view();
+    }
+
+    /**
+     * @throws DbException
+     */
+    public function sku_turnover(): \think\response\View
+    {
+        $sku = $this->request->get('keyword', '', 'htmlspecialchars');
+        $this->assign('keyword', $sku);
+        if (!empty($sku)) {
+            $userModel = new UserModel();
+            $user = $userModel->where(['user_name' => $sku])->find();
+            if (empty($user)) {
+                $keyword_sql = ' AND s.sku LIKE "%' . $sku .'%" OR productTitle LIKE "%' . $sku . '%"';
+            } else {
+                $keyword_sql = ' AND user_name = ' . $sku;
+            }
+        } else {
+            $keyword_sql = '';
+        }
+
+        $turnover_order = $this->request->get('turnover_order', 'DESC', 'htmlspecialchars');
+        $this->assign('turnover_order', $turnover_order);
+
+        $date = $this->request->get('date', date('Y-m-d', strtotime('-1 day', strtotime(date('Y-m-d')))), 'htmlspecialchars');
+        $this->assign('date', $date);
+        $date_end = date('Ymd', strtotime($date));
+        $date_start = date('Ymd', strtotime('-7 day', strtotime($date)));
+        $datetime_end = date('Y-m-d H:i:s', strtotime($date));
+        $datetime_start = date('Y-m-d H:i:s', strtotime('-7 day', strtotime($date)));
+
+        $group_name = $this->request->get('group_name', '', 'htmlspecialchars');
+        $this->assign('group_name', $group_name);
+        if (!empty($group_name)) {
+            if (substr($group_name, 0, 4) == '----') {
+                $group_name = substr($group_name, 4);
+                $field_name = 'group_name_origin';
+            } else {
+                $field_name = 'group_name';
+            }
+            $group_sql = ' ' . $field_name .  ' = "' . $group_name . '"';
+            $group_sql = ' AND ' . $group_sql;
+        } else {
+            $group_sql = '';
+        }
+
+        $model = new ProductModel();
+        $list = $model->query('
+WITH
+-- 1. 汇总销售数据
+sales AS (
+    SELECT
+        c.productSku AS sku,
+        c.productImages,
+        c.productTitle,
+        d.user_name,
+        e.group_name,
+        e.group_name_origin,
+        SUM(b.qty) AS qty
+    FROM mu_ecang_order a
+    INNER JOIN mu_ecang_order_detail b
+        ON a.id = b.order_id
+    INNER JOIN mu_ecang_product c
+        ON b.warehouseSku = c.productSku
+    INNER JOIN mu_ecang_user d
+        ON c.personSellerId = d.user_id
+    LEFT JOIN mu_finance_sku_group e
+        ON c.productSku = e.sku
+    WHERE
+        a.status != 0
+        AND a.datePaidPlatform >= "' . $datetime_start . '"
+        AND a.datePaidPlatform < "' . $datetime_end . '"
+        AND c.saleStatus NOT IN (18, 19)
+        AND d.user_name IS NOT NULL
+    GROUP BY
+        c.productSku,
+        c.productImages,
+        c.productTitle,
+        d.user_name,
+        e.group_name,
+        e.group_name_origin
+),
+
+-- 2. 合并三个库存来源、两个日期
+inventory_raw AS (
+    -- LE 仓
+    SELECT
+        SUBSTRING(a.lecangsCode, 7) AS sku,
+        a.created_date AS snapshot_date,
+        SUM(a.goodsNum) AS num
+    FROM mu_le_inventory_batch a
+    WHERE
+        a.inventoryAge >= 0
+        AND a.created_date IN (' . $date_start . ', ' . $date_end . ')
+    GROUP BY
+        SUBSTRING(a.lecangsCode, 7),
+        a.created_date
+
+    UNION ALL
+
+    -- LC 仓
+    SELECT
+        a.product_sku AS sku,
+        a.created_date AS snapshot_date,
+        SUM(a.sellable_quantity) AS num
+    FROM mu_lc_inventory_batch a
+    WHERE
+        a.stock_age >= 0
+        AND a.created_date IN (' . $date_start . ', ' . $date_end . ')
+    GROUP BY
+        a.product_sku,
+        a.created_date
+
+    UNION ALL
+
+    -- WYD 仓
+    SELECT
+        a.masterSku AS sku,
+        a.created_date AS snapshot_date,
+        SUM(a.inventoryAvailableNum) AS num
+    FROM mu_wyd_inventory_batch a
+    WHERE
+        a.storageAge >= 0
+        AND a.created_date IN (' . $date_start . ', ' . $date_end . ')
+        AND a.warehouseCode NOT IN ("DUSJW2")
+    GROUP BY
+        a.masterSku,
+        a.created_date
+),
+
+-- 3. 将两个日期的库存合并到同一行
+inventory AS (
+    SELECT
+        sku,
+        SUM(
+            CASE WHEN snapshot_date = ' . $date_start . '
+                THEN num ELSE 0 END
+        ) AS start_num,
+        SUM(
+            CASE WHEN snapshot_date = ' . $date_end . '
+                THEN num ELSE 0 END
+        ) AS end_num,
+        MAX(
+            CASE WHEN snapshot_date = ' . $date_start . '
+                THEN 1 ELSE 0 END
+        ) AS has_start,
+        MAX(
+            CASE WHEN snapshot_date = ' . $date_end . '
+                THEN 1 ELSE 0 END
+        ) AS has_end
+    FROM inventory_raw
+    GROUP BY sku
+)
+
+-- 4. 最终计算
+SELECT
+    s.sku AS productSku,
+    s.productImages,
+    s.productTitle,
+    s.user_name,
+    s.group_name,
+    s.group_name_origin,
+    s.qty,
+    i.start_num,
+    i.end_num,
+    s.qty / NULLIF(
+        (i.start_num + i.end_num) / 2,
+        0
+    ) * 52 AS profit
+FROM sales s
+LEFT JOIN inventory i
+    ON s.sku = i.sku
+WHERE
+    i.has_start = 1
+    AND i.has_end = 1
+    ' . $group_sql . $keyword_sql . '
+ORDER BY
+    profit ' . $turnover_order . '
+;
         ');
         $this->assign('list', $list);
 
