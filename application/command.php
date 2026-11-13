@@ -61,4 +61,5 @@ return [
     'app\Manage\command\WarehouseRentEstimate', //
     'app\Manage\command\EdaInventoryBatch', //
     'app\Manage\command\ProductUpdateEda', //
+    'app\Manage\command\AkOrderList', //
 ];
