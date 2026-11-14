@@ -62,4 +62,5 @@ return [
     'app\Manage\command\EdaInventoryBatch', //
     'app\Manage\command\ProductUpdateEda', //
     'app\Manage\command\AkOrderList', //
+    'app\Manage\command\AkOrderListUpdate', //
 ];
