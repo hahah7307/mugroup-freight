@@ -1522,7 +1522,7 @@ class AmazonPayment extends Model
                     "table_id"                  =>  $tableId,
                     "date"                      =>  date('Y-m-d H:i:s', strtotime($item[10])),
                     "payment_id"                =>  $item[1],
-                    "quantity"                  =>  $item[7],
+                    "quantity"                  =>  $item[8],
                     "fulfillment"               =>  "Seller",
                     "product_sales"             =>  FinanceOrderSaleModel::sheinNumberFormat($item[13]),
                     "selling_fees"              =>  FinanceOrderSaleModel::sheinNumberFormat($item[17]),
