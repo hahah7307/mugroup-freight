@@ -51,13 +51,8 @@ class AkOrderList extends Command
                 ];
                 $akAmazonDailyListRes = AkOpenAPI::makeRequest("/pb/mp/order/v2/list", "POST", $params);
                 $data = $akAmazonDailyListRes['data'];
-                if (count($data['list']) == 0) {
-
-                    Db::commit();
-                    echo "success";exit();
-                }
                 $listingObj = new AkOrderListModel();
-                if ($akAmazonDailyListRes['code'] == 0 || count($data['list']) > 0) {
+                if ($akAmazonDailyListRes['code'] == 0) {
                     $insertData = [];
                     foreach ($data['list'] as $listing) {
                         $item = $listingObj->where(['global_order_no' => $listing['global_order_no']])->find();
@@ -84,7 +79,7 @@ class AkOrderList extends Command
                                 if ($page['date'] == date('Ymd')) {
                                     $pageObj->update(['offset' => $page['offset'] + count($data['list'])], ['id' => $page['id']]);
                                 } else {
-                                    $pageObj->update(['offset' => $page['offset'], 'date' => date('Ymd', strtotime('+1 day', strtotime($page['date'])))], ['id' => $page['id']]);
+                                    $pageObj->update(['offset' => 0, 'date' => date('Ymd', strtotime('+1 day', strtotime($page['date'])))], ['id' => $page['id']]);
                                 }
                             } else {
                                 $pageObj->update(['offset' => $page['offset'] + count($data['list'])], ['id' => $page['id']]);
@@ -97,7 +92,11 @@ class AkOrderList extends Command
                             throw new Exception('新增失败');
                         }
                     } else {
-                        $pageObj->update(['offset' => $page['offset'] + count($data['list'])], ['id' => $page['id']]);
+                        if ($page['date'] == date('Ymd')) {
+                            $pageObj->update(['offset' => $page['offset'] + count($data['list'])], ['id' => $page['id']]);
+                        } else {
+                            $pageObj->update(['offset' => 0, 'date' => date('Ymd', strtotime('+1 day', strtotime($page['date'])))], ['id' => $page['id']]);
+                        }
 
                         Db::commit();
                         echo "success";exit();
