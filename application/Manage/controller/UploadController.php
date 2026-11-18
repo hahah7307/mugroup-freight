@@ -86,6 +86,7 @@ class UploadController extends Controller
                 'ebay',
                 'wildberries',
                 'tiktok',
+                'tiktok_cn',
                 'hd'
             ])) {
             echo json_encode(['code' => 0, 'msg' => '请先选择账单类型']);

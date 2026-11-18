@@ -2038,6 +2038,81 @@ class AmazonPayment extends Model
      * @throws ModelNotFoundException
      * @throws DataNotFoundException
      */
+    public function tiktok_cn($excel, $tableId, $reportId): array
+    {
+        foreach ($excel as $k => $item) {
+            if ($k < 1) {
+                continue;
+            }
+
+            $orderObj = new OrderModel();
+            $order = $orderObj->with(['details'])->where(['refNo|saleOrderCode' => $item[6]])->find();
+            if ($order && $order['userAccount'] != $this->userAccount) {
+                $this->userAccount = $order['userAccount'];
+            }
+
+            if ($item[5] == "订单") {
+                $this->orderSaleNew[] = [
+                    "report_id"                 =>  $reportId,
+                    "table_id"                  =>  $tableId,
+                    "date"                      =>  date('Y-m-d H:i:s', strtotime($item[0])),
+                    "payment_id"                =>  $item[6],
+                    "fulfillment"               =>  "Seller",
+                    "quantity"                  =>  $item[8],
+                    "product_sales"             =>  round(str_replace(',', '', $item[15]), 2),
+                    "selling_fees"              =>  round(str_replace(',', '', $item[21]), 2)
+                        - round(str_replace(',', '', $item[23]), 2)
+                        - round(str_replace(',', '', $item[45]), 2)
+                        - round(str_replace(',', '', $item[24]), 2),
+                    "shipping_credits"          =>  0,
+                    "gift_wrap_credits"         =>  0,
+                    "regulatory_fee"            =>  0,
+                    "promotional_rebates"       =>  0,
+                    "fba_fees"                  =>  round(str_replace(',', '', $item[24]), 2),
+                    "marketplace_withheld_tax"  =>  0
+                ];
+            }
+
+            if ($item[18] < 0) {
+                $this->orderRefundNew[] = [
+                    "report_id"                 =>  $reportId,
+                    "table_id"                  =>  $tableId,
+                    "date"                      =>  date('Y-m-d H:i:s', strtotime($item[0])),
+                    "payment_id"                =>  $item[6],
+                    "fulfillment"               =>  "Seller",
+                    "quantity"                  =>  $item[8],
+                    "product_sales"             =>  round(str_replace(',', '', $item[18]), 2),
+                    "selling_fees"              =>  round(str_replace(',', '', $item[23]), 2)
+                        + round(str_replace(',', '', $item[45]), 2),
+                    "shipping_credits"          =>  0,
+                    "gift_wrap_credits"         =>  0,
+                    "regulatory_fee"            =>  0,
+                    "promotional_rebates"       =>  0,
+                    "fba_fees"                  =>  round(str_replace(',', '', $item[24]), 2),
+                    "marketplace_withheld_tax"  =>  0
+                ];
+            }
+        }
+
+        return [
+            'userAccount'               =>  $this->userAccount,
+            'orderSaleNew'              =>  $this->orderSaleNew,
+            'orderRefundNew'            =>  $this->orderRefundNew,
+            'orderPromotionNew'         =>  $this->orderPromotionNew,
+            'orderShippingServiceNew'   =>  $this->orderShippingServiceNew,
+            'orderLiquidationNew'       =>  $this->orderLiquidationNew,
+            'orderAdjustmentNew'        =>  $this->orderAdjustmentNew,
+            'orderFbaInventory'         =>  $this->orderFbaInventory,
+            'orderTransferNew'          =>  $this->orderTransferNew,
+            'orderSubscriptionNew'      =>  $this->orderSubscriptionNew
+        ];
+    }
+
+    /**
+     * @throws DbException
+     * @throws ModelNotFoundException
+     * @throws DataNotFoundException
+     */
     public function hd($excel, $tableId, $reportId): array
     {
         foreach ($excel as $item) {

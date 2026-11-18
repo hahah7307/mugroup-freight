@@ -38,6 +38,7 @@
                     <option value="ebay">ebay</option>
                     <option value="wildberries">wildberries</option>
                     <option value="tiktok">tiktok</option>
+                    <option value="tiktok_cn">TK中文账单</option>
                     <option value="hd">Homedepot</option>
                 </select>
             </div>
