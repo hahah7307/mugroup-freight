@@ -1574,6 +1574,8 @@ class AmazonPayment extends Model
                 || $item[12] == '奖惩及其他-违规撤销资金解冻'
                 || $item[12] == '奖惩及其他-违规处罚资金冻结'
                 || $item[12] == '平台服务费-订单履约服务费'
+                || $item[12] == '奖惩及其他-履约服务费补款'
+                || $item[12] == '奖惩及其他-履约服务费附加费'
             ) {
                 $this->orderAdjustmentNew[] = [
                     "report_id"                 =>  $reportId,
