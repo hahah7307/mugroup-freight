@@ -2468,11 +2468,12 @@ class FinanceController extends BaseController
             foreach ($list as $key => $item) {
                 $productModel = new ProductModel();
                 $product = $productModel->where(['productSku' => $item['warehouse_sku']])->find();
-                if ($product) {
-                    $list[$key]['product_name'] = $product['productTitle'];
-                    $list[$key]['unit_price'] = $product['sp_unit_price'];
-                    $list[$key]['warehouse_name'] = '全部仓库';
+                if (!$product) {
+                    $product = $productModel->where(['productSku' => str_replace('-RETURN', '', $item['warehouse_sku'])])->find();
                 }
+                $list[$key]['product_name'] = $product['productTitle'];
+                $list[$key]['unit_price'] = $product['sp_unit_price'];
+                $list[$key]['warehouse_name'] = '全部仓库';
             }
             if ($skuRelationObj->saveAll($list)) {
 

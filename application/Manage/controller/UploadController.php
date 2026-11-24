@@ -29,10 +29,10 @@ class UploadController extends Controller
             exit();
         }
         //判断文件大小是否超过设置的最大上传限制
-        if ($size > 20 * 1024 * 1024){
-            echo json_encode(['code' => 0, 'msg' => '文件大小超过20M']);
-            exit();
-        }
+//        if ($size > 20 * 1024 * 1024){
+//            echo json_encode(['code' => 0, 'msg' => '文件大小超过20M']);
+//            exit();
+//        }
         //phpinfo函数会以数组的形式返回关于文件路径的信息 
         //[dirname]:目录路径[basename]:文件名[extension]:文件后缀名[filename]:不包含后缀的文件名
         $arr = pathinfo($filename);
