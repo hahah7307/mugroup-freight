@@ -103,9 +103,9 @@ FROM
 		NULL AS refund_selling_fees,
 		NULL AS fba_fees,
 		NULL AS ddp,
-		c.calcuRes tail,
-	IF
-		( b.is_unaccrue, 0, c.calcuRes ) calcuRes 
+		IF(b.is_finished, 0, c.calcuRes) tail,
+		IF
+			( b.is_unaccrue, 0, IF(b.is_finished, 0, c.calcuRes) ) calcuRes 
 	FROM
 		(
 		SELECT DISTINCT
@@ -1038,7 +1038,7 @@ FROM
 				NULL AS fbm_refund_selling_fees,
 				NULL AS fbm_refund_other,
 			IF
-				( b.is_unaccrue, 0, c.calcuRes ) calcuRes,
+				( b.is_unaccrue, 0, IF(b.is_finished, 0, c.calcuRes) ) calcuRes,
 				NULL AS fbm_ddp,
 				NULL AS warehouse_rent,
 				NULL AS adjustment,
@@ -1879,7 +1879,7 @@ FROM
 				ROUND( b.selling_fee, 7 ) sale_selling_fees,
 				NULL AS refund_selling_fees,
 			IF
-				( b.is_unaccrue, 0, c.calcuRes ) calcuRes,
+				( b.is_unaccrue, 0, IF(b.is_finished, 0, c.calcuRes) ) calcuRes,
 				NULL AS wfs_fulfillment,
 				NULL AS ddp,
 				NULL AS adCost,
@@ -2611,7 +2611,7 @@ FROM
 				ROUND( b.selling_fee, 7 ) sale_selling_fees,
 				NULL AS refund_selling_fees,
 			IF
-				( b.is_unaccrue, 0, c.calcuRes ) calcuRes,
+				( b.is_unaccrue, 0, IF(b.is_finished, 0, c.calcuRes) ) calcuRes,
 				NULL AS ddp,
 				NULL AS adCost,
 				NULL AS warehouse_rent,
@@ -3162,7 +3162,7 @@ FROM
 				ROUND( b.selling_fee, 7 ) sale_selling_fees,
 				NULL AS refund_selling_fees,
 			IF
-				( b.is_unaccrue, 0, c.calcuRes ) calcuRes,
+				( b.is_unaccrue, 0, IF(b.is_finished, 0, c.calcuRes) ) calcuRes,
 				NULL AS ddp,
 				NULL AS adCost,
 				NULL AS warehouse_rent,
@@ -3722,7 +3722,7 @@ FROM
 				ROUND( b.selling_fee, 7 ) sale_selling_fees,
 				NULL AS refund_selling_fees,
 			IF
-				( b.is_unaccrue, 0, c.calcuRes ) calcuRes,
+				( b.is_unaccrue, 0, IF(b.is_finished, 0, c.calcuRes) ) calcuRes,
 				d.total waybill,
 				NULL AS ddp,
 				NULL AS adCost,
@@ -4293,7 +4293,7 @@ FROM
 				ROUND( b.selling_fee, 7 ) sale_selling_fees,
 				NULL AS refund_selling_fees,
 			IF
-				( b.is_unaccrue, 0, c.calcuRes ) calcuRes,
+				( b.is_unaccrue, 0, IF(b.is_finished, 0, c.calcuRes) ) calcuRes,
 				NULL AS ddp,
 				NULL AS adCost,
 				NULL AS warehouse_rent,
@@ -6022,7 +6022,7 @@ FROM
 				b.fba_fee * -1 fba_fee,
 				b.tax sale_tax,
 			IF
-				( b.is_unaccrue, 0, c.calcuRes ) calcuRes,
+				( b.is_unaccrue, 0, IF(b.is_finished, 0, c.calcuRes) ) calcuRes,
 				NULL AS ddp,
 				NULL AS adCost,
 				NULL AS warehouse_rent,
@@ -6609,7 +6609,7 @@ FROM
 				b.fba_fee * - 1 fba_fee,
 				b.tax sale_tax,
 			IF
-				( b.is_unaccrue, 0, c.calcuRes ) calcuRes,
+				( b.is_unaccrue, 0, IF(b.is_finished, 0, c.calcuRes) ) calcuRes,
 				NULL AS waybill,
 				NULL AS ddp,
 				NULL AS adCost,
